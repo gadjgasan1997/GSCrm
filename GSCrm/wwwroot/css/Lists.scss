@@ -1,0 +1,90 @@
+﻿#organizationsList {
+    td {
+        cursor: pointer;
+        position: relative;
+        a {
+            text-decoration: none;
+            color: black;
+            font-size: 16px
+        }
+
+        a:after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            content: "";
+            height: 40px;
+            width: 100%;
+            background-color: transparent
+        }
+    }
+}
+
+#divisionsList,
+#positionsList,
+#employeesList,
+#employeePositionsList,
+#positionEmpList,
+#allAccounts,
+#currentAccounts,
+#employeeSubordinatesList,
+#positionSubPosList {
+    .division-item,
+    .position-item,
+    .employee-item,
+    .employee-position-item,
+    .position-employee-item,
+    .account-item,
+    .subordinate-item,
+    .position-subpos-item {
+        position: relative;
+
+        > a {
+            color: black;
+        }
+
+        > a:after {
+            position: absolute;
+            content: "";
+            top: 0;
+            left: 0;
+            height: 40px;
+            width: 100%;
+            background-color: transparent
+        }
+    }
+}
+
+.list-nav {
+    .nav-previous, .nav-next {
+        font-size: 22px;
+        text-align: center;
+        height: 100%;
+
+        > .nav-url {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            margin: auto;
+            cursor: pointer;
+
+            .icon-chevron-thin-left, .icon-chevron-thin-right {
+                position: absolute;
+                transform: rotate(90deg);
+                display: inline-block;
+                top: 14px;
+                left: 14px;
+            }
+
+            > a {
+                position: relative;
+                z-index: 100;
+                opacity: 0
+            }
+        }
+
+        > div:hover {
+            color: #007bff
+        }
+    }
+}

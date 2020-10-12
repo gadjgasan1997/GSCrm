@@ -1,0 +1,388 @@
+﻿.remove-item-btn {
+    cursor: pointer;
+    color: grey
+}
+
+.remove-item-btn:hover {
+    color: red
+}
+
+.hide-remove-item-btn {
+    opacity: 0
+}
+
+.edit-item-btn {
+    cursor: pointer;
+    color: grey
+}
+
+.edit-item-btn:hover {
+    color: #008C95
+}
+
+.under-field-error {
+    list-style: none;
+    padding-left: 15px;
+    margin-top: 10px;
+}
+
+.block-center {
+    display: table;
+    height: 100%;
+    width: 100%;
+
+    > p, a {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center
+    }
+}
+
+.default-autocomplete {
+    > .autocomplete-result-list {
+        background-color: white;
+        list-style: none;
+        background: #FFFFFF;
+        box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.3), 0px 0px 2px rgba(149, 155, 161, 0.6);
+        border-radius: 4px;
+        min-height: 200px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 0;
+        max-height: 300px;
+        overflow-y: auto;
+
+        > li {
+            width: 100%;
+            text-align: center;
+            min-height: 35px;
+            font-size: 16px;
+            line-height: 35px
+        }
+
+        > li:hover {
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.08);
+        }
+    }
+}
+
+.modal-all-window {
+    max-width: 100%;
+}
+
+.checkmark, .cross {
+    position: relative;
+    border: none;
+    background: none;
+    transition: color 0.7s;
+    cursor: pointer;
+}
+
+.checkmark {
+    color: #008C8C;
+}
+
+.cross {
+    color: red;
+}
+
+.cross-crossed, .cross:hover {
+    background-color: #ec3545 !important;
+    color: white
+}
+
+.checkmark-checked, .checkmark:hover {
+    background-color: #008C80 !important;
+    color: white
+}
+
+.checkmark::after, .cross::after {
+    position: absolute;
+    content: '';
+    margin: -35px 0 0 -35px;
+    left: 50%;
+    top: 50%;
+    height: 70px;
+    width: 70px;
+    pointer-events: none;
+    opacity: 0;
+    border-radius: 50%;
+    background-color: red;
+
+    > span {
+        animation: checkmarkAndCross 0.6s ease-out forwards;
+    }
+}
+
+.checkmark::after {
+    background: rgba(53, 151, 241, 0.20);
+}
+
+.cross::after {
+    background: rgba(243, 82, 82, 0.20);
+}
+
+.checkmark.checkmark-click::after, .cross.cross-click::after {
+    animation: checkmarkAndCross 0.3s forwards;
+}
+
+.hide-checkmark {
+    cursor: pointer;
+    .icon-checkmark {
+        visibility: hidden;
+    }
+}
+
+.hide-checkmark:hover {
+    .icon-checkmark {
+        visibility: visible
+    }
+}
+
+@keyframes checkmarkAndCross {
+    0% {
+        transform: scale3d(0.3, 0.3, 1);
+    }
+
+    25%, 50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale3d(1.2, 1.2, 1);
+        opacity: 0;
+    }
+}
+
+.readonly-cross {
+    cursor: auto !important;
+    > .icon-close {
+        visibility: hidden
+    }
+}
+
+.readonly-cross:hover {
+    background-color: white !important;
+}
+
+.oval-mark, .oval-mark-readonly, .oval-mark-check {
+    position: relative;
+    height: 24px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    width: 24px;
+    box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.3), 0px 0px 2px rgba(149, 155, 161, 0.6);
+    border: 1px solid transparent;
+
+    .oval-mark-point {
+        left: 7px;
+        width: 8px;
+        top: 7px;
+        height: 8px;
+        background: linear-gradient(0deg, #008C95, #008C95), #FFFFFF;
+        position: absolute;
+        border-radius: 50%;
+    }
+
+    .icon-checkmark {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        color: #008C95;
+    }
+}
+
+.oval-mark:hover {
+    border: 1px solid lightgrey;
+    cursor: pointer;
+}
+
+.oval-mark-check {
+    cursor: pointer
+}
+
+.mark-table-cell {
+    margin: auto
+}
+
+.form-control.form-control-readonly:focus,
+.form-control.form-control-readonly:active {
+    outline: none !important;
+    border: 1px solid #ced4da !important;
+    box-shadow: none;
+}
+
+.change-url-btn,
+.change-address-btn {
+    cursor: pointer
+}
+
+.change-url-btn:hover,
+.change-address-btn:hover {
+    .icon-pencil {
+        color: #008C95
+    }
+}
+
+.tooltip-cell-src {
+    position: relative;
+    text-overflow: ellipsis;
+    overflow: visible;
+}
+
+.sys-tooltip-cell {
+    padding: 10px;
+    position: fixed;
+    box-shadow: 1px 1px 20px #aaa;
+    border-radius: 5px;
+    background-color: #fff;
+    //top: -40px;
+    //left: 50%;
+    transform: translate(-50%);
+    transform-style: preserve-3d;
+    z-index: 300;
+    font-size: 0.9em;
+    display: none;
+    width: 400px;
+    white-space: normal;
+    word-break: break-word;
+
+    p {
+        margin: 0;
+        max-height: 100px;
+        overflow: hidden;
+    }
+}
+
+.sys-tooltip-cell:after {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 10px;
+    height: 10px;
+    transform-origin: 50% 50%;
+    transform: rotate(45deg) translateX(-50%);
+    background-color: #fff;
+    left: 50%;
+    top: -1px;
+    z-index: 400;
+}
+
+.sys-tooltip-cell:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    transform-origin: 50% 50%;
+    transform: rotate(45deg) translateX(-50%) translateZ(-1px);
+    background-color: #fff;
+    left: 50%;
+    top: 0px;
+    z-index: -1;
+    box-shadow: -1px -1px 20px #aaa;
+}
+
+.tooltip-text {
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+.tooltip-src {
+    color: #0641AD;
+    box-shadow: 1px 1px 20px rgba(#0641AD, 0.3);
+}
+
+@media all and (max-width: 800px) {
+    .tooltip-src {
+        top: 0
+    }
+}
+
+@media all and (min-width: 800px) {
+    .tooltip-src {
+        top: -40px
+    }
+}
+
+.tooltip-src:after {
+    top: auto;
+    bottom: -8px
+}
+
+.tooltip-src:before {
+    top: auto;
+    bottom: -8px
+}
+
+.tooltip-pointer {
+    cursor: pointer
+}
+
+.form-control-number
+    ::-webkit-outer-spin-button,
+    ::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+}
+
+.one-line-crumbs {
+    li {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+    }
+}
+
+.navbar-avatar {
+    position: relative;
+    width: 64px;
+    height: 64px;
+
+    img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+}
+
+.user-avatar {
+    position: relative;
+    width: 128px;
+    height: 128px;
+
+    .icon-search {
+        position: absolute;
+        display: none;
+        top: calc((100% - 35px) / 2);
+        left: calc((100% - 35px) / 2);
+        font-size: 35px;
+        cursor: pointer;
+        color: lightgray
+    }
+
+    img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+}
+
+.user-avatar:hover {
+    img {
+        filter: brightness(60%);
+    }
+
+    .icon-search {
+        display: block
+    }
+}

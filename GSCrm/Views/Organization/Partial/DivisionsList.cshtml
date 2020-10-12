@@ -1,0 +1,78 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model OrganizationViewModel
+@{
+    int divisionsCount = Model.Divisions.Count();
+    bool showES = divisionsCount == 0 && new[] { Model.SearchDivName, Model.SearchParentDivName }.AllIsNullOrEmpty();
+    string currentUserId = User.GetUserModel(context).Id;
+}
+
+@* // Подразделения *@
+<div class="tab-pane fade show" id="divisions" role="tabpanel" aria-labelledby="divisions-tab">
+    @if (!showES)
+    {
+        @* // Фильтр по подразделениям *@
+        await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/DivisionsFilter.cshtml");
+    }
+
+    <div class="form-shadow d-none"></div>
+    <div class="form-group">
+        <form id="divisionsList" class="table-wrapper">
+            <table class="fl-table @(!showES ? "" : "empty-table")">
+                <thead>
+                    @if (!showES)
+                    {
+                        <tr>
+                            <th>@resManager.GetString("NameLabel")</th>
+                            <th>@resManager.GetString("ParentDivNameLabel")</th>
+                            <th class="action-column"></th>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr><th></th><th></th></tr>
+                    }
+                </thead>
+                <tbody>
+                    @if (showES)
+                    {
+                        <tr>
+                            <td><img src="~/img/default-empty.svg" /></td>
+                            <td>@resManager.GetString("ESDivisions")</td>
+                        </tr>
+                    }
+                    @foreach (DivisionViewModel division in Model.Divisions)
+                    {
+                        <tr>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">@Html.ActionLink(division.Name, DIVISION, DIVISION, new { id = division.Id })</td>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">
+                                @if (!string.IsNullOrEmpty(division.ParentDivisionName))
+                                {
+                                    @Html.ActionLink(division.ParentDivisionName, DIVISION, DIVISION, new { id = division.ParentDivisionId })
+                                }
+                            </td>
+                            <td class="remove-item-btn">
+                                <div class="remove-item-url" hidden="hidden">@Html.ActionLink(division.Name, "Delete", DIVISION, new { id = division.Id })"</div>
+                                <span class="icon-bin"></span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+        @{
+            await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+            {
+                ItemsCount = divisionsCount,
+                ViewInfo = viewsInfo.Get(currentUserId, DIVISIONS),
+                ControllerName = DIVISION,
+                ActionName = DIVISIONS
+            });
+        }
+    </div>
+</div>

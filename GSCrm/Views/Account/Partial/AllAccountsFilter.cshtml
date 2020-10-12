@@ -1,0 +1,47 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model AccountsViewModel
+
+<div id="allAccountsFilter">
+    <div class="accordion" id="allAccountsAccordin">
+        <div class="card">
+            <div class="card-header" id="headingAllAccounts">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseAllAccounts" aria-expanded="true" aria-controls="collapseAllAccounts">
+                        @resManager.GetString("AllAccountsFilter")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseAllAccounts" class="collapse" aria-labelledby="headingAllAccounts" data-parent="#allAccountsAccordin">
+                <form class="card-body" method="post" asp-controller="@ACCOUNT" asp-action="SearchAllAccounts">
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="row justify-content-around form-group mb-lg-4">
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <input asp-for="AllAccountsSearchName" class="form-control" type="text" placeholder="@resManager.GetString("NameLabel")" />
+                        </div>
+                        <div class="col-auto dropdown-area">
+                            <input asp-for="AllAccountsSearchType" class="current-dropdown-value" hidden="hidden" />
+                            <span class="dropdown-el">
+                                <input type="radio" name="allAccountType" value="Individual" checked="checked" id="searchAllAccountTypeIndividual">
+                                <label for="searchAllAccountTypeIndividual">@resManager.GetString("Individual")</label>
+                                <input type="radio" name="allAccountType" value="IndividualEntrepreneur" id="searchAllAccountTypeIE">
+                                <label for="searchAllAccountTypeIE">@resManager.GetString("IE")</label>
+                                <input type="radio" name="allAccountType" value="LegalEntity" id="searchAllAccountTypeLE">
+                                <label for="searchAllAccountTypeLE">@resManager.GetString("LE")</label>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-auto mb-4 mb-sm-0 text-center flex-grow-0">
+                            <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
+                        </div>
+                        <div class="col-auto text-center flex-grow-0">
+                            <a asp-controller="@ACCOUNT" asp-action="ClearAllAccountsSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

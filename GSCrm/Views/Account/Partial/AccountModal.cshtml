@@ -1,0 +1,121 @@
+﻿@inject ResManager resManager
+@using static GSCrm.CommonConsts
+@model AccountsViewModel
+
+@* // Модальное окно создания клиента *@
+<div id="accountModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" asp-controller="@ACCOUNT" asp-action="Create">
+                <div class="modal-header">
+                    <h5 class="modal-title">@resManager.GetString("NewAccountLabel")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="row radio-tabs justify-content-around">
+                            <div class="col-md m-0 form-check form-check-inline active">
+                                <div class="form-check-wrap">
+                                    <input class="form-check-input" type="radio" name="acctTypeTab" value="IndividualOption" checked>
+                                    <label class="form-check-label label-non-select" for="IndividualOption">
+                                        @resManager.GetString("Individual")
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md m-0 mt-3 mt-md-0 form-check form-check-inline">
+                                <div class="form-check-wrap">
+                                    <input class="form-check-input" type="radio" name="acctTypeTab" value="IEOption">
+                                    <label class="form-check-label label-non-select" for="IEOption">
+                                        @resManager.GetString("IE")
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md m-0 mt-3 mt-md-0 form-check form-check-inline">
+                                <div class="form-check-wrap">
+                                    <input class="form-check-input" type="radio" name="acctTypeTab" value="LEOption">
+                                    <label class="form-check-label label-non-select" for="LEOption">
+                                        @resManager.GetString("LE")
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tabs-content mt-3">
+                            <div id="IndividualOption" class="tabs-content-item">
+                                <div class="form-group">
+                                    <input id="accFirstName" class="form-control" type="text" placeholder="@resManager.GetString("FirstNameLabel")" />
+                                    <ul id="accFirstNameError" data-connect-el="accFirstName" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accLastName" class="form-control" type="text" placeholder="@resManager.GetString("LastNameLabel")" />
+                                    <ul id="accLastNameError" data-connect-el="accLastName" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accMiddleName" class="form-control" type="text" placeholder="@resManager.GetString("MidNameLabel")" />
+                                    <ul id="accMiddleNameError" data-connect-el="accMiddleName" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accINNIndividual" class="form-control" type="number" placeholder="@resManager.GetString("INN")" />
+                                    <ul id="accINNIndividualError" data-connect-el="accINNIndividual" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                            </div>
+                            <div id="IEOption" class="tabs-content-item">
+                                <div class="form-group">
+                                    <input id="accNameIE" class="form-control" type="text" placeholder="@resManager.GetString("NameLabel")" />
+                                    <ul id="accNameIEError" data-connect-el="accNameIE" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accINNIE" class="form-control" type="number" placeholder="@resManager.GetString("INN")" />
+                                    <ul id="accINNIEError" data-connect-el="accINNIE" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                            </div>
+                            <div id="LEOption" class="tabs-content-item">
+                                <div class="form-group">
+                                    <input id="accNameLE" class="form-control" type="text" placeholder="@resManager.GetString("NameLabel")" />
+                                    <ul id="accNameLEError" data-connect-el="accNameLE" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accINNLE" class="form-control" type="number" placeholder="@resManager.GetString("INN")" />
+                                    <ul id="accINNLEError" data-connect-el="accINNLE" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accKPP" class="form-control" type="number" placeholder="@resManager.GetString("KPP")" />
+                                    <ul id="accKPPError" data-connect-el="accKPP" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accOKPO" class="form-control" type="number" placeholder="@resManager.GetString("OKPO")" />
+                                    <ul id="accOKPOError" data-connect-el="accOKPO" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                                <div class="form-group">
+                                    <input id="accOGRN" class="form-control" type="number" placeholder="@resManager.GetString("OGRN")" />
+                                    <ul id="accOGRNError" data-connect-el="accOGRN" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div id="accCountry" class="autocomplete default-autocomplete">
+                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{APP_INFO}/GetCountries/")"></a>
+                                    <input id="accCountryVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("Country")" />
+                                    <ul class="autocomplete-result-list"></ul>
+                                </div>
+                                <ul id="accCountryError" data-connect-el="accCountryVal" class="d-none under-field-error label-sm mt-2"></ul>
+                            </div>
+                            <div id="accManager" class="autocomplete default-autocomplete" data-autocomplite-type="Employees" data-autocomplite-name="AccountManager">
+                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{ORGANIZATION}/GetEmployees/")"></a>
+                                <input id="accManagerVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("PrimaryManager")" />
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                            <ul id="accManagerError" data-connect-el="accManagerVal" class="d-none under-field-error label-sm mt-2"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="createAccBtn" type="button" class="btn btn-primary" value="@resManager.GetString("CreateLabel")" />
+                    <input id="cancelCreationAccBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

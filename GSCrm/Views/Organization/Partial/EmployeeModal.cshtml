@@ -1,0 +1,130 @@
+﻿@inject ResManager resManager
+@model OrganizationViewModel
+@using static GSCrm.CommonConsts
+@* // Модальное окно создания работника *@
+<div id="employeeModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form method="post" asp-controller="Employee" asp-action="Create">
+                <div class="modal-header">
+                    <h5 class="modal-title">@resManager.GetString(EMPLOYEE)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="row radio-tabs justify-content-around">
+                            <div class="col-md m-0 form-check form-check-inline active">
+                                <div class="form-check-wrap">
+                                    <input class="form-check-input" type="radio" name="tab" value="selectUserOption" checked>
+                                    <label class="form-check-label label-non-select" for="selectUserOption">
+                                        @resManager.GetString("FindUser")
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md m-0 mt-3 mt-md-0 form-check form-check-inline">
+                                <div class="form-check-wrap">
+                                    <input class="form-check-input" type="radio" name="tab" value="createUserOption">
+                                    <label class="form-check-label label-non-select" for="createUserOption">
+                                        @resManager.GetString("CreateNewUser")
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tabs-content">
+                            <div id="selectUserOption" class="tabs-content-item mb-3 mt-4">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="dog-symbol">@@</span>
+                                    </div>
+                                    <input id="existsUserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")" aria-label="@resManager.GetString("Username")" aria-describedby="dog-symbol">
+                                </div>
+                                <ul id="existsUserNameError" data-connect-el="existsUserName" class="d-none under-field-error label-sm mt-2"></ul>
+                            </div>
+
+                            <div id="createUserOption" class="tabs-content-item" style="display: none">
+                                <div class="form-group m-0 mt-md-4">
+                                    <div class="row">
+                                        <div class="col-md">
+                                            <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("Username")</p>
+                                            <input id="newEmpUserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")">
+                                            <ul id="newUserNameError" data-connect-el="newEmpUserName" class="d-none under-field-error label-sm"></ul>
+                                        </div>
+                                        <div class="col-md">
+                                            <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("Email")</p>
+                                            <input id="newEmpEmail" type="email" class="form-control" placeholder="name@example.com">
+                                            <ul id="newUserEmailError" data-connect-el="newEmpEmail" class="d-none under-field-error label-sm"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-0">
+                                    <div class="row mt-0 mt-md-4">
+                                        <div class="col-md">
+                                            <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("Password")</p>
+                                            <input id="newEmpPassword" type="password" class="form-control" placeholder="@resManager.GetString("Password")">
+                                            <ul id="newUserPasswordError" data-connect-el="newEmpPassword" class="d-none under-field-error label-sm"></ul>
+                                        </div>
+                                        <div class="col-md">
+                                            <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("ConfirmPassword")</p>
+                                            <input id="newEmpConfirmPassword" type="password" class="form-control" placeholder="@resManager.GetString("ConfirmPassword")">
+                                            <ul id="newUserConfirmPasswordError" data-connect-el="newEmpConfirmPassword" class="d-none under-field-error label-sm"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <p class="label-md label-non-select m-0">@resManager.GetString("FillData")</p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm">
+                                <div class="mt-4">
+                                    <input id="empFirstName" class="form-control" type="text" placeholder="@resManager.GetString("FirstNameLabel")" />
+                                    <ul id="empFirstNameError" data-connect-el="empFirstName" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+
+                                <div class="mt-4">
+                                    <input id="empLastName" class="form-control" type="text" placeholder="@resManager.GetString("LastNameLabel")" />
+                                    <ul id="empLastNameError" data-connect-el="empLastName" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+
+                                <div class="mt-4">
+                                    <input id="empMidName" class="form-control" type="text" placeholder="@resManager.GetString("MidNameLabel")" />
+                                    <ul id="empMidNameError" data-connect-el="empMidName" class="d-none under-field-error label-sm mt-2"></ul>
+                                </div>
+                            </div>
+                            <div class="col-sm">
+                                <div class="mt-4">
+                                    <div id="employeeDiv" class="autocomplete default-autocomplete">
+                                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{DIVISION}/GetDivisions/{Model.Id}/")"></a>
+                                        <input id="employeeDivVal" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
+                                        <ul class="autocomplete-result-list"></ul>
+                                    </div>
+                                </div>
+                                <ul id="employeeDivError" data-connect-el="employeeDivVal" class="d-none under-field-error label-sm mt-2"></ul>
+
+                                <div class="mt-4">
+                                    <div id="employeePosition" class="autocomplete default-autocomplete" data-autocomplite-type="Positions" data-autocomplite-name="EmployeePosition">
+                                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{POSITION}/GetPositions/{Model.Id}/")"></a>
+                                        <input id="employeePositionVal" class="autocomplete-input form-control" placeholder="@resManager.GetString(POSITION)" />
+                                        <ul class="autocomplete-result-list"></ul>
+                                    </div>
+                                </div>
+                                <ul id="employeePositionError" data-connect-el="employeePositionVal" class="d-none under-field-error label-sm mt-2"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="createEmpBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("CreateLabel")" />
+                    <input id="cancelCreationEmpBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

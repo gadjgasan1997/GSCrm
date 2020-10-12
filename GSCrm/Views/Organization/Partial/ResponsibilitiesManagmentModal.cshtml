@@ -1,0 +1,60 @@
+﻿@inject ResManager resManager
+@model OrganizationViewModel
+@using static GSCrm.CommonConsts
+
+<div id="responsibilitiesManagmentModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div id="modalHeaderMask"></div>
+                <h5 class="modal-title">@resManager.GetString("Responsibilities")</h5>
+                <span class="icon-add-outline"></span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="newRespBlock">
+                <div class="row">
+                    <div class="col">
+                        <input class="form-control" placeholder="@resManager.GetString("NewRespName")" />
+                    </div>
+                    <div class="col-md-auto p-md-0">
+                        <div id="newRespBlockOpen" class="col text-center mt-3 mt-md-2 pl-3">
+                            <span class="icon-checkmark"></span>
+                        </div>
+                        <div id="newRespBlockClose" class="col text-center mt-3 mt-md-2 pl-4">
+                            <span class="icon-close"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-2">
+                    <button class="btn btn-link">@resManager.GetString("ConfigureResponsibility")</button>
+                </div>
+            </div>
+            <div id="respsBlock">
+                <div id="respsBlockMask"></div>
+                <div class="modal-body">
+                    <form asp-controller="@ORGANIZATION" asp-action="SearchResponsibility">
+                        <div class="mb-3">
+                            <input asp-for="SeacrhResponsibilityName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
+                        </div>
+                        <div class="row">
+                            <div class="col text-center mb-3">
+                                <input id="searchResps" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("Search")" />
+                            </div>
+                            <div class="col text-center mb-3">
+                                <a id="clearSearchResps" asp-controller="@ORGANIZATION" asp-action="ClearResponsibilitySearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                            </div>
+                        </div>
+                    </form>
+                    <ul id="responsibilitiesList" class="mt-1 list-group">
+                        @*@foreach (ResponsibilityViewModel responsibility in Model.Responsibilities)
+                        {
+                            <li class="list-group-item">@responsibility.Name</li>
+                        }*@
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

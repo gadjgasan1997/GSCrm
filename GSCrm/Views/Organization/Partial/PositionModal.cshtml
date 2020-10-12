@@ -1,0 +1,59 @@
+﻿@inject ResManager resManager
+@model OrganizationViewModel
+@using static GSCrm.CommonConsts
+
+@* // Модальное окно создания должности *@
+<div id="positionModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString(POSITION)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="Position" asp-action="Create">
+                    <div class="form-group">
+                        <div class="mt-3">
+                            <input id="positionName" class="form-control" type="text" placeholder="@resManager.GetString("NameLabel")" />
+                            <ul id="positionNameError" data-connect-el="positionName" class="d-none under-field-error label-sm mt-2"></ul>
+                        </div>
+
+                        <div class="mt-4">
+                            <div id="positionDivModal" class="autocomplete default-autocomplete">
+                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{DIVISION}/GetDivisions/{Model.Id}/")"></a>
+                                <input id="positionDivModalVal" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                        </div>
+                        <ul id="positionDivModalError" data-connect-el="positionDivModalVal" class="d-none under-field-error label-sm mt-2"></ul>
+
+                        <div class="mt-4">
+                            <div id="parentPositionModal" class="autocomplete default-autocomplete" data-autocomplite-type="Positions" data-autocomplite-name="ParentPositionModal">
+                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{POSITION}/GetPositions/{Model.Id}/")"></a>
+                                <input id="parentPositionModalVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                        </div>
+                        <ul id="parentPositionModalError" data-connect-el="parentPositionModalVal" class="d-none under-field-error label-sm mt-2"></ul>
+
+                        <input id="primaryEmployeeId" hidden="hidden" />
+                        <div class="mt-4">
+                            <div id="primaryEmployeeModal" class="autocomplete default-autocomplete" data-autocomplite-type="Employees" data-autocomplite-name="PrimaryEmployeeModal">
+                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{EMPLOYEE}/GetEmployees/{Model.Id}/")"></a>
+                                <input id="primaryEmployeeModalVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                        </div>
+                        <ul id="primaryEmployeeModalError" data-connect-el="primaryEmployeeModalVal" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input id="createPositionBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("CreateLabel")" />
+                <input id="cancelCreationPostitionBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+            </div>
+        </div>
+    </div>
+</div>

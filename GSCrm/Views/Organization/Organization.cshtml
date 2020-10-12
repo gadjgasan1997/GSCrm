@@ -1,0 +1,91 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data 
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model OrganizationViewModel
+@{
+    ViewInfo orgView = viewsInfo.Get(User.GetUserModel(context).Id, ORGANIZATIONS);
+}
+
+@* // Модальное окно создания подразделения *@
+@{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/DivisionModal.cshtml"); }
+
+@* // Модальное окно создания должности *@
+@{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/PositionModal.cshtml"); }
+
+@* // Модальное окно создания работника *@
+@{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/EmployeeModal.cshtml"); }
+
+@* // Модальное окно управления полномочиями *@
+@{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/ResponsibilitiesManagmentModal.cshtml"); }
+
+@* // Хлебные крошки *@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+                @resManager.GetString(ORGANIZATIONS)
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(ORGANIZATION): @Model.Name</li>
+    </ol>
+</nav>
+
+<div id="organizationForm" class="container mt-3">
+    @* // Удаление организации *@
+    <div class="row justify-content-around">
+        <div class="col flex-grow-0 nav-connected-tabs text-center text-md-left mb-3 mb-md-0" nav-tabs="orgTabs">
+            <div class="fade show nav-connected-tab" nav-tab="#divisions">
+                <input type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#divisionModal" value="@resManager.GetString("CreateDivisionLabel")" />
+            </div>
+            <div class="fade nav-connected-tab" nav-tab="#positions">
+                <input type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#positionModal" value="@resManager.GetString("CreatePositionLabel")" />
+            </div>
+            <div class="fade nav-connected-tab" nav-tab="#employees">
+                <input id="openEmployeeModalBtn" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#employeeModal" value="@resManager.GetString("CreateEmployeeLabel")" />
+            </div>
+        </div>
+        <div class="col text-center text-md-left mb-3 mb-md-0">
+            <button class="btn btn-link" data-toggle="modal" data-target="#responsibilitiesManagmentModal">@resManager.GetString("ResponsibilitiesManagment")</button>
+        </div>
+        <div id="removeOrgForm" class="col text-center text-md-right mb-3 mb-md-0">
+            <input id="orgId" hidden="hidden" asp-for="Id" />
+            <div id="orgUrl" hidden="hidden">@Html.ActionLink(Model.Id.ToString(), "Delete", ORGANIZATION, new { id = Model.Id })"</div>
+            <input id="removeOrgBtn" type="button" class="btn btn-outline-danger" value="@resManager.GetString("RemoveOrganizationLabel")" />
+        </div>
+    </div>
+    <div class="row justify-content-center mt-3">
+        <h3 class="label-non-select text-center m-0">@Model.Name</h3>
+    </div>
+    <div class="mt-4">
+        @* // Вкладки *@
+        <ul id="orgTabs" class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" id="division-tab" data-toggle="tab" href="#divisions" role="tab" aria-controls="divisions" aria-selected="false">@resManager.GetString(DIVISIONS)</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="position-tab" data-toggle="tab" href="#positions" role="tab" aria-controls="positions" aria-selected="false">@resManager.GetString(POSITIONS)</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="employee-tab" data-toggle="tab" href="#employees" role="tab" aria-controls="employees" aria-selected="false">@resManager.GetString(EMPLOYEES)</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            @* // Подразделения *@
+            @{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/DivisionsList.cshtml"); }
+
+            @* // Должности *@
+            @{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/PositionsList.cshtml"); }
+
+            @* // Работники *@
+            @{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/EmployeesList.cshtml"); }
+        </div>
+    </div>
+</div>

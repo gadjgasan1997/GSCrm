@@ -1,0 +1,124 @@
+﻿@inject ResManager resManager
+@inject ApplicationDbContext context
+@using GSCrm.Data
+@using GSCrm.Helpers
+@using static GSCrm.CommonConsts
+@{
+    User userModel = @User.GetUserModel(context);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GSCrm</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/malihu-custom-scrollbar-plugin-master/jquery.mCustomScrollbar.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/Dropdown.css" />
+    <link rel="stylesheet" href="~/css/Tables.css" />
+    <link rel="stylesheet" href="~/css/Tabs.css" />
+    <link rel="stylesheet" href="~/css/Navbar.css" />
+    <link rel="stylesheet" href="~/css/Fonts.css" />
+    <link rel="stylesheet" href="~/css/Filters.css" />
+    <link rel="stylesheet" href="~/css/Forms.css" />
+    <link rel="stylesheet" href="~/css/Lists.css" />
+    <link rel="stylesheet" href="~/css/Modals.css" />
+    <link rel="stylesheet" href="~/css/Blocks.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-height-md navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow" style="z-index: 100">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">GSCrm</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav main-nav flex-grow-1">
+                        <li class="nav-item text-center mr-3">
+                            <a class="nav-link user-profile-link text-white label-md" asp-area="" asp-controller="@USER" asp-action="@USER" asp-route-id="@userModel?.Id">@User.Identity.Name</a>
+                        </li>
+                        <li class="navbar-avatar mr-3">
+                            @if (!string.IsNullOrEmpty(userModel?.AvatarPath))
+                            {
+                                <img src="@userModel.AvatarPath" />
+                            }
+                            else
+                            {
+                                <span class="icon-user-circle-o"></span>
+                            }
+                            <a asp-area="" asp-controller="@USER" asp-action="@USER" asp-route-id="@userModel?.Id"></a>
+                        </li>
+                        <li class="nav-item text-center">
+                            <form method="post" asp-controller="Auth" asp-action="LogOut">
+                                <input type="submit" class="btn btn-light text-dark label-md" value="LogOut" />
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="vertical-nav bg-dark">
+        <ul class="nav flex-column bg-dark mb-0" role="tablist" aria-orientation="vertical">
+            <li class="nav-item text-center">
+                <a class="nav-link text-white label-md" asp-area="" asp-controller="@ACCOUNT" asp-action="@ALL_ACCS" asp-route-pageNumber="1">@resManager.GetString(ACCOUNTS)</a>
+            </li>
+            <li class="nav-item text-center">
+                <a class="nav-link text-white label-md" asp-area="" asp-controller="@QUOTE" asp-action="@ALL_QUOTES" asp-route-pageNumber="1">@resManager.GetString(QUOTE)</a>
+            </li>
+            <li class="nav-item text-center">
+                <a class="nav-link text-white label-md" asp-area="" asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="1">@resManager.GetString(ORGANIZATIONS)</a>
+            </li>
+        </ul>
+    </div>
+    <div class="container-fluid container-layout">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted bg-dark">
+        <div class="container" style="visibility: hidden">
+            &copy; 2020 - GSCrm - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery.maskedinput-master/src/jquery.maskedinput.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/autocomplete-master/min/Autocomplite.min.js"></script>
+    <script src="~/lib/malihu-custom-scrollbar-plugin-master/js/uncompressed/jquery.mCustomScrollbar.js"></script>
+    <script src="~/js/Masks.js" asp-append-version="true"></script>
+    <script src="~/js/Tabs.js" asp-append-version="true"></script>
+    <script src="~/js/Button.js" asp-append-version="true"></script>
+    <script src="~/js/Tooltip.js" asp-append-version="true"></script>
+    <script src="~/js/Localization.js" asp-append-version="true"></script>
+    <script src="~/js/ErrorsManager.js" asp-append-version="true"></script>
+    <script src="~/js/MessageManager.js" asp-append-version="true"></script>
+    <script src="~/js/Dropdown.js" asp-append-version="true"></script>
+    <script src="~/js/Autocomplite.js" asp-append-version="true"></script>
+    <script src="~/js/Utils.js" asp-append-version="true"></script>
+    <script src="~/js/EventHadlers.js" asp-append-version="true"></script>
+    <script src="~/js/AjaxRequests.js" asp-append-version="true"></script>
+    <script src="~/js/Organization.js" asp-append-version="true"></script>
+    <script src="~/js/Division.js" asp-append-version="true"></script>
+    <script src="~/js/Position.js" asp-append-version="true"></script>
+    <script src="~/js/Employee.js" asp-append-version="true"></script>
+    <script src="~/js/EmployeeContact.js" asp-append-version="true"></script>
+    <script src="~/js/EmployeePosition.js" asp-append-version="true"></script>
+    <script src="~/js/EmployeePositionsManagement.js" asp-append-version="true"></script>
+    <script src="~/js/Account.js" asp-append-version="true"></script>
+    <script src="~/js/AccountAddress.js" asp-append-version="true"></script>
+    <script src="~/js/AccountContact.js" asp-append-version="true"></script>
+    <script src="~/js/AccountInvoice.js" asp-append-version="true"></script>
+    <script src="~/js/AccountQuote.js" asp-append-version="true"></script>
+    <script src="~/js/AccountManagement.js" asp-append-version="true"></script>
+    <script src="~/js/Quote.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

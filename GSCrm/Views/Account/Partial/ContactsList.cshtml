@@ -1,0 +1,147 @@
+﻿@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels
+@using static GSCrm.CommonConsts
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AccountViewModel
+@{
+    string currentUserId = User.GetUserModel(context).Id;
+    int contactsCount = Model.AccountContacts.Count;
+    bool showES = contactsCount == 0 && !Model.SearchContactPrimary && new[]
+        { Model.SearchContactFullName, Model.SearchContactType, Model.SearchContactEmail, Model.SearchContactPhoneNumber }.AllIsNullOrEmpty();
+}
+
+<div id="changePrimaryContact" class="mb-3">
+    <form class="row justify-content-end m-auto" method="post" asp-controller="@ACCOUNT" asp-action="ChangePrimaryContact">
+        <input id="changePrimaryContactBtn" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ChangePrimaryContact")" />
+    </form>
+    <input asp-for="PrimaryContactId" hidden="hidden" />
+</div>
+
+@* // Фильтр по контактам *@
+@if (!showES)
+{
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountContactsManagement.cshtml");
+}
+
+<div id="accContactsList">
+    <form class="table-wrapper">
+        <table class="fl-table @(!showES ? "" : "empty-table")">
+            <thead>
+                @if (!showES)
+                {
+                    <tr>
+                        <th class="d-none"></th>
+                        <th>@resManager.GetString("FullName")</th>
+                        <th>@resManager.GetString("ContactType")</th>
+                        <th>@resManager.GetString("PhoneNumber")</th>
+                        <th>@resManager.GetString("Email")</th>
+                        <th>@resManager.GetString("Primary")</th>
+                        <th class="action-column"></th>
+                        <th class="action-column"></th>
+                    </tr>
+                }
+                else
+                {
+                    <tr><th></th><th></th></tr>
+                }
+            </thead>
+            <tbody>
+                @if (showES)
+                {
+                    <tr>
+                        <td><img src="~/img/default-empty.svg" /></td>
+                        <td>
+                            <input type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#accContactCreateModal" value="@resManager.GetString("ESAccountContacts")">
+                        </td>
+                    </tr>
+                }
+                @foreach (AccountContactViewModel accountContact in Model.AccountContacts)
+                {
+                    <tr>
+                        <td class="contact-id d-none">@accountContact.Id</td>
+                        <td class="tooltip-cell-src">@accountContact.FullName</td>
+                        @switch (accountContact.ContactType)
+                        {
+                            case "None":
+                                <td>@resManager.GetString("NotSpecify")</td>
+                                break;
+                            case "Personal":
+                                <td>@resManager.GetString("Personal")</td>
+                                break;
+                            case "Work":
+                                <td>@resManager.GetString("Work")</td>
+                                break;
+                        }
+                        <td class="tooltip-cell-src">@accountContact.PhoneNumber</td>
+                        <td class="tooltip-cell-src">@accountContact.Email</td>
+                        @if (!accountContact.IsPrimary)
+                        {
+                            <td>
+                                <div>
+                                    <div class="oval-mark mark-table-cell"></div>
+                                </div>
+                            </td>
+                        }
+                        else if (Model.AccountType == "Individual")
+                        {
+                            <td>
+                                <div>
+                                    <div class="oval-mark-readonly mark-table-cell">
+                                        <div class="icon-checkmark"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <div>
+                                    <div class="oval-mark-check mark-table-cell">
+                                        <div class="icon-checkmark"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        }
+                        @if (accountContact.IsPrimary && Model.AccountType == "Individual")
+                        {
+                            <td class="hide-remove-item-btn">
+                                <div class="remove-item-url" hidden="hidden">
+                                    @Html.ActionLink(accountContact.Id.ToString(), "Delete", ACC_CONTACT, new { id = accountContact.Id })"
+                                </div>
+                                <span class="icon-bin"></span>
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="remove-item-btn">
+                                <div class="remove-item-url" hidden="hidden">
+                                    @Html.ActionLink(accountContact.Id.ToString(), "Delete", ACC_CONTACT, new { id = accountContact.Id })"
+                                </div>
+                                <span class="icon-bin"></span>
+                            </td>
+                        }
+                        <td class="edit-item-btn" data-toggle="modal" data-target="#accContactUpdateModal">
+                            <div class="edit-item-url" hidden="hidden">
+                                @Html.ActionLink(accountContact.Id.ToString(), CONTACT, ACC_CONTACT, new { id = accountContact.Id })"
+                            </div>
+                            <span class="icon-pencil"></span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+    @{
+        await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+        {
+            ItemsCount = Model.AccountContacts.Count(),
+            ViewInfo = viewsInfo.Get(currentUserId, ACC_CONTACTS),
+            ControllerName = ACC_CONTACT,
+            ActionName = CONTACTS
+        });
+    }
+</div>

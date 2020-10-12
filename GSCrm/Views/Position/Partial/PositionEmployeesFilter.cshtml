@@ -1,0 +1,36 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model PositionViewModel
+
+<div id="posEmployeesFilter">
+    <div class="accordion" id="accordionPosEmployees">
+        <div class="card">
+            <div class="card-header" id="headingPosEmployees">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapsePosEmployees" aria-expanded="true" aria-controls="collapsePosEmployees">
+                        @resManager.GetString("PosEmployeesFilter")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapsePosEmployees" class="collapse" aria-labelledby="headingPosEmployees" data-parent="#accordionPosEmployees">
+                <form class="card-body" method="post" asp-controller="@POSITION" asp-action="SearchEmployee">
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="row justify-content-around form-group mb-lg-4">
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <input asp-for="SearchEmployeeInitialName" type="text" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
+                        </div>
+                    </div>
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-auto mb-4 mb-sm-0 text-center flex-grow-0">
+                            <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
+                        </div>
+                        <div class="col-auto text-center flex-grow-0">
+                            <a asp-controller="@POSITION" asp-action="ClearSearchEmployee" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

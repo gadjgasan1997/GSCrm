@@ -1,0 +1,58 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model AccountViewModel
+
+<div id="accInvoicesFilter">
+    <div class="accordion" id="accordionAccInvoices">
+        <div class="card">
+            <div class="card-header" id="headingAccInvoices">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseAccInvoices" aria-expanded="true" aria-controls="collapseAccInvoices">
+                        @resManager.GetString("AccountInvoicesManagement")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseAccInvoices" class="collapse" aria-labelledby="headingAccInvoices" data-parent="#accordionAccInvoices">
+                <form class="card-body" method="post" asp-controller="@ACCOUNT" asp-action="SearchInvoice">
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <div class="mb-3">
+                                <input asp-for="SearchInvoiceBankName" class="form-control" placeholder="@resManager.GetString("BankName")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchInvoiceCity" class="form-control" placeholder="@resManager.GetString("BankCity")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchInvoiceCheckingAccount" class="form-control" placeholder="@resManager.GetString("CheckingAccount")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchInvoiceCorrespondentAccount" class="form-control" placeholder="@resManager.GetString("CorrespondentAccount")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchInvoiceBIC" class="form-control" placeholder="@resManager.GetString("BIC")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchInvoiceSWIFT" class="form-control" placeholder="@resManager.GetString("SWIFT")" />
+                            </div>
+                        </div>
+                        <div id="accInvoicesActions" class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                            <div class="row justify-content-between">
+                                <div class="col mb-3">
+                                    <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SeacrhInvoice")" />
+                                </div>
+                                <div class="col mb-3">
+                                    <a asp-controller="@ACCOUNT" asp-action="ClearInvoiceSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                                </div>
+                                <div class="col mb-3">
+                                    <input type="button" data-toggle="modal" data-target="#accInvoiceCreateModal" class="btn btn-outline-primary" value="@resManager.GetString("CreateAccountInvoice")" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

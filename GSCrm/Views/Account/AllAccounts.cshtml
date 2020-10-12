@@ -1,0 +1,79 @@
+﻿@using GSCrm.Models.ViewModels
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AccountsViewModel
+@{
+    int allAccountsCount = Model.AllAccounts.Count();
+    bool showES = allAccountsCount == 0 && new[] { Model.AllAccountsSearchName, Model.AllAccountsSearchType }.AllIsNullOrEmpty();
+    string currentUserId = User.GetUserModel(context).Id;
+}
+<div class="tab-pane fade" id="allAccounts" role="tabpanel" aria-labelledby="allAccountsTab">
+    @if (!showES)
+    {
+        @* // Фильтр по клиентам *@
+        await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AllAccountsFilter.cshtml");
+    }
+
+    <form class="table-wrapper">
+        <table class="fl-table @(!showES ? "" : "empty-table")">
+            <thead>
+                @if (!showES)
+                {
+                    <tr>
+                        <th>@resManager.GetString("NameLabel")</th>
+                        <th>@resManager.GetString("AccountType")</th>
+                    </tr>
+                }
+                else { <tr><th></th><th></th></tr> }
+            </thead>
+            <tbody>
+                @if (showES)
+                {
+                    <tr>
+                        <td><img src="~/img/default-empty.svg" /></td>
+                        <td>@resManager.GetString("ESAccount")</td>
+                    </tr>
+                }
+                @foreach (AccountViewModel account in Model.AllAccounts)
+                {
+                    <tr>
+                        <td class="tooltip-cell-src tooltip-cell-link label-non-select account-item">
+                            @Html.ActionLink(account.Name, "GetAccount", ACCOUNT, new
+                            {
+                                id = account.Id,
+                                selectedAccountsTab = ALL_ACCS
+                            })
+                        </td>
+
+                        @switch (account.AccountType)
+                        {
+                            case "Individual":
+                                <td>@resManager.GetString("Individual")</td>
+                                break;
+                            case "IndividualEntrepreneur":
+                                <td>@resManager.GetString("IE")</td>
+                                break;
+                            case "LegalEntity":
+                                <td>@resManager.GetString("LE")</td>
+                                break;
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+    @{
+        await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+        {
+            ItemsCount = allAccountsCount,
+            ViewInfo = viewsInfo.Get(currentUserId, ALL_ACCS),
+            ControllerName = ACCOUNT,
+            ActionName = ALL_ACCS
+        });
+    }
+</div>

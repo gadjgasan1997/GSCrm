@@ -1,0 +1,37 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model OrganizationViewModel
+
+<div id="divisionsFilter">
+    <div class="accordion" id="accordionDivisions">
+        <div class="card">
+            <div class="card-header" id="headingDivisions">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseDivisions" aria-expanded="true" aria-controls="collapseDivisions">
+                        @resManager.GetString("DivisionsFilter")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseDivisions" class="collapse" aria-labelledby="headingDivisions" data-parent="#accordionDivisions">
+                <form class="card-body" method="post" asp-controller="@ORGANIZATION" asp-action="SearchDivision">
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-lg mb-4 mb-lg-0">
+                            <input asp-for="SearchDivName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
+                        </div>
+                        <div class="col-lg mb-4 mb-lg-0">
+                            <input asp-for="SearchParentDivName" class="form-control" placeholder="@resManager.GetString("ParentDivNameLabel")" />
+                        </div>
+                        <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                            <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
+                        </div>
+                        <div class="col-auto text-center flex-grow-0">
+                            <a asp-controller="@ORGANIZATION" asp-action="ClearDivisionSearch" id="clearDivSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

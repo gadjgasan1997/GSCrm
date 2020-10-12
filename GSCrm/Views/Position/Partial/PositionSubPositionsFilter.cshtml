@@ -1,0 +1,40 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model PositionViewModel
+
+<div id="subPositionsFilter">
+    <div class="accordion" id="accordionSubPositions">
+        <div class="card">
+            <div class="card-header" id="headingSubPositions">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSubPositions" aria-expanded="true" aria-controls="collapseSubPositions">
+                        @resManager.GetString("SubPositionsFilter")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseSubPositions" class="collapse" aria-labelledby="headingSubPositions" data-parent="#accordionSubPositions">
+                <form class="card-body" method="post" asp-controller="@POSITION" asp-action="SearchSubPosition">
+                    <input asp-for="Id" hidden="hidden" />
+                    <input asp-for="DivisionId" hidden="hidden" />
+                    <div class="row justify-content-around form-group mb-lg-4">
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <input asp-for="SearchSubPositionName" class="form-control" type="text" placeholder="@resManager.GetString("NameLabel")" />
+                        </div>
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <input asp-for="SearchSubPositionPrimaryEmployee" class="form-control" type="text" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
+                        </div>
+                    </div>
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-auto mb-4 mb-sm-0 text-center flex-grow-0">
+                            <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
+                        </div>
+                        <div class="col-auto text-center flex-grow-0">
+                            <a asp-controller="@POSITION" asp-action="ClearSearchSubPosition" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

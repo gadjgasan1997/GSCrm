@@ -1,0 +1,67 @@
+﻿#divisionsFilter,
+#positionsFilter,
+#employeesFilter,
+#contactsFilter,
+#allAccountsFilter,
+#currentAccountsFilter,
+#subPositionsFilter,
+#posEmployeesFilter,
+#subordinatesFilter
+.accordion {
+    .card {
+        border-top: none !important;
+    }
+
+    .card:first-of-type {
+        border-bottom: 1px solid rgba(0,0,0,.125)
+    }
+}
+
+#accContactsFilter,
+#accAddressesFilter,
+#accInvoicesFilter,
+#subordinatesFilter,
+#posEmployeesFilter,
+#subPositionsFilter {
+    .card:first-of-type {
+        border-bottom: 1px solid rgba(0,0,0,.125)
+    }
+
+    #accContactsActions,
+    #accAddressesActions,
+    #accInvoicesActions {
+        width: 100%
+    }
+}
+
+#contactsFilter,
+#positionsFilter {
+    #collapseContacts,
+    #collapsePositions {
+        .dropdown-area {
+            margin-top: 3px
+        }
+    }
+}
+
+#accContactsFilter,
+#accAddressesFilter {
+    #searchContactTypeBlock,
+    #searchAddressTypeBlock {
+        > .dropdown-area {
+            .dropdown-el {
+                margin-top: 5px;
+            }
+        }
+
+        > div {
+            width: 100%
+        }
+    }
+}
+
+#accContactsFilter {
+    #searchContactPrimarySign {
+        margin-left: 0
+    }
+}

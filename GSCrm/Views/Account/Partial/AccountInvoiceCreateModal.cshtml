@@ -1,0 +1,48 @@
+﻿@inject ResManager resManager
+@model AccountViewModel
+@using static GSCrm.CommonConsts
+
+<div id="accInvoiceCreateModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("InvoiceCreate")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="@ACC_INVOICE" asp-action="Create">
+                    <div class="mt-3">
+                        <input id="createAccInvoiceBankName" class="form-control" type="text" placeholder="@resManager.GetString("BankName")" />
+                        <ul id="createAccInvoiceBankNameError" data-connect-el="createAccInvoiceBankName" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccInvoiceCity" class="form-control" type="text" placeholder="@resManager.GetString("BankCity")" />
+                        <ul id="createAccInvoiceCityError" data-connect-el="createAccInvoiceCity" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccInvoiceChecking" class="form-control" type="text" placeholder="@resManager.GetString("CheckingAccount")" />
+                        <ul id="createAccInvoiceCheckingError" data-connect-el="createAccInvoiceChecking" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccInvoiceCorrespondent" class="form-control" type="text" placeholder="@resManager.GetString("CorrespondentAccount")" />
+                        <ul id="createAccInvoiceCorrespondentError" data-connect-el="createAccInvoiceCorrespondent" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccInvoiceBIC" class="form-control form-control-number" type="number" placeholder="@resManager.GetString("BIC")" />
+                        <ul id="createAccInvoiceBICError" data-connect-el="createAccInvoiceBIC" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccInvoiceSWIFT" class="form-control" type="text" placeholder="@resManager.GetString("SWIFT")" />
+                        <ul id="createAccInvoiceSWIFTError" data-connect-el="createAccInvoiceSWIFT" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input id="createAccInvoiceBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("CreateLabel")" />
+                <input id="cancelCreationAccInvoiceBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+            </div>
+        </div>
+    </div>
+</div>

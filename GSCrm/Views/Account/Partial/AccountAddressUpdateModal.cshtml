@@ -1,0 +1,70 @@
+﻿@inject ResManager resManager
+@model AccountViewModel
+@using static GSCrm.CommonConsts
+
+<div id="accAddressUpdateModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("AddressUpdate")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="@ACC_ADDRESS" asp-action="Update">
+                    <input id="accAddressId" hidden="hidden" />
+                    <div class="form-group mt-3">
+                        <div id="updateAccAddressCountry" class="autocomplete default-autocomplete" data-autocomplite-type="countries">
+                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{APP_INFO}/GetCountries/")"></a>
+                            <input id="updateAccAddressCountryVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("Country")" />
+                            <ul class="autocomplete-result-list"></ul>
+                        </div>
+                        <ul id="updateAccAddressCountryError" data-connect-el="updateAccAddressCountryVal" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="updateAccAddressRegion" class="form-control" type="text" placeholder="@resManager.GetString("Region")" />
+                        <ul id="updateAccAddressRegionError" data-connect-el="updateAccAddressRegion" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="updateAccAddressCity" class="form-control" type="text" placeholder="@resManager.GetString("City")" />
+                        <ul id="updateAccAddressCityError" data-connect-el="updateAccAddressCity" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="updateAccAddressStreet" class="form-control" type="text" placeholder="@resManager.GetString("Street")" />
+                        <ul id="updateAccAddressStreetError" data-connect-el="updateAccAddressStreet" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="updateAccAddressHouse" class="form-control" type="text" placeholder="@resManager.GetString("House")" />
+                        <ul id="updateAccAddressHouseError" data-connect-el="updateAccAddressHouse" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col">
+                            <div class="block-center">
+                                <p class="label-md label-non-select">@resManager.GetString("AddressType")</p>
+                            </div>
+                        </div>
+                        <div class="col dropdown-area">
+                            <input id="updateAccAddressType" class="current-dropdown-value" hidden="hidden" />
+                            <span class="dropdown-el">
+                                <input type="radio" name="addressType" value="None" checked="checked" id="updateAddressTypeNone">
+                                <label for="updateAddressTypeNone">@resManager.GetString("None")</label>
+                                <input type="radio" name="addressType" value="Legal" id="updateAddressTypeLegal">
+                                <label for="updateAddressTypeLegal">@resManager.GetString("Legal")</label>
+                                <input type="radio" name="addressType" value="Postal" id="updateAddressTypePostal">
+                                <label for="updateAddressTypePostal">@resManager.GetString("Postal")</label>
+                                <input type="radio" name="addressType" value="Other" id="updateAddressTypeOther">
+                                <label for="updateAddressTypeOther">@resManager.GetString("Other")</label>
+                            </span>
+                        </div>
+                        <ul id="updateAccAddressTypeError" class="under-field-error label-sm mt-3 text-center d-none" style="width: 100%"></ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input id="updateAccAddressBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("UpdateLabel")" />
+                <input id="cancelUpdateAccAddressBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+            </div>
+        </div>
+    </div>
+</div>

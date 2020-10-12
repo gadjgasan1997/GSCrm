@@ -1,0 +1,92 @@
+﻿@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels
+@using static GSCrm.CommonConsts
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AccountViewModel
+@{
+    int invoicesCount = Model.AccountInvoices.Count;
+    bool showES = invoicesCount == 0 && new[]
+        { Model.SearchInvoiceBankName, Model.SearchInvoiceCity, Model.SearchInvoiceCheckingAccount, Model.SearchInvoiceCorrespondentAccount, Model.SearchInvoiceBIC, Model.SearchInvoiceSWIFT }.AllIsNullOrEmpty();
+    string currentUserId = User.GetUserModel(context).Id;
+}
+
+@* // Фильтр по банковским реквизитам *@
+@if (!showES)
+{
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountInvoicesManagement.cshtml");
+}
+
+<div id="accInvoicesList">
+    <form class="table-wrapper mt-3">
+        <table class="fl-table @(!showES ? "" : "empty-table")">
+            <thead>
+                @if (!showES)
+                {
+                    <tr>
+                        <th class="d-none"></th>
+                        <th>@resManager.GetString("BankName")</th>
+                        <th>@resManager.GetString("BankCity")</th>
+                        <th>@resManager.GetString("CheckingAccount")</th>
+                        <th>@resManager.GetString("CorrespondentAccount")</th>
+                        <th>@resManager.GetString("BIC")</th>
+                        <th>@resManager.GetString("SWIFT")</th>
+                        <th class="action-column"></th>
+                        <th class="action-column"></th>
+                    </tr>
+                }
+                else
+                {
+                    <tr><th></th><th></th></tr>
+                }
+            </thead>
+            <tbody>
+                @if (showES)
+                {
+                    <tr>
+                        <td><img src="~/img/default-empty.svg" /></td>
+                        <td>
+                            <input type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#accInvoiceCreateModal" value="@resManager.GetString("ESInvoices")">
+                        </td>
+                    </tr>
+                }
+                @foreach (AccountInvoiceViewModel accountInvoice in Model.AccountInvoices)
+                {
+                    <tr>
+                        <td class="invoice-id d-none">@accountInvoice.Id</td>
+                        <td class="tooltip-cell-src">@accountInvoice.BankName</td>
+                        <td class="tooltip-cell-src">@accountInvoice.City</td>
+                        <td class="tooltip-cell-src">@accountInvoice.CheckingAccount</td>
+                        <td class="tooltip-cell-src">@accountInvoice.CorrespondentAccount</td>
+                        <td class="tooltip-cell-src">@accountInvoice.BIC</td>
+                        <td class="tooltip-cell-src">@accountInvoice.SWIFT</td>
+                        <td class="remove-item-btn">
+                            <div class="remove-item-url" hidden="hidden">
+                                @Html.ActionLink(accountInvoice.Id.ToString(), "Delete", ACC_INVOICE, new { id = accountInvoice.Id })"
+                            </div>
+                            <span class="icon-bin"></span>
+                        </td>
+                        <td class="edit-item-btn" data-toggle="modal" data-target="#accInvoiceUpdateModal">
+                            <div class="edit-item-url" hidden="hidden">
+                                @Html.ActionLink(accountInvoice.Id.ToString(), INVOICE, ACC_INVOICE, new { id = accountInvoice.Id })"
+                            </div>
+                            <span class="icon-pencil"></span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+    @{
+        await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+        {
+            ItemsCount = invoicesCount,
+            ViewInfo = viewsInfo.Get(currentUserId, ACC_INVOICES),
+            ControllerName = ACC_INVOICE,
+            ActionName = INVOICES
+        });
+    }
+</div>

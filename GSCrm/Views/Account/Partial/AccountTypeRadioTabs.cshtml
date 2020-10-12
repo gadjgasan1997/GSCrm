@@ -1,0 +1,51 @@
+﻿@inject ResManager resManager
+@model AccountViewModel
+<div class="row mt-4 mr-0 mr-md-5 ml-0 ml-md-5 radio-tabs justify-content-around">
+    <div class="col-sm m-0 flex-grow-0">
+        <div class="block-center">
+            <p class="label-md label-non-select">@resManager.GetString("AccountType")</p>
+        </div>
+    </div>
+
+    <div class="col-sm m-0 mt-3 mt-sm-0 form-check form-check-inline" disabled>
+        <div class="form-check-wrap">
+            @if (Model.AccountType == AccountType.Individual.ToString())
+            {
+                <input class="form-check-input" type="radio" name="acctTypeTab" value="IndividualOption" checked>
+            }
+            else { <input class="form-check-input" type="radio" name="acctTypeTab" value="IndividualOption" disabled> }
+
+            <label class="form-check-label label-non-select" for="IndividualOption">
+                @resManager.GetString("Individual")
+            </label>
+        </div>
+    </div>
+
+    <div class="col-sm m-0 mt-3 mt-sm-0 form-check form-check-inline" disabled>
+        <div class="form-check-wrap">
+            @if (Model.AccountType == AccountType.IndividualEntrepreneur.ToString())
+            {
+                <input class="form-check-input" type="radio" name="acctTypeTab" value="IEOption" checked>
+            }
+            else { <input class="form-check-input" type="radio" name="acctTypeTab" value="IEOption" disabled> }
+
+            <label class="form-check-label label-non-select" for="IEOption">
+                @resManager.GetString("IE")
+            </label>
+        </div>
+    </div>
+
+    <div class="col-sm m-0 mt-3 mt-sm-0 form-check form-check-inline" disabled>
+        <div class="form-check-wrap">
+            @if (Model.AccountType == AccountType.LegalEntity.ToString())
+            {
+                <input class="form-check-input" type="radio" name="acctTypeTab" value="LEOption" checked>
+            }
+            else { <input class="form-check-input" type="radio" name="acctTypeTab" value="LEOption" disabled> }
+
+            <label class="form-check-label label-non-select" for="LEOption">
+                @resManager.GetString("LE")
+            </label>
+        </div>
+    </div>
+</div>

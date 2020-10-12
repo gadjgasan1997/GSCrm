@@ -1,0 +1,137 @@
+﻿.nav.nav-tabs {
+    .nav-item {
+        //max-height: 42px
+    }
+
+    .nav-item .active {
+        background-color: rgba(0,0,0,.03);
+        border-bottom: 1px solid #f7f7f7;
+        cursor: auto;
+    }
+
+    .nav-link {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        height: 100%
+    }
+}
+
+.form-check {
+    padding: 0;
+
+    .form-check-wrap {
+        height: 100%;
+        width: 100%;
+        text-align: center;
+        position: relative;
+
+        .form-check-input {
+            width: 100%;
+            margin: 0;
+        }
+    }
+}
+
+.form-check:not([disabled]) {
+    cursor: pointer;
+
+    .form-check-input, .form-check-label {
+        cursor: pointer
+    }
+}
+
+@import url('https://fonts.googleapis.com/css?family=Oswald');
+
+$base-color: grey;
+$second-color: lightgray;
+$third-color: #008C95;
+$site: #303F9F;
+$light: #fff;
+
+.naccs {
+    position: relative;
+
+    .menu {
+        overflow-x: hidden;
+
+        > div {
+            padding: 15px 20px 15px 40px;
+            margin-bottom: 10px;
+            color: $base-color;
+            background: $second-color;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            vertical-align: middle;
+            font-weight: 700;
+            transition: 1s all cubic-bezier(0.075, 0.82, 0.165, 1);
+            min-height: 80px;
+
+            > span.light {
+                height: 10px;
+                width: 10px;
+                position: absolute;
+                top: 24px;
+                left: 15px;
+                background-color: $base-color;
+                border-radius: 100%;
+                transition: 1s all cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+        }
+
+        > div.active {
+            color: $third-color;
+            padding: 15px 20px 15px 20px;
+
+            > span.light {
+                background-color: $third-color;
+                left: 0;
+                height: 100%;
+                width: 3px;
+                top: 0;
+                border-radius: 0;
+            }
+        }
+
+        > div, > div.active {
+            min-width: 200px;
+
+            > p {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin: 0;
+            }
+        }
+
+        > div:not([class="active"]) {
+            cursor: pointer;
+        }
+
+        > div:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+
+ul.nacc {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    //transition: .5s all cubic-bezier(0.075, 0.82, 0.165, 1);
+    li {
+        display: none;
+        width: 100%;
+        margin-left: -50px;
+        transform: translateX(50px);
+        position: relative;
+        list-style: none;
+        //transition: 1s all cubic-bezier(0.075, 0.82, 0.165, 1);
+        > div {
+            margin: 0;
+        }
+    }
+
+    li:first-child {
+        display: block
+    }
+}

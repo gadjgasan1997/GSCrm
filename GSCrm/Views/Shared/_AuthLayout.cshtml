@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GSCrm</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/malihu-custom-scrollbar-plugin-master/jquery.mCustomScrollbar.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/Dropdown.css" />
+    <link rel="stylesheet" href="~/css/Tables.css" />
+    <link rel="stylesheet" href="~/css/Tabs.css" />
+    <link rel="stylesheet" href="~/css/Navbar.css" />
+    <link rel="stylesheet" href="~/css/Fonts.css" />
+    <link rel="stylesheet" href="~/css/Filters.css" />
+    <link rel="stylesheet" href="~/css/Forms.css" />
+    <link rel="stylesheet" href="~/css/Lists.css" />
+    <link rel="stylesheet" href="~/css/Modals.css" />
+    <link rel="stylesheet" href="~/css/Blocks.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-5">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Auth" asp-action="Index">GSCrm</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery.maskedinput-master/src/jquery.maskedinput.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/autocomplete-master/min/Autocomplite.min.js"></script>
+    <script src="~/lib/malihu-custom-scrollbar-plugin-master/js/uncompressed/jquery.mCustomScrollbar.js"></script>
+    <script src="~/js/Masks.js" asp-append-version="true"></script>
+    <script src="~/js/Tabs.js" asp-append-version="true"></script>
+    <script src="~/js/Button.js" asp-append-version="true"></script>
+    <script src="~/js/Tooltip.js" asp-append-version="true"></script>
+    <script src="~/js/Localization.js" asp-append-version="true"></script>
+    <script src="~/js/ErrorsManager.js" asp-append-version="true"></script>
+    <script src="~/js/MessageManager.js" asp-append-version="true"></script>
+    <script src="~/js/Dropdown.js" asp-append-version="true"></script>
+    <script src="~/js/Autocomplite.js" asp-append-version="true"></script>
+    <script src="~/js/Utils.js" asp-append-version="true"></script>
+    <script src="~/js/EventHadlers.js" asp-append-version="true"></script>
+    <script src="~/js/AjaxRequests.js" asp-append-version="true"></script>
+    <script src="~/js/Organization.js" asp-append-version="true"></script>
+    <script src="~/js/Division.js" asp-append-version="true"></script>
+    <script src="~/js/Position.js" asp-append-version="true"></script>
+    <script src="~/js/Employee.js" asp-append-version="true"></script>
+    <script src="~/js/EmployeeContact.js" asp-append-version="true"></script>
+    <script src="~/js/EmployeePosition.js" asp-append-version="true"></script>
+    <script src="~/js/EmployeePositionsManagement.js" asp-append-version="true"></script>
+    <script src="~/js/Auth.js" asp-append-version="true"></script>
+    <script src="~/js/Account.js" asp-append-version="true"></script>
+    <script src="~/js/AccountAddress.js" asp-append-version="true"></script>
+    <script src="~/js/AccountContact.js" asp-append-version="true"></script>
+    <script src="~/js/AccountInvoice.js" asp-append-version="true"></script>
+    <script src="~/js/AccountQuote.js" asp-append-version="true"></script>
+    <script src="~/js/AccountManagement.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

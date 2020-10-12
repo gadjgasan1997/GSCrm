@@ -1,0 +1,44 @@
+﻿@inject ResManager resManager
+@model EmployeeViewModel
+@using static GSCrm.CommonConsts
+
+@* // Модальное окно изменения подразделения *@
+<div id="changeEmployeeDivisionModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("NewDivisionAndPosition")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="Employee" asp-action="ChangeDivision">
+                    <div class="form-group">
+                        <div class="mt-3">
+                            <div id="empNewDiv" class="autocomplete default-autocomplete">
+                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{DIVISION}/GetDivisionsExceptCurrent/{Model.OrganizationId}/{Model.DivisionId}/")"></a>
+                                <input class="autocomplete-input form-control" placeholder="@resManager.GetString("NewDivision")" />
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                        </div>
+                        <ul id="empNewDivError" class="d-none under-field-error label-sm mt-2"></ul>
+
+                        <div class="mt-4">
+                            <div id="empNewPrimaryPos" class="autocomplete default-autocomplete" data-autocomplite-type="Positions" data-autocomplite-name="EmpNewPrimaryPos">
+                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{POSITION}/GetPositions/{Model.OrganizationId}/")"></a>
+                                <input class="autocomplete-input form-control" placeholder="@resManager.GetString("NewPosition")" />
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                        </div>
+                        <ul id="empNewPrimaryPosError" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input id="changeDivisionBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("ChangeLabel")" />
+                <input id="cancelChangeDivisionBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+            </div>
+        </div>
+    </div>
+</div>

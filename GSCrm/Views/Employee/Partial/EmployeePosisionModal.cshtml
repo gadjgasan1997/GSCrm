@@ -1,0 +1,157 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model EmployeeViewModel
+@{
+    string currentUserId = User.GetUserModel(context).Id;
+    ViewInfo allPositionsView = viewsInfo.Get(currentUserId, ALL_EMP_POSS);
+    ViewInfo selectedPositionsView = viewsInfo.Get(currentUserId, SELECTED_EMP_POSS);
+}
+
+<div id="employeePosisionModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("PositionsManagement")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="syncPositionsErrors" class="under-field-error d-none"></ul>
+                <form method="post" asp-controller="@EMP_POSITION" asp-action="Synchronize">
+                    <div class="row">
+                        <div class="col-xl">
+                            <div class="row justify-content-center">
+                                <p class="label-md m-0">@resManager.GetString("AllPositionsExceptSelected")</p>
+                            </div>
+                            <div class="card-body">
+                                <input asp-for="Id" hidden="hidden" />
+                                <input asp-for="DivisionId" hidden="hidden" />
+                                <div class="row justify-content-around form-group mb-0 mt-1">
+                                    <div class="col-lg mb-4 mb-lg-0">
+                                        <input asp-for="SearchAllPosName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
+                                    </div>
+                                    <div class="col-lg mb-4 mb-lg-0">
+                                        <input asp-for="SearchAllParentPosName" class="form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
+                                    </div>
+                                    <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                                        <input id="allPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
+                                               data-href="@Url.Action("SearchAllPosition", EMP_POSITION, new { employeeId = Model.Id })" />
+                                    </div>
+                                    <div class="col-auto text-center flex-grow-0">
+                                        <input id="clearAllPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
+                                               data-href="@Url.Action("ClearAllPositionSearch", EMP_POSITION, new { employeeId = Model.Id })" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-wrapper mt-3">
+                                <table id="allPositions" class="fl-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="label-non-select">@resManager.GetString("NameLabel")</th>
+                                            <th class="label-non-select">@resManager.GetString("ParentPositionLabel")</th>
+                                            <th class="action-column"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-xl">
+                            <div id="allPositionsNav" class="list-nav row no-gutters justify-content-center mt-3">
+                                <div class="col">
+                                    <div class="nav-previous">
+                                        <div class="nav-url" data-href="@Url.Action("PreviousAllRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-left"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="nav-next">
+                                        <div class="nav-url" data-href="@Url.Action("NextAllRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-right"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-xl mt-5">
+                            <div class="row justify-content-center">
+                                <p class="label-md m-0">@resManager.GetString("SelectedPositions")</p>
+                            </div>
+                            <div class="card-body">
+                                <input asp-for="Id" hidden="hidden" />
+                                <input asp-for="DivisionId" hidden="hidden" />
+                                <div class="row justify-content-around form-group mb-0 mt-1">
+                                    <div class="col-lg mb-4 mb-lg-0">
+                                        <input asp-for="SearchSelectedPosName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
+                                    </div>
+                                    <div class="col-lg mb-4 mb-lg-0">
+                                        <input asp-for="SearchSelectedParentPosName" class="form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
+                                    </div>
+                                    <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                                        <input id="selectedPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
+                                               data-href="@Url.Action("SearchSelectedPosition", EMP_POSITION, new { employeeId = Model.Id })" />
+                                    </div>
+                                    <div class="col-auto text-center flex-grow-0">
+                                        <input id="clearSelectedPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
+                                               data-href="@Url.Action("ClearSelectedPositionSearch", EMP_POSITION, new { employeeId = Model.Id })" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-wrapper mt-3">
+                                <table id="selectedPositions" class="fl-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="label-non-select">@resManager.GetString("NameLabel")</th>
+                                            <th class="label-non-select">@resManager.GetString("ParentPositionLabel")</th>
+                                            <th class="label-non-select">@resManager.GetString("IsPrimaryPosition")</th>
+                                            <th class="action-column"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-xl mb-2">
+                            <div id="selectedPositionsNav" class="list-nav row no-gutters justify-content-center mt-3">
+                                <div class="col">
+                                    <div class="nav-previous">
+                                        <div class="nav-url" data-href="@Url.Action("PreviousSelectedRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-left"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="nav-next">
+                                        <div class="nav-url" data-href="@Url.Action("NextSelectedRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-right"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="row justify-content-between m-0">
+                    <div class="col">
+                        <input id="syncEmpPositionsBtn" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Synchronize")" />
+                    </div>
+                    <div class="col">
+                        <input id="cancelSyncEmpPositionsBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

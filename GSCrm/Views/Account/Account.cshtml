@@ -1,0 +1,358 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels
+@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AccountViewModel
+@* // Хлебные крошки *@
+@{
+    AccountManagerViewModel accountManager = Model.AccountManagers.FirstOrDefault(man => man.IsPrimary);
+}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li id="accountsBackUrl" class="breadcrumb-item">
+            <a asp-controller="@ACCOUNT" asp-action="BackToAccounts">@resManager.GetString(ACCOUNTS)</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(ACCOUNT) : @Model.Name</li>
+    </ol>
+</nav>
+
+@if (accountManager != null)
+{
+    // Управление командой по клиенту
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountTeamManagement.cshtml");
+
+    // Модальное окно создания контакта
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountContactCreateModal.cshtml");
+
+    // Модальное окно изменения контакта
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountContactUpdateModal.cshtml");
+
+    // Модальное окно создания адреса
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountAddressCreateModal.cshtml");
+
+    // Модальное окно изменения адреса
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountAddressUpdateModal.cshtml");
+
+    // Модальное окно изменения юридического адреса
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/ChangeLegalAddressModal.cshtml");
+
+    // Модальное окно создания реквизитов
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountInvoiceCreateModal.cshtml");
+
+    // Модальное окно изменения реквизитов
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountInvoiceUpdateModal.cshtml");
+}
+
+else
+{
+    // Модальное окно добавления КМ
+    await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AddAccountManagerModal.cshtml");
+}
+
+<div id="accountForm">
+    <input id="accountId" asp-for="Id" hidden="hidden" />
+    <form asp-controller="@ACCOUNT" asp-action="Update">
+        <div asp-validation-summary="All"></div>
+        @if (Model.AccountStatus != AccountStatus.Lock)
+        {
+            <div class="row">
+                <div class="col-xl form-group flex-grow-1 mb-0">
+                    <input asp-for="AccountType" hidden="hidden" />
+                    <input asp-for="OrganizationId" hidden="hidden" />
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">@resManager.GetString("OwnerOrganization")</span>
+                                </div>
+                                <div class="form-control form-control-url wide-form-control">
+                                    <a href="@Url.Content($"~/{ORGANIZATION}/{Model.OrganizationId}/")">@Model.OrganizationName</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*Тип юридический*@
+                    @if (Model.AccountType == AccountType.LegalEntity.ToString())
+                    {
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("NameLabel")</span>
+                                    </div>
+                                    <input id="accountName" asp-for="Name" type="text" class="form-control wide-form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("LegalAddress")</span>
+                                    </div>
+                                    <input id="accountLegalAddress" asp-for="LegalAddress" type="text" readonly class="form-control form-control-readonly">
+                                    <div class="input-group-append change-address-btn">
+                                        <div class="input-group-text">
+                                            <span class="icon-pencil"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("INN")</span>
+                                    </div>
+                                    <input id="accountINN" asp-for="INN" type="number" class="form-control wide-form-control">
+                                </div>
+                            </div>
+                            <div class="col-md mt-4 mt-md-0">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("KPP")</span>
+                                    </div>
+                                    <input id="accountKPP" asp-for="KPP" type="number" class="form-control wide-form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("OKPO")</span>
+                                    </div>
+                                    <input id="accountOKPO" asp-for="OKPO" type="number" class="form-control wide-form-control">
+                                </div>
+                            </div>
+                            <div class="col-md mt-4 mt-md-0">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("OGRN")</span>
+                                    </div>
+                                    <input id="accountOGRN" asp-for="OGRN" type="number" class="form-control wide-form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("Site")</span>
+                                    </div>
+                                    <div class="form-control form-control-url wide-form-control">
+                                        <a href="@Model.Site">@Model.Site</a>
+                                    </div>
+                                    <div class="input-group-append change-url-btn">
+                                        <div class="input-group-text">
+                                            <span class="icon-pencil" href="@Url.Content($"~/{ACCOUNT}/ChangeSite/{Model.Id}/")"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @*Тип не юридический*@
+                    else
+                    {
+                        <div class="row mt-4">
+                            <div class="col-md">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            @if (Model.AccountType == AccountType.Individual.ToString())
+                                            {
+                                                @resManager.GetString("FullName")
+                                            }
+                                            else @resManager.GetString("NameLabel")
+                                        </span>
+                                    </div>
+                                    @if (Model.AccountType == AccountType.Individual.ToString())
+                                    {
+                                        <input id="accountName" asp-for="Name" type="text" readonly class="form-control form-control-readonly wide-form-control">
+                                    }
+                                    else
+                                    {
+                                        <input id="accountName" asp-for="Name" type="text" class="form-control wide-form-control">
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md mt-4 mt-md-0">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("INN")</span>
+                                    </div>
+                                    <input id="accountINN" asp-for="INN" type="number" class="form-control wide-form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("LegalAddress")</span>
+                                    </div>
+                                    <input id="accountLegalAddress" asp-for="LegalAddress" type="text" readonly class="form-control form-control-readonly">
+                                    <div class="input-group-append change-address-btn">
+                                        <div class="input-group-text">
+                                            <span class="icon-pencil"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@resManager.GetString("Site")</span>
+                                    </div>
+                                    <div class="form-control form-control-url wide-form-control">
+                                        <a href="@Model.Site">@Model.Site</a>
+                                    </div>
+                                    <div class="input-group-append change-url-btn">
+                                        <div class="input-group-text">
+                                            <span class="icon-pencil" href="@Url.Content($"~/{ACCOUNT}/ChangeSite/{Model.Id}/")"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @*Действия с клиентом*@
+                    <div id="accountActions" class="row justify-content-around form-group">
+                        <div class="col-auto text-center mb-auto mt-4">
+                            <input type="button" class="btn btn-outline-primary" value="@resManager.GetString("AccountTypeChange")" />
+                        </div>
+                        <div class="col-auto text-center mb-auto mt-4">
+                            <input id="updateAccBtn" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SaveChanges")" />
+                        </div>
+                        <div class="col-auto text-center mb-auto mt-4">
+                            <a id="cancelUpdateAccBtn" class="btn btn-outline-danger" href="@Url.Content($"~/{ACCOUNT}/{Model.Id}/")">@resManager.GetString("CancelChanges")</a>
+                        </div>
+                        <div class="col-auto text-center mb-auto mt-4">
+                            <a id="removeAccBtn" class="btn btn-outline-danger" href="@Url.Content($"~/{ACCOUNT}/Delete?id={Model.Id}")">@resManager.GetString("RemoveAccount")</a>
+                        </div>
+                    </div>
+                </div>
+
+                @*Команда по клиенту*@
+                <div id="accountTeam" class="col-xl form-group flex-grow-0 mt-4 mt-xl-0">
+                    <h4 class="label-non-select text-center">@resManager.GetString("AccountTeam")</h4>
+                    <div id="accountTeamList" class="mt-3">
+                        <div class="list-group">
+                            <a href="@Url.Action(EMPLOYEE, EMPLOYEE, new { id = accountManager.EmployeeId })" class="list-group-item list-group-item-action account-manager">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mr-1">@accountManager.InitialName</h5>
+                                    <div>
+                                        <div class="oval-mark-readonly">
+                                            <div class="icon-checkmark"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mb-1">@accountManager.PositionName</p>
+                                <small>@accountManager.PhoneNumber</small>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col text-center mt-3">
+                        <input id="accTeamManagementBtn" type="button" data-toggle="modal" data-target="#accTeamManagementModal" class="btn btn-outline-primary" value="@resManager.GetString("TeamManagement")" />
+                        <input id="accTeamManagementUrl" hidden="hidden" href="@Url.Content($"~/{ACC_MANAGER}/InitializeAccTeam/{Model.Id}/")" />
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col text-center">
+                    <h4>@resManager.GetString("AccountLock")</h4>
+                </div>
+            </div>
+            <div class="row mt-3 justify-content-around">
+                <div>
+                    <a id="removeAccBtn" class="btn btn-outline-danger" href="@Url.Content($"~/{ACCOUNT}/Delete?id={Model.Id}")">@resManager.GetString("RemoveAccount")</a>
+                </div>
+                <div>
+                    <a id="addKMBtn" class="btn btn-outline-dark" data-toggle="modal" data-target="#addAccountManagerModal" href="">@resManager.GetString("AddKM")</a>
+                </div>
+            </div>
+        }
+    </form>
+</div>
+
+@if (Model.AccountStatus != AccountStatus.Lock)
+{
+    <div id="accountAddInfoForm" class="naccs mt-4">
+        <div class="grid row">
+            <div class="col-xl gc flex-grow-0 order-1 order-xl-0">
+                <div id="accVertNavTabs" class="menu vert-nav-tabs">
+                    <div id="contactsVertNavTab" class="vert-nav-tab">
+                        <span class="light"></span>
+                        <p class="label-non-select">@resManager.GetString("Contacts")</p>
+                    </div>
+                    <div id="addressesVertNavTab" class="vert-nav-tab">
+                        <span class="light"></span>
+                        <p class="label-non-select">@resManager.GetString("Addresses")</p>
+                    </div>
+                    <div id="invoicesVertNavTab" class="vert-nav-tab">
+                        <span class="light"></span>
+                        <p class="label-non-select">@resManager.GetString("Invoices")</p>
+                    </div>
+                    @*<div id="quotesVertNavTab" class="vert-nav-tab">
+                            <span class="light"></span>
+                            <p class="label-non-select">@resManager.GetString("Quotes")</p>
+                        </div>
+                        <div id="docsVertNavTab" class="vert-nav-tab">
+                            <span class="light"></span>
+                            <p class="label-non-select">@resManager.GetString("Documents")</p>
+                        </div>*@
+                </div>
+            </div>
+            <div class="col-xl flex-grow-1 order-0 order-xl-1 mb-4 mb-xl-0">
+                <ul class="nacc vert-nav-connected-tabs" vert-nav-tabs="accVertNavTabs">
+                    <li class="vert-nav-connected-tab" vert-nav-tab="contactsVertNavTab">
+                        @* // Список контактов клиента *@
+                        <div>
+                            @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/ContactsList.cshtml"); }
+                        </div>
+                    </li>
+                    <li class="vert-nav-connected-tab" vert-nav-tab="addressesVertNavTab">
+                        @* // Список адресов клиента *@
+                        <div>
+                            @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AddressesList.cshtml"); }
+                        </div>
+                    </li>
+                    <li class="vert-nav-connected-tab" vert-nav-tab="invoicesVertNavTab">
+                        @* // Список банковских реквизитов клиента *@
+                        <div>
+                            @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/InvoicesList.cshtml"); }
+                        </div>
+                    </li>
+                    <!--<li class="vert-nav-connected-tab" vert-nav-tab="quotesVertNavTab">-->
+                    @* // Список сделок клиента *@
+                    <!--<div>
+                            @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/QuotesList.cshtml"); }
+                        </div>
+                    </li>
+                    <li class="vert-nav-connected-tab" vert-nav-tab="docsVertNavTab">-->
+                    @* // Список документов клиента *@
+                    <!--<div>
+                            @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/DocumentsList.cshtml"); }
+                        </div>
+                    </li>-->
+                </ul>
+            </div>
+        </div>
+    </div>
+}

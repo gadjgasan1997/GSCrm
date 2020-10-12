@@ -1,0 +1,203 @@
+﻿.container-md {
+    position: relative;
+    width: 800px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.container-layout {
+    margin-left: 10%;
+    width: 90%
+}
+
+.form-shadow {
+    position: absolute;
+    height: 110%;
+    width: 110%;
+    left: -5%;
+    top: -5%;
+    background-color: grey;
+    opacity: 0.2;
+    z-index: 10000;
+}
+
+#createOrgForm {
+    > div {
+        display: flex;
+        justify-content: flex-end
+    }
+
+    .input-group {
+        height: 100%;
+    }
+}
+
+#organizationForm {
+    .nav-tabs .nav-item {
+        width: 33.33%;
+        text-align: center;
+
+        .nav-link {
+            color: black
+        }
+    }
+    .tab-content {
+
+    }
+}
+
+#employeeForm > div:first-child,
+#positionForm > div:first-child {
+    > h3 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        max-height: 100px
+    }
+}
+
+#accountsForm,
+#positionForm {
+    .nav-tabs .nav-item {
+        width: 50%;
+    }
+}
+#employeeForm,
+#quotesForm {
+    .nav-tabs .nav-item {
+        width: 33.33%;
+    }
+}
+
+#employeeForm,
+#accountsForm,
+#quotesForm,
+#positionForm {
+    .nav-tabs .nav-item {
+        text-align: center;
+        margin-top: 35px;
+    }
+
+    .nav-link {
+        color: black
+    }
+}
+
+#positionForm {
+    #positionsHierarchy {
+        max-height: 600px;
+
+        .position-hierarchy-item {
+            position: relative;
+            width: 250px;
+            height: 130px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid transparent;
+            background: transparent;
+            border-radius: 4px;
+        }
+
+        .position-hierarchy-item:not(.position-current-item) {
+            cursor: pointer;
+
+            .position-hierarchy-link {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+
+                a {
+                    position: absolute;
+                    height: 100%;
+                    width: 100%;
+                    opacity: 0;
+                    z-index: 100
+                }
+            }
+        }
+
+        .position-hierarchy-item:not(.position-current-item):hover, .position-current-item {
+            box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.2), 0px 0px 2px rgba(149, 155, 161, 0.6);
+            background: #FFFFFF;
+            border: 1px solid rgba(149, 155, 161, 0.6);
+        }
+
+        .row {
+            width: 100%;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+
+            .oval-mark {
+                position: relative;
+                z-index: 150
+            }
+        }
+
+        .positions-connector {
+            position: absolute;
+            height: calc(100% - 130px);
+            width: 2px;
+            background: linear-gradient(0deg, #008C95, #008C95), #FFFFFF;
+            left: 27px;
+            z-index: 150;
+            top: 20px;
+        }
+    }
+}
+
+#accountForm {
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    #accountActions .row {
+        height: 100%
+    }
+
+    .radio-tabs {
+        .block-center {
+            height: 100%;
+            min-width: 100px
+        }
+    }
+
+    .form-control.wide-form-control {
+        min-width: 200px
+    }
+
+    #accountTeam {
+        min-width: 270px;
+
+
+        #accountTeamList {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-left: 10px;
+            margin-right: 10px;
+
+            .list-group {
+                .account-manager {
+                    height: 110px;
+
+                    > div > h5 {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+        }
+
+        #showAllManagers {
+            line-height: 40px;
+            cursor: pointer
+        }
+    }
+}
+
+#changePrimaryContact {
+    display: none
+}

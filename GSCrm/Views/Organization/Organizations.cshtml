@@ -1,0 +1,98 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels
+@using static GSCrm.CommonConsts
+@using GSCrm.Helpers
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model OrganizationsViewModel
+@{
+    IEnumerable<OrganizationViewModel> organizations = Model.OrganizationViewModels;
+    string currentUserId = User.GetUserModel(context).Id;
+}
+@* // Хлебные крошки *@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(ORGANIZATIONS)</li>
+    </ol>
+</nav>
+
+<div class="container mt-3">
+    <div class="form-shadow d-none"></div>
+    @* // Модальное окно создания организации *@
+    @{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/OrganizationModal.cshtml"); }
+
+    <form id="createOrgForm" method="post" asp-controller="@ORGANIZATION" asp-action="Search">
+        <div class="row justify-content-around">
+            <div class="col-lg mb-4 mb-lg-0 flex-grow-1">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">
+                            <span class="icon-search"></span>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1">
+                        <input asp-for="SearchName" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto col-lg mb-4 mb-lg-0 text-center text-lg-right flex-grow-0">
+                <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("Search")" />
+            </div>
+            <div class="col-auto col-lg mb-4 mb-lg-0 text-center text-lg-right flex-grow-0">
+                <a asp-controller="@ORGANIZATION" asp-action="ClearSearch" id="clearOrgSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+            </div>
+            <div class="col-auto col-lg mb-4 mb-lg-0 text-center text-lg-right flex-grow-0">
+                <input type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#organizationModal" value="@resManager.GetString("CreateOrganizationLabel")" />
+            </div>
+        </div>
+    </form>
+
+    <form id="organizationsList" class="table-wrapper mt-3">
+        <table class="fl-table @(Model.OrganizationViewModels.Count() > 0 ? "" : "empty-table")">
+            <thead>
+                @if (Model.OrganizationViewModels.Count() > 0)
+                {
+                    <tr>
+                        <th>@resManager.GetString("NameLabel")</th>
+                    </tr>
+                }
+                else
+                {
+                    <tr><th></th><th></th></tr>
+                }
+            </thead>
+            <tbody>
+                @if (Model.OrganizationViewModels.Count() == 0)
+                {
+                    <tr>
+                        <td><img src="~/img/default-empty.svg" /></td>
+                        <td>
+                            <input type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#organizationModal" value="@resManager.GetString("ESOrganization")">
+                        </td>
+                    </tr>
+                }
+                @foreach (OrganizationViewModel model in organizations)
+                {
+                    <tr>
+                        <td class="tooltip-cell-src tooltip-cell-link label-non-select organization-item">@Html.ActionLink(model.Name, ORGANIZATION, ORGANIZATION, new { id = model.Id })</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+    @{
+        await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+        {
+            ItemsCount = organizations.Count(),
+            ViewInfo = viewsInfo.Get(currentUserId, ORGANIZATIONS),
+            ControllerName = ORGANIZATION,
+            ActionName = ORGANIZATIONS
+        });
+    }
+</div>

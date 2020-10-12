@@ -1,0 +1,35 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model EmployeeViewModel
+
+<div id="subordinatesFilter">
+    <div class="accordion" id="subordinatesAccordin">
+        <div class="card">
+            <div class="card-header" id="headingSubordinates">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSubordinates" aria-expanded="true" aria-controls="collapseSubordinates">
+                        @resManager.GetString("SubordinatesFilter")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseSubordinates" class="collapse" aria-labelledby="headingSubordinates" data-parent="#subordinatesAccordin">
+                <form class="card-body" method="post" asp-controller="@EMPLOYEE" asp-action="SearchSubordinate">
+                    <input asp-for="Id" hidden="hidden" />
+                    <input asp-for="DivisionId" hidden="hidden" />
+                    <div class="row justify-content-around form-group mb-0 mt-1">
+                        <div class="col-lg mb-4 mb-lg-0">
+                            <input asp-for="SearchSubordinateFullName" class="form-control" placeholder="@resManager.GetString("FullName")" />
+                        </div>
+                        <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                            <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
+                        </div>
+                        <div class="col-auto text-center flex-grow-0">
+                            <a asp-controller="@EMPLOYEE" asp-action="ClearSubordinateSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

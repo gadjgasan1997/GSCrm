@@ -1,0 +1,88 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model OrganizationViewModel
+@{
+    int positionsCount = Model.Positions.Count();
+    bool showES = positionsCount == 0 && new[]
+        { Model.SearchPosName, Model.SeacrhPositionDivName, Model.SearchParentPosName, Model.SearchPrimaryEmployeeName }.AllIsNullOrEmpty();
+    string currentUserId = User.GetUserModel(context).Id;
+}
+
+@* // Должности *@
+<div class="tab-pane fade" id="positions" role="tabpanel" aria-labelledby="positions-tab">
+    @if (!showES)
+    {
+        @* // Фильтр по должностям *@
+        await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/PositionsFilter.cshtml");
+    }
+
+    <div class="form-shadow d-none"></div>
+    <div class="form-group">
+        <form id="positionsList" class="table-wrapper">
+            <table class="fl-table @(!showES ? "" : "empty-table")">
+                <thead>
+                    @if (!showES)
+                    {
+                        <tr>
+                            <th class="label-non-select">@resManager.GetString("NameLabel")</th>
+                            <th class="label-non-select">@resManager.GetString(DIVISION)</th>
+                            <th class="label-non-select">@resManager.GetString("PrimaryEmployeeLabel")</th>
+                            <th class="label-non-select">@resManager.GetString("ParentPositionLabel")</th>
+                            <th class="action-column"></th>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr><th></th><th></th></tr>
+                    }
+                </thead>
+                <tbody>
+                    @if (showES)
+                    {
+                        <tr>
+                            <td><img src="~/img/default-empty.svg" /></td>
+                            <td>@resManager.GetString("ESPositions")</td>
+                        </tr>
+                    }
+                    @foreach (PositionViewModel position in Model.Positions)
+                    {
+                        <tr>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select position-item">@Html.ActionLink(position.Name, POSITION, POSITION, new { id = position.Id })</td>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">@Html.ActionLink(position.DivisionName, DIVISION, DIVISION, new { id = position.DivisionId })</td>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select employee-item">
+                                @if (!string.IsNullOrEmpty(position.PrimaryEmployeeInitialName))
+                                {
+                                    @Html.ActionLink(position.PrimaryEmployeeInitialName, EMPLOYEE, EMPLOYEE, new { id = position.PrimaryEmployeeId })
+                                }
+                            </td>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select position-item">
+                                @if (!string.IsNullOrEmpty(position.ParentPositionName))
+                                {
+                                    @Html.ActionLink(position.ParentPositionName, POSITION, POSITION, new { id = position.ParentPositionId })
+                                }
+                            </td>
+                            <td class="remove-item-btn">
+                                <div class="remove-item-url" hidden="hidden">@Html.ActionLink(position.Name, "Delete", POSITION, new { id = position.Id })"</div>
+                                <span class="icon-bin"></span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+        @{
+            await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+            {
+                ItemsCount = positionsCount,
+                ViewInfo = viewsInfo.Get(currentUserId, POSITIONS),
+                ControllerName = POSITION,
+                ActionName = POSITIONS
+            });
+        }
+    </div>
+</div>

@@ -1,0 +1,40 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model OrganizationViewModel
+
+<div id="employeesFilter">
+    <div class="accordion" id="employeesAccordin">
+        <div class="card">
+            <div class="card-header" id="headingEmployees">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseEmployees" aria-expanded="true" aria-controls="collapseEmployees">
+                        @resManager.GetString("EmployeesFilter")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseEmployees" class="collapse" aria-labelledby="headingEmployees" data-parent="#employeesAccordin">
+                <form class="card-body" method="post" asp-controller="@ORGANIZATION" asp-action="SearchEmployee">
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <input asp-for="SearchEmployeeName" class="form-control" type="text" placeholder="@resManager.GetString("Employee")" />
+                        </div>
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <input asp-for="SearchEmployeePrimaryPosName" class="form-control" type="text" placeholder="@resManager.GetString("PrimaryPosition")" />
+                        </div>
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <input asp-for="SeacrhEmployeeDivName" class="form-control" type="text" placeholder="@resManager.GetString("Division")" />
+                        </div>
+                        <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                            <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
+                        </div>
+                        <div class="col-auto text-center flex-grow-0">
+                            <a asp-controller="@ORGANIZATION" asp-action="ClearEmployeeSearch" id="clearEmpSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

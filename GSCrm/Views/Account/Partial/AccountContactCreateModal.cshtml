@@ -1,0 +1,63 @@
+﻿@inject ResManager resManager
+@model AccountViewModel
+@using static GSCrm.CommonConsts
+
+<div id="accContactCreateModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("ContactCreate")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="@ACC_CONTACT" asp-action="Create">
+                    <div class="mt-3">
+                        <input id="createAccContactFName" class="form-control" type="text" placeholder="@resManager.GetString("FirstNameLabel")" />
+                        <ul id="createAccContactFNameError" data-connect-el="createAccContactFName" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccContactLName" class="form-control" type="text" placeholder="@resManager.GetString("LastNameLabel")" />
+                        <ul id="createAccContactLNameError" data-connect-el="createAccContactLName" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccContactMName" class="form-control" type="text" placeholder="@resManager.GetString("MidNameLabel")" />
+                        <ul id="createAccContactMNameError" data-connect-el="createAccContactMName" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col">
+                            <div class="block-center">
+                                <p class="label-md label-non-select">@resManager.GetString("ContactType")</p>
+                            </div>
+                        </div>
+                        <div class="col dropdown-area">
+                            <input id="createAccContactType" class="current-dropdown-value" hidden="hidden" />
+                            <span class="dropdown-el">
+                                <input type="radio" name="contactType" value="None" checked="checked" id="createContactTypeNone">
+                                <label for="createContactTypeNone">@resManager.GetString("None")</label>
+                                <input type="radio" name="contactType" value="Personal" id="createContactTypePersonal">
+                                <label for="createContactTypePersonal">@resManager.GetString("Personal")</label>
+                                <input type="radio" name="contactType" value="Work" id="createContactTypeWork">
+                                <label for="createContactTypeWork">@resManager.GetString("Work")</label>
+                            </span>
+                        </div>
+                        <ul id="createAccContactTypeError" class="under-field-error label-sm mt-3 text-center d-none" style="width: 100%"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccContactPhone" class="form-control" type="text" placeholder="@resManager.GetString("PhoneNumber")" />
+                        <ul id="createAccContactPhoneError" data-connect-el="createAccContactPhone" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccContactEmail" class="form-control" type="email" placeholder="@resManager.GetString("Email")" />
+                        <ul id="createAccContactEmailError" data-connect-el="createAccContactEmail" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input id="createAccContactBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("CreateLabel")" />
+                <input id="cancelCreationAccContactBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+            </div>
+        </div>
+    </div>
+</div>

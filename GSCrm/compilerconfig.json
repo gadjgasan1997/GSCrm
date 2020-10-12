@@ -1,0 +1,46 @@
+﻿[
+  {
+    "outputFile": "wwwroot/css/Navbar.css",
+    "inputFile": "wwwroot/css/Navbar.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Fonts.css",
+    "inputFile": "wwwroot/css/Fonts.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Forms.css",
+    "inputFile": "wwwroot/css/Forms.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Forms.css",
+    "inputFile": "wwwroot/css/Forms.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Tables.css",
+    "inputFile": "wwwroot/css/Tables.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Lists.css",
+    "inputFile": "wwwroot/css/Lists.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Dropdown.css",
+    "inputFile": "wwwroot/css/Dropdown.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Modals.css",
+    "inputFile": "wwwroot/css/Modals.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Blocks.css",
+    "inputFile": "wwwroot/css/Blocks.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Filters.css",
+    "inputFile": "wwwroot/css/Filters.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/Tabs.css",
+    "inputFile": "wwwroot/css/Tabs.scss"
+  }
+]

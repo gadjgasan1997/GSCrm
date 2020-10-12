@@ -1,0 +1,374 @@
+class MessageManager {
+    static Invoke(messageName, inputProperties) {
+        let messages = new {
+            CommonError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("errorLabel"),
+                        html:  inputProperties["error"]
+                    }
+                }
+            },
+
+            /** Ошибка удаления адреса клиента */
+            RemoveAccountAddressError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("removeAccAddressError"),
+                        html: inputProperties["error"]
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением закрытия окна управления должностями без синхронизации */
+            PositionModalClosedConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("attentionModalClosing"),
+                        text: Localization.GetString("positionModalClosingConfirm"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptModalClosing"),
+                        cancelButtonText: Localization.GetString("declineModalClosing")
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением смены подразделения */
+            ChangeEmpDivisionConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("divisionChanging"),
+                        text: Localization.GetString("employeeDivChangingConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptItemChanging"),
+                        cancelButtonText: Localization.GetString("declineItemChanging"),
+                    }
+                }
+            },
+
+            /** Ошибка удаления сотрудника */
+            RemoveEmployeeError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("errorLabel"),
+                        text: Localization.GetString("removeEmpError")
+                    }
+                }
+            },
+
+            /** Ошибка удаления контакта сотрудника */
+            RemoveEmployeeContactError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("errorLabel"),
+                        text: Localization.GetString("removeEmpContactError")
+                    }  
+                }
+            },
+
+            /** Сообщение с подтверждением удаления организации */
+            RemoveOrgConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("orgRemoving"),
+                        text: Localization.GetString("removeOrgConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptItemRemove"),
+                        cancelButtonText: Localization.GetString("declineItemRemove"),
+                    }
+                }
+            },
+
+            /** Ошибка удаления должности сотрудника */
+            RemoveOrgError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("errorLabel"),
+                        text: Localization.GetString("removeOrgError")
+                      }
+                }
+            },
+
+            /** Сообщение с подтверждением удаления должности */
+            RemovePositionConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("positionRemoving"),
+                        text: Localization.GetString("removePositionConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptRemove"),
+                        cancelButtonText: Localization.GetString("decline"),
+                    }
+                }
+            },
+
+            /** Ошибка удаления должности */
+            RemovePositionError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("errorLabel"),
+                        text: Localization.GetString("removePosError")
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением изменения подразделения */
+            ChangePosDivisionConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("divisionChanging"),
+                        text: Localization.GetString("positionDivChangingConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptItemChanging"),
+                        cancelButtonText: Localization.GetString("declineItemChanging"),
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением удаления подразделения */
+            RemoveDivConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("divisionRemoving"),
+                        text: Localization.GetString("removeDivisionConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptItemRemove"),
+                        cancelButtonText: Localization.GetString("declineItemRemove"),
+                    }  
+                }
+            },
+
+            /** Ошибка удаления подразделения */
+            RemoveDivisionError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("errorLabel"),
+                        text: Localization.GetString("removeDivError")
+                    }
+                }
+            },
+
+            /** Сообщение с предложением ввести название нового сайта */
+            NewSiteMessage: class {
+                Initialize(inputProperties) {
+                    let siteInput = inputProperties["siteInput"];
+                    let changeSiteUrl = inputProperties["changeSiteUrl"];
+                    let sitePlaceholder = siteInput.attr("href");
+                    if (sitePlaceholder == undefined) {
+                        sitePlaceholder = Localization.GetString("siteName");
+                    }
+                    return {
+                        title: Localization.GetString("siteChanging"),
+                        input: 'text',
+                        inputAttributes: {
+                        autocapitalize: 'off'
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: Localization.GetString("change"),
+                        showLoaderOnConfirm: true,
+                        cancelButtonText: Localization.GetString("cancel"),
+                        inputPlaceholder: sitePlaceholder,
+                        preConfirm: (newSite) => {
+                            let request = new AjaxRequests();
+                            let newSiteUrl = changeSiteUrl + newSite;
+                            return request.CommonGetRequest(newSiteUrl)
+                                .fail(response => {
+                                    Utils.CommonErrosHandling(response["responseJSON"], ["ChangeSite"]);
+                                })
+                                .done(() => {
+                                    Swal.fire(MessageManager.Invoke("SiteHasBeenChanged"));
+                                    $(siteInput).text(newSite);
+                                    $(siteInput).attr("href", newSite);
+                                });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }
+                }
+            },
+
+            /** Сообщение об успешном изменении сайта */
+            SiteHasBeenChanged: class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("siteHasBeenChanged"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
+            },
+
+            /** Сообщение о неуспешном изменении сайта */
+            SiteHasNotBeenChanged: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("siteHasNotBeenChanged"),
+                        html: inputProperties["error"]
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением закрытия окна управления командой по клиенту без синхронизации */
+            AccTeamModalClosedConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("attentionModalClosing"),
+                        text: Localization.GetString("accTeamModalClosingConfirm"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptModalClosing"),
+                        cancelButtonText: Localization.GetString("declineModalClosing")
+                    }
+                }
+            },
+
+            /** Ошибка удаления контакта клиента */
+            RemoveAccountContactError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("removeAccContactError"),
+                        html: inputProperties["error"]
+                    }
+                }
+            },
+
+            /** Ошибка смены основного контакта клиента */
+            ChangePrimaryAccountContactError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("changeAccPrimaryContactError"),
+                        html: inputProperties["error"]
+                    }
+                }
+            },
+
+            /** Сообщение об успешном изменении основного контакта на клиенте */
+            PrimaryContactHasBeenChanged: class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("primaryContactHasBeenChanged"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
+            },
+
+            /** Сообщение с информацией, возникающее при смене типа на юридическом адресе */
+            ChangeLegalAddressInfo: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("changingAddressType"),
+                        text: Localization.GetString("changingAddressTypeInfo"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("selectAddress"),
+                        cancelButtonText: Localization.GetString("declineModalClosing")
+                    }
+                }
+            },
+
+            /** Сообщение о том, что у клиента нет свободных адресов */
+            AddressListIsEmpty: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("addressListIsEmpty"),
+                        text: Localization.GetString("addressListIsEmptyForChangeLegal")
+                    }
+                }
+            },
+
+            /** Сообщение об успешном изменении юридического адреса */
+            LegalAddressHasBeenChanged: class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("legalAddressHasBeenChanged"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением удаления клиента */
+            RemoveAccountConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("accountRemoving"),
+                        text: Localization.GetString("removeAccConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptRemove"),
+                        cancelButtonText: Localization.GetString("decline"),
+                    }
+                }
+            },
+
+            /** Ошибка удаления клиента */
+            RemoveAccountError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("errorLabel"),
+                        text: Localization.GetString("removeAccError")
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением удаления сотрудника */
+            RemoveEmployeeConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("employeeRemoving"),
+                        text: Localization.GetString("removeEmployeeConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptRemove"),
+                        cancelButtonText: Localization.GetString("decline"),
+                    }
+                }
+            }
+        }[messageName];
+        return messages.Initialize(inputProperties);
+    }
+}

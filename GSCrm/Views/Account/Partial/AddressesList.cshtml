@@ -1,0 +1,88 @@
+﻿@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels
+@using static GSCrm.CommonConsts
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AccountViewModel
+@{
+    string currentUserId = User.GetUserModel(context).Id;
+}
+
+@* // Фильтр по адресам *@
+@{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountAddressesManagement.cshtml"); }
+
+<div id="accAddressesList">
+    <form class="table-wrapper mt-3">
+        <table class="fl-table">
+            <thead>
+                <tr>
+                    <th class="d-none"></th>
+                    <th>@resManager.GetString("FullAddress")</th>
+                    <th>@resManager.GetString("AddressType")</th>
+                    <th class="action-column"></th>
+                    <th class="action-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (AccountAddressViewModel accountAddress in Model.AccountAddresses)
+                {
+                    <tr>
+                        <td class="address-id d-none">@accountAddress.Id</td>
+                        <td class="tooltip-cell-src">@accountAddress.FullAddress</td>
+                        @switch (accountAddress.AddressType)
+                        {
+                            case "None":
+                                <td class="address-type">@resManager.GetString("NotSpecify")</td>
+                                break;
+                            case "Legal":
+                                <td class="address-type">@resManager.GetString("Legal")</td>
+                                break;
+                            case "Postal":
+                                <td class="address-type">@resManager.GetString("Postal")</td>
+                                break;
+                            case "Other":
+                                <td class="address-type">@resManager.GetString("Other")</td>
+                                break;
+                        }
+                        @if (accountAddress.AddressType == "Legal")
+                        {
+                            <td class="hide-remove-item-btn">
+                                <div class="remove-item-url" hidden="hidden">
+                                    @Html.ActionLink(accountAddress.Id.ToString(), "Delete", ACC_ADDRESS, new { id = accountAddress.Id })"
+                                </div>
+                                <span class="icon-bin"></span>
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="remove-item-btn">
+                                <div class="remove-item-url" hidden="hidden">
+                                    @Html.ActionLink(accountAddress.Id.ToString(), "Delete", ACC_ADDRESS, new { id = accountAddress.Id })"
+                                </div>
+                                <span class="icon-bin"></span>
+                            </td>
+                        }
+                        <td class="edit-item-btn" data-toggle="modal" data-target="#accAddressUpdateModal">
+                            <div class="edit-item-url" hidden="hidden">
+                                @Html.ActionLink(accountAddress.Id.ToString(), ADDRESS, ACC_ADDRESS, new { id = accountAddress.Id })"
+                            </div>
+                            <span class="icon-pencil"></span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
+    @{
+        await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+        {
+            ItemsCount = Model.AccountAddresses.Count(),
+            ViewInfo = viewsInfo.Get(currentUserId, ACC_ADDRESSES),
+            ControllerName = ACC_ADDRESS,
+            ActionName = ADDRESSES
+        });
+    }
+</div>

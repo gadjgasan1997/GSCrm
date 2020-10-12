@@ -1,0 +1,89 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Views\Quote\**" />
+    <Content Remove="Views\Quote\**" />
+    <EmbeddedResource Remove="Views\Quote\**" />
+    <None Remove="Views\Quote\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="compilerconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\css\Tabs.min.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="compilerconfig.json" />
+    <None Include="Views\Account\Account.cshtml" />
+    <None Include="Views\Account\Accounts.cshtml" />
+    <None Include="Views\Account\AllAccounts.cshtml" />
+    <None Include="Views\Account\CurrentAccounts.cshtml" />
+    <None Include="Views\Account\Partial\AccountAddressCreateModal.cshtml" />
+    <None Include="Views\Account\Partial\AccountAddressesManagement.cshtml" />
+    <None Include="Views\Account\Partial\AccountAddressUpdateModal.cshtml" />
+    <None Include="Views\Account\Partial\AccountContactCreateModal.cshtml" />
+    <None Include="Views\Account\Partial\AccountContactsManagement.cshtml" />
+    <None Include="Views\Account\Partial\AccountContactUpdateModal.cshtml" />
+    <None Include="Views\Account\Partial\AccountInvoiceCreateModal.cshtml" />
+    <None Include="Views\Account\Partial\AccountInvoicesManagement.cshtml" />
+    <None Include="Views\Account\Partial\AccountInvoiceUpdateModal.cshtml" />
+    <None Include="Views\Account\Partial\AccountModal.cshtml" />
+    <None Include="Views\Account\Partial\AccountTeamManagement.cshtml" />
+    <None Include="Views\Account\Partial\AccountTypeRadioTabs.cshtml" />
+    <None Include="Views\Account\Partial\AddAccountManagerModal.cshtml" />
+    <None Include="Views\Account\Partial\AddressesList.cshtml" />
+    <None Include="Views\Account\Partial\AllAccountsFilter.cshtml" />
+    <None Include="Views\Account\Partial\ChangeLegalAddressModal.cshtml" />
+    <None Include="Views\Account\Partial\ContactsList.cshtml" />
+    <None Include="Views\Account\Partial\CurrentAccountsFilter.cshtml" />
+    <None Include="Views\Account\Partial\DocumentsList.cshtml" />
+    <None Include="Views\Account\Partial\InvoicesList.cshtml" />
+    <None Include="Views\Account\Partial\QuotesList.cshtml" />
+    <None Include="Views\Division\Division.cshtml" />
+    <None Include="Views\Employee\Employee.cshtml" />
+    <None Include="Views\Employee\Partial\ChangeDivisionModal.cshtml" />
+    <None Include="Views\Employee\Partial\EmpContactCreateModal.cshtml" />
+    <None Include="Views\Employee\Partial\EmpContactUpdateModal.cshtml" />
+    <None Include="Views\Employee\Partial\EmployeeContactsFilter.cshtml" />
+    <None Include="Views\Employee\Partial\EmployeeContactsList.cshtml" />
+    <None Include="Views\Employee\Partial\EmployeePosisionModal.cshtml" />
+    <None Include="Views\Employee\Partial\EmployeePositionsFilter.cshtml" />
+    <None Include="Views\Employee\Partial\EmployeePositionsList.cshtml" />
+    <None Include="Views\Employee\Partial\EmployeeSubordinatesFilter.cshtml" />
+    <None Include="Views\Employee\Partial\EmployeeSubordinatesList.cshtml" />
+    <None Include="Views\Position\Partial\ChangeDivisionModal.cshtml" />
+    <None Include="Views\Position\Partial\PositionEmployeesFilter.cshtml" />
+    <None Include="Views\Position\Partial\PositionEmployeesList.cshtml" />
+    <None Include="Views\Position\Partial\PositionSubPositionsFilter.cshtml" />
+    <None Include="Views\Position\Partial\PositionSubPositionsList.cshtml" />
+    <None Include="Views\Position\Position.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BuildWebCompiler" Version="1.12.394" />
+    <PackageReference Include="MailKit" Version="2.7.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MimeKit" Version="2.8.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+</Project>

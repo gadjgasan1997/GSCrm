@@ -1,0 +1,1014 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Account" xml:space="preserve">
+    <value>Клиент</value>
+  </data>
+  <data name="AccountAddressesManagement" xml:space="preserve">
+    <value>Управление адресами</value>
+  </data>
+  <data name="AccountAddressNotFound" xml:space="preserve">
+    <value>Адрес клиента не найден</value>
+  </data>
+  <data name="AccountAlreadyExists" xml:space="preserve">
+    <value>Клиент с таким именем уже существует</value>
+  </data>
+  <data name="AccountContactNotFound" xml:space="preserve">
+    <value>Контакт не найден</value>
+  </data>
+  <data name="AccountContactsManagement" xml:space="preserve">
+    <value>Управление контактами</value>
+  </data>
+  <data name="AccountInvoicesManagement" xml:space="preserve">
+    <value>Упарвление банковскими реквизитами</value>
+  </data>
+  <data name="AccountLock" xml:space="preserve">
+    <value>Клиент заблокирован. Для разблокировки добавьте клиентского менеджера в команду.</value>
+  </data>
+  <data name="AccountManager" xml:space="preserve">
+    <value>Клиентский менеджер</value>
+  </data>
+  <data name="AccountManagerIsLocked" xml:space="preserve">
+    <value>Клиентский менеджер заблокирован. Он не может вести сделки. Разблокируйте его или выберите другого</value>
+  </data>
+  <data name="AccountManagerNotFound" xml:space="preserve">
+    <value>Клиентский менеджер не найден</value>
+  </data>
+  <data name="AccountNotFound" xml:space="preserve">
+    <value>Клиент не найден</value>
+  </data>
+  <data name="Accounts" xml:space="preserve">
+    <value>Клиенты</value>
+  </data>
+  <data name="AccountsExtractError" xml:space="preserve">
+    <value>Во время получения команды по клиенту произошла ошибка</value>
+  </data>
+  <data name="AccountTeam" xml:space="preserve">
+    <value>Команда по клиенту</value>
+  </data>
+  <data name="AccountTeamManagement" xml:space="preserve">
+    <value>Управление командой по клиенту</value>
+  </data>
+  <data name="AccountType" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="AccountTypeChange" xml:space="preserve">
+    <value>Изменение типа клиента</value>
+  </data>
+  <data name="AccountTypeIsReadonly" xml:space="preserve">
+    <value>Нельзя менять тип клиента. Для его изменения используйте "Изменить тип" на карточке клиента</value>
+  </data>
+  <data name="AccountWithoutKMIsReadonly" xml:space="preserve">
+    <value>Невозможно обновить клиента, у которого отсутствует основной клиентский менеджер</value>
+  </data>
+  <data name="AddEmployeePosition" xml:space="preserve">
+    <value>Добавить должность</value>
+  </data>
+  <data name="AddKM" xml:space="preserve">
+    <value>Добавить клиентского менеджера</value>
+  </data>
+  <data name="AddLabel" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="AddressCreate" xml:space="preserve">
+    <value>Новый адрес</value>
+  </data>
+  <data name="Addresses" xml:space="preserve">
+    <value>Адреса</value>
+  </data>
+  <data name="AddressNotFound" xml:space="preserve">
+    <value>Адрес не найден</value>
+  </data>
+  <data name="AddressType" xml:space="preserve">
+    <value>Тип адреса</value>
+  </data>
+  <data name="AddressTypeWrong" xml:space="preserve">
+    <value>Неверный тип адреса</value>
+  </data>
+  <data name="AddressUpdate" xml:space="preserve">
+    <value>Изменение адреса</value>
+  </data>
+  <data name="AddSelectedPositions" xml:space="preserve">
+    <value>Добавить выбранные должности</value>
+  </data>
+  <data name="AllAccountsFilter" xml:space="preserve">
+    <value>Фильтр по всем клиентам</value>
+  </data>
+  <data name="AllManagersExceptSelected" xml:space="preserve">
+    <value>Все сотрудники, за исключением выбранных</value>
+  </data>
+  <data name="AllOrganizations" xml:space="preserve">
+    <value>Клиенты всех организаций</value>
+  </data>
+  <data name="AllPositions" xml:space="preserve">
+    <value>Все должности</value>
+  </data>
+  <data name="AllPositionsExceptSelected" xml:space="preserve">
+    <value>Все должности, за исключением выбранных</value>
+  </data>
+  <data name="AllQuotes" xml:space="preserve">
+    <value>Сделки всех организаций</value>
+  </data>
+  <data name="Amount" xml:space="preserve">
+    <value>Сумма</value>
+  </data>
+  <data name="AmountLength" xml:space="preserve">
+    <value>Введите сумму сделки</value>
+  </data>
+  <data name="AmountWrong" xml:space="preserve">
+    <value>В поле "Сумма сделки" введены некорректные данные</value>
+  </data>
+  <data name="ApplyFilter" xml:space="preserve">
+    <value>Применить</value>
+  </data>
+  <data name="BackToMainPage" xml:space="preserve">
+    <value>На главную страницу</value>
+  </data>
+  <data name="BankCity" xml:space="preserve">
+    <value>Город, где находится банк</value>
+  </data>
+  <data name="BankCityLength" xml:space="preserve">
+    <value>Некорректная длина города</value>
+  </data>
+  <data name="BankName" xml:space="preserve">
+    <value>Название банка</value>
+  </data>
+  <data name="BankNameLength" xml:space="preserve">
+    <value>Некорректная длина названия банка</value>
+  </data>
+  <data name="BIC" xml:space="preserve">
+    <value>БИК</value>
+  </data>
+  <data name="BICLength" xml:space="preserve">
+    <value>Некорректная длина БИКа</value>
+  </data>
+  <data name="BICWrong" xml:space="preserve">
+    <value>Неверный БИК</value>
+  </data>
+  <data name="CancelChanges" xml:space="preserve">
+    <value>Отменить изменения</value>
+  </data>
+  <data name="CancelLabel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="Change" xml:space="preserve">
+    <value>Изменить</value>
+  </data>
+  <data name="ChangeCurrentLegalAddressType" xml:space="preserve">
+    <value>Измените тип текущего юридического адреса</value>
+  </data>
+  <data name="ChangeDivision" xml:space="preserve">
+    <value>Изменить подразделение</value>
+  </data>
+  <data name="ChangeLabel" xml:space="preserve">
+    <value>Изменить</value>
+  </data>
+  <data name="ChangeLegalAddress" xml:space="preserve">
+    <value>Изменение юридического адреса</value>
+  </data>
+  <data name="ChangePrimaryContact" xml:space="preserve">
+    <value>Зафиксировать измененный основной контакт</value>
+  </data>
+  <data name="CheckingAccount" xml:space="preserve">
+    <value>Расчетный счет</value>
+  </data>
+  <data name="CheckingAccountAlreadyExists" xml:space="preserve">
+    <value>Расчетный счет с таким номером уже существует у этого клиента</value>
+  </data>
+  <data name="CheckingAccountLength" xml:space="preserve">
+    <value>Некорректная длина расчетного счета</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>Город</value>
+  </data>
+  <data name="CityLength" xml:space="preserve">
+    <value>Неверная длина названия города. Название не может быть длиннее 500 символов</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
+  <data name="ConfigureResponsibility" xml:space="preserve">
+    <value>Настроить полномочие</value>
+  </data>
+  <data name="ConfirmEmailMessage" xml:space="preserve">
+    <value>Подтвердите свою почту.</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Повторите пароль</value>
+  </data>
+  <data name="ConfirmPasswordLength" xml:space="preserve">
+    <value>Подтвердите введенный пароль.</value>
+  </data>
+  <data name="ConfirmYourEmail" xml:space="preserve">
+    <value>Вначале вам необходимо подтвердить свою почту.</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Контакт</value>
+  </data>
+  <data name="ContactCreate" xml:space="preserve">
+    <value>Создание контакта</value>
+  </data>
+  <data name="Contacts" xml:space="preserve">
+    <value>Контакты</value>
+  </data>
+  <data name="ContactsFilter" xml:space="preserve">
+    <value>Фильтр по контактам</value>
+  </data>
+  <data name="ContactType" xml:space="preserve">
+    <value>Тип контакта</value>
+  </data>
+  <data name="ContactUpdate" xml:space="preserve">
+    <value>Обновление контакта</value>
+  </data>
+  <data name="CorrespondentAccount" xml:space="preserve">
+    <value>Корреспонденский счет</value>
+  </data>
+  <data name="CorrespondentAccountAlreadyExists" xml:space="preserve">
+    <value>Корреспонденский счет с таким номером уже существует у этого клиента</value>
+  </data>
+  <data name="CorrespondentAccountLength" xml:space="preserve">
+    <value>Некорректная длина корреспонденского счета</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Страна</value>
+  </data>
+  <data name="CountryIsRequired" xml:space="preserve">
+    <value>Страна обязательна для заполнения</value>
+  </data>
+  <data name="CountryNotExists" xml:space="preserve">
+    <value>Страна не найдена</value>
+  </data>
+  <data name="CountryWrong" xml:space="preserve">
+    <value>Страна не существует</value>
+  </data>
+  <data name="CoutnryLength" xml:space="preserve">
+    <value>Страна обязательна для заполнения</value>
+  </data>
+  <data name="CreateAccount" xml:space="preserve">
+    <value>Добавить клиента</value>
+  </data>
+  <data name="CreateAccountAddress" xml:space="preserve">
+    <value>Добавить адрес</value>
+  </data>
+  <data name="CreateAccountContact" xml:space="preserve">
+    <value>Создать контакт</value>
+  </data>
+  <data name="CreateAccountInvoice" xml:space="preserve">
+    <value>Добавить новый счет</value>
+  </data>
+  <data name="CreateAddress" xml:space="preserve">
+    <value>Добавить адрес</value>
+  </data>
+  <data name="CreateDivisionLabel" xml:space="preserve">
+    <value>Добавить подразделение</value>
+  </data>
+  <data name="CreateEmployeeContact" xml:space="preserve">
+    <value>Создать контакт</value>
+  </data>
+  <data name="CreateEmployeeLabel" xml:space="preserve">
+    <value>Добавить сотрудника</value>
+  </data>
+  <data name="CreateLabel" xml:space="preserve">
+    <value>Создать</value>
+  </data>
+  <data name="CreateNewUser" xml:space="preserve">
+    <value>Создать новую учетную запись</value>
+  </data>
+  <data name="CreateOrganizationLabel" xml:space="preserve">
+    <value>Новая организация</value>
+  </data>
+  <data name="CreatePositionLabel" xml:space="preserve">
+    <value>Добавить должность</value>
+  </data>
+  <data name="CreateQuote" xml:space="preserve">
+    <value>Добавить сделку</value>
+  </data>
+  <data name="CurrentAccountsFilter" xml:space="preserve">
+    <value>Фильтр по клиентам организации </value>
+  </data>
+  <data name="Division" xml:space="preserve">
+    <value>Подразделение</value>
+  </data>
+  <data name="DivisionAlreadyExists" xml:space="preserve">
+    <value>Такое подразделение уже существует.</value>
+  </data>
+  <data name="DivisionNameLength" xml:space="preserve">
+    <value>Название подразделения не может быть меньше трех сиволов.</value>
+  </data>
+  <data name="DivisionNotExists" xml:space="preserve">
+    <value>Подразделение не найдено</value>
+  </data>
+  <data name="Divisions" xml:space="preserve">
+    <value>Подразделения</value>
+  </data>
+  <data name="DivisionsFilter" xml:space="preserve">
+    <value>Фильтр по подразделениям</value>
+  </data>
+  <data name="Documents" xml:space="preserve">
+    <value>Документы</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Почта</value>
+  </data>
+  <data name="EmailAlreadyExists" xml:space="preserve">
+    <value>Пользователь с такой почтой уже существует.</value>
+  </data>
+  <data name="EmailConfirmed" xml:space="preserve">
+    <value>Почта успешно подтверждена.</value>
+  </data>
+  <data name="EmailDefaultHeader" xml:space="preserve">
+    <value>Администрация сайта</value>
+  </data>
+  <data name="EmailIsNull" xml:space="preserve">
+    <value>Введите почту.</value>
+  </data>
+  <data name="EmailNotExists" xml:space="preserve">
+    <value>Пользователь с такой почтой не найден</value>
+  </data>
+  <data name="Employee" xml:space="preserve">
+    <value>Работник</value>
+  </data>
+  <data name="EmployeeIsLock" xml:space="preserve">
+    <value>Сотрудник заблокирован. Добавьте должность к нему или выберите другое подразделение, чтобы продолжить работу с ним. Во время блокировки сотрудник не может работать в рамках этой организации.</value>
+  </data>
+  <data name="EmployeeNotExists" xml:space="preserve">
+    <value>Работник не найден</value>
+  </data>
+  <data name="Employees" xml:space="preserve">
+    <value>Сотрудники</value>
+  </data>
+  <data name="EmployeesFilter" xml:space="preserve">
+    <value>Фильтр по сотрудникам</value>
+  </data>
+  <data name="EmployeesList" xml:space="preserve">
+    <value>Список сотрудников</value>
+  </data>
+  <data name="ESAccount" xml:space="preserve">
+    <value>Создать клиента</value>
+  </data>
+  <data name="ESAccountContacts" xml:space="preserve">
+    <value>Добавить контакт</value>
+  </data>
+  <data name="ESDivisions" xml:space="preserve">
+    <value>Добавьте подразделение</value>
+  </data>
+  <data name="ESEmployeeContacts" xml:space="preserve">
+    <value>Добавьте контакт</value>
+  </data>
+  <data name="ESEmployees" xml:space="preserve">
+    <value>Добавьте сотрудника</value>
+  </data>
+  <data name="ESInvoices" xml:space="preserve">
+    <value>Добавить банковские реквизиты</value>
+  </data>
+  <data name="ESOrganization" xml:space="preserve">
+    <value>Добавить организацию</value>
+  </data>
+  <data name="ESPositionEmployees" xml:space="preserve">
+    <value>Сотрудники, занимающие эту должность отсутствуют</value>
+  </data>
+  <data name="ESPositions" xml:space="preserve">
+    <value>Добавьте должность</value>
+  </data>
+  <data name="ESPositionSubPositions" xml:space="preserve">
+    <value>Дочерние должности отсутсвуют</value>
+  </data>
+  <data name="ESSubordinates" xml:space="preserve">
+    <value>Подчиненные отсутствуют</value>
+  </data>
+  <data name="FillData" xml:space="preserve">
+    <value>Заполните данные</value>
+  </data>
+  <data name="FindUser" xml:space="preserve">
+    <value>Найти пользователя</value>
+  </data>
+  <data name="FirstNameLabel" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="FirstNameLength" xml:space="preserve">
+    <value>Имя не может быть короче двух символов или длинне 300</value>
+  </data>
+  <data name="FullAddress" xml:space="preserve">
+    <value>Полный адрес</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Полное имя</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Домашний экран</value>
+  </data>
+  <data name="House" xml:space="preserve">
+    <value>Дом</value>
+  </data>
+  <data name="HouseLength" xml:space="preserve">
+    <value>Неверная длина названия дома. Название не может быть длиннее 100 символов</value>
+  </data>
+  <data name="IdIsWrong" xml:space="preserve">
+    <value>Неккоректный id записи</value>
+  </data>
+  <data name="IE" xml:space="preserve">
+    <value>ИП</value>
+  </data>
+  <data name="IEAlreadyExists" xml:space="preserve">
+    <value>Физическое лицо с таким названием уже существует</value>
+  </data>
+  <data name="IENameLength" xml:space="preserve">
+    <value>Название физического лица не может быть короче 5 и длинее</value>
+  </data>
+  <data name="Individual" xml:space="preserve">
+    <value>Физ. лицо</value>
+  </data>
+  <data name="IndividualNameIsReadonly" xml:space="preserve">
+    <value>Нельзя менять имя физического лица. Для изменения отредактируйте основной контакт на клиенте</value>
+  </data>
+  <data name="INN" xml:space="preserve">
+    <value>ИНН</value>
+  </data>
+  <data name="INNLength" xml:space="preserve">
+    <value>Неверная длина ИНН. ИНН может быть 10 или 12 символов</value>
+  </data>
+  <data name="INNNotUnique" xml:space="preserve">
+    <value>Клиент с таким ИНН уже существует</value>
+  </data>
+  <data name="INNWrong" xml:space="preserve">
+    <value>Неправильный ИНН</value>
+  </data>
+  <data name="Investments" xml:space="preserve">
+    <value>Вложения</value>
+  </data>
+  <data name="InvoiceCreate" xml:space="preserve">
+    <value>Новые реквизиты</value>
+  </data>
+  <data name="Invoices" xml:space="preserve">
+    <value>Банковские реквизиты</value>
+  </data>
+  <data name="InvoiceUpdate" xml:space="preserve">
+    <value>Изменение реквизитов</value>
+  </data>
+  <data name="IsPrimary" xml:space="preserve">
+    <value>Является основным</value>
+  </data>
+  <data name="IsPrimaryPosition" xml:space="preserve">
+    <value>Является основной</value>
+  </data>
+  <data name="KPP" xml:space="preserve">
+    <value>КПП</value>
+  </data>
+  <data name="KPPLength" xml:space="preserve">
+    <value>Неверная длина КПП</value>
+  </data>
+  <data name="KPPNotUnique" xml:space="preserve">
+    <value>Клиент с таким КПП уже существует</value>
+  </data>
+  <data name="KPPWrong" xml:space="preserve">
+    <value>Неправильный КПП</value>
+  </data>
+  <data name="LastNameLabel" xml:space="preserve">
+    <value>Фамилия</value>
+  </data>
+  <data name="LastNameLength" xml:space="preserve">
+    <value>Фамилия не может быть короче двух символов или длинне 300</value>
+  </data>
+  <data name="LE" xml:space="preserve">
+    <value>Юр. лицо</value>
+  </data>
+  <data name="LEAlreadyExists" xml:space="preserve">
+    <value>Юридическое лицо с таким названием уже существует</value>
+  </data>
+  <data name="Legal" xml:space="preserve">
+    <value>Юридический</value>
+  </data>
+  <data name="LegalAddress" xml:space="preserve">
+    <value>Юридический адрес</value>
+  </data>
+  <data name="LegalAddressIsReadonly" xml:space="preserve">
+    <value>Нельзя изменить тип юридического адреса</value>
+  </data>
+  <data name="LegalAddressNotUnique" xml:space="preserve">
+    <value>У клиента может быть только один юридический адрес</value>
+  </data>
+  <data name="LENameLength" xml:space="preserve">
+    <value>Название юридического лица не может быть короче 5 и длинее</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Логин</value>
+  </data>
+  <data name="ManagerNotExists" xml:space="preserve">
+    <value>Менеджер с таким именем не найден</value>
+  </data>
+  <data name="MiddleNameLength" xml:space="preserve">
+    <value>Отчество не может быть длиннее 300 символов</value>
+  </data>
+  <data name="MidNameLabel" xml:space="preserve">
+    <value>Отчество</value>
+  </data>
+  <data name="NameLabel" xml:space="preserve">
+    <value>Название</value>
+  </data>
+  <data name="NewAccountLabel" xml:space="preserve">
+    <value>Новый клиент</value>
+  </data>
+  <data name="NewDivision" xml:space="preserve">
+    <value>Новое подразделение</value>
+  </data>
+  <data name="NewDivisionAndPosition" xml:space="preserve">
+    <value>Новое подразделение и должность</value>
+  </data>
+  <data name="NewKM" xml:space="preserve">
+    <value>Новый клиентский менеджер</value>
+  </data>
+  <data name="NewOrganizationLabel" xml:space="preserve">
+    <value>Новая организация</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>Новый пароль</value>
+  </data>
+  <data name="NewPosition" xml:space="preserve">
+    <value>Новая должность</value>
+  </data>
+  <data name="NewQuote" xml:space="preserve">
+    <value>Новая сделка</value>
+  </data>
+  <data name="NewRespName" xml:space="preserve">
+    <value>Название нового полномочия</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Не указан</value>
+  </data>
+  <data name="NotSpecify" xml:space="preserve">
+    <value>Не указан</value>
+  </data>
+  <data name="NullContactType" xml:space="preserve">
+    <value>Необходимо указать тип контакта</value>
+  </data>
+  <data name="OGRN" xml:space="preserve">
+    <value>ОГРН</value>
+  </data>
+  <data name="OGRNLength" xml:space="preserve">
+    <value>Неверная длина ОГРН</value>
+  </data>
+  <data name="OGRNNotUnique" xml:space="preserve">
+    <value>Клиент с таким ОГРН уже существует</value>
+  </data>
+  <data name="OGRNWrong" xml:space="preserve">
+    <value>Неправильный ОГРН</value>
+  </data>
+  <data name="OKPO" xml:space="preserve">
+    <value>ОКПО</value>
+  </data>
+  <data name="OKPOLength" xml:space="preserve">
+    <value>Неверная длина ОКПО</value>
+  </data>
+  <data name="OKPONotUnique" xml:space="preserve">
+    <value>Клиент с таким ОКПО уже существует</value>
+  </data>
+  <data name="OKPOWrong" xml:space="preserve">
+    <value>Неправильный ОКПО</value>
+  </data>
+  <data name="OldPassword" xml:space="preserve">
+    <value>Старый пароль</value>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>Организация</value>
+  </data>
+  <data name="OrganizationAlreadyExists" xml:space="preserve">
+    <value>Такая организация уже существует</value>
+  </data>
+  <data name="OrganizationName" xml:space="preserve">
+    <value>Название организации</value>
+  </data>
+  <data name="OrganizationNameLength" xml:space="preserve">
+    <value>Название организации не может быть меньше трех сиволов</value>
+  </data>
+  <data name="OrganizationQuotes" xml:space="preserve">
+    <value>Сделки организации</value>
+  </data>
+  <data name="Organizations" xml:space="preserve">
+    <value>Организации</value>
+  </data>
+  <data name="OrganizationsLabel" xml:space="preserve">
+    <value>Организации</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Прочий</value>
+  </data>
+  <data name="OwnerOrganization" xml:space="preserve">
+    <value>Организация, создавшая клиента: </value>
+  </data>
+  <data name="ParentAndCurrentPositionsCompare" xml:space="preserve">
+    <value>Родительская должность должна отличаться от текущей</value>
+  </data>
+  <data name="ParentDivNameLabel" xml:space="preserve">
+    <value>Родительское подразделение</value>
+  </data>
+  <data name="ParentPositionLabel" xml:space="preserve">
+    <value>Родительская должность</value>
+  </data>
+  <data name="ParentPositionsLabel" xml:space="preserve">
+    <value>Родительские должности</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="PasswordAlreadyUsed" xml:space="preserve">
+    <value>Такой пароль уже используется. Выберите другой</value>
+  </data>
+  <data name="PasswordLength" xml:space="preserve">
+    <value>Некорректная длина пароля. Пароль должно быть длиннее 8 и короче 35 символов</value>
+  </data>
+  <data name="PasswordNotContainsDigits" xml:space="preserve">
+    <value>Пароль должен содержать как минимум одну цифру</value>
+  </data>
+  <data name="PasswordNotContainsLetters" xml:space="preserve">
+    <value>Пароль должен содержать как минимум одну букву</value>
+  </data>
+  <data name="PasswordsNotEquals" xml:space="preserve">
+    <value>Введенные пароли не совпадают</value>
+  </data>
+  <data name="Personal" xml:space="preserve">
+    <value>Личный</value>
+  </data>
+  <data name="PersonName" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>Номер телефона</value>
+  </data>
+  <data name="PosEmployeesFilter" xml:space="preserve">
+    <value>Фильтр по сотрудникам</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Должность</value>
+  </data>
+  <data name="PositionAlreadyExists" xml:space="preserve">
+    <value>Такая должность уже существует</value>
+  </data>
+  <data name="PositionCannotBeParent" xml:space="preserve">
+    <value>Нельзя сделать должность родительской, так как она присутствует среди списка дочерних</value>
+  </data>
+  <data name="PositionEmployees" xml:space="preserve">
+    <value>Сотрудники, занимающие должность</value>
+  </data>
+  <data name="PositionNameLength" xml:space="preserve">
+    <value>Название должности не может быть меньше трех сиволов</value>
+  </data>
+  <data name="PositionNotExists" xml:space="preserve">
+    <value>Должность не найдена</value>
+  </data>
+  <data name="Positions" xml:space="preserve">
+    <value>Должности</value>
+  </data>
+  <data name="PositionsBinding" xml:space="preserve">
+    <value>Привязка должностей</value>
+  </data>
+  <data name="PositionsExtractError" xml:space="preserve">
+    <value>Во время получения должностей сотрудника произошла ошибка</value>
+  </data>
+  <data name="PositionsFilter" xml:space="preserve">
+    <value>Фильтр по должностям</value>
+  </data>
+  <data name="PositionsHierarchy" xml:space="preserve">
+    <value>Иерархия должностей</value>
+  </data>
+  <data name="PositionsManagement" xml:space="preserve">
+    <value>Управление должностями</value>
+  </data>
+  <data name="PositionSubPositions" xml:space="preserve">
+    <value>Дочерние должности</value>
+  </data>
+  <data name="Postal" xml:space="preserve">
+    <value>Почтовый</value>
+  </data>
+  <data name="Primary" xml:space="preserve">
+    <value>Основной</value>
+  </data>
+  <data name="PrimaryAddressIsReadonly" xml:space="preserve">
+    <value>Нельзя удалить юридический адрес клиента</value>
+  </data>
+  <data name="PrimaryEmployeeLabel" xml:space="preserve">
+    <value>Основной работник</value>
+  </data>
+  <data name="PrimaryIndividualContactIsReadonly" xml:space="preserve">
+    <value>Невозможно удалить основной контакт для клиента с типов "Физ. лицо"</value>
+  </data>
+  <data name="PrimaryIndividualContactIsRequired" xml:space="preserve">
+    <value>Основной контакт обязателен для физических лиц</value>
+  </data>
+  <data name="PrimaryManager" xml:space="preserve">
+    <value>Основной менеджер</value>
+  </data>
+  <data name="PrimaryManagerIsReadonly" xml:space="preserve">
+    <value>Невозможно удалить основного менеджера</value>
+  </data>
+  <data name="PrimaryManagerNameLength" xml:space="preserve">
+    <value>Для создания клиента необходимо выбрать менеджера</value>
+  </data>
+  <data name="PrimaryOrganizationIsEmpty" xml:space="preserve">
+    <value>Вначале вы должны выбрать основную организацию у пользователя</value>
+  </data>
+  <data name="PrimaryPosition" xml:space="preserve">
+    <value>Основная должность</value>
+  </data>
+  <data name="PrimaryPositionIsReadonly" xml:space="preserve">
+    <value>Нельзя удалить основную должность</value>
+  </data>
+  <data name="Quote" xml:space="preserve">
+    <value>Сделка</value>
+  </data>
+  <data name="QuoteAccontLength" xml:space="preserve">
+    <value>Выберите клиента, с которым хотите заключить сделку</value>
+  </data>
+  <data name="QuoteAccountManagerLength" xml:space="preserve">
+    <value>Выберите клиентского менеджер, который будет вести сделку</value>
+  </data>
+  <data name="Quotes" xml:space="preserve">
+    <value>Сделки</value>
+  </data>
+  <data name="RecordNotFound" xml:space="preserve">
+    <value>Запись не найдена</value>
+  </data>
+  <data name="Region" xml:space="preserve">
+    <value>Регион</value>
+  </data>
+  <data name="RegionLength" xml:space="preserve">
+    <value>Неверная длина названия региона. Название не может быть длиннее 500 символов</value>
+  </data>
+  <data name="RegisterConfirmationSubject" xml:space="preserve">
+    <value>Регистрация в GSCrm</value>
+  </data>
+  <data name="RemoveAccount" xml:space="preserve">
+    <value>Удалить клиента</value>
+  </data>
+  <data name="RemoveLabel" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="RemoveOrganizationLabel" xml:space="preserve">
+    <value>Удалить организацию</value>
+  </data>
+  <data name="RemoveSelectedPositions" xml:space="preserve">
+    <value>Удалить выбранные должности</value>
+  </data>
+  <data name="ResetPassword" xml:space="preserve">
+    <value>Сбросить пароль</value>
+  </data>
+  <data name="ResetPasswordLabel" xml:space="preserve">
+    <value>Сброс пароля</value>
+  </data>
+  <data name="ResetPasswordMessage" xml:space="preserve">
+    <value>Уведомление для сброса пароля было отправлено на указанную электронную почту</value>
+  </data>
+  <data name="ResetPasswordSpecifyEmail" xml:space="preserve">
+    <value>Для сброса пароля укажите почту или логин.</value>
+  </data>
+  <data name="ResetPasswordSubject" xml:space="preserve">
+    <value>Сброс пароля в GSCrm</value>
+  </data>
+  <data name="ResetPasswordSuccess" xml:space="preserve">
+    <value>Пароль был успешно изменен</value>
+  </data>
+  <data name="Responsibilities" xml:space="preserve">
+    <value>Полномочия</value>
+  </data>
+  <data name="ResponsibilitiesManagment" xml:space="preserve">
+    <value>Управление полномочиями</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Сохранить изменения</value>
+  </data>
+  <data name="SeacrhContact" xml:space="preserve">
+    <value>Искать контакт</value>
+  </data>
+  <data name="SeacrhInvoice" xml:space="preserve">
+    <value>Искать реквизиты</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Найти</value>
+  </data>
+  <data name="SearchAddress" xml:space="preserve">
+    <value>Искать адрес</value>
+  </data>
+  <data name="SelectedManagers" xml:space="preserve">
+    <value>Выбранные сотрудники</value>
+  </data>
+  <data name="SelectedPositions" xml:space="preserve">
+    <value>Выбранные должности</value>
+  </data>
+  <data name="SelectNewLegalAddress" xml:space="preserve">
+    <value>Выберите новый юридический адрес</value>
+  </data>
+  <data name="Site" xml:space="preserve">
+    <value>Сайт</value>
+  </data>
+  <data name="Street" xml:space="preserve">
+    <value>Улица</value>
+  </data>
+  <data name="StreetLength" xml:space="preserve">
+    <value>Неверная длина названия улицы. Название не может быть длиннее 1000 символов</value>
+  </data>
+  <data name="Subordinates" xml:space="preserve">
+    <value>Подчиненные</value>
+  </data>
+  <data name="SubordinatesFilter" xml:space="preserve">
+    <value>Фильтр по подчиненным</value>
+  </data>
+  <data name="SubPositionsFilter" xml:space="preserve">
+    <value>Фильтр по дочерним должностям</value>
+  </data>
+  <data name="Supervisor" xml:space="preserve">
+    <value>Начальник</value>
+  </data>
+  <data name="SWIFT" xml:space="preserve">
+    <value>SWIFT</value>
+  </data>
+  <data name="SWIFTLength" xml:space="preserve">
+    <value>Некорректная длина SWIFT</value>
+  </data>
+  <data name="SWIFWrong" xml:space="preserve">
+    <value>Неверный SWIFT</value>
+  </data>
+  <data name="Synchronize" xml:space="preserve">
+    <value>Синхронизировать</value>
+  </data>
+  <data name="SyncManagersException" xml:space="preserve">
+    <value>Во время синхронизации команды по клиенту произошли непредвиденные ошибки</value>
+  </data>
+  <data name="TeamManagement" xml:space="preserve">
+    <value>Управление командой</value>
+  </data>
+  <data name="ThisEmployeeDivisionIsAlreadySelect" xml:space="preserve">
+    <value>Сотрудник уже относится к этому подразделению. Выберите другое.</value>
+  </data>
+  <data name="ThisPositionDivisionIsAlreadySelect" xml:space="preserve">
+    <value>Должность уже относится к этому подразделению. Выберите другое.</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="UnhandledException" xml:space="preserve">
+    <value>UnhandledException</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>Разблокировать</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="UserAccountIsBusy" xml:space="preserve">
+    <value>Учетная запись занята другим сотрудником</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Имя пользователя</value>
+  </data>
+  <data name="UserNameAlreadyExists" xml:space="preserve">
+    <value>Пользователь с таким именем уже существует</value>
+  </data>
+  <data name="UserNameIsNull" xml:space="preserve">
+    <value>Введите имя пользователя</value>
+  </data>
+  <data name="UserNameLength" xml:space="preserve">
+    <value>Некорректная длина имени пользователя. Имя должно быть длиннее 4 и короче 35 символов</value>
+  </data>
+  <data name="UserNameNotExists" xml:space="preserve">
+    <value>Пользователь с таким именем не найден</value>
+  </data>
+  <data name="UserNotExists" xml:space="preserve">
+    <value>Пользователем с таким именем не найден</value>
+  </data>
+  <data name="Work" xml:space="preserve">
+    <value>Рабочий</value>
+  </data>
+  <data name="WrongAccountType" xml:space="preserve">
+    <value>Выбран недоступный тип клиента тип клиента</value>
+  </data>
+  <data name="WrongContactType" xml:space="preserve">
+    <value>Неверный тип контакта</value>
+  </data>
+  <data name="WrongEmailFormat" xml:space="preserve">
+    <value>Неверный формат почты</value>
+  </data>
+  <data name="WrongPassword" xml:space="preserve">
+    <value>Неверный пароль</value>
+  </data>
+  <data name="WrongPhoneFormat" xml:space="preserve">
+    <value>Неверный формат телефона</value>
+  </data>
+</root>

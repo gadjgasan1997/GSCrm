@@ -1,0 +1,65 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@model PositionViewModel
+@inject IViewsInfo viewsInfo
+@{
+    int subPositionsCount = Model.SubPositions.Count;
+    bool showES = subPositionsCount == 0 && new[] { Model.SearchSubPositionName, Model.SearchSubPositionPrimaryEmployee }.AllIsNullOrEmpty();
+    string currentUserId = User.GetUserModel(context).Id;
+}
+
+<div class="tab-pane fade" id="subpositions" role="tabpanel" aria-labelledby="subpositions-tab">
+    @* // Фильтр по дочерним должностям *@
+    @if (!showES)
+    {
+        await Html.RenderPartialAsync($"{POS_VIEWS_REL_PATH}Partial/PositionSubPositionsFilter.cshtml");
+    }
+    <div class="form-group">
+        <form id="positionSubPosList" class="table-wrapper">
+            <table class="fl-table @(!showES ? "" : "empty-table")">
+                <thead>
+                    @if (!showES)
+                    {
+                        <tr>
+                            <th class="label-non-select">@resManager.GetString("NameLabel")</th>
+                            <th class="label-non-select">@resManager.GetString("PrimaryEmployeeLabel")</th>
+                        </tr>
+                    }
+                    else { <tr><th></th><th></th></tr> }
+                </thead>
+                <tbody>
+                    @if (showES)
+                    {
+                        <tr>
+                            <td><img src="~/img/default-empty.svg" /></td>
+                            <td>@resManager.GetString("ESPositionSubPositions")</td>
+                        </tr>
+                    }
+                    @foreach (PositionViewModel subPosition in Model.SubPositions)
+                    {
+                        <tr>
+                            <td class="tooltip-cell-src tooltip-cell-link position-subpos-item">@Html.ActionLink(subPosition.Name, POSITION, POSITION, new { id = subPosition.Id })</td>
+                            @if (!string.IsNullOrEmpty(subPosition.PrimaryEmployeeInitialName))
+                            {
+                                <td class="tooltip-cell-src tooltip-cell-link position-subpos-item">@Html.ActionLink(subPosition.PrimaryEmployeeInitialName, EMPLOYEE, EMPLOYEE, new { id = subPosition.PrimaryEmployeeId })</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+        @{
+            await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+            {
+                ItemsCount = subPositionsCount,
+                ViewInfo = viewsInfo.Get(currentUserId, POS_SUB_POSS),
+                ControllerName = EMP_POSITION,
+                ActionName = POS_SUB_POSS
+            });
+        }
+    </div>
+</div>

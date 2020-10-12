@@ -1,0 +1,177 @@
+﻿{
+    "localization": {
+        "removeOrgConfirmation": {
+            "ru-RU": "Вы уверены, что хотите удалить организацию?"
+        },
+        "orgRemoving": {
+            "ru-RU": "Удаление организации."
+        },
+        "acceptItemRemove": {
+            "ru-RU": "Да, удалить"
+        },
+        "declineItemRemove": {
+            "ru-RU": "Нет, не удалять"
+        },
+        "errorLabel": {
+            "ru-RU": "Ошибка"
+        },
+        "removeOrgError": {
+            "ru-RU": "Во время удаления организации произошла ошибка."
+        },
+        "removeDivError": {
+            "ru-RU": "Во время удаления подразделения произошел сбой."
+        },
+        "removePosError": {
+            "ru-RU": "Во время удаления должности произошел сбой."
+        },
+        "removeEmpError": {
+            "ru-RU": "Во время удаления сотрудника произошел сбой."
+        },
+        "removeEmpContactError": {
+            "ru-RU": "Во время удаления контакта сотрудника произошел сбой."
+        },
+        "removeEmpPositionError": {
+            "ru-RU": "Во время удаления должности произошел сбой."
+        },
+        "addPosition": {
+            "ru-RU": "Добавить должность."
+        },
+        "removePosition": {
+            "ru-RU": "Удалить должность."
+        },
+        "divisionChanging": {
+            "ru-RU": "Смена подразделения."
+        },
+        "employeeDivChangingConfirmation": {
+            "ru-RU": "Вы уверены, что хотите изменить подразделение? Все выбранные должности сотрудника будут удалены."
+        },
+        "acceptItemChanging": {
+            "ru-RU": "Да, изменить"
+        },
+        "declineItemChanging": {
+            "ru-RU": "Нет, не менять"
+        },
+        "attentionModalClosing": {
+            "ru-RU": "Внимание"
+        },
+        "positionModalClosingConfirm": {
+            "ru-RU": "Вы уверены, что не хотите зафиксировать внесенные изменения?"
+        },
+        "acceptModalClosing": {
+            "ru-RU": "Да, закрыть без изменений"
+        },
+        "declineModalClosing": {
+            "ru-RU": "Отмена"
+        },
+        "positionRemoving": {
+            "ru-RU": "Удаление должности."
+        },
+        "removePositionConfirmation": {
+            "ru-RU": "Вы уверены, что хотите удалить должность? Все сотрудники, у которых она является основной, будут заблокированы."
+        },
+        "acceptRemove": {
+            "ru-RU": "Да, удалить"
+        },
+        "decline": {
+            "ru-RU": "Отмена"
+        },
+        "positionDivChangingConfirmation": {
+            "ru-RU": "Вы уверены, что хотите изменить подразделение должности? Все сотрудники, у которых она является основной, будут заблокированы. У всех подчиненных должностей будет очищена родительская."
+        },
+        "removeDivisionConfirmation": {
+            "ru-RU": "Вы уверены, что хотите удалить подразделение? Все сотрудники и должности, которые в нем находятся, будут удалены."
+        },
+        "divisionRemoving": {
+            "ru-RU": "Удаление подразделения."
+        },
+        "siteChanging": {
+            "ru-RU": "Изменение сайта"
+        },
+        "change": {
+            "ru-RU": "Изменить"
+        },
+        "siteHasBeenChanged": {
+            "ru-RU": "Сайт был успешно изменен"
+        },
+        "siteHasNotBeenChanged": {
+            "ru-RU": "Во время изменения сайта произошли ошибки"
+        },
+        "cancel": {
+            "ru-RU": "Отмена"
+        },
+        "siteName": {
+            "ru-RU": "Название сайта"
+        },
+        "accTeamModalClosingConfirm": {
+            "ru-RU": "Вы уверены, что не хотите зафиксировать внесенные изменения?"
+        },
+        "removeAccContactError": {
+            "ru-RU": "Во время удаления контакта клиента произошел сбой."
+        },
+        "changeAccPrimaryContactError": {
+            "ru-RU": "Во время изменения основного контакта клиента произошел сбой."
+        },
+        "primaryContactHasBeenChanged": {
+            "ru-RU": "Основной контакт был успешно изменен"
+        },
+        "removeAccAddressError": {
+            "ru-RU": "Во время удаления адреса клиента произошел сбой."
+        },
+        "Legal": {
+            "ru-RU": "Юридический"
+        },
+        "Next": {
+            "ru-RU": "Далее"
+        },
+        "changingAddressType": {
+            "ru-RU": "Изменение типа адреса"
+        },
+        "changingAddressTypeInfo": {
+            "ru-RU": "Для изменения типа юридического адреса вначале требуется выбрать другой адрес клиента как юридический"
+        },
+        "selectAddress": {
+            "ru-RU": "Выбрать адрес"
+        },
+        "addressListIsEmpty": {
+            "ru-RU": "Адресы не найдены"
+        },
+        "addressListIsEmptyForChangeLegal": {
+            "ru-RU": "У клиента нет свободных адресов. Для изменения типа этого адреса добавьте новый адрес и сделайте его юридическим"
+        },
+        "legalAddressHasBeenChanged": {
+            "ru-RU": "Юридический адрес клиента был успешно изменен"
+        },
+        "accountRemoving": {
+            "ru-RU": "Удаление клиента."
+        },
+        "removeAccConfirmation": {
+            "ru-RU": "Вы уверены, что хотите удалить клиента?"
+        },
+        "removeAccError": {
+            "ru-RU": "Во время удаления клиента произошел сбой."
+        },
+        "unhandledException": {
+            "ru-RU": "Во время выполнения операции произошло необработанное исключение"
+        },
+        "recordNotFound": {
+            "ru-RU": "Запись не найдена"
+        },
+        "employeeRemoving": {
+            "ru-RU": "Удаление сотрудника."
+        },
+        "removeEmployeeConfirmation": {
+            "ru-RU": "Вы уверены, что хотите удалить сотрудника? При удалении заблокируются все клиенты, где данный сотрудник является единственным менеджером."
+        }
+    },
+    "uri": {
+        "position": "/Position/",
+        "employee": "/Employee/",
+        "account": "/Account/",
+        "clearPositionSearch": "/EmployeePosition/ClearPositionManagementSearch/",
+        "deleteEmployeePosition": "/EmployeePosition/Delete?id=",
+        "clearOrgSearch": "/Organization/ClearSearch/",
+        "orgsList": "/Organization/ListOfOrganizations/",
+        "clearAccTeamSearch": "/AccountManager/ClearAccTeamManagementSearch/",
+        "hasAccNotLegalAddress": "/Account/HasAccNotLegalAddress/"
+    }
+}

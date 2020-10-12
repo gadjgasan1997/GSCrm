@@ -1,0 +1,12 @@
+﻿@{
+    Layout = "_AuthLayout";
+}
+@inject GSCrm.Localization.ResManager resManager
+<div class="container container-md">
+    <div class="text-center mb-5">
+        <p class="label-lg">@resManager.GetString("ConfirmEmailMessage")</p>
+    </div>
+    <form method="get" class="text-center" asp-controller="Auth" asp-action="Index">
+        <input type="submit" class="btn btn-outline-dark" value="@resManager.GetString("BackToMainPage")"/>
+    </form>
+</div>

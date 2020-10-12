@@ -1,0 +1,169 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@model PositionViewModel
+@inject IViewsInfo viewsInfo
+@{
+    string currentUserId = User.GetUserModel(context).Id;
+    ViewInfo orgView = viewsInfo.Get(currentUserId, ORGANIZATIONS);
+}
+
+@* // Модальное окно изменения подразделения сотрудника *@
+@{ await Html.RenderPartialAsync($"{POS_VIEWS_REL_PATH}Partial/ChangeDivisionModal.cshtml"); }
+
+@* // Хлебные крошки *@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+                @resManager.GetString(ORGANIZATIONS)
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@ORGANIZATION" asp-action="BackToOrganization" asp-route-orgId="@Model.OrganizationId">
+                @resManager.GetString(ORGANIZATION): @Model.OrganizationName
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(POSITION): @Model.Name</li>
+    </ol>
+</nav>
+
+<div id="positionForm">
+    <div class="row justify-content-center mb-4 mt-4">
+        <h3 class="label-non-select text-center m-0">@Model.Name</h3>
+    </div>
+    <div class="row mb-4">
+        <div class="col-xl ml-auto ml-md-3 order-2 order-xl-1">
+            <form class="mt-3" asp-controller="@POSITION" asp-action="Update">
+                <div class="row form-group">
+                    <input id="positionId" asp-for="Id" hidden="hidden" />
+                    <input asp-for="OrganizationId" hidden="hidden" />
+                    <input id="positionDiv" asp-for="DivisionName" hidden="hidden" />
+                    <div class="col-xl-8">
+                        <div>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend m-auto">
+                                    <span class="input-group-text" id="basic-addon1">@resManager.GetString("NameLabel")</span>
+                                </div>
+                                <input id="updatePosName" class="form-control" asp-for="Name" placeholder="@resManager.GetString("NameLabel")" />
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend m-auto">
+                                    <span class="input-group-text" id="basic-addon1">@resManager.GetString("ParentPositionLabel")</span>
+                                </div>
+                                <div id="parentPosition" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Positions" data-autocomplite-name="ParentPosition">
+                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/{POSITION}/GetPositions/{Model.OrganizationId}/")"></a>
+                                    <input asp-for="ParentPositionName" class="autocomplete-input form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
+                                    <ul class="autocomplete-result-list"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input asp-for="PrimaryEmployeeId" id="primaryEmployeeId" hidden="hidden" />
+                        <div class="mt-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend m-auto">
+                                    <span class="input-group-text" id="basic-addon1">@resManager.GetString("PrimaryEmployeeLabel")</span>
+                                </div>
+                                <div id="primaryEmployee" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Employees" data-autocomplite-name="PrimaryEmployee">
+                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/{EMPLOYEE}/GetEmployees/{Model.OrganizationId}/")"></a>
+                                    <input asp-for="PrimaryEmployeeInitialName" class="autocomplete-input form-control" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
+                                    <ul class="autocomplete-result-list"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl mt-xl-0">
+                        <div class="row">
+                            <div class="col mt-4 mt-xl-0 mb-xl-4 text-center">
+                                <input id="updatePosBtn" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SaveChanges")" />
+                            </div>
+                            <div class="col mt-4 mt-xl-0 mb-xl-4 text-center">
+                                <a type="button" class="btn btn-outline-danger" href="@Url.Content($"~/{POSITION}/{Model.Id}/")">@resManager.GetString("CancelChanges")</a>
+                            </div>
+                            <div class="col mt-4 mt-xl-0 text-center">
+                                <input id="openChangeDivisionModal" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#changePositionDivisionModal" value="@resManager.GetString("ChangeDivision")" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="form-group">
+                @* // Вкладки *@
+                <ul id="posTabs" class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link" id="employees-tab" data-toggle="tab" href="#employees" role="tab" aria-controls="employees" aria-selected="false">@resManager.GetString(POS_EMPLOYEES)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="subpositions-tab" data-toggle="tab" href="#subpositions" role="tab" aria-controls="subpositions" aria-selected="false">@resManager.GetString(POS_SUB_POSS)</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    @* // Сотрудники, занимающие эту должность *@
+                    @{ await Html.RenderPartialAsync($"{POS_VIEWS_REL_PATH}Partial/PositionEmployeesList.cshtml"); }
+
+                    @* // Подчиненные должности *@
+                    @{ await Html.RenderPartialAsync($"{POS_VIEWS_REL_PATH}Partial/PositionSubPositionsList.cshtml"); }
+                </div>
+            </div>
+        </div>
+        <div class="col-auto mr-auto ml-auto mr-xl-3 order-1 order-xl-2">
+            <div>
+                <p class="label-md label-non-select text-center">
+                    @resManager.GetString("ParentPositionsLabel")
+                </p>
+            </div>
+            <div id="positionsHierarchy">
+                <div class="mt-3 position-relative">
+                    <div class="positions-connector"></div>
+                    @foreach (PositionViewModel positionViewModel in Model.PositionsHierarchy)
+                    {
+                        @if (positionViewModel.Name == Model.Name)
+                        {
+                            <div class="position-hierarchy-item position-current-item mb-2">
+                                <div class="row">
+                                    <div class="col-auto m-auto">
+                                        <div class="oval-mark">
+                                            <div class="icon-checkmark"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <p class="label-bold-md label-non-select m-0">@positionViewModel.Name</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="position-hierarchy-item mb-5">
+                                <div class="position-hierarchy-link">
+                                    @Html.ActionLink(positionViewModel.Name, POSITION, POSITION, new { id = positionViewModel.Id })
+                                </div>
+                                <div class="row">
+                                    <div class="col-auto m-auto">
+                                        <div class="oval-mark">
+                                            <div class="oval-mark-point"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <p class="label-bold-md label-non-select m-0">@positionViewModel.Name</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

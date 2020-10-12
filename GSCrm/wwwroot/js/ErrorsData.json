@@ -1,0 +1,817 @@
+{
+    "CreateAddress": [
+        [
+            ["CountryIsRequired", "CountryWrong"],
+            {
+                "type": "attach",
+                "elements": ["#createAccAddressCountryError"]
+            }
+        ],
+        [
+            ["RegionLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccAddressRegionError"]
+            }
+        ],
+        [
+            ["CityLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccAddressCityError"]
+            }
+        ],
+        [
+            ["StreetLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccAddressStreetError"]
+            }
+        ],
+        [
+            ["HouseLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccAddressHouseError"]
+            }
+        ],
+        [
+            ["AddressTypeWrong", "LegalAddressNotUnique"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "UpdateAddress": [
+        [
+            ["AddressNotFound", "AddressTypeWrong", "LegalAddressNotUnique", "LegalAddressIsReadonly"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
+            ["CountryIsRequired", "CountryWrong"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccAddressCountryError"]
+            }
+        ],
+        [
+            ["RegionLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccAddressRegionError"]
+            }
+        ],
+        [
+            ["CityLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccAddressCityError"]
+            }
+        ],
+        [
+            ["StreetLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccAddressStreetError"]
+            }
+        ],
+        [
+            ["HouseLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccAddressHouseError"]
+            }
+        ]
+    ],
+    "RemoveAddress": [
+        [
+            ["AccountAddressNotFound", "PrimaryAddressIsReadonly"],
+            {
+                "type": "swal",
+                "messageName": "RemoveAccountAddressError"
+            }
+        ]
+    ],
+    "CreateAccount": [
+        [
+            ["WrongAccountType"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
+            ["FirstNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#accFirstNameError"]
+            }
+        ],
+        [
+            ["LastNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#accLastNameError"]
+            }
+        ],
+        [
+            ["MiddleNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#accMiddleNameError"]
+            }
+        ],
+        [
+            ["KPPLength", "KPPWrong", "KPPNotUnique"],
+            {
+                "type": "attach",
+                "elements": ["#accKPPError"]
+            }
+        ],
+        [
+            ["OKPOLength", "OKPOWrong", "OKPONotUnique"],
+            {
+                "type": "attach",
+                "elements": ["#accOKPOError"]
+            }
+        ],
+        [
+            ["OGRNLength", "OGRNWrong", "OGRNNotUnique"],
+            {
+                "type": "attach",
+                "elements": ["#accOGRNError"]
+            }
+        ],
+        [
+            ["CoutnryLength", "CountryNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#accCountryError"]
+            }
+        ],
+        [
+            ["PrimaryManagerNameLength", "ManagerNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#accManagerError"]
+            }
+        ],
+        [
+            ["IENameLength"],
+            {
+                "type": "attach",
+                "elements": ["#accNameIEError"]
+            }
+        ],
+        [
+            ["LENameLength"],
+            {
+                "type": "attach",
+                "elements": ["#accNameLEError"]
+            }
+        ]
+    ],
+    "CreateAccountIndividual": [
+        [
+            ["INNLength", "INNWrong", "INNNotUnique"],
+            {
+                "type": "attach",
+                "elements": ["#accINNIndividualError"]
+            }
+        ]
+    ],
+    "CreateAccountIE": [
+        [
+            ["AccountAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#accNameIEError"]
+            }
+        ],
+        [
+            ["INNLength", "INNWrong", "INNNotUnique"],
+            {
+                "type": "attach",
+                "elements": ["#accINNIEError"]
+            }
+        ]
+    ],
+    "CreateAccountLE": [
+        [
+            ["AccountAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#accNameLEError"]
+            }
+        ],
+        [
+            ["INNLength", "INNWrong", "INNNotUnique"],
+            {
+                "type": "attach",
+                "elements": ["#accINNLEError"]
+            }
+        ]
+    ],
+    "ChangeLegalAddress": [
+        [
+            ["AccountNotFound", "AddressTypeWrong", "AddressNotFound"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "CreateAccountContact": [
+        [
+            ["WrongContactType"],
+            {
+                "type": "attach",
+                "elements": ["#createAccContactTypeError"]
+            }
+        ],
+        [
+            ["FirstNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccContactFNameError"]
+            }
+        ],
+        [
+            ["LastNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccContactLNameError"]
+            }
+        ],
+        [
+            ["MiddleNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccContactMNameError"]
+            }
+        ],
+        [
+            ["WrongPhoneFormat"],
+            {
+                "type": "attach",
+                "elements": ["#createAccContactPhoneError"]
+            }
+        ],
+        [
+            ["WrongEmailFormat"],
+            {
+                "type": "attach",
+                "elements": ["#createAccContactEmailError"]
+            }
+        ]
+    ],
+    "UpdateAccountContact": [
+        [
+            ["WrongContactType"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccContactTypeError"]
+            }
+        ],
+        [
+            ["FirstNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccContactFNameError"]
+            }
+        ],
+        [
+            ["LastNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccContactLNameError"]
+            }
+        ],
+        [
+            ["MiddleNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccContactMNameError"]
+            }
+        ],
+        [
+            ["WrongPhoneFormat"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccContactPhoneError"]
+            }
+        ],
+        [
+            ["WrongEmailFormat"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccContactEmailError"]
+            }
+        ]
+    ],
+    "RemoveAccountContact": [
+        [
+            ["AccountContactNotFound", "PrimaryIndividualContactIsReadonly"],
+            {
+                "type": "swal",
+                "messageName": "RemoveAccountContactError"
+            }
+        ]
+    ],
+    "ChangePrimaryContact": [
+        [
+            ["AccountContactNotFound"],
+            {
+                "type": "swal",
+                "messageName": "ChangePrimaryAccountContactError"
+            }
+        ]
+    ],
+    "CreateAccountInvoice": [
+        [
+            ["AccountNotFound"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
+            ["BankNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccInvoiceBankNameError"]
+            }
+        ],
+        [
+            ["BankCityLength"],
+            {
+                "type": "attach",
+                "elements": ["#createAccInvoiceCityError"]
+            }
+        ],
+        [
+            ["SWIFTLength", "SWIFWrong"],
+            {
+                "type": "attach",
+                "elements": ["#createAccInvoiceSWIFTError"]
+            }
+        ],
+        [
+            ["BICLength", "BICWrong"],
+            {
+                "type": "attach",
+                "elements": ["#createAccInvoiceBICError"]
+            }
+        ],
+        [
+            ["CheckingAccountLength", "CheckingAccountAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#createAccInvoiceCheckingError"]
+            }
+        ],
+        [
+            ["CorrespondentAccountLength", "CorrespondentAccountAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#createAccInvoiceCorrespondentError"]
+            }
+        ]
+    ],
+    "UpdateAccountInvoice": [
+        [
+            ["AccountNotFound"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
+            ["BankNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccInvoiceBankNameError"]
+            }
+        ],
+        [
+            ["BankCityLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccInvoiceCityError"]
+            }
+        ],
+        [
+            ["SWIFTLength", "SWIFWrong"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccInvoiceSWIFTError"]
+            }
+        ],
+        [
+            ["BICLength", "BICWrong"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccInvoiceBICError"]
+            }
+        ],
+        [
+            ["CheckingAccountAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccInvoiceCheckingError"]
+            }
+        ],
+        [
+            ["CorrespondentAccountAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#updateAccInvoiceCorrespondentError"]
+            }
+        ]
+    ],
+    "Signup": [
+        [
+            ["UserNameLength", "UserNameAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#SignupUserNameError"]
+            }
+        ],
+        [
+            ["EmailIsNull", "EmailAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#SignupEmailError"]
+            }
+        ],
+        [
+            ["PasswordLength", "PasswordNotContainsDigits", "PasswordNotContainsLetters"],
+            {
+                "type": "attach",
+                "elements": ["#SignupPasswordError"]
+            }
+        ],
+        [
+            ["ConfirmPasswordLength", "PasswordsNotEquals"],
+            {
+                "type": "attach",
+                "elements": ["#SignupConfirmPasswordError"]
+            }
+        ]
+    ],
+    "Login": [
+        [
+            ["UserNameLength", "UserNameNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#LoginUserNameError"]
+            }
+        ],
+        [
+            ["WrongPassword"],
+            {
+                "type": "attach",
+                "elements": ["#LoginPasswordError"]
+            }
+        ]
+    ],
+    "Synchronize": [
+        [
+            ["SyncManagersException"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
+            ["PrimaryManagerIsReadonly"],
+            {
+                "type": "attach",
+                "elements": ["#primaryManagerError"]
+            }
+        ],
+        [
+            ["AccountManagerIsLocked"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "CreateDivision": [
+        [
+            ["DivisionNameLength", "DivisionAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#divNameError"]
+            }
+        ]
+    ],
+    "CreateEmployee": [
+        [
+            ["UserNameAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#newUserNameError"]
+            }
+        ],
+        [
+            ["EmailIsNull", "EmailAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#newUserEmailError"]
+            }
+        ],
+        [
+            ["PasswordLength", "PasswordNotContainsDigits", "PasswordNotContainsLetters"],
+            {
+                "type": "attach",
+                "elements": ["#newUserPasswordError"]
+            }
+        ],
+        [
+            ["ConfirmPasswordLength", "PasswordsNotEquals"],
+            {
+                "type": "attach",
+                "elements": ["#newUserConfirmPasswordError"]
+            }
+        ],
+        [
+            ["FirstNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#empFirstNameError"]
+            }
+        ],
+        [
+            ["LastNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#empLastNameError"]
+            }
+        ],
+        [
+            ["MiddleNameLength"],
+            {
+                "type": "attach",
+                "elements": ["#empMidNameError"]
+            }
+        ],
+        [
+            ["DivisionNameLength", "DivisionNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#employeeDivError"]
+            }
+        ],
+        [
+            ["PositionNameLength", "PositionNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#v"]
+            }
+        ]
+    ],
+    "CreateEmployeeExistsAccount": [
+        [
+            ["UserNotExists", "UserAccountIsBusy", "UserNameLength", "UserNameIsNull"],
+            {
+                "type": "attach",
+                "elements": ["#existsUserNameError"]
+            }
+        ]
+    ],
+    "CreateEmployeeNewAccount": [
+        [
+            ["UserNotExists", "UserAccountIsBusy", "UserNameLength", "UserNameIsNull"],
+            {
+                "type": "attach",
+                "elements": ["#newUserNameError"]
+            }
+        ]
+    ],
+    "ChangeDivision": [
+        [
+            ["DivisionNameLength", "DivisionNotExists", "ThisEmployeeDivisionIsAlreadySelect"],
+            {
+                "type": "attach",
+                "elements": ["#empNewDivError"]
+            }
+        ],
+        [
+            ["PositionNameLength", "PositionNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#empNewPrimaryPosError"]
+            }
+        ]
+    ],
+    "CreateEmployeeContact": [
+        [
+            ["WrongContactType"],
+            {
+                "type": "attach",
+                "elements": ["#createEmpContactTypeError"]
+            }   
+        ],
+        [
+            ["WrongPhoneFormat"],
+            {
+                "type": "attach",
+                "elements": ["#createEmpContactPhoneError"]
+            }   
+        ],
+        [
+            ["WrongEmailFormat"],
+            {
+                "type": "attach",
+                "elements": ["#createEmpContactEmailError"]
+            }   
+        ]
+    ],
+    "UpdateEmployeeContact": [
+        [
+            ["WrongContactType"],
+            {
+                "type": "attach",
+                "elements": ["#updateEmpContactTypeError"]
+            }   
+        ],
+        [
+            ["WrongPhoneFormat"],
+            {
+                "type": "attach",
+                "elements": ["#updateEmpContactPhoneError"]
+            }   
+        ],
+        [
+            ["WrongEmailFormat"],
+            {
+                "type": "attach",
+                "elements": ["#updateEmpContactEmailError"]
+            }   
+        ]
+    ],
+    "RemoveEmployeePosition": [
+        [
+            ["RecordNotFound", "PrimaryPositionIsReadonly"],
+            {
+                "type": "swal",
+                "messageName": "RemovePositionError"
+            }
+        ]
+    ],
+    "SyncPositions": [
+        [
+            ["PrimaryPositionIsReadonly"],
+            {
+                "type": "swal",
+                "messageName": "syncPositionsErrors"
+            }
+        ]
+    ],
+    "CreateOrganization": [
+        [
+            ["OrganizationNameLength", "OrganizationAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#orgNameError"]
+            }
+        ]
+    ],
+    "CreatePosition": [
+        [
+            ["PositionNameLength", "PositionAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#positionNameError"]
+            }
+        ],
+        [
+            ["DivisionNameLength", "DivisionNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#positionDivModalError"]
+            }
+        ],
+        [
+            ["PositionNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#parentPositionModalError"]
+            }
+        ],
+        [
+            ["EmployeeNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#primaryEmployeeModalError"]
+            }
+        ]
+    ],
+    "ChangePosDivision": [
+        [
+            ["DivisionNameLength", "DivisionNotExists", "ThisPositionDivisionIsAlreadySelect"],
+            {
+                "type": "attach",
+                "elements": ["#positionNewDivError"]
+            }
+        ]
+    ],
+    "CreateQuote": [
+        [
+            ["AmountLength", "AmountWrong"],
+            {
+                "type": "attach",
+                "elements": ["#amountNameError"]
+            }
+        ],
+        [
+            ["QuoteAccontLength", "AccountNotFound"],
+            {
+                "type": "attach",
+                "elements": ["#quoteAccountError"]
+            }
+        ],
+        [
+            ["QuoteAccountManagerLength", "AccountManagerNotFound"],
+            {
+                "type": "attach",
+                "elements": ["#quoteManagerError"]
+            }
+        ],
+        [
+            ["AccountManagerIsLocked"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "UpdatePosition": [
+        [
+            ["PositionNameLength",
+            "DivisionNameLength",
+            "DivisionNotExists",
+            "PositionAlreadyExists",
+            "ParentAndCurrentPositionsCompare",
+            "PositionNotExists",
+            "PositionCannotBeParent",
+            "EmployeeNotExists"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "UpdateEmployee": [
+        [
+            ["FirstNameLength",
+            "LastNameLength",
+            "MiddleNameLength"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "UpdateAccount": [
+        [
+            ["AccountWithoutKMIsReadonly",
+            "IndividualNameIsReadonly",
+            "INNLength",
+            "INNWrong",
+            "INNNotUnique",
+            "IENameLength",
+            "AccountAlreadyExists",
+            "KPPLength",
+            "KPPWrong",
+            "KPPNotUnique",
+            "OKPOLength",
+            "OKPOWrong",
+            "OKPONotUnique",
+            "OGRNLength",
+            "OGRNWrong",
+            "OGRNNotUnique"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "ChangeSite": [
+        [
+            ["AccountNotFound", "AccountWithoutKMIsReadonly"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "AddAccManager": [
+        [
+            ["AccountNotFound"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
+            ["EmployeeNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#accManagerError"]
+            }
+        ]
+    ]
+}

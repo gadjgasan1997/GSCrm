@@ -1,0 +1,69 @@
+﻿@inject ResManager resManager
+@model AccountViewModel
+@using static GSCrm.CommonConsts
+
+<div id="accAddressCreateModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("AddressCreate")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="@ACC_ADDRESS" asp-action="Create">
+                    <div class="form-group mt-3">
+                        <div id="createAccAddressCountry" class="autocomplete default-autocomplete" data-autocomplite-type="countries">
+                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{APP_INFO}/GetCountries/")"></a>
+                            <input id="createAccAddressCountryVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("Country")" />
+                            <ul class="autocomplete-result-list"></ul>
+                        </div>
+                        <ul id="createAccAddressCountryError" data-connect-el="createAccAddressCountryVal" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccAddressRegion" class="form-control" type="text" placeholder="@resManager.GetString("Region")" />
+                        <ul id="createAccAddressRegionError" data-connect-el="createAccAddressRegion" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccAddressCity" class="form-control" type="text" placeholder="@resManager.GetString("City")" />
+                        <ul id="createAccAddressCityError" data-connect-el="createAccAddressCity" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccAddressStreet" class="form-control" type="text" placeholder="@resManager.GetString("Street")" />
+                        <ul id="createAccAddressStreetError" data-connect-el="createAccAddressStreet" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="mt-3">
+                        <input id="createAccAddressHouse" class="form-control" type="text" placeholder="@resManager.GetString("House")" />
+                        <ul id="createAccAddressHouseError" data-connect-el="createAccAddressHouse" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col">
+                            <div class="block-center">
+                                <p class="label-md label-non-select">@resManager.GetString("AddressType")</p>
+                            </div>
+                        </div>
+                        <div class="col dropdown-area">
+                            <input id="createAccAddressType" class="current-dropdown-value" hidden="hidden" />
+                            <span class="dropdown-el">
+                                <input type="radio" name="addressType" value="None" checked="checked" id="createAddressTypeNone">
+                                <label for="createAddressTypeNone">@resManager.GetString("None")</label>
+                                <input type="radio" name="addressType" value="Legal" id="createAddressTypeLegal">
+                                <label for="createAddressTypeLegal">@resManager.GetString("Legal")</label>
+                                <input type="radio" name="addressType" value="Postal" id="createAddressTypePostal">
+                                <label for="createAddressTypePostal">@resManager.GetString("Postal")</label>
+                                <input type="radio" name="addressType" value="Other" id="createAddressTypeOther">
+                                <label for="createAddressTypeOther">@resManager.GetString("Other")</label>
+                            </span>
+                        </div>
+                        <ul id="createAccAddressTypeError" class="under-field-error label-sm mt-3 text-center d-none" style="width: 100%"></ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input id="createAccAddressBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("CreateLabel")" />
+                <input id="cancelCreationAccAddressBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@model PositionViewModel
+@inject IViewsInfo viewsInfo
+@{
+    int positionEmployeesCount = Model.PositionEmployees.Count;
+    bool showES = positionEmployeesCount == 0 && new[] { Model.SearchEmployeeInitialName }.AllIsNullOrEmpty();
+    string currentUserId = User.GetUserModel(context).Id;
+}
+
+<div class="tab-pane fade" id="employees" role="tabpanel" aria-labelledby="employees-tab">
+    @* // Фильтр по сотрудникам *@
+    @if (!showES)
+    {
+        await Html.RenderPartialAsync($"{POS_VIEWS_REL_PATH}Partial/PositionEmployeesFilter.cshtml");
+    }
+    <div class="form-group">
+        <form id="positionEmpList" class="table-wrapper">
+            <table class="fl-table @(!showES ? "" : "empty-table")">
+                <thead>
+                    @if (!showES)
+                    {
+                        <tr>
+                            <th class="label-non-select">@resManager.GetString("FullName")</th>
+                        </tr>
+                    }
+                    else { <tr><th></th><th></th></tr> }
+                </thead>
+                <tbody>
+                    @if (showES)
+                    {
+                        <tr>
+                            <td><img src="~/img/default-empty.svg" /></td>
+                            <td>@resManager.GetString("ESPositionEmployees")</td>
+                        </tr>
+                    }
+                    @foreach (EmployeeViewModel employee in Model.PositionEmployees)
+                    {
+                        <tr>
+                            <td class="tooltip-cell-src tooltip-cell-link position-employee-item">@Html.ActionLink(employee.FullInitialName, EMPLOYEE, EMPLOYEE, new { id = employee.Id })</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+        @{
+            await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+            {
+                ItemsCount = Model.PositionEmployees.Count(),
+                ViewInfo = viewsInfo.Get(currentUserId, POS_EMPLOYEES),
+                ControllerName = POS_EMPLOYEE,
+                ActionName = POS_EMPLOYEES
+            });
+        }
+    </div>
+</div>

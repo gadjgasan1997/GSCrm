@@ -1,0 +1,58 @@
+{
+    "AutocompliteTypes": {
+        "Positions": [
+            {
+                "AutocompliteNames": ["EmployeePosition"],
+                "UrlAppendPardEl": "#employeeDiv .autocomplete-input"
+            },
+            {
+                "AutocompliteNames": ["ParentPositionModal"],
+                "UrlAppendPardEl": "#positionDivModal .autocomplete-input"
+            },
+            {
+                "AutocompliteNames": ["EmpNewPrimaryPos"],
+                "UrlAppendPardEl": "#empNewDiv .autocomplete-input"
+            },
+            {
+                "AutocompliteNames": ["ParentPosition"],
+                "UrlAppendPardEl": "#positionDiv"
+            }
+        ],
+        "Employees": [
+            {
+                "AutocompliteNames": ["PrimaryEmployeeModal"],
+                "UrlAppendPardEl": "#positionDivModal .autocomplete-input",
+                "SelectPropertyName": "fullInitialName",
+                "OnSubmit": "PrimaryEmployeeModalSubmit"
+            },
+            {
+                "AutocompliteNames": ["PrimaryEmployee"],
+                "UrlAppendPardEl": "#positionDiv",
+                "SelectPropertyName": "fullInitialName",
+                "OnSubmit": "PrimaryEmployeeSubmit"
+            },
+            {
+                "AutocompliteNames": ["AccountManager"],
+                "SelectPropertyName": "fullInitialName"
+            }
+        ],
+        "Quotes": [
+            {
+                "AutocompliteNames": ["QuoteAccount"],
+                "OnSubmit": "QuoteAccountSubmit"
+            },
+            {
+                "AutocompliteNames": ["QuoteManager"],
+                "UrlAppendPardEl": "#quoteAccountId",
+                "SelectPropertyName": "fullInitialName"
+            }
+        ],
+        "Accounts": [
+            {
+                "AutocompliteNames": ["AccountManager"],
+                "SelectPropertyName": "fullInitialName",
+                "OnSubmit": "AccountManagerSubmit"
+            }
+        ]
+    }
+}

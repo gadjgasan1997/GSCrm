@@ -1,0 +1,73 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model AccountViewModel
+
+<div id="accAddressesFilter">
+    <div class="accordion" id="accordionAccAddresses">
+        <div class="card">
+            <div class="card-header" id="headingAccAddresses">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseAccAddresses" aria-expanded="true" aria-controls="collapseAccAddresses">
+                        @resManager.GetString("AccountAddressesManagement")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseAccAddresses" class="collapse" aria-labelledby="headingAccAddresses" data-parent="#accordionAccAddresses">
+                <form class="card-body" method="post" asp-controller="@ACCOUNT" asp-action="SearchAddress">
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <div class="mb-3">
+                                <input asp-for="SearchAddressCountry" class="form-control" placeholder="@resManager.GetString("Country")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchAddressRegion" class="form-control" placeholder="@resManager.GetString("Region")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchAddressCity" class="form-control" placeholder="@resManager.GetString("City")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchAddressStreet" class="form-control" placeholder="@resManager.GetString("Street")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchAddressHouse" class="form-control" placeholder="@resManager.GetString("House")" />
+                            </div>
+                            <div id="searchAddressTypeBlock" class="mb-3">
+                                <div>
+                                    <label>@resManager.GetString("AddressType")</label>
+                                </div>
+                                <div class="dropdown-area">
+                                    <input asp-for="SearchAddressType" class="current-dropdown-value" hidden="hidden" />
+                                    <span class="dropdown-el">
+                                        <input type="radio" name="addressType" value="None" checked="checked" id="searchAddressTypeNone">
+                                        <label for="searchAddressTypeNone">@resManager.GetString("None")</label>
+                                        <input type="radio" name="addressType" value="Legal" id="searchAddressTypeLegal">
+                                        <label for="searchAddressTypeLegal">@resManager.GetString("Legal")</label>
+                                        <input type="radio" name="addressType" value="Postal" id="searchAddressTypePostal">
+                                        <label for="searchAddressTypePostal">@resManager.GetString("Postal")</label>
+                                        <input type="radio" name="addressType" value="Other" id="searchAddressTypeOther">
+                                        <label for="searchAddressTypeOther">@resManager.GetString("Other")</label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="accAddressesActions" class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                            <div class="row justify-content-between">
+                                <div class="col mb-3">
+                                    <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SearchAddress")" />
+                                </div>
+                                <div class="col mb-3">
+                                    <a asp-controller="@ACCOUNT" asp-action="ClearAddressSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                                </div>
+                                <div class="col mb-3">
+                                    <input type="button" data-toggle="modal" data-target="#accAddressCreateModal" class="btn btn-outline-primary" value="@resManager.GetString("CreateAccountAddress")" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

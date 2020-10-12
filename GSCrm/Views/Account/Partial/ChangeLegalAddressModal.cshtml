@@ -1,0 +1,68 @@
+﻿@inject ResManager resManager
+@model AccountViewModel
+@using static GSCrm.CommonConsts
+@{
+    int addressCount = 0;
+    List<AccountAddressViewModel> notLegalAddresses = Model.AllAccountAddresses.Where(addr => addr.AddressType != "Legal").ToList();
+}
+
+<div id="changeLEAddrModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("ChangeLegalAddress")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="@ACCOUNT" asp-action="ChangeLegalAddress">
+                    <input id="targetFormId" hidden="hidden" />
+                    <div class="col">
+                        <p class="label-sm text-center">@resManager.GetString("SelectNewLegalAddress")</p>
+                            <ul id="accAddressNotLegalList" class="mt-1 list-group">
+                            @foreach (AccountAddressViewModel addressViewModel in notLegalAddresses)
+                            {
+                                if (addressCount == 0)
+                                {
+                                    <li class="list-group-item active">@addressViewModel.FullAddress
+                                        <p class="new-legal-address-id d-none">@addressViewModel.Id</p>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="list-group-item">@addressViewModel.FullAddress
+                                        <p class="new-legal-address-id d-none">@addressViewModel.Id</p>
+                                    </li>
+                                }
+                                addressCount++;
+                            }
+                            </ul>
+                    </div>
+                    <div id="changeCurrentAddrType" class="col mt-3">
+                        <p class="label-sm text-center m-0">@resManager.GetString("ChangeCurrentLegalAddressType")</p>
+                        <ul class="mt-3 mb-3 list-group">
+                            <li class="list-group-item active">@Model.LegalAddress</li>
+                        </ul>
+                        <div class="col mt-1 dropdown-area text-center">
+                            <input id="changeAccAddressType" class="current-dropdown-value" hidden="hidden" />
+                            <span class="dropdown-el">
+                                <input type="radio" name="addressType" value="None" checked="checked" id="changeAddressTypeNone">
+                                <label for="changeAddressTypeNone">@resManager.GetString("None")</label>
+                                <input type="radio" name="addressType" value="Postal" id="changeAddressTypePostal">
+                                <label for="changeAddressTypePostal">@resManager.GetString("Postal")</label>
+                                <input type="radio" name="addressType" value="Other" id="changeAddressTypeOther">
+                                <label for="changeAddressTypeOther">@resManager.GetString("Other")</label>
+                            </span>
+                        </div>
+                        <ul id="changeAccAddressTypeError" class="under-field-error label-sm mt-3 text-center d-none" style="width: 100%"></ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input id="changeLegalAddress" type="submit" class="btn btn-primary" value="@resManager.GetString("Change")" />
+                <input id="cancelChangeLegalAddress" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+﻿@using static GSCrm.CommonConsts
+@inject ResManager resManager
+@model AccountViewModel
+
+<div id="accContactsFilter">
+    <div class="accordion" id="accordionAccContacts">
+        <div class="card">
+            <div class="card-header" id="headingAccContacts">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseAccContacts" aria-expanded="true" aria-controls="collapseAccContacts">
+                        @resManager.GetString("AccountContactsManagement")
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseAccContacts" class="collapse" aria-labelledby="headingAccContacts" data-parent="#accordionAccContacts">
+                <form class="card-body" method="post" asp-controller="@ACCOUNT" asp-action="SearchContact">
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="row justify-content-around form-group m-0">
+                        <div class="col-xl mb-4 mb-xl-0">
+                            <div class="mb-3">
+                                <input asp-for="SearchContactFullName" class="form-control" placeholder="@resManager.GetString("FullName")" />
+                            </div>
+                            <div id="searchContactTypeBlock" class="mb-3">
+                                <div>
+                                    <label>@resManager.GetString("ContactType")</label>
+                                </div>
+                                <div class="dropdown-area">
+                                    <input asp-for="SearchContactType" class="current-dropdown-value" hidden="hidden" />
+                                    <span class="dropdown-el">
+                                        <input type="radio" name="contactType" value="None" checked="checked" id="searchContactTypeNone">
+                                        <label for="searchContactTypeNone">@resManager.GetString("None")</label>
+                                        <input type="radio" name="contactType" value="Personal" id="searchContactTypePersonal">
+                                        <label for="searchContactTypePersonal">@resManager.GetString("Personal")</label>
+                                        <input type="radio" name="contactType" value="Work" id="searchContactTypeWork">
+                                        <label for="searchContactTypeWork">@resManager.GetString("Work")</label>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <input asp-for="SearchContactPhoneNumber" class="form-control" placeholder="@resManager.GetString("PhoneNumber")" />
+                            </div>
+                            <div class="mb-3">
+                                <input asp-for="SearchContactEmail" class="form-control" placeholder="@resManager.GetString("Email")" />
+                            </div>
+                            <div class="row mb-1 mb-xl-4 ml-auto mr-auto">
+                                <input asp-for="SearchContactPrimary" hidden="hidden" type="text" />
+                                <label class="mb-0 mr-3">@resManager.GetString("IsPrimary")</label>
+                                <div id="searchContactPrimarySign" class="oval-mark"></div>
+                            </div>
+                        </div>
+                        <div id="accContactsActions" class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                            <div class="row justify-content-between">
+                                <div class="col mb-3">
+                                    <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SeacrhContact")" />
+                                </div>
+                                <div class="col mb-3">
+                                    <a asp-controller="@ACCOUNT" asp-action="ClearContactSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                                </div>
+                                <div class="col mb-3">
+                                    <input type="button" data-toggle="modal" data-target="#accContactCreateModal" class="btn btn-outline-primary" value="@resManager.GetString("CreateAccountContact")" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

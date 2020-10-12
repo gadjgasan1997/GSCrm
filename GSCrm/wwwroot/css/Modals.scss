@@ -1,0 +1,177 @@
+﻿#divisionModal .modal-body .form-group div {
+    margin-bottom: 20px
+}
+
+#employeePosisionModal {
+    .modal-footer .row {
+        width: 100%;
+        .col:last-child {
+            text-align: end
+        }
+    }
+}
+
+#accountModal {
+    .tabs-content {
+        #IEOption, #LEOption {
+            display: none
+        }
+    }
+
+    .modal-body {
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+}
+
+#accTeamManagementModal {
+    #teamAllEmployees {
+        #allEmployeesList {
+            width: 100%
+        }
+
+        #allEmployeesNav {
+            width: 100%;
+        }
+    }
+
+    #teamSelectedEmployees {
+        #selectedEmployeesList {
+            width: 90%;
+            overflow: auto;
+            margin-left: 5%;
+
+            .list-card {
+                display: flex;
+                min-width: 100%;
+                height: 150px;
+
+                .list-card-content {
+                    margin: 5px;
+                    min-width: 250px;
+                    max-width: 250px;
+                    margin: auto;
+                    margin-left: 5px;
+                    margin-right: 5px;
+
+                    .account-manager {
+                        height: 110px;
+
+                        > div > h5 {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        .oval-mark {
+                            z-index: 1000
+                        }
+                    }
+
+                    .account-manager:not([class="list-group-item account-manager primary-manager"]) {
+                        cursor: pointer
+                    }
+
+                    .account-manager-selected {
+                        border-color: red
+                    }
+                }
+
+                .list-card-content:first-child {
+                    margin-left: 10px
+                }
+
+                .list-card-content:last-child {
+                    margin-right: 10px
+                }
+            }
+        }
+    }
+
+    .modal-footer {
+        > .row {
+            width: 100%
+        }
+    }
+}
+
+#changeLEAddrModal {
+    #accAddressNotLegalList {
+        max-height: 300px;
+
+        .list-group-item:first-child {
+            margin-top: 10px
+        }
+
+        .list-group-item:last-child {
+            margin-bottom: 10px
+        }
+
+        .list-group-item:not([class*="active"]) {
+            cursor: pointer;
+        }
+
+        .list-group-item[class*="active"] {
+            user-select: none
+        }
+    }
+}
+
+#responsibilitiesManagmentModal {
+    .modal-header {
+        height: 65px;
+        position: relative;
+
+        .icon-add-outline {
+            font-size: 22px;
+            margin-top: 4.5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .icon-add-outline:hover {
+            color: #008C95;
+        }
+    }
+
+    #respsBlockMask,
+    #modalHeaderMask {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+        height: 100%;
+        width: 100%;
+        background-color: black;
+        opacity: 0.2;
+        z-index: 1000;
+    }
+
+    #respsBlock {
+        position: relative;
+        background-color: white;
+    }
+
+    #newRespBlock {
+        display: none;
+        width: 94%;
+        top: 80px;
+        z-index: 1000;
+        margin-left: 3%;
+        margin-top: 4%;
+        margin-bottom: 15px;
+
+        .row {
+            width: 100%;
+            margin-left: 0;
+
+            .col-md-auto {
+                display: inline-flex;
+                cursor: pointer
+            }
+        }
+    }
+}

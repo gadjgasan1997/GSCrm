@@ -1,0 +1,83 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model EmployeeViewModel
+@{
+    int contactsCount = Model.EmployeeContactViewModels.Count;
+    bool showES = contactsCount == 0 && new[] { Model.SearchContactType, Model.SearchContactPhone, Model.SearchContactEmail }.AllIsNullOrEmpty();
+    string currentUserId = User.GetUserModel(context).Id;
+}
+<div class="tab-pane fade" id="contacts" role="tabpanel" aria-labelledby="contact-tab">
+    @* // Фильтр по контактам *@
+    @if (!showES)
+    {
+        await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeeContactsFilter.cshtml");
+    }
+
+    <div class="form-group">
+        <form id="employeeContactsList">
+            <div class="table-wrapper">
+                <table class="fl-table @(!showES ? "" : "empty-table")">
+                    <thead>
+                        @if (!showES)
+                        {
+                            <tr>
+                                <th>@resManager.GetString("Type")</th>
+                                <th>@resManager.GetString("PhoneNumber")</th>
+                                <th>@resManager.GetString("Email")</th>
+                                <th class="action-column"></th>
+                                <th class="action-column"></th>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr><th></th><th></th></tr>
+                        }
+                    </thead>
+                    <tbody>
+                        @if (showES)
+                        {
+                            <tr>
+                                <td><img src="~/img/default-empty.svg" /></td>
+                                <td>@resManager.GetString("ESEmployeeContacts")</td>
+                            </tr>
+                        }
+                        @foreach (EmployeeContactViewModel contactViewModel in Model.EmployeeContactViewModels)
+                        {
+                            <tr>
+                                <td class="tooltip-cell-src">@contactViewModel.ContactType</td>
+                                <td class="tooltip-cell-src">@contactViewModel.PhoneNumber</td>
+                                <td class="tooltip-cell-src">@contactViewModel.Email</td>
+                                <td class="remove-item-btn">
+                                    <div class="remove-item-url" hidden="hidden">
+                                        @Html.ActionLink(contactViewModel.Id.ToString(), "Delete", EMP_CONTACT, new { id = contactViewModel.Id })"
+                                    </div>
+                                    <span class="icon-bin"></span>
+                                </td>
+                                <td class="edit-item-btn" data-toggle="modal" data-target="#empContactUpdateModal">
+                                    <div class="edit-item-url" hidden="hidden">
+                                        @Html.ActionLink(contactViewModel.Id.ToString(), CONTACT, EMP_CONTACT, new { id = contactViewModel.Id })"
+                                    </div>
+                                    <span class="icon-pencil"></span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </form>
+        @{
+            await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+            {
+                ItemsCount = contactsCount,
+                ViewInfo = viewsInfo.Get(currentUserId, EMP_CONTACTS),
+                ControllerName = EMP_CONTACT,
+                ActionName = CONTACTS
+            });
+        }
+    </div>
+</div>
