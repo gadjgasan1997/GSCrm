@@ -1,8 +1,6 @@
-﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
+﻿using GSCrm.Data.ApplicationInfo;
+using GSCrm.Mapping;
 using GSCrm.Helpers;
-using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
@@ -13,53 +11,57 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static GSCrm.CommonConsts;
-using static GSCrm.Repository.EmployeeRepository;
+using GSCrm.Data;
+using GSCrm.Models.ViewTypes;
+using GSCrm.Models.Enums;
 
 namespace GSCrm.Controllers
 {
     [Authorize]
     [Route(EMP_POSITION)]
     public class EmployeePositionController
-        : MainController<EmployeePosition, EmployeePositionViewModel, EmployeePositionValidator, EmployeePositionTransformer, EmployeePositionRepository>
+        : MainController<EmployeePosition, EmployeePositionViewModel>
     {
-        public EmployeePositionController(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager)
-            : base (context, viewsInfo, resManager, new EmployeePositionTransformer(context, resManager), new EmployeePositionRepository(context, viewsInfo, resManager))
+        public EmployeePositionController(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base (context, serviceProvider)
         { }
 
         [HttpGet("ListOfPositions/{pageNumber}")]
         public IActionResult Positions(int pageNumber)
         {
             User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-            EmployeeViewModel employeeViewModel = CurrentEmployee;
-            EmployeeRepository employeeRepository = new EmployeeRepository(context, viewsInfo, resManager, HttpContext);
+            EmployeeViewModel employeeViewModel = (EmployeeViewModel)cachService.GetMainEntity(currentUser, MainEntityType.EmployeeView);
+            EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
             employeeRepository.SetViewInfo(currentUser.Id, EMP_POSITIONS, pageNumber);
             employeeRepository.AttachPositions(employeeViewModel);
             return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
         }
 
-        [HttpGet("{employeeId}")]
+        [HttpGet("GetPositions/{employeeId}")]
         public IActionResult GetPositions(string employeeId)
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-                repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-                List<Position> allPositions = repository.GetAllPositions(guid);
-                List<EmployeePosition> selectedPositions = repository.GetSelectedPositions(guid);
-                List<EmployeePosition> selectedPositionsForTable = repository.GetSelectedPositionsForTable(guid);
-                List<PositionViewModel> allPositionVMs = allPositions.GetViewModelsFromData
-                    <Position, PositionViewModel, PositionTransformer>(new PositionTransformer(context, resManager));
-                List<EmployeePositionViewModel> selectedPositionsVMs = selectedPositions.GetViewModelsFromData
-                    <EmployeePosition, EmployeePositionViewModel, EmployeePositionTransformer>(transformer);
-                List<EmployeePositionViewModel> selectedPositionsForTableVMs = selectedPositionsForTable.GetViewModelsFromData
-                    <EmployeePosition, EmployeePositionViewModel, EmployeePositionTransformer>(transformer);
+                // Получение списка со всеми должностями организации и списка с должностями сотрудника
+                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<Position> allPositions = employeeRepository.AttachAllPositions(guid);
+                List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(guid);
+                List<PositionViewModel> allPositionVMs = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
+                List<EmployeePositionViewModel> selectedPositionsVMs = selectedPositions.GetViewModelsFromData(map);
+
+                // Получение моделей с информацией об установленных для пользователя условиях поиска по должностям
+                EmployeeViewModel allEmployeePossCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
+                allEmployeePossCash = new EmployeeMap(serviceProvider, context).Refresh(allEmployeePossCash, currentUser, EmployeeViewType.ALL_EMP_POSS);
+                EmployeeViewModel selectedEmployeePossCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
+                selectedEmployeePossCash = new EmployeeMap(serviceProvider, context).Refresh(selectedEmployeePossCash, currentUser, EmployeeViewType.SELECTED_EMP_POSS);
+
+                // Возврат результата
                 Dictionary<string, object> result = new Dictionary<string, object>()
                 {
                     { "allPositions", allPositionVMs },
                     { "selectedPositions", selectedPositionsVMs },
-                    { "positionsForTable", selectedPositionsForTableVMs },
-                    { "allPositionsVM", ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, ALL_EMP_POSS) },
-                    { "selectedPositionsVM", ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, SELECTED_EMP_POSS) }
+                    { "allPositionsVM", allEmployeePossCash },
+                    { "selectedPositionsVM", selectedEmployeePossCash }
                 };
                 return Json(result);
             }
@@ -71,12 +73,10 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-                ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, ALL_EMP_POSS);
-                repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-                List<Position> allPositions = repository.GetAllPositions(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData
-                    <Position, PositionViewModel, PositionTransformer>(new PositionTransformer(context, resManager));
+                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, ALL_EMP_POSS);
+                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<Position> allPositions = employeeRepository.AttachAllPositions(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
+                List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
                 return Json(allPositionViewModels);
             }
             return BadRequest("NextAllRecords");
@@ -87,12 +87,10 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-                ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, ALL_EMP_POSS);
-                repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-                List<Position> allPositions = repository.GetAllPositions(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData
-                    <Position, PositionViewModel, PositionTransformer>(new PositionTransformer(context, resManager));
+                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, ALL_EMP_POSS);
+                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<Position> allPositions = employeeRepository.AttachAllPositions(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
+                List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
                 return Json(allPositionViewModels);
             }
             return BadRequest("PreviousAllRecords");
@@ -103,12 +101,10 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-                ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, SELECTED_EMP_POSS);
-                repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-                List<EmployeePosition> selectedPositions = repository.GetSelectedPositions(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData
-                    <EmployeePosition, EmployeePositionViewModel, EmployeePositionTransformer>(transformer);
+                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, SELECTED_EMP_POSS);
+                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
+                List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData(map);
                 return Json(selectedPositionViewModels);
             }
             return BadRequest("NextSelectedRecords");
@@ -119,12 +115,10 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-                ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, SELECTED_EMP_POSS);
-                repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-                List<EmployeePosition> selectedPositions = repository.GetSelectedPositions(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData
-                    <EmployeePosition, EmployeePositionViewModel, EmployeePositionTransformer>(transformer);
+                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, SELECTED_EMP_POSS);
+                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
+                List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData(map);
                 return Json(selectedPositionViewModels);
             }
             return BadRequest("PreviousSelectedRecords");
@@ -133,49 +127,47 @@ namespace GSCrm.Controllers
         [HttpGet("ClearPositionManagementSearch")]
         public IActionResult ClearPositionManagementSearch()
         {
-            repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-            repository.ClearAllPositionSearch();
-            repository.ClearSelectedPositionSearch();
+            EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+            employeeRepository.ClearAllPositionSearch();
+            employeeRepository.ClearSelectedPositionSearch();
             return Ok();
         }
 
         [HttpPost("SearchAllPosition")]
         public IActionResult SearchAllPosition(EmployeeViewModel employeeViewModel)
         {
-            repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-            repository.SearchAllPosition(employeeViewModel);
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = CurrentEmployee.Id });
+            cachService.CacheItem(currentUser.Id, ALL_EMP_POSS, employeeViewModel);
+            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
         }
 
         [HttpGet("ClearAllPositionSearch")]
         public IActionResult ClearAllPositionSearch()
         {
-            repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-            repository.ClearAllPositionSearch();
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = CurrentEmployee.Id });
+            EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+            employeeRepository.ClearAllPositionSearch();
+            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
         }
 
         [HttpPost("SearchSelectedPosition")]
         public IActionResult SearchSelectedPosition(EmployeeViewModel employeeViewModel)
         {
-            repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-            repository.SearchSelectedPosition(employeeViewModel);
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = CurrentEmployee.Id });
+            cachService.CacheItem(currentUser.Id, SELECTED_EMP_POSS, employeeViewModel);
+            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
         }
 
         [HttpGet("ClearSelectedPositionSearch")]
         public IActionResult ClearSelectedPositionSearch()
         {
-            repository = new EmployeePositionRepository(context, viewsInfo, resManager, HttpContext);
-            repository.ClearSelectedPositionSearch();
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = CurrentEmployee.Id });
+            EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+            employeeRepository.ClearSelectedPositionSearch();
+            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
         }
 
         [HttpPost("Synchronize")]
         public IActionResult Synchronize(SyncPositionsViewModel syncViewModel)
         {
             Dictionary<string, string> syncErrors = new Dictionary<string, string>();
-            if (repository.TrySyncPositions(syncViewModel, syncErrors))
+            if (new EmployeePositionRepository(serviceProvider, context).TrySyncPositions(syncViewModel, ref syncErrors))
                 return Json("");
             return BadRequest(syncErrors);
         }

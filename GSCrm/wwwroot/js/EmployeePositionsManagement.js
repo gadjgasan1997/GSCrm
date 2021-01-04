@@ -11,7 +11,7 @@ class EmployeePositionsManagement {
     InitializePositions() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let getPositionsUrl = $("#initializePositionsUrl").attr("href") + "/" + $("#employeeId").val();
+            let getPositionsUrl = $("#initializePositionsUrl").attr("href");
 
             request.JsonGetRequest(getPositionsUrl)
                 .catch(error => reject(error))
@@ -176,26 +176,14 @@ class EmployeePositionsManagement {
      * Формирует данные для запроса на сервер при синхронизации должностей
      */
     GetSyncPositionsData() {
-        let modal = $("#employeePosisionModal");
-        
         let checkmark = $("#selectedPositions .readonly-checkmark")[0];
         let primaryPositionName = EmployeePositionsManagement.primaryPositionName == "" ? $(checkmark).closest("tr").find(".position-name").text() : EmployeePositionsManagement.primaryPositionName;
-
-        let allPositions = EmployeePositionsManagement.positionsToAdd;
-        modal.find("#allPositions .checkmark-checked").each((index, item) => {
-            allPositions[index + EmployeePositionsManagement.positionsToAdd.length] = $(item).closest("tr").find(".position-name").text();
-        });
-
-        let selectedPositions = EmployeePositionsManagement.positionsToRemove;
-        modal.find("#selectedPositions .cross-crossed").each((index, item) => {
-            selectedPositions[index + EmployeePositionsManagement.positionsToRemove.length] = $(item).closest("tr").find(".position-name").text();
-        });
 
         return {
             EmployeeId: $("#employeeId").val(),
             PrimaryPositionName: primaryPositionName,
-            PositionsToAdd: allPositions,
-            PositionsToRemove: selectedPositions
+            PositionsToAdd: EmployeePositionsManagement.positionsToAdd,
+            PositionsToRemove: EmployeePositionsManagement.positionsToRemove
         }
     }
 
@@ -338,28 +326,41 @@ class EmployeePositionsManagement {
     }
 
     /**
-     * Запоминает должности, помеченные на добавление
+     * При нажатии на кнопку добавления должности
+     * @param {*} event 
      */
-    RememberPositionsToAdd() {
-        let positionsToAdd = EmployeePositionsManagement.positionsToAdd;
-        $("#employeePosisionModal").find("#allPositions .checkmark").each((i, item) => {
-            let positionName = $(item).closest("tr").find(".position-name").text();
-            
-            // Все элементы, помеченные галочкой на добавление записываются в массив EmployeePositionsManagement.positionsToAdd
-            if ($(item).hasClass("checkmark-checked") && EmployeePositionsManagement.positionsToAdd.indexOf(positionName) == -1) {
-                let elementToAddIndex = positionsToAdd.length;
-                positionsToAdd[elementToAddIndex] = positionName;
+    OnPositionAddBtnClick(event) {
+        let row = $(event.currentTarget).closest("tr");
+        let positionName = $(row).find(".position-name").text();
+        if (!EmployeePositionsManagement.positionsToAdd.includes(positionName)) {
+            EmployeePositionsManagement.positionsToAdd.push(positionName);
+        }
+        else {
+            let positionIndex = EmployeePositionsManagement.positionsToAdd.indexOf(positionName);
+            if (positionIndex != -1) {
+                EmployeePositionsManagement.positionsToAdd.splice(positionIndex, 1);
             }
+        }
+    }
 
-            // Все элементы, не помеченные галочкой на добавление, при их наличии в массиве EmployeePositionsManagement.positionsToAdd удалются оттуда
-            else if (!$(item).hasClass("checkmark-checked")) {
-                let elementToRemoveIndex = positionsToAdd.indexOf(positionName);
-                if (elementToRemoveIndex != -1) {
-                    positionsToAdd.splice(elementToRemoveIndex, 1);
+    /**
+     * При нажатии на кнопку удаления должности
+     * @param {*} event 
+     */
+    OnPositionRemoveBtnClick(event) {
+        let row = $(event.currentTarget).closest("tr");
+        let positionName = $(row).find(".position-name").text();
+        if (!$(event.currentTarget).hasClass("readonly-cross")) {
+            if (!EmployeePositionsManagement.positionsToRemove.includes(positionName)) {
+                EmployeePositionsManagement.positionsToRemove.push(positionName);
+            }
+            else {
+                let positionIndex = EmployeePositionsManagement.positionsToRemove.indexOf(positionName);
+                if (positionIndex != -1) {
+                    EmployeePositionsManagement.positionsToRemove.splice(positionIndex, 1);
                 }
             }
-        });
-        EmployeePositionsManagement.positionsToAdd = positionsToAdd;
+        }
     }
 
     /**
@@ -412,40 +413,17 @@ class EmployeePositionsManagement {
         this.RestorePrimaryPosition();
     }
 
-    /**
-     * Запоминает должности, помеченные на удаление
-     */
-    RememberPositionsToRemove() {
-        let positionsToRemove = EmployeePositionsManagement.positionsToRemove;
-        $("#employeePosisionModal").find("#selectedPositions .cross").each((i, item) => {
-            let positionName = $(item).closest("tr").find(".position-name").text();
-            
-            // Все элементы, помеченные крестиком на удаление записываются в массив EmployeePositionsManagement.positionsToRemove
-            if ($(item).hasClass("cross-crossed") && EmployeePositionsManagement.positionsToRemove.indexOf(positionName) == -1) {
-                let elementToAddIndex = positionsToRemove.length;
-                positionsToRemove[elementToAddIndex] = positionName;
-            }
-
-            // Все элементы, не помеченные крестиком на удаление, при их наличии в массиве EmployeePositionsManagement.positionsToRemove удалются оттуда
-            else if (!$(item).hasClass("cross-crossed")) {
-                let elementToRemoveIndex = positionsToRemove.indexOf(positionName);
-                if (elementToRemoveIndex != -1) {
-                    positionsToRemove.splice(elementToRemoveIndex, 1);
-                }
-            }
-        });
-        EmployeePositionsManagement.positionsToRemove = positionsToRemove;
-    }
-
-    /**
-     * Запоминает основную выбранную должность
-     */
-    RememberPrimaryPosition() {
+    /** Событие, происходящее при изменении основной должности */
+    OnPrimaryPositionChange() {
         let checkmark = $("#employeePosisionModal #selectedPositions tbody .readonly-checkmark");
         if (checkmark.length != 0) {
             let row = $(checkmark).closest("tr");
             let primaryPositionName = $(row).find(".position-name").text();
             EmployeePositionsManagement.primaryPositionName = primaryPositionName;
+            let positionToRemoveIndex = EmployeePositionsManagement.positionsToRemove.indexOf(primaryPositionName);
+            if (positionToRemoveIndex != -1) {
+                EmployeePositionsManagement.positionsToRemove.splice(positionToRemoveIndex, 1);
+            }
         }
     }
 
@@ -496,10 +474,7 @@ class EmployeePositionsManagement {
 
             request.JsonGetRequest(url)
                 .fail(error => reject(error))
-                .done(response => {
-                    console.log(response);
-                    resolve(response);
-                });
+                .done(response => resolve(response));
         })
     }
 
@@ -583,60 +558,52 @@ $("#employeePosisionModal")
     .off("checkmark-check", ".checkmark").on("checkmark-check", ".checkmark", event => {
         let button = new Button();
         button.CheckmarkCheck(event);
+        let employeePositionsManagement = new EmployeePositionsManagement();
+        employeePositionsManagement.OnPositionAddBtnClick(event);
     })
     .off("hide-checkmark-click", ".hide-checkmark").on("hide-checkmark-click", ".hide-checkmark", event => {
         let button = new Button();
         button.HideCheckmarkCheck(event);
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPrimaryPosition();
+        employeePositionsManagement.OnPrimaryPositionChange();
         EmployeePositionsManagement.primaryPositionChanged = true;
     })
     .off("cross-click", ".cross").on("cross-click", ".cross", event => {
         let button = new Button();
         button.CrossClick(event);
+        let employeePositionsManagement = new EmployeePositionsManagement();
+        employeePositionsManagement.OnPositionRemoveBtnClick(event);
     })
     .off("click", "#allPositionsNav .nav-next .nav-url").on("click", "#allPositionsNav .nav-next .nav-url", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToAdd();
         employeePositionsManagement.NextAllPositions(event);
     })
     .off("click", "#allPositionsNav .nav-previous .nav-url").on("click", "#allPositionsNav .nav-previous .nav-url", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToAdd();
         employeePositionsManagement.PreviousAllPositions(event);
     })
     .off("click", "#selectedPositionsNav .nav-next .nav-url").on("click", "#selectedPositionsNav .nav-next .nav-url", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToRemove();
-        employeePositionsManagement.RememberPrimaryPosition();
         employeePositionsManagement.NextSelectedPositions(event);
     })
     .off("click", "#selectedPositionsNav .nav-previous .nav-url").on("click", "#selectedPositionsNav .nav-previous .nav-url", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToRemove();
-        employeePositionsManagement.RememberPrimaryPosition();
         employeePositionsManagement.PreviousSelectedPositions(event);
     })
     .off("click", "#allPositionsSearch").on("click", "#allPositionsSearch", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToAdd();
         employeePositionsManagement.AllPositionsSearch(event);
     })
     .off("click", "#selectedPositionsSearch").on("click", "#selectedPositionsSearch", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToRemove();
-        employeePositionsManagement.RememberPrimaryPosition();
         employeePositionsManagement.SelectedPositionsSearch(event);
     })
     .off("click", "#clearAllPositionsSearch").on("click", "#clearAllPositionsSearch", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToAdd();
         employeePositionsManagement.ClearAllPositionsSearch(event);
     })
     .off("click", "#clearSelectedPositionsSearch").on("click", "#clearSelectedPositionsSearch", event => {
         let employeePositionsManagement = new EmployeePositionsManagement();
-        employeePositionsManagement.RememberPositionsToRemove();
-        employeePositionsManagement.RememberPrimaryPosition();
         employeePositionsManagement.ClearSelectedPositionsSearch(event);
     })
     .off('hide.bs.modal').on("hide.bs.modal", event => {

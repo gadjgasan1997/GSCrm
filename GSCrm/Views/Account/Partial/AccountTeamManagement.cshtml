@@ -5,7 +5,7 @@
 @* // Модальное окно управления командой по клиенту *@
 <div id="accTeamManagementModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <input id="organizationId" asp-for="OrganizationId" hidden="hidden" />
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-xxl" role="document">
         <div class="modal-content">
             <form method="post" asp-controller="@ACC_MANAGER" asp-action="Synchronize">
                 <div class="modal-header">
@@ -20,7 +20,7 @@
                             <div class="row justify-content-start">
                                 <ul id="primaryManagerError" class="d-none"></ul>
                             </div>
-                            <div class="row justify-content-center">
+                            <div id="teamAllEmployeesHeader" class="row justify-content-center">
                                 <p class="label-md m-0 text-center">@resManager.GetString("AllManagersExceptSelected")</p>
                             </div>
                             <div class="card-body">

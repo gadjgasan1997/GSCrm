@@ -154,6 +154,7 @@ class AccountAddress {
             Street: $("#updateAccAddressStreet").val(),
             House: $("#updateAccAddressHouse").val(),
             AddressType: addressType,
+            CurrentAddressNewType: addressType,
             NewLegalAddressId: localStorage.getItem("selectedAddressId")
         }
     }
@@ -176,7 +177,7 @@ class AccountAddress {
             let addressHasBeenSelected = localStorage.getItem("selectedAddressId") != "" && localStorage.getItem("selectedAddressId") != undefined && localStorage.getItem("selectedAddressId") != null;
 
             // Если новый тип адреса является юридическим, то в любом случае можно осуществлять запрос на сервер
-            if (updateAddressData["AddressType"] == "Legal") resolve({ "WaitForChanges": false });
+            if (updateAddressData["CurrentAddressNewType"] == "Legal") resolve({ "WaitForChanges": false });
 
             // Иначе, если изначально тип адреса был юридическим, необходимо выбрать другой адрес как юридический
             else if (changedAddressType == Localization.GetString("Legal") && !addressHasBeenSelected) {

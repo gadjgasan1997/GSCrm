@@ -1,4 +1,5 @@
-﻿using static GSCrm.CommonConsts;
+﻿using Microsoft.AspNetCore.Http;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Data.ApplicationInfo
 {
@@ -6,6 +7,6 @@ namespace GSCrm.Data.ApplicationInfo
     {
         void Set(string userId, string viewName, ViewInfo viewInfo);
         ViewInfo Get(string userId, string viewName);
-        void Reset(string userId, string viewName, int currentPageNumber = DEFAULT_MIN_PAGE_NUMBER);
+        ViewInfo Get(ApplicationDbContext context, HttpContext httpContext, string viewName);
     }
 }

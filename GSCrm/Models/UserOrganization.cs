@@ -14,6 +14,9 @@ namespace GSCrm.Models
         [ForeignKey("Organization")]
         public Guid OrganizationId { get; set; }
         public Organization Organization { get; set; }
+        public bool Accepted { get; set; } = true;
+
+        public OrgNotificationsSetting OrgNotificationsSetting { get; set; }
     }
 
     public class UserOrganizationEqualityComparer : IEqualityComparer<UserOrganization>

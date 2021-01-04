@@ -1,0 +1,238 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels
+@using static GSCrm.CommonConsts
+@using GSCrm.Helpers
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AllNotificationsSettingsViewModel
+@{
+    List<OrgNotificationsSettingViewModel> orgSettingViewModels = Model.OrgNotificationsSettingViewModels;
+    User currentUser = User.GetUserModel(context);
+    string currentUserId = currentUser.Id;
+    int settingCounter = 0;
+}
+
+<div class="tab-pane fade @(orgSettingViewModels.Count == 0 ? "not-settings-list-empty" : "not-settings-list")" role="tabpanel" aria-labelledby="orgNotSettingsTab" id="orgNotSettingsList">
+    <p class="label-lg text-center">@resManager.GetString("OrgNotifications")</p>
+    @if (orgSettingViewModels.Count == 0)
+    {
+        <div class="row">
+            <div class="col">
+                <img src="~/img/default-empty.svg" />
+            </div>
+            <div class="col">
+                <div class="block-center">
+                    <p class="label-md">@resManager.GetString("ESOrgNotifications")</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div>
+            @foreach (OrgNotificationsSettingViewModel settingViewModel in orgSettingViewModels)
+            {
+                <form class="not-setting-group mt-3">
+                    <input class="user-org-id" value="@settingViewModel.UserOrganizationId" hidden="hidden" />
+                    <input class="not-setting-id" value="@settingViewModel.Id" hidden="hidden" />
+                    <div class="row">
+                        <div class="col-md">
+                            <p class="label-bold-lg">@settingViewModel.OrganizationName</p>
+                        </div>
+                        <div class="col-auto">
+                            <div class="arrow-toggler">
+                                <span class="icon-chevron-thin-right"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="not-settings" style="display: none">
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="DivisionDeleteNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("DivisionDeleteNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TDivDeleteNot" hidden="hidden" />
+                                    <div class="col @(settingViewModel.DivDeleteNot ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.DivDeleteNot ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="PositionDeleteNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("PositionDeleteNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TPosDeleteNot" hidden="hidden" />
+                                    <div class="col @(settingViewModel.PosDeleteNot ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.PosDeleteNot ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="PositionUpdateNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("PositionUpdateNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TPosUpdateNot" hidden="hidden" />
+                                    <div class="col @(settingViewModel.PosUpdateNot ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.PosUpdateNot ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="EmployeeDeleteNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("EmployeeDeleteNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TEmpDelete" hidden="hidden" />
+                                    <div class="col @(settingViewModel.EmpDelete ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.EmpDelete ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="EmployeeUpdateNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("EmployeeUpdateNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TEmpUpdate" hidden="hidden" />
+                                    <div class="col @(settingViewModel.EmpUpdate ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.EmpUpdate ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="AccountDeleteNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("AccountDeleteNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TAccDelete" hidden="hidden" />
+                                    <div class="col @(settingViewModel.AccDelete ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.AccDelete ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="AccountUpdateNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("AccountUpdateNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TAccUpdate" hidden="hidden" />
+                                    <div class="col @(settingViewModel.AccUpdate ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.AccUpdate ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @{settingCounter++;}
+                        <div id="notSetting_@settingCounter" data-nottype="AccountTeamManagementNot" class="row not-setting">
+                            <div class="col-md">
+                                <p class="label-md">@resManager.GetString("AccountTeamManagementNot")</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="row not-setting-options">
+                                    <input class="not-setting-target" value="@settingViewModel.TAccTeamManagement" hidden="hidden" />
+                                    <div class="col @(settingViewModel.AccTeamManagement ? "" : "d-none")">
+                                        <div class="cogs">
+                                            <span class="icon-cogs"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="switch @(settingViewModel.AccTeamManagement ? "switch-active" : "switch-disable")">
+                                            <div class="switch-tumbler"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
+        <div class="nav-narrow">
+            @{
+                if (orgSettingViewModels.Count() > 0)
+                {
+                    await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
+                    {
+                        ItemsCount = orgSettingViewModels.Count(),
+                        ViewInfo = viewsInfo.Get(currentUserId, NOT_SETTINGS),
+                        ControllerName = NOT_SETTING,
+                        ActionName = "OrgNotificationsSettings"
+                    });
+                }
+            }
+        </div>
+    }
+</div>

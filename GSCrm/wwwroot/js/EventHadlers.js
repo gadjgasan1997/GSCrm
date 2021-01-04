@@ -72,11 +72,18 @@ function InitializeScrools() {
     // Команда по клиенту
     $("#selectedEmployeesList").mCustomScrollbar({
         axis:"x",
+        theme:"dark",
+        updateOnContentResize: false
+    });
+
+    // Список возможных адресов для выбора нового юридического
+    $("#changeLEAddrModal #accAddressNotLegalList").mCustomScrollbar({
+        axis:"y",
         theme:"dark"
     });
 
-    // Список возможных адресов для выбора нового юрижического
-    $("#changeLEAddrModal #accAddressNotLegalList").mCustomScrollbar({
+    // Список организаций, в которых состоит пользователь
+    $("#accountModal #userOrgsChoiseList").mCustomScrollbar({
         axis:"y",
         theme:"dark"
     });
@@ -201,6 +208,18 @@ $(document).off("click", ".naccs .menu div").on("click", ".naccs .menu div", eve
         $(".naccs ul").find("li:eq(" + numberIndex + ")").delay(500).fadeIn(500);
     }
 });
+
+// Switch
+$(document).off("click", ".switch").on("click", ".switch", event => {
+    if ($(event.currentTarget).hasClass("switch-active")) {
+        $(event.currentTarget).removeClass("switch-active");
+        $(event.currentTarget).addClass("switch-disable");
+    }
+    else {
+        $(event.currentTarget).addClass("switch-active");
+        $(event.currentTarget).removeClass("switch-disable");
+    }
+})
 
 // Главный навбар
 $(document).off("click", ".vertical-nav .nav-link").on("click", ".vertical-nav .nav-link", event => {

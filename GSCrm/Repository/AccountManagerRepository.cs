@@ -1,12 +1,6 @@
-﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
-using GSCrm.Helpers;
-using GSCrm.Localization;
+﻿using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Validators;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,65 +8,51 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
+using GSCrm.Data;
+using GSCrm.Transactions;
+using GSCrm.Models.Enums;
 
 namespace GSCrm.Repository
 {
-    public class AccountManagerRepository : GenericRepository<AccountManager, AccountManagerViewModel, AccountManagerValidatior, AccountManagerTransformer>
+    public class AccountManagerRepository : BaseRepository<AccountManager, AccountManagerViewModel>
     {
-        private readonly User currentUser;
+        #region Declarations
         private readonly AccountRepository accountRepository;
-        private const int TEAM_ALL_EMPLOYEES_COUNT = 5;
-        private const int TEAM_SELECTED_EMPLOYEES_COUNT = 5;
-        public AccountManagerRepository(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager, HttpContext httpContext = null)
-            : base(context, viewsInfo, resManager, new AccountManagerValidatior(context, resManager), new AccountManagerTransformer(context, resManager))
-        {
-            accountRepository = new AccountRepository(context, resManager);
-            if (httpContext != null)
-                currentUser = httpContext.GetCurrentUser(context);
-        }
-
         /// <summary>
-        /// Метод устанавливает фильтрацию для списка всех сотрудников организации, создавшей клиента
+        /// Количество одновременно отоброжаемых сотрудников организации, создавшей клиента
         /// </summary>
-        /// <param name="accountViewModel"></param>
-        public void SearchAllManagers(AccountViewModel accountViewModel)
-        {
-            //viewsInfo.Reset(ACC_TEAM_ALL_EMPLOYEES);
-            AccountViewModel accountViewModelCash = ModelCash<AccountViewModel>.GetViewModel(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
-            accountViewModelCash.Id = accountViewModel.Id;
-            accountViewModelCash.OrganizationId = accountViewModel.OrganizationId;
-            accountViewModelCash.SearchAllManagersName = accountViewModel.SearchAllManagersName?.ToLower().TrimStartAndEnd();
-            accountViewModelCash.SearchAllManagersDivision = accountViewModel.SearchAllManagersDivision?.ToLower().TrimStartAndEnd();
-            accountViewModelCash.SearchAllManagersPosition = accountViewModel.SearchAllManagersPosition?.ToLower().TrimStartAndEnd();
-            ModelCash<AccountViewModel>.SetViewModel(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, accountViewModelCash);
-        }
+        private const int ALL_EMPLOYEES_COUNT = 5;
+        /// <summary>
+        /// Количество одновременно отоброжаемых 
+        /// </summary>
+        private const int SELECTED_EMPLOYEES_COUNT = 5;
+        /// <summary>
+        /// Транзакция для синхронизации команды по клиенту
+        /// </summary>
+        private ITransaction syncRespsTransaction;
+        private readonly ITransactionFactory<SyncAccountViewModel> syncRespsTransactionFactory;
+        #endregion
 
+        #region Constructs
+        public AccountManagerRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base(serviceProvider, context)
+        {
+            accountRepository = new AccountRepository(serviceProvider, context);
+            syncRespsTransactionFactory = TFFactory.GetTransactionFactory<SyncAccountViewModel>(serviceProvider, context);
+        }
+        #endregion
+
+        #region Searching
         /// <summary>
         /// Метод сбрасывает фильтрацию для списка всех сотрудников организации, создавшей клиента
         /// </summary>
         public void ClearAllManagersSearch()
         {
-            AccountViewModel accountViewModelCash = ModelCash<AccountViewModel>.GetViewModel(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
+            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
             accountViewModelCash.SearchAllManagersName = default;
             accountViewModelCash.SearchAllManagersDivision = default;
             accountViewModelCash.SearchAllManagersPosition = default;
-            ModelCash<AccountViewModel>.SetViewModel(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, accountViewModelCash);
-        }
-
-        /// <summary>
-        /// Метод устанавливает фильтрацию для команды по клиенту
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        public void SearchSelectedManagers(AccountViewModel accountViewModel)
-        {
-            //viewsInfo.Reset(ACC_TEAM_SELECTED_EMPLOYEES);
-            AccountViewModel accountViewModelCash = ModelCash<AccountViewModel>.GetViewModel(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
-            accountViewModelCash.Id = accountViewModel.Id;
-            accountViewModelCash.OrganizationId = accountViewModel.OrganizationId;
-            accountViewModelCash.SearchSelectedManagersName = accountViewModel.SearchSelectedManagersName?.ToLower().TrimStartAndEnd();
-            accountViewModelCash.SearchSelectedManagersPhone = accountViewModel.SearchSelectedManagersPhone?.ToLower().TrimStartAndEnd();
-            accountViewModelCash.SearchSelectedManagersPosition = accountViewModel.SearchSelectedManagersPosition?.ToLower().TrimStartAndEnd();
-            ModelCash<AccountViewModel>.SetViewModel(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, accountViewModelCash);
+            cachService.CacheItem(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, accountViewModelCash);
         }
 
         /// <summary>
@@ -80,30 +60,32 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSelectedManagersSearch()
         {
-            AccountViewModel accountViewModelCash = ModelCash<AccountViewModel>.GetViewModel(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
+            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
             accountViewModelCash.SearchSelectedManagersName = default;
             accountViewModelCash.SearchSelectedManagersPhone = default;
             accountViewModelCash.SearchSelectedManagersPosition = default;
-            ModelCash<AccountViewModel>.SetViewModel(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, accountViewModelCash);
+            cachService.CacheItem(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, accountViewModelCash);
         }
+        #endregion
 
+        #region Attaching All Employees
         /// <summary>
         /// Метод возвращает список всех сотрудников организации для отображения в окне управления командой по клиенту
         /// </summary>
         /// <returns></returns>
-        public List<Employee> GetTeamAllEmployees(string accountId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Employee> AttachTeamAllEmployees(string accountId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, pageNumber, TEAM_ALL_EMPLOYEES_COUNT);
+                SetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, pageNumber, ALL_EMPLOYEES_COUNT);
 
                 List<Employee> teamAllEmployees = context.GetOrgEmployees(account.OrganizationId);
-                AccountViewModel accountViewModelCash = ModelCash<AccountViewModel>.GetViewModel(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
+                AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
                 ExcludeSelectedEmployees(ref teamAllEmployees, account.Id);
                 LimitAllEmployeesByName(ref teamAllEmployees, accountViewModelCash);
                 LimitAllEmployeesByDivision(ref teamAllEmployees, accountViewModelCash);
                 LimitAllEmployeesByPosition(ref teamAllEmployees, accountViewModelCash);
-                LimitListByPageNumber(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees, TEAM_ALL_EMPLOYEES_COUNT);
+                LimitListByPageNumber(ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees, ALL_EMPLOYEES_COUNT);
                 return teamAllEmployees;
             }
             return new List<Employee>();
@@ -168,7 +150,9 @@ namespace GSCrm.Repository
                     removeCondition: (positionIdList, employee) => employee.PrimaryPositionId == null || !positionIdList.Contains((Guid)employee.PrimaryPositionId));
             }
         }
+        #endregion
 
+        #region Attaching Selected Employees
         /// <summary>
         /// Метод возвращает список менеджеров клиента для отображения в окне управления командой
         /// </summary>
@@ -177,14 +161,16 @@ namespace GSCrm.Repository
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, pageNumber, TEAM_SELECTED_EMPLOYEES_COUNT);
-                AccountViewModel accountViewModelCash = ModelCash<AccountViewModel>.GetViewModel(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
+                SetViewInfo(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, pageNumber, SELECTED_EMPLOYEES_COUNT);
+
+                AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
                 List<AccountManager> teamSelectedEmployees = context.AccountManagers
                     .Include(man => man.Manager)
                     .Where(accId => accId.AccountId == account.Id).ToList();
                 LimitSelectedEmployeesByName(ref teamSelectedEmployees, accountViewModelCash);
                 LimitSelectedEmployeesByPosition(ref teamSelectedEmployees, accountViewModelCash);
                 LimitSelectedEmployeesByPhone(ref teamSelectedEmployees, accountViewModelCash);
+                //LimitListByPageNumber(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, ref teamSelectedEmployees, SELECTED_EMPLOYEES_COUNT);
                 return teamSelectedEmployees;
             }
             return new List<AccountManager>();
@@ -239,82 +225,110 @@ namespace GSCrm.Repository
                     removeCondition: (employeeIdList, accountManager) => !employeeIdList.Contains(accountManager.ManagerId));
             }
         }
+        #endregion
 
+        #region Validations
+        private bool TrySyncAccTeamValidate(SyncAccountViewModel syncViewModel)
+        {
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => {
+                    if (!new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccTeamManagement", syncRespsTransaction))
+                        AddHasNoPermissionsError(OperationType.AccountTeamManagement);
+                },
+                () => {
+                    if (!accountRepository.TryGetItemById(syncViewModel.AccountId, out Account account))
+                        errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
+                    else syncRespsTransaction.AddParameter("Account", account);
+                },
+                () => {
+                    if (string.IsNullOrEmpty(syncViewModel.PrimaryManagerId) || !Guid.TryParse(syncViewModel.PrimaryManagerId, out Guid primaryManagerId))
+                        errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
+                    else syncRespsTransaction.AddParameter("PrimaryManagerId", primaryManagerId);
+                }
+            });
+            return !errors.Any();
+        }
+        #endregion
+
+        #region Other Methods
         /// <summary>
         /// Метод пытается синхронизовать команду по клиенту, и, в случае ошибок, возвращает их
         /// </summary>
         /// <param name="syncViewModel"></param>
-        /// <param name="syncErrors"></param>
+        /// <param name="errors"></param>
         /// <returns></returns>
-        public bool TrySyncPositions(SyncAccountViewModel syncViewModel, Dictionary<string, string> syncErrors)
+        public bool TrySyncAccTeam(SyncAccountViewModel syncViewModel, out Dictionary<string, string> errors)
         {
-            if (!accountRepository.TryGetItemById(syncViewModel.AccountId, out Account account))
+            errors = this.errors;
+            syncRespsTransaction = syncRespsTransactionFactory.Create(currentUser.Id, OperationType.AccountTeamManagement, syncViewModel);
+            if (TrySyncAccTeamValidate(syncViewModel))
             {
-                syncErrors.Add("SyncManagersException", resManager.GetString("SyncManagersException"));
-                return false;
+                // Простановка основного менеджера
+                Account account = (Account)syncRespsTransaction.GetParameterValue("Account");
+                Guid primaryManagerId = (Guid)syncRespsTransaction.GetParameterValue("PrimaryManagerId");
+                account.PrimaryManagerId = primaryManagerId;
+
+                // Добавление и удаление сотруднкиов из команды по клиенту
+                if (syncViewModel.ManagersToAdd.Count > 0 || syncViewModel.ManagersToRemove.Count > 0)
+                {
+                    foreach (string managerToAddId in syncViewModel.ManagersToAdd)
+                        if (!TryAddManagerToTeam(managerToAddId, account.Id)) break;
+                    if (!this.errors.Any())
+                    {
+                        foreach (string managerToRemoveId in syncViewModel.ManagersToRemove)
+                            if (!TryRemoveManagerFromTeam(managerToRemoveId)) break;
+                    }
+                }
+
+                // Закрытие транзакции, если не было ошибок и коммит прошел успешно
+                if (!this.errors.Any() && transactionFactory.TryCommit(syncRespsTransaction, this.errors))
+                {
+                    transactionFactory.Close(syncRespsTransaction);
+                    return true;
+                }
             }
-
-            if (string.IsNullOrEmpty(syncViewModel.PrimaryManagerId) || !Guid.TryParse(syncViewModel.PrimaryManagerId, out Guid primaryManagerId))
-            {
-                syncErrors.Add("SyncManagersException", resManager.GetString("SyncManagersException"));
-                return false;
-            }
-
-            SetUpPrimaryManager(primaryManagerId, account);
-
-            if (syncViewModel.ManagersToAdd.Count == 0 && syncViewModel.ManagersToRemove.Count == 0)
-            {
-                context.SaveChanges();
-                return true;
-            }
-
-            foreach(string managerToAddId in syncViewModel.ManagersToAdd)
-            {
-                if (!TryAddManagerToTeam(account, managerToAddId, ref syncErrors))
-                    return false;
-            }
-
-            foreach (string managerToRemoveId in syncViewModel.ManagersToRemove)
-            {
-                if (!TryRemoveManagerFromTeam(account, managerToRemoveId, ref syncErrors))
-                    return false;
-            }
-
-            context.SaveChanges();
-            return true;
+            syncRespsTransactionFactory.Close(syncRespsTransaction, TransactionStatus.Error);
+            errors = this.errors;
+            return false;
         }
 
         /// <summary>
         /// Метод добавляет сотрудника в команду по клиенту
         /// </summary>
         /// <param name="managerId">Id менеджера для добавления</param>
-        /// <param name="account">Клиент</param>
-        private bool TryAddManagerToTeam(Account account, string managerId, ref Dictionary<string, string> errors)
+        /// <param name="accountId">Клиент</param>
+        private bool TryAddManagerToTeam(string managerId, Guid accountId)
         {
             if (string.IsNullOrEmpty(managerId) || !Guid.TryParse(managerId, out Guid guid))
             {
-                errors.Add("SyncManagersException", resManager.GetString("SyncManagersException"));
+                errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
                 return false;
             }
 
-            Employee employee = context.Employees.FirstOrDefault(i => i.Id == guid);
+            Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == guid);
             if (employee == null)
             {
-                errors.Add("SyncManagersException", resManager.GetString("SyncManagersException"));
+                errors.Add("EmployeeNotExists", resManager.GetString("EmployeeNotExists"));
                 return false;
             }
 
-            if (employee.EmployeeStatus == EmployeeStatus.Lock)
+            switch (employee.EmployeeStatus)
             {
-                errors.Add("AccountManagerIsLocked", resManager.GetString("AccountManagerIsLocked"));
-                return false;
+                case EmployeeStatus.Lock:
+                    errors.Add("AccountManagerIsLocked", resManager.GetString("AccountManagerIsLocked"));
+                    return false;
+                case EmployeeStatus.None:
+                case EmployeeStatus.AwaitingInvitationAcceptance:
+                    errors.Add("AccountManagerIsNonActive", resManager.GetString("AccountManagerIsNonActive"));
+                    return false;
             }
 
-            context.AccountManagers.Add(new AccountManager()
+            syncRespsTransaction.AddChange(new AccountManager()
             {
                 ManagerId = employee.Id,
-                AccountId = account.Id
-            });
+                AccountId = accountId
+            }, EntityState.Added);
             return true;
         }
 
@@ -322,34 +336,23 @@ namespace GSCrm.Repository
         /// Метод удаляет сотрудника из команды по клиенту
         /// </summary>
         /// <param name="managerId">Id менеджера для удаления</param>
-        /// <param name="account">Клиент</param>
-        private bool TryRemoveManagerFromTeam(Account account, string managerId, ref Dictionary<string, string> errors)
+        private bool TryRemoveManagerFromTeam(string managerId)
         {
             if (string.IsNullOrEmpty(managerId) || !Guid.TryParse(managerId, out Guid guid))
             {
-                errors.Add("SyncManagersException", resManager.GetString("SyncManagersException"));
+                errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
                 return false;
             }
 
-            AccountManager accountManager = context.AccountManagers.FirstOrDefault(man => man.Id == guid);
+            AccountManager accountManager = context.AccountManagers.AsNoTracking().FirstOrDefault(man => man.Id == guid);
             if (accountManager == null)
             {
-                errors.Add("SyncManagersException", resManager.GetString("SyncManagersException"));
+                errors.Add("AccountManagerNotFound", resManager.GetString("AccountManagerNotFound"));
                 return false;
             }
-            context.AccountManagers.Remove(accountManager);
+            syncRespsTransaction.AddChange(accountManager, EntityState.Deleted);
             return true;
         }
-
-        /// <summary>
-        /// Метод устанавливает менеджера основным в команде по клиенту
-        /// </summary>
-        /// <param name="primaryManagerId">Id основного выбранного менеджера</param>
-        /// <param name="account">Клиент</param>
-        private void SetUpPrimaryManager(Guid primaryManagerId, Account account)
-        {
-            account.PrimaryManagerId = primaryManagerId;
-            context.Accounts.Update(account);
-        }
+        #endregion
     }
 }

@@ -1,11 +1,11 @@
-﻿#organizationsList td {
+﻿#organizationsList .organization-item {
   cursor: pointer;
   position: relative; }
-  #organizationsList td a {
+  #organizationsList .organization-item a {
     text-decoration: none;
     color: black;
     font-size: 16px; }
-  #organizationsList td a:after {
+  #organizationsList .organization-item a:after {
     position: absolute;
     top: 0;
     left: 0;
@@ -240,6 +240,76 @@
     width: 100%;
     background-color: transparent; }
 
+.not-settings-list-empty {
+  margin: auto; }
+  .not-settings-list-empty .row {
+    width: 70%;
+    margin: auto; }
+
+.not-settings-list,
+#userNotSettingsList {
+  margin: auto; }
+  .not-settings-list .not-setting-group,
+  #userNotSettingsList .not-setting-group {
+    background: #FFFFFF;
+    padding-bottom: 10px;
+    box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.16); }
+    .not-settings-list .not-setting-group .label-bold-lg,
+    #userNotSettingsList .not-setting-group .label-bold-lg {
+      margin: 0; }
+    .not-settings-list .not-setting-group .arrow-toggler,
+    #userNotSettingsList .not-setting-group .arrow-toggler {
+      cursor: pointer; }
+  .not-settings-list .not-settings .not-setting,
+  #userNotSettingsList .not-settings .not-setting {
+    padding-bottom: 10px; }
+    .not-settings-list .not-settings .not-setting > div:first-child,
+    #userNotSettingsList .not-settings .not-setting > div:first-child {
+      user-select: none; }
+      .not-settings-list .not-settings .not-setting > div:first-child p,
+      #userNotSettingsList .not-settings .not-setting > div:first-child p {
+        line-height: 40px;
+        margin: 0; }
+    .not-settings-list .not-settings .not-setting .not-setting-options,
+    #userNotSettingsList .not-settings .not-setting .not-setting-options {
+      height: 36px; }
+      .not-settings-list .not-settings .not-setting .not-setting-options > .row,
+      #userNotSettingsList .not-settings .not-setting .not-setting-options > .row {
+        height: 100%; }
+        .not-settings-list .not-settings .not-setting .not-setting-options > .row .col,
+        #userNotSettingsList .not-settings .not-setting .not-setting-options > .row .col {
+          height: 100%; }
+      .not-settings-list .not-settings .not-setting .not-setting-options .cogs,
+      #userNotSettingsList .not-settings .not-setting .not-setting-options .cogs {
+        position: relative;
+        margin-top: 6px; }
+    .not-settings-list .not-settings .not-setting .switch,
+    #userNotSettingsList .not-settings .not-setting .switch {
+      margin-top: 10px; }
+
+#notSettingsActions {
+  width: 100%; }
+
+@media (max-width: 800px) {
+  .update-not-setting,
+  .cancel-update-not-setting {
+    width: 75%; }
+  .not-settings-list-empty .row .col:first-child {
+    display: none; } }
+
+@media (min-width: 800px) {
+  .not-settings-list {
+    width: 60%; }
+  #userNotSettingsList {
+    width: 60%; }
+  .update-not-setting,
+  .cancel-update-not-setting {
+    width: 50%; } }
+
+@media (min-width: 1200px) {
+  #userNotSettingsList {
+    width: 40%; } }
+
 .list-nav .nav-previous, .list-nav .nav-next {
   font-size: 22px;
   text-align: center;
@@ -262,3 +332,12 @@
       opacity: 0; }
   .list-nav .nav-previous > div:hover, .list-nav .nav-next > div:hover {
     color: #007bff; }
+
+@media all and (max-width: 800px) {
+  .notifications-empty-list .col:first-child {
+    display: none; } }
+
+@media all and (min-width: 800px) {
+  #notificationsList {
+    width: 70%;
+    margin: auto; } }

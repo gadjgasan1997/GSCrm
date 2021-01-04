@@ -1,0 +1,40 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model OrganizationViewModel
+@{
+    User currentUser = User.GetUserModel(context);
+    ViewInfo orgView = viewsInfo.Get(currentUser.Id, ORGANIZATIONS);
+}
+
+@* // Хлебные крошки *@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+                @resManager.GetString(ORGANIZATIONS)
+            </a>
+        </li>
+    </ol>
+</nav>
+
+<div id="organizationForm" class="container mt-5 has-no-permissions-form">
+    <div class="row justify-content-around">
+        <div class="col">
+            <img src="~/img/default-empty.svg" />
+        </div>
+        <div class="col">
+            <div class="block-center">
+                <p class="label-lg">@resManager.GetString("HasPermissionsForSeeOrganization")</p>
+            </div>
+        </div>
+    </div>
+</div>

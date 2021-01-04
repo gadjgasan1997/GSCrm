@@ -102,9 +102,6 @@
         "siteName": {
             "ru-RU": "Название сайта"
         },
-        "accTeamModalClosingConfirm": {
-            "ru-RU": "Вы уверены, что не хотите зафиксировать внесенные изменения?"
-        },
         "removeAccContactError": {
             "ru-RU": "Во время удаления контакта клиента произошел сбой."
         },
@@ -161,17 +158,69 @@
         },
         "removeEmployeeConfirmation": {
             "ru-RU": "Вы уверены, что хотите удалить сотрудника? При удалении заблокируются все клиенты, где данный сотрудник является единственным менеджером."
+        },
+        "changingReponsibilityName": {
+            "ru-RU": "Изменение названия полномочия"
+        },
+        "notCommitModalClosingConfirm": {
+            "ru-RU": "Вы уверены, что не хотите зафиксировать внесенные изменения?"
+        },
+        "syncPositionsError": {
+            "ru-RU": "Ошибка синхронизации должностей"
+        },
+        "hasNotPermissions": {
+            "ru-RU": "Недостаточно полномочий"
+        },
+        "primaryOrgHasBeenChanged": {
+            "ru-RU": "Основная организации была успешно изменена"
+        },
+        "orgLeaving": {
+            "ru-RU": "Выход из организации"
+        },
+        "leaveOrgConfirmation": {
+            "ru-RU": "Вы уверены, что хотите покинуть организацию? Вернуться самостоятельно будет невозможно."
+        },
+        "declineLeave": {
+            "ru-RU": "Да, выйти"
+        },
+        "notSettingsCommitSuccess": {
+            "ru-RU": "Настройки уведомлений были успешно изменены"
+        },
+        "setNotSettingsToDefaultSuccess": {
+            "ru-RU": "Настройки уведомлений были установлены по умолчанию"
+        },
+        "setNotSettingsToDefault": {
+            "ru-RU": "Установка настроек по умолчанию"
+        },
+        "setOrgNotSettingsToDefaultConfirmation": {
+            "ru-RU": "Вы уверены, что хотите сбросить настройки уведомлений для организаций, в которых вы состоите к настройкам по умолчанию?"
+        },
+        "setUserNotSettingsToDefaultConfirmation": {
+            "ru-RU": "Вы уверены, что хотите сбросить настройки личных уведомлений к настройкам по умолчанию?"
+        },
+        "acceptSetToDefault": {
+            "ru-RU": "Да, сбросить"
+        },
+        "inviteHasBeenRejected": {
+            "ru-RU": "Приглашение на вступление в организацию было откланено"
         }
     },
     "uri": {
         "position": "/Position/",
         "employee": "/Employee/",
         "account": "/Account/",
+        "responsibility": "/Responsibility/",
+        "deleteResponsibility": "/Responsibility/Delete?id=",
         "clearPositionSearch": "/EmployeePosition/ClearPositionManagementSearch/",
         "deleteEmployeePosition": "/EmployeePosition/Delete?id=",
         "clearOrgSearch": "/Organization/ClearSearch/",
         "orgsList": "/Organization/ListOfOrganizations/",
         "clearAccTeamSearch": "/AccountManager/ClearAccTeamManagementSearch/",
-        "hasAccNotLegalAddress": "/Account/HasAccNotLegalAddress/"
+        "hasAccNotLegalAddress": "/Account/HasAccNotLegalAddress/",
+        "clearEmpRespSearch": "/EmployeeResponsibility/ClearResponsibilityManagementSearch/",
+        "commitOrgSettingsPath": "/CommitOrgSettings/",
+        "commitUserSettingsPath": "/CommitUserSettings/",
+        "setOrgNotSettingsToDefaultPath": "/SetOrgNotSettingsToDefault/",
+        "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/"
     }
 }

@@ -9,6 +9,7 @@
         this.ClearAccsTab();
         this.ClearOrgTab();
         this.ClearQuotesTab();
+        this.ClearNotsTab();
     }
 
     ClearEmpTabs() {
@@ -25,8 +26,8 @@
     }
 
     ClearAccsTab() {
-        localStorage.removeItem("currentAccsTab");
-        localStorage.removeItem("currentAccsConnectedTab");
+        localStorage.removeItem("currentAccountsTab");
+        localStorage.removeItem("allAccountsTab");
     }
 
     ClearOrgTab() {
@@ -37,6 +38,10 @@
     ClearQuotesTab() {
         localStorage.removeItem("currentQuotesTab");
         localStorage.removeItem("currentQuotesConnectedTab");
+    }
+
+    ClearNotsTab() {
+        localStorage.removeItem("currentNotsTab");
     }
 }
 
@@ -49,12 +54,22 @@ class NavTab extends Tab {
 
         // Вкладки на карточке сотрудника
         if ($("#employeeForm").length > 0) {
-            this.GenericRestore("currentEmpTab", "#positions");
+            this.GenericRestore("currentEmpTab", "#contacts");
         }
 
         // Вкладки на списке клиентов
         if ($("#accountsForm").length > 0) {
-            this.GenericRestore("currentAccsTab", "#currentAccounts");
+            let currentTabName;
+            let currentTabValue;
+            if ($("#currentAccounts").length == 0) {
+                currentTabName = "allAccountsTab";
+                currentTabValue = "allAccounts";
+            }
+            else {
+                currentTabName = "currentAccountsTab";
+                currentTabValue = "currentAccounts";
+            }
+            this.GenericRestore(currentTabName, "#" + currentTabValue);
         }
 
         // Вкладки на списке сделок
@@ -62,9 +77,14 @@ class NavTab extends Tab {
             this.GenericRestore("currentQuotesTab", "#currentQuotes");
         }
 
-        // Вкладки на списке сделок
+        // Вкладки на карточке должности
         if ($("#positionForm").length > 0) {
             this.GenericRestore("currentPosTab", "#employees");
+        }
+
+        // Вкладки на карточке настройки уведомлений
+        if ($("#notSettingsForm").length > 0) {
+            this.GenericRestore("currentNotsTab", "#userNotSettingsList");
         }
     }
     
@@ -104,12 +124,7 @@ class NavConnectedTab extends Tab {
 
         // Вкладки на карточке сотрудника
         if ($("#employeeForm").length > 0) {
-            this.GenericRestore("#employeeForm", "currentEmpConnectedTab", "#positions");
-        }
-
-        // Вкладки на списке клиентов
-        if ($("#accountsForm").length > 0) {
-            this.GenericRestore("#accountsForm", "currentAccsConnectedTab", "#currentAccounts");
+            this.GenericRestore("#employeeForm", "currentEmpConnectedTab", "#contacts");
         }
 
         // Вкладки на списке сделок

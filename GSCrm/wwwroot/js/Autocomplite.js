@@ -15,6 +15,8 @@
     static Attach(control) {
         new Autocomplete("#" + $(control).attr("id"), {
             search: input => {
+                // Автокомплит не должен работать для ридонли полей
+                if ((control).find(".autocomplete-input").attr("readonly") != undefined) return;
                 return new Promise(resolve => {
                     if (input.length < 3) {
                         return resolve([])
@@ -33,7 +35,24 @@
                 })
             },
 
-            onSubmit: result => BaseAutocomplete.OnSubmit(control, result),
+            onSubmit: result => {
+                // Добавление id выбранной сущности
+                // Создание элемента если требуется
+                let selectedItemId = BaseAutocomplete.GetSelecteditemId(control);
+                let selectedItem = "<input hidden='hidden' id='" + selectedItemId + "' />";
+                if ($(document).find($("#" + selectedItemId)).length == 0) {
+                    $(selectedItem).insertBefore($(control));
+                }
+                // Запись в элемент
+                if (typeof(result) != (typeof{})) {
+                    $(document).find($("#" + selectedItemId)).val(result);
+                }
+                else {
+                    $(document).find($("#" + selectedItemId)).val(result["id"]);
+                }
+                // Вызов событие, которое можно обработать
+                BaseAutocomplete.OnSubmit(control, result);
+            },
 
             getResultValue: result => {
                 // Если результат не является объектом, то запись просто добавлется в пиклист
@@ -46,13 +65,15 @@
                 let value = result;
 
                 // Иначе свойству из объекта
+                let newItemId = result;
                 if (typeof(result) == (typeof{})) {
                     value = result[BaseAutocomplete.GetPropertyName(control)];
+                    newItemId = result["id"];
                 }
 
                 // Текущее выбранное значение
-                let currentValue = $(control).find(".autocomplete-input").val();
-                if (currentValue == value) {
+                let selectedItemId = $(document).find("#" + BaseAutocomplete.GetSelecteditemId(control)).val();
+                if (selectedItemId == newItemId) {
                     let element = $(`<li ${props}>${value}</li>`);
                     $(element).addClass("atc-current-val");
                     return $(element)[0].outerHTML;
@@ -60,6 +81,10 @@
                 return `<li ${props}>${value}</li>`;
             },
         })
+    }
+
+    static GetSelecteditemId(control) {
+        return $(control).attr("id") + "_selectedItem";
     }
 
     /**
@@ -72,10 +97,17 @@
         let defaultUrl = returnUrl + input;
         let getPropsResult = BaseAutocomplete.TryGetAutocompliteProps(control);
         if (getPropsResult["Success"]) {
-            let currentAutocomplite = getPropsResult["Result"];
-            let autocompleteUrl = currentAutocomplite["Url"];
+            let currentAutocompliteProps = getPropsResult["Result"];
 
-            // Если Url не пустой, то возвращается он + введенное значение 
+            // Получение метода переопределения текущего
+            // Если название не пустое, попытка его вызова
+            let overrideName = currentAutocompliteProps["GetUrlOverride"];
+            if (!Utils.IsNullOrEmpty(overrideName)) {
+                return GetUrl.Invoke(overrideName, control, currentAutocompliteProps);
+            }
+
+            // Если Url не пустой, то возвращается он + введенное значение
+            let autocompleteUrl = currentAutocompliteProps["Url"];
             if (autocompleteUrl != undefined && autocompleteUrl != null && autocompleteUrl.length > 0) {
                 returnUrl = autocompleteUrl;
                 return returnUrl + value;
@@ -83,14 +115,14 @@
 
             // Иначе необходимо получить текст, который должен прибавиться к Url, если есть такая необходимость
             // Получение текста Url из тега "UrlAppendPardText"
-            let urlAppendPardText = currentAutocomplite["UrlAppendPardText"];
+            let urlAppendPardText = currentAutocompliteProps["UrlAppendPardText"];
             if (urlAppendPardText != undefined && urlAppendPardText != null && urlAppendPardText.length > 0) {
                 returnUrl = returnUrl + urlAppendPardText + value;
                 return returnUrl;
             }
 
             // Получение текста Url из тега "UrlAppendPardEl"(из элемента разметки)
-            let urlAppendPardEl = currentAutocomplite["UrlAppendPardEl"];
+            let urlAppendPardEl = currentAutocompliteProps["UrlAppendPardEl"];
             if (urlAppendPardEl != undefined && urlAppendPardEl != null && urlAppendPardEl.length > 0) {
                 let element = $(urlAppendPardEl);
                 if (element.length == 0) return defaultUrl;
@@ -171,6 +203,23 @@
         if ($(control) != undefined && $(control).find(".autocomplete-input") != undefined)
             return $(control).find(".autocomplete-input").val();
         return "";
+    }
+}
+
+class GetUrl {
+    static Invoke(methodName, control, inputProperties) {
+        let methods = new {
+            GetPrimaryAccountManager: class {
+                Initialize(control, inputProperties) {
+                    let baseUrl = $(control).find(".autocomplete-link").attr("href");
+                    let selectedOrg = $($("#userOrgsChoiseList").find(".active")[0]);
+                    let selectedOrgId = $(selectedOrg).find(".choise-userorg-id").text();
+                    let managerName = $(control).find(".autocomplete-input").val();
+                    return baseUrl + selectedOrgId + "/" + managerName;
+                }
+            }
+        }[methodName];
+        return methods.Initialize(control, inputProperties);
     }
 }
 

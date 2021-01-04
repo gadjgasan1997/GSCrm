@@ -117,8 +117,92 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AccAddressCreate" xml:space="preserve">
+    <value>Создание адреса клиента</value>
+  </data>
+  <data name="AccAddressCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания адреса клиента</value>
+  </data>
+  <data name="AccAddressDelete" xml:space="preserve">
+    <value>Удаление адреса клиента</value>
+  </data>
+  <data name="AccAddressDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления адреса клиента</value>
+  </data>
+  <data name="AccAddressUpdate" xml:space="preserve">
+    <value>Изменение адреса клиента</value>
+  </data>
+  <data name="AccAddressUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения адреса клиента</value>
+  </data>
+  <data name="AccChangeType" xml:space="preserve">
+    <value>Изменение типа клиента</value>
+  </data>
+  <data name="AccChangeTypeNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения типа клиента</value>
+  </data>
+  <data name="AccContactChangePrimary" xml:space="preserve">
+    <value>Изменение основного контакта клиента</value>
+  </data>
+  <data name="AccContactChangePrimaryNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения основного контакта клиента</value>
+  </data>
+  <data name="AccContactCreate" xml:space="preserve">
+    <value>Создание контакта клиента</value>
+  </data>
+  <data name="AccContactCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания контакта клиента</value>
+  </data>
+  <data name="AccContactDelete" xml:space="preserve">
+    <value>Удаление контакта клиента</value>
+  </data>
+  <data name="AccContactDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления контакта клиента</value>
+  </data>
+  <data name="AccContactUpdate" xml:space="preserve">
+    <value>Изменение контакта клиента</value>
+  </data>
+  <data name="AccContactUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения контакта клиента</value>
+  </data>
+  <data name="AccCreate" xml:space="preserve">
+    <value>Создание клиента</value>
+  </data>
+  <data name="AccCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания клиента</value>
+  </data>
+  <data name="AccDelete" xml:space="preserve">
+    <value>Удаление клиента</value>
+  </data>
+  <data name="AccDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления клиента</value>
+  </data>
+  <data name="AcceptInvite" xml:space="preserve">
+    <value>Принять приглашение</value>
+  </data>
+  <data name="AccInvoiceCreate" xml:space="preserve">
+    <value>Создание адреса клиента</value>
+  </data>
+  <data name="AccInvoiceCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания банковских реквизитов клиента</value>
+  </data>
+  <data name="AccInvoiceDelete" xml:space="preserve">
+    <value>Удаление адреса клиента</value>
+  </data>
+  <data name="AccInvoiceDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления банковских реквизитов клиента</value>
+  </data>
+  <data name="AccInvoiceUpdate" xml:space="preserve">
+    <value>Изменение адреса клиента</value>
+  </data>
+  <data name="AccInvoiceUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения банковских реквизитов клиента</value>
+  </data>
   <data name="Account" xml:space="preserve">
     <value>Клиент</value>
+  </data>
+  <data name="AccountAddresses" xml:space="preserve">
+    <value>Адреса клиента</value>
   </data>
   <data name="AccountAddressesManagement" xml:space="preserve">
     <value>Управление адресами</value>
@@ -135,6 +219,15 @@
   <data name="AccountContactsManagement" xml:space="preserve">
     <value>Управление контактами</value>
   </data>
+  <data name="AccountContatcs" xml:space="preserve">
+    <value>Контакты клиента</value>
+  </data>
+  <data name="AccountDeleteNot" xml:space="preserve">
+    <value>Удаление клиента</value>
+  </data>
+  <data name="AccountInvoices" xml:space="preserve">
+    <value>Банковские реквизиты клиента</value>
+  </data>
   <data name="AccountInvoicesManagement" xml:space="preserve">
     <value>Упарвление банковскими реквизитами</value>
   </data>
@@ -146,6 +239,9 @@
   </data>
   <data name="AccountManagerIsLocked" xml:space="preserve">
     <value>Клиентский менеджер заблокирован. Он не может вести сделки. Разблокируйте его или выберите другого</value>
+  </data>
+  <data name="AccountManagerIsNonActive" xml:space="preserve">
+    <value>Клиентский менеджер не активирован. Он не может вести сделки. Активируйте его или выберите другого</value>
   </data>
   <data name="AccountManagerNotFound" xml:space="preserve">
     <value>Клиентский менеджер не найден</value>
@@ -165,6 +261,9 @@
   <data name="AccountTeamManagement" xml:space="preserve">
     <value>Управление командой по клиенту</value>
   </data>
+  <data name="AccountTeamManagementNot" xml:space="preserve">
+    <value>Изменение в команде по клиенту</value>
+  </data>
   <data name="AccountType" xml:space="preserve">
     <value>Тип</value>
   </data>
@@ -174,8 +273,29 @@
   <data name="AccountTypeIsReadonly" xml:space="preserve">
     <value>Нельзя менять тип клиента. Для его изменения используйте "Изменить тип" на карточке клиента</value>
   </data>
+  <data name="AccountUpdateNot" xml:space="preserve">
+    <value>Изменение данных клиента</value>
+  </data>
   <data name="AccountWithoutKMIsReadonly" xml:space="preserve">
     <value>Невозможно обновить клиента, у которого отсутствует основной клиентский менеджер</value>
+  </data>
+  <data name="AccTeamManagement" xml:space="preserve">
+    <value>Управление командой по клиенту</value>
+  </data>
+  <data name="AccTeamManagementNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для управления командой по клиенту</value>
+  </data>
+  <data name="AccUnlock" xml:space="preserve">
+    <value>Разблокировка клиента</value>
+  </data>
+  <data name="AccUnlockNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для разблокировки клиента</value>
+  </data>
+  <data name="AccUpdate" xml:space="preserve">
+    <value>Изменение клиента</value>
+  </data>
+  <data name="AccUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения данных клиента</value>
   </data>
   <data name="AddEmployeePosition" xml:space="preserve">
     <value>Добавить должность</value>
@@ -185,6 +305,12 @@
   </data>
   <data name="AddLabel" xml:space="preserve">
     <value>Добавить</value>
+  </data>
+  <data name="AddPosNotExists" xml:space="preserve">
+    <value>Добавляемая должность не найдена</value>
+  </data>
+  <data name="AddRespNotExists" xml:space="preserve">
+    <value>Добавляемое полномочие не найдено</value>
   </data>
   <data name="AddressCreate" xml:space="preserve">
     <value>Новый адрес</value>
@@ -225,6 +351,9 @@
   <data name="AllQuotes" xml:space="preserve">
     <value>Сделки всех организаций</value>
   </data>
+  <data name="AllRespsExceptSelected" xml:space="preserve">
+    <value>Все полномочия организации, за исключеним выбранных</value>
+  </data>
   <data name="Amount" xml:space="preserve">
     <value>Сумма</value>
   </data>
@@ -234,8 +363,17 @@
   <data name="AmountWrong" xml:space="preserve">
     <value>В поле "Сумма сделки" введены некорректные данные</value>
   </data>
+  <data name="AnotherOrgIsReadonly" xml:space="preserve">
+    <value>Вы не можете удалить организацию &amp;OrgName, так как не являетесь ее владельцем</value>
+  </data>
   <data name="ApplyFilter" xml:space="preserve">
     <value>Применить</value>
+  </data>
+  <data name="AppointMe" xml:space="preserve">
+    <value>Назначить меня</value>
+  </data>
+  <data name="AppointPrimaryManager" xml:space="preserve">
+    <value>Назначьте основного менеджера</value>
   </data>
   <data name="BackToMainPage" xml:space="preserve">
     <value>На главную страницу</value>
@@ -267,6 +405,9 @@
   <data name="CancelLabel" xml:space="preserve">
     <value>Отмена</value>
   </data>
+  <data name="CannotLeaveYourOrg" xml:space="preserve">
+    <value>Вы не можете покинуть принадлежащую вам организацию</value>
+  </data>
   <data name="Change" xml:space="preserve">
     <value>Изменить</value>
   </data>
@@ -276,14 +417,23 @@
   <data name="ChangeDivision" xml:space="preserve">
     <value>Изменить подразделение</value>
   </data>
+  <data name="ChangeEmployeeDivisionNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для переноса сотрудника в другое подразделение</value>
+  </data>
   <data name="ChangeLabel" xml:space="preserve">
     <value>Изменить</value>
   </data>
   <data name="ChangeLegalAddress" xml:space="preserve">
     <value>Изменение юридического адреса</value>
   </data>
+  <data name="ChangePositionDivisionNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для переноса должности в другое подразделение</value>
+  </data>
   <data name="ChangePrimaryContact" xml:space="preserve">
     <value>Зафиксировать измененный основной контакт</value>
+  </data>
+  <data name="ChangePrimaryOrg" xml:space="preserve">
+    <value>Сделать выбранную органзацию основной</value>
   </data>
   <data name="CheckingAccount" xml:space="preserve">
     <value>Расчетный счет</value>
@@ -294,6 +444,9 @@
   <data name="CheckingAccountLength" xml:space="preserve">
     <value>Некорректная длина расчетного счета</value>
   </data>
+  <data name="ChooseNewAccOrg" xml:space="preserve">
+    <value>Выберите организацию, под которой хотите создать клиента</value>
+  </data>
   <data name="City" xml:space="preserve">
     <value>Город</value>
   </data>
@@ -302,6 +455,9 @@
   </data>
   <data name="Clear" xml:space="preserve">
     <value>Очистить</value>
+  </data>
+  <data name="CommitChanges" xml:space="preserve">
+    <value>Зафиксировать изменения</value>
   </data>
   <data name="ConfigureResponsibility" xml:space="preserve">
     <value>Настроить полномочие</value>
@@ -402,11 +558,38 @@
   <data name="CurrentAccountsFilter" xml:space="preserve">
     <value>Фильтр по клиентам организации </value>
   </data>
+  <data name="DivCreate" xml:space="preserve">
+    <value>Создание подразделения</value>
+  </data>
+  <data name="DivCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания подразделения</value>
+  </data>
+  <data name="DivDelete" xml:space="preserve">
+    <value>Удаление подразделения</value>
+  </data>
+  <data name="DivDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления подразделения</value>
+  </data>
+  <data name="DivDeleteNotContent" xml:space="preserve">
+    <value>Было удалено подразделение {divName}, в котором вы состоите.</value>
+  </data>
+  <data name="DivDeleteNotHeader" xml:space="preserve">
+    <value>Подразделение, в котором вы состоите было удалено</value>
+  </data>
+  <data name="DivDeleteNotSubject" xml:space="preserve">
+    <value>Удаление подразделения</value>
+  </data>
   <data name="Division" xml:space="preserve">
     <value>Подразделение</value>
   </data>
   <data name="DivisionAlreadyExists" xml:space="preserve">
     <value>Такое подразделение уже существует.</value>
+  </data>
+  <data name="DivisionDelete" xml:space="preserve">
+    <value>Удаление подразделения</value>
+  </data>
+  <data name="DivisionDeleteNot" xml:space="preserve">
+    <value>Удаление подразделения</value>
   </data>
   <data name="DivisionNameLength" xml:space="preserve">
     <value>Название подразделения не может быть меньше трех сиволов.</value>
@@ -441,11 +624,56 @@
   <data name="EmailNotExists" xml:space="preserve">
     <value>Пользователь с такой почтой не найден</value>
   </data>
+  <data name="EmpChangeDiv" xml:space="preserve">
+    <value>Изменение подразделения сотрудника</value>
+  </data>
+  <data name="EmpChangeDivNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для перемещения сотрудника в другое подразделение</value>
+  </data>
+  <data name="EmpContactCreate" xml:space="preserve">
+    <value>Создание контакта сотрудника</value>
+  </data>
+  <data name="EmpContactCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания контакта сотрудника</value>
+  </data>
+  <data name="EmpContactDelete" xml:space="preserve">
+    <value>Удаление контакта сотрудника</value>
+  </data>
+  <data name="EmpContactDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления контакта сотрудника</value>
+  </data>
+  <data name="EmpContactUpdate" xml:space="preserve">
+    <value>Изменения контакта сотрудника</value>
+  </data>
+  <data name="EmpContactUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения контактов сотрудников</value>
+  </data>
+  <data name="EmpCreate" xml:space="preserve">
+    <value>Создание сотрудника</value>
+  </data>
+  <data name="EmpCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания сотрудника</value>
+  </data>
+  <data name="EmpDelete" xml:space="preserve">
+    <value>Удаление сотрудника</value>
+  </data>
+  <data name="EmpDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления сотрудника</value>
+  </data>
   <data name="Employee" xml:space="preserve">
     <value>Работник</value>
   </data>
+  <data name="EmployeeDeleteNot" xml:space="preserve">
+    <value>Удаление  сотрудника</value>
+  </data>
   <data name="EmployeeIsLock" xml:space="preserve">
     <value>Сотрудник заблокирован. Добавьте должность к нему или выберите другое подразделение, чтобы продолжить работу с ним. Во время блокировки сотрудник не может работать в рамках этой организации.</value>
+  </data>
+  <data name="EmployeeIsLockByLeftFromOrg" xml:space="preserve">
+    <value>Сотрудник заблокирован. Для разблокировки прикрепите к нему аккаунт.</value>
+  </data>
+  <data name="EmployeeIsNonActive" xml:space="preserve">
+    <value>Сотрудник не акивирован. Для активации необходимо, чтобы пользователь принял приглашение в организацию у себя в личном кабинете</value>
   </data>
   <data name="EmployeeNotExists" xml:space="preserve">
     <value>Работник не найден</value>
@@ -459,8 +687,38 @@
   <data name="EmployeesList" xml:space="preserve">
     <value>Список сотрудников</value>
   </data>
+  <data name="EmployeeUpdateNot" xml:space="preserve">
+    <value>Изменение данных сотрудника</value>
+  </data>
+  <data name="EmpPosDelete" xml:space="preserve">
+    <value>Удаление должности сотрудника</value>
+  </data>
+  <data name="EmpPosDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления должности сотрудника</value>
+  </data>
+  <data name="EmpPossManagement" xml:space="preserve">
+    <value>Управление должностями сотрудника</value>
+  </data>
+  <data name="EmpPossManagementNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для управления должностями сотрудника</value>
+  </data>
+  <data name="EmpRespsManagement" xml:space="preserve">
+    <value>Управление полномочиями</value>
+  </data>
+  <data name="EmpRespsManagementNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для управления полномочиями сотрудника</value>
+  </data>
+  <data name="EmpUnlock" xml:space="preserve">
+    <value>Разблокировка сотрудника</value>
+  </data>
+  <data name="EmpUpdate" xml:space="preserve">
+    <value>Обновление данных сотрудника</value>
+  </data>
+  <data name="EmpUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения данных сотрудника</value>
+  </data>
   <data name="ESAccount" xml:space="preserve">
-    <value>Создать клиента</value>
+    <value>Добавьте нового клиента</value>
   </data>
   <data name="ESAccountContacts" xml:space="preserve">
     <value>Добавить контакт</value>
@@ -477,8 +735,14 @@
   <data name="ESInvoices" xml:space="preserve">
     <value>Добавить банковские реквизиты</value>
   </data>
+  <data name="ESNotifications" xml:space="preserve">
+    <value>У вас отсутствуют уведомления</value>
+  </data>
   <data name="ESOrganization" xml:space="preserve">
     <value>Добавить организацию</value>
+  </data>
+  <data name="ESOrgNotifications" xml:space="preserve">
+    <value>Вы не состоите ни в каких организациях</value>
   </data>
   <data name="ESPositionEmployees" xml:space="preserve">
     <value>Сотрудники, занимающие эту должность отсутствуют</value>
@@ -510,6 +774,24 @@
   <data name="FullName" xml:space="preserve">
     <value>Полное имя</value>
   </data>
+  <data name="HasNoPermissions" xml:space="preserve">
+    <value>Недостаточно полномочий для совершения действия</value>
+  </data>
+  <data name="HasPermissionsForSeeAccount" xml:space="preserve">
+    <value>Клиент не найден или у вас нет прав на его просмотр</value>
+  </data>
+  <data name="HasPermissionsForSeeEmployee" xml:space="preserve">
+    <value>Сотрудник не найден или у вас нет прав на его просмотр</value>
+  </data>
+  <data name="HasPermissionsForSeeOrganization" xml:space="preserve">
+    <value>Организация не найдена или у вас нет прав на ее просмотр</value>
+  </data>
+  <data name="HasPermissionsForSeePosition" xml:space="preserve">
+    <value>Должность не найдена или у вас нет прав на ее просмотр</value>
+  </data>
+  <data name="HasPermissionsForSeeResponsibility" xml:space="preserve">
+    <value>Полномочие не найдено или у вас нет прав на его просмотр</value>
+  </data>
   <data name="Home" xml:space="preserve">
     <value>Домашний экран</value>
   </data>
@@ -530,6 +812,9 @@
   </data>
   <data name="IENameLength" xml:space="preserve">
     <value>Название физического лица не может быть короче 5 и длинее</value>
+  </data>
+  <data name="Inbox" xml:space="preserve">
+    <value>Входящие</value>
   </data>
   <data name="Individual" xml:space="preserve">
     <value>Физ. лицо</value>
@@ -552,6 +837,9 @@
   <data name="Investments" xml:space="preserve">
     <value>Вложения</value>
   </data>
+  <data name="InviteExpired" xml:space="preserve">
+    <value>Пришлашение  в организацию более не действительно</value>
+  </data>
   <data name="InvoiceCreate" xml:space="preserve">
     <value>Новые реквизиты</value>
   </data>
@@ -563,6 +851,9 @@
   </data>
   <data name="IsPrimary" xml:space="preserve">
     <value>Является основным</value>
+  </data>
+  <data name="IsPrimaryOrg" xml:space="preserve">
+    <value>Является основной</value>
   </data>
   <data name="IsPrimaryPosition" xml:space="preserve">
     <value>Является основной</value>
@@ -591,6 +882,9 @@
   <data name="LEAlreadyExists" xml:space="preserve">
     <value>Юридическое лицо с таким названием уже существует</value>
   </data>
+  <data name="LeaveOrganizationLabel" xml:space="preserve">
+    <value>Покинуть организацию</value>
+  </data>
   <data name="Legal" xml:space="preserve">
     <value>Юридический</value>
   </data>
@@ -608,6 +902,9 @@
   </data>
   <data name="Login" xml:space="preserve">
     <value>Логин</value>
+  </data>
+  <data name="MainInfo" xml:space="preserve">
+    <value>Основная информация</value>
   </data>
   <data name="ManagerNotExists" xml:space="preserve">
     <value>Менеджер с таким именем не найден</value>
@@ -651,6 +948,21 @@
   <data name="None" xml:space="preserve">
     <value>Не указан</value>
   </data>
+  <data name="Notification" xml:space="preserve">
+    <value>Уведомление</value>
+  </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>Уведомления</value>
+  </data>
+  <data name="NotificationsSetting" xml:space="preserve">
+    <value>Настройка уведомлений</value>
+  </data>
+  <data name="NotificationsSettings" xml:space="preserve">
+    <value>Настройки уведомлений</value>
+  </data>
+  <data name="NotSettingNotFound" xml:space="preserve">
+    <value>Невозможно настроить уведомление для организации {orgName}, так как вы больше в ней не состоите</value>
+  </data>
   <data name="NotSpecify" xml:space="preserve">
     <value>Не указан</value>
   </data>
@@ -684,6 +996,12 @@
   <data name="OldPassword" xml:space="preserve">
     <value>Старый пароль</value>
   </data>
+  <data name="OldPasswordLength" xml:space="preserve">
+    <value>Введите предыдущий пароль</value>
+  </data>
+  <data name="OldPasswordWrong" xml:space="preserve">
+    <value>Неверно введен предыдущий пароль</value>
+  </data>
   <data name="Organization" xml:space="preserve">
     <value>Организация</value>
   </data>
@@ -704,6 +1022,24 @@
   </data>
   <data name="OrganizationsLabel" xml:space="preserve">
     <value>Организации</value>
+  </data>
+  <data name="OrgDelete" xml:space="preserve">
+    <value>Удаления организации</value>
+  </data>
+  <data name="OrgDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления организации</value>
+  </data>
+  <data name="OrgInviteInboxContent" xml:space="preserve">
+    <value>Вы получили приглашение вступить в организацию {orgName}</value>
+  </data>
+  <data name="OrgInviteInboxSubject" xml:space="preserve">
+    <value>Приглашение в организацию</value>
+  </data>
+  <data name="OrgInvoiceNot" xml:space="preserve">
+    <value>Приглашение в организацию</value>
+  </data>
+  <data name="OrgNotifications" xml:space="preserve">
+    <value>Настройки уведомлений для организаций, в которых вы состоите</value>
   </data>
   <data name="Other" xml:space="preserve">
     <value>Прочий</value>
@@ -750,8 +1086,29 @@
   <data name="PhoneNumber" xml:space="preserve">
     <value>Номер телефона</value>
   </data>
+  <data name="PosChangeDiv" xml:space="preserve">
+    <value>Изменение подразделения должности</value>
+  </data>
+  <data name="PosChangeDivNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для перемещения должности в другое подразделение</value>
+  </data>
+  <data name="PosCreate" xml:space="preserve">
+    <value>Создание должности</value>
+  </data>
+  <data name="PosCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания должности</value>
+  </data>
+  <data name="PosDelete" xml:space="preserve">
+    <value>Удаление должности</value>
+  </data>
+  <data name="PosDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления должности</value>
+  </data>
   <data name="PosEmployeesFilter" xml:space="preserve">
     <value>Фильтр по сотрудникам</value>
+  </data>
+  <data name="PosIsAlreadyAdded" xml:space="preserve">
+    <value>Должность уже добавлена в список должностей сотрудника</value>
   </data>
   <data name="Position" xml:space="preserve">
     <value>Должность</value>
@@ -761,6 +1118,12 @@
   </data>
   <data name="PositionCannotBeParent" xml:space="preserve">
     <value>Нельзя сделать должность родительской, так как она присутствует среди списка дочерних</value>
+  </data>
+  <data name="PositionDelete" xml:space="preserve">
+    <value>Удаление должности</value>
+  </data>
+  <data name="PositionDeleteNot" xml:space="preserve">
+    <value>Удаление должности</value>
   </data>
   <data name="PositionEmployees" xml:space="preserve">
     <value>Сотрудники, занимающие должность</value>
@@ -792,8 +1155,20 @@
   <data name="PositionSubPositions" xml:space="preserve">
     <value>Дочерние должности</value>
   </data>
+  <data name="PositionUpdate" xml:space="preserve">
+    <value>Изменение должности</value>
+  </data>
+  <data name="PositionUpdateNot" xml:space="preserve">
+    <value>Обновление должности</value>
+  </data>
   <data name="Postal" xml:space="preserve">
     <value>Почтовый</value>
+  </data>
+  <data name="PosUpdate" xml:space="preserve">
+    <value>Обновление должности</value>
+  </data>
+  <data name="PosUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения должности</value>
   </data>
   <data name="Primary" xml:space="preserve">
     <value>Основной</value>
@@ -819,6 +1194,9 @@
   <data name="PrimaryManagerNameLength" xml:space="preserve">
     <value>Для создания клиента необходимо выбрать менеджера</value>
   </data>
+  <data name="PrimaryOrg" xml:space="preserve">
+    <value>Основная организация</value>
+  </data>
   <data name="PrimaryOrganizationIsEmpty" xml:space="preserve">
     <value>Вначале вы должны выбрать основную организацию у пользователя</value>
   </data>
@@ -827,6 +1205,9 @@
   </data>
   <data name="PrimaryPositionIsReadonly" xml:space="preserve">
     <value>Нельзя удалить основную должность</value>
+  </data>
+  <data name="PrivateNotSettings" xml:space="preserve">
+    <value>Личные</value>
   </data>
   <data name="Quote" xml:space="preserve">
     <value>Сделка</value>
@@ -852,6 +1233,9 @@
   <data name="RegisterConfirmationSubject" xml:space="preserve">
     <value>Регистрация в GSCrm</value>
   </data>
+  <data name="RejectInvite" xml:space="preserve">
+    <value>Отклонить</value>
+  </data>
   <data name="RemoveAccount" xml:space="preserve">
     <value>Удалить клиента</value>
   </data>
@@ -860,6 +1244,12 @@
   </data>
   <data name="RemoveOrganizationLabel" xml:space="preserve">
     <value>Удалить организацию</value>
+  </data>
+  <data name="RemovePosNotExists" xml:space="preserve">
+    <value>Удаляемая должность не найдена</value>
+  </data>
+  <data name="RemoveRespNotExists" xml:space="preserve">
+    <value>Удаляемое полномочие не найдено</value>
   </data>
   <data name="RemoveSelectedPositions" xml:space="preserve">
     <value>Удалить выбранные должности</value>
@@ -882,11 +1272,41 @@
   <data name="ResetPasswordSuccess" xml:space="preserve">
     <value>Пароль был успешно изменен</value>
   </data>
+  <data name="RespCreate" xml:space="preserve">
+    <value>Создание полномочий</value>
+  </data>
+  <data name="RespCreateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для создания полномочий</value>
+  </data>
+  <data name="RespDelete" xml:space="preserve">
+    <value>Удаление полномочий</value>
+  </data>
+  <data name="RespDeleteNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для удаления полномочий</value>
+  </data>
+  <data name="RespIsAlreadyAdded" xml:space="preserve">
+    <value>Полномочие уже добавлено в список полномочий сотрудника</value>
+  </data>
   <data name="Responsibilities" xml:space="preserve">
     <value>Полномочия</value>
   </data>
   <data name="ResponsibilitiesManagment" xml:space="preserve">
     <value>Управление полномочиями</value>
+  </data>
+  <data name="Responsibility" xml:space="preserve">
+    <value>Полномочие</value>
+  </data>
+  <data name="ResponsibilityAlreadyExists" xml:space="preserve">
+    <value>Полномочие с таким названием уже существует</value>
+  </data>
+  <data name="ResponsibilityNameLength" xml:space="preserve">
+    <value>Введите название полномочия</value>
+  </data>
+  <data name="RespUpdate" xml:space="preserve">
+    <value>Изменения полномочия</value>
+  </data>
+  <data name="RespUpdateNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для изменения полномочий</value>
   </data>
   <data name="Save" xml:space="preserve">
     <value>Сохранить</value>
@@ -912,8 +1332,17 @@
   <data name="SelectedPositions" xml:space="preserve">
     <value>Выбранные должности</value>
   </data>
+  <data name="SelectedResps" xml:space="preserve">
+    <value>Выбранные полномочия</value>
+  </data>
   <data name="SelectNewLegalAddress" xml:space="preserve">
     <value>Выберите новый юридический адрес</value>
+  </data>
+  <data name="SendNotsThrow" xml:space="preserve">
+    <value>Рассылка через:</value>
+  </data>
+  <data name="SetNotSettingsToDefault" xml:space="preserve">
+    <value>Установить настройки по умолчанию</value>
   </data>
   <data name="Site" xml:space="preserve">
     <value>Сайт</value>
@@ -969,11 +1398,17 @@
   <data name="Unlock" xml:space="preserve">
     <value>Разблокировать</value>
   </data>
+  <data name="UnlockEmployeeNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для разблокировки сотрудника</value>
+  </data>
   <data name="Update" xml:space="preserve">
     <value>Обновить</value>
   </data>
   <data name="UserAccountIsBusy" xml:space="preserve">
     <value>Учетная запись занята другим сотрудником</value>
+  </data>
+  <data name="UserAlreadyHasInviteNotification" xml:space="preserve">
+    <value>Пользователю уже было выслано приглашение в организацию</value>
   </data>
   <data name="Username" xml:space="preserve">
     <value>Имя пользователя</value>
@@ -990,11 +1425,32 @@
   <data name="UserNameNotExists" xml:space="preserve">
     <value>Пользователь с таким именем не найден</value>
   </data>
+  <data name="UserNameWrong" xml:space="preserve">
+    <value>Неверное имя пользователя</value>
+  </data>
   <data name="UserNotExists" xml:space="preserve">
     <value>Пользователем с таким именем не найден</value>
   </data>
+  <data name="UserNotifications" xml:space="preserve">
+    <value>Настройки уведомлений аккаунта</value>
+  </data>
+  <data name="UserRegisterHeader" xml:space="preserve">
+    <value>Регистрация в системе GSCrm</value>
+  </data>
+  <data name="UserRegisterSubject" xml:space="preserve">
+    <value>Регистрация в системе GSCrm</value>
+  </data>
+  <data name="UserResetPasswordHeader" xml:space="preserve">
+    <value>Сброс пароля в системе GSCrm</value>
+  </data>
+  <data name="UserResetPasswordSubject" xml:space="preserve">
+    <value>Сброс пароля в системе GSCrm</value>
+  </data>
   <data name="Work" xml:space="preserve">
     <value>Рабочий</value>
+  </data>
+  <data name="WorkNotSettings" xml:space="preserve">
+    <value>Рабочие</value>
   </data>
   <data name="WrongAccountType" xml:space="preserve">
     <value>Выбран недоступный тип клиента тип клиента</value>
@@ -1010,5 +1466,14 @@
   </data>
   <data name="WrongPhoneFormat" xml:space="preserve">
     <value>Неверный формат телефона</value>
+  </data>
+  <data name="YotNeedCreateOrgToAddAccounts" xml:space="preserve">
+    <value>Для добавления клиентов вам необходимо создать организацию</value>
+  </data>
+  <data name="YouHasBeenInvited" xml:space="preserve">
+    <value>Вы были приглашены в эту организацию</value>
+  </data>
+  <data name="YourOrg" xml:space="preserve">
+    <value>Принадлежит вам</value>
   </data>
 </root>

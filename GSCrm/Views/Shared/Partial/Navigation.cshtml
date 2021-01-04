@@ -1,11 +1,11 @@
 ﻿@using static GSCrm.CommonConsts
 @using GSCrm.Data.ApplicationInfo
 <div class="list-nav row no-gutters justify-content-center mt-3">
-    @if (Model.ItemsCount > 0 && Model.ViewInfo.CurrentPageNumber != DEFAULT_MIN_PAGE_NUMBER)
+    @if (Model.ItemsCount > 0 && Model.ViewInfo.CurrentPageNumber != Model.DefaultMinPageNumber)
     {
         <div class="col">
             <div class="nav-previous">
-                <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP })">
+                <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber - Model.DefaultPageStep })">
                     <span class="icon-chevron-thin-left"></span>
                 </div>
             </div>
@@ -21,11 +21,11 @@
             </div>
         </div>
     }
-    @if (Model.ItemsCount >= DEFAULT_ITEMS_COUNT)
+    @if (Model.ItemsCount >= Model.DefaultItemsCount)
     {
         <div class="col">
             <div class="nav-next">
-                <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP })">
+                <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber + Model.DefaultPageStep })">
                     <span class="icon-chevron-thin-right"></span>
                 </div>
             </div>

@@ -2,11 +2,19 @@
     Layout = "_Layout";
 }
 @using GSCrm.Data.ApplicationInfo
+@using GSCrm.Data
+@using GSCrm.Helpers
 @using GSCrm.Models.ViewModels
+@using Microsoft.EntityFrameworkCore
 @using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
 @inject ResManager resManager
 @inject IViewsInfo viewsInfo
 @model AccountsViewModel
+@{
+    User currentUser = User.GetUserModel(context);
+    List<UserOrganization> userOrganizations = context.UserOrganizations.AsNoTracking().Where(userOrg => userOrg.UserId == currentUser.Id).ToList();
+}
 
 @* // Хлебные крошки *@
 <nav aria-label="breadcrumb">
@@ -19,31 +27,52 @@
 <div id="accountsForm" class="container mt-3">
     <div class="form-shadow d-none"></div>
 
-    @* // Модальное окно создания организации *@
-    @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountModal.cshtml"); }
+    @if (userOrganizations.Count == 0)
+    {
+        <form class="table-wrapper">
+            <table class="fl-table empty-table">
+                <thead>
+                    <tr><th></th><th></th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><img src="~/img/default-empty.svg" /></td>
+                        <td class="empty-title">@resManager.GetString("YotNeedCreateOrgToAddAccounts")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    }
+    else
+    {
+        @* // Модальное окно создания организации *@
+        await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountModal.cshtml");
 
-    <div class="row nav-connected-tabs justify-content-end" nav-tabs="accountTabs">
-        <div class="fade show nav-connected-tab" nav-tab="#currentAccounts">
+        <div>
             <input type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#accountModal" value="@resManager.GetString("CreateAccount")" />
         </div>
-        <div class="fade nav-connected-tab" nav-tab="#allAccounts"></div>
-    </div>
-
-    @* // Вкладки *@
-    <ul id="accountTabs" class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link" id="currentAccountsTab" data-toggle="tab" href="#currentAccounts" role="tab" aria-controls="currentAccounts" aria-selected="false">@Model.PrimaryOrganizationName</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="allAccountsTab" data-toggle="tab" href="#allAccounts" role="tab" aria-controls="allAccounts" aria-selected="false">@resManager.GetString("AllOrganizations")</a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        @* // Контакты *@
-        @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}CurrentAccounts.cshtml"); }
-
-        @* // Должности *@
-        @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}AllAccounts.cshtml"); }
-    </div>
+        @* // Вкладки *@
+        <ul id="accountTabs" class="nav nav-tabs" role="tablist">
+            @if (currentUser.PrimaryOrganizationId != Guid.Empty)
+            {
+                @* // Клиенты, созданные под основной органзацией пользователя *@
+                <li class="nav-item">
+                    <a class="nav-link" id="currentAccountsTab" data-toggle="tab" href="#currentAccounts" role="tab" aria-controls="currentAccounts" aria-selected="false">@Model.PrimaryOrganization?.Name</a>
+                </li>
+            }
+            @* // Клиенты всех организаций *@
+            <li class="nav-item">
+                <a class="nav-link" id="allAccountsTab" data-toggle="tab" href="#allAccounts" role="tab" aria-controls="allAccounts" aria-selected="false">@resManager.GetString("AllOrganizations")</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            @if (currentUser.PrimaryOrganizationId != Guid.Empty)
+            {
+                @* // Клиенты, созданные под основной органзацией пользователя *@
+                await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}CurrentAccounts.cshtml");
+            }
+            @* // Клиенты всех организаций *@
+            @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}AllAccounts.cshtml"); }
+        </div>
+    }
 </div>

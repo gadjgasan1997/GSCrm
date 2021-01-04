@@ -1,20 +1,16 @@
-﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
+﻿using GSCrm.Mapping;
 using GSCrm.Helpers;
-using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
-using GSCrm.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
+using GSCrm.Data;
+using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
 using static GSCrm.Repository.OrganizationRepository;
 
@@ -23,167 +19,174 @@ namespace GSCrm.Controllers
     [Authorize]
     [Route(ORGANIZATION)]
     public class OrganizationController
-        : MainController<Organization, OrganizationViewModel, OrganizationValidatior, OrganizationTransformer, OrganizationRepository>
+        : MainController<Organization, OrganizationViewModel>
     {
-        public OrganizationController(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager)
-            : base(context, viewsInfo, resManager, new OrganizationTransformer(context, resManager), new OrganizationRepository(context, viewsInfo, resManager))
+        public OrganizationController(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base(context, serviceProvider)
         { }
 
         [HttpGet("ListOfOrganizations/{pageNumber}")]
         public ViewResult Organizations(int pageNumber)
         {
-            User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-            OrganizationsViewModel orgsViewModel = ModelCash<OrganizationsViewModel>.GetViewModel(currentUser.Id, ORGANIZATIONS);
-            repository = new OrganizationRepository(context, viewsInfo, resManager, HttpContext);
-            repository.SetViewInfo(currentUser.Id, ORGANIZATIONS, pageNumber);
-            orgsViewModel.SearchName = orgsViewModel.SearchNameCash.GetValueOrDefault(currentUser.Id);
-            repository.AttachOrganizations(ref orgsViewModel);
+            OrganizationsViewModel orgsViewModel = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            organizationRepository.SetViewInfo(currentUser.Id, ORGANIZATIONS, pageNumber);
+            organizationRepository.AttachOrganizations(ref orgsViewModel);
             return View(ORGANIZATIONS, orgsViewModel);
         }
 
         [HttpGet("{id}")]
         public ViewResult Organization(string id)
         {
-            repository = new OrganizationRepository(context, viewsInfo, resManager, HttpContext);
-            if (!repository.TryGetItemById(id, out Organization organization))
-                return View("Error");
+            try
+            {
+                OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+                if (!organizationRepository.TryGetItemById(id, out Organization organization))
+                    return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
+                if (!organizationRepository.HasPermissionsForSeeItem(organization))
+                    return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
 
-            OrganizationViewModel orgViewModel = transformer.DataToViewModel(organization);
-            orgViewModel = new OrganizationTransformer(context, resManager, HttpContext).UpdateViewModelFromCash(orgViewModel);
-            repository.AttachDivisions(orgViewModel);
-            repository.AttachPositions(orgViewModel);
-            repository.AttachEmployees(orgViewModel);
-            //repository.AttachResponsibilities(orgViewModel);
-            CurrentOrganization = orgViewModel;
-            return View(ORGANIZATION, orgViewModel);
+                OrganizationViewModel orgViewModel = map.DataToViewModel(organization);
+                orgViewModel = new OrganizationMap(serviceProvider, context).Refresh(orgViewModel, currentUser, OrgAllViewTypes);
+                organizationRepository.AttachDivisions(orgViewModel);
+                organizationRepository.AttachPositions(orgViewModel);
+                organizationRepository.AttachEmployees(orgViewModel);
+                organizationRepository.AttachResponsibilities(orgViewModel);
+                cachService.CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
+                cachService.CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
+                return View(ORGANIZATION, orgViewModel);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
         }
 
         [HttpGet("BackToOrganization/{orgId}")]
         public IActionResult BackToOrganization(string orgId)
         {
-            if (!string.IsNullOrEmpty(orgId) && Guid.TryParse(orgId, out Guid organizationId))
-                return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = organizationId });
-            return View("Error");
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            if (!organizationRepository.TryGetItemById(orgId, out Organization organization))
+                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
+            if (!organizationRepository.HasPermissionsForSeeItem(organization))
+                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
+            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = organization.Id });
         }
 
-        [HttpGet("GetAccounts/{accountPart}")]
-        public IActionResult GetAccounts(string accountPart)
-        {
-            if (!string.IsNullOrEmpty(accountPart))
-            {
-                User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-                /*if (currentUser.PrimaryOrganizationId != null)
-                {
-                    List<AccountViewModel> accountViewModels = context.GetOrgAccounts(currentUser.PrimaryOrganizationId)
-                        .TransformToViewModels<Account, AccountViewModel, AccountTransformer>(
-                            transformer: new AccountTransformer(context, resManager),
-                            limitingFunc: acc => acc.Name.ToLower().Contains(accountPart.ToLower().TrimStartAndEnd()));
-                    return Json(accountViewModels);
-                }*/
-                return Json("");
-            }
-            return Json("");
-        }
-
-        [HttpGet("GetEmployees/{orgId}/{employeePart}")]
-        public IActionResult GetEmployees(string orgId, string employeePart)
-        {
-            if (!string.IsNullOrEmpty(orgId) && !string.IsNullOrEmpty(employeePart) && Guid.TryParse(orgId, out Guid organizationId))
-                return Json(repository.GetOrgEmployeeViewModels(organizationId, employeePart));
-            return Json("");
-        }
-
-        [HttpGet("GetEmployees/{employeePart}")]
-        public IActionResult GetEmployees(string employeePart)
-        {
-            if (!string.IsNullOrEmpty(employeePart))
-            {
-                User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-                if (currentUser.PrimaryOrganizationId != null)
-                    return Json(repository.GetOrgEmployeeViewModels(currentUser.PrimaryOrganizationId, employeePart));
-                return Json("");
-            }
-            return Json("");
-        }
-
-        [HttpPost("Create")]
-        public override IActionResult Create(OrganizationViewModel orgViewModel)
+        [HttpGet("ChangePrimaryOrg/{newPrimaryOrgId}")]
+        public IActionResult ChangePrimaryOrg(string newPrimaryOrgId)
         {
             ModelStateDictionary modelState = ModelState;
-            OrganizationRepository organizationRepository = new OrganizationRepository(context, viewsInfo, resManager, HttpContext);
-            if (organizationRepository.TryCreate(ref orgViewModel, modelState))
-                return Json(Url.Action(ORGANIZATION, new { id = organizationRepository.newRecord.Id.ToString() }));
-            return BadRequest(modelState);
+            if (!new OrganizationRepository(serviceProvider, context).TryChangePrimaryOrg(newPrimaryOrgId, out Dictionary<string, string> errors))
+            {
+                foreach (KeyValuePair<string, string> error in errors)
+                    modelState.AddModelError(error.Key, error.Value);
+                return BadRequest(modelState);
+            }
+            return Json("");
+        }
+
+        [HttpGet("Leave/{id}")]
+        public IActionResult Leave(string id)
+        {
+            ModelStateDictionary modelState = ModelState;
+            if (!new OrganizationRepository(serviceProvider, context).TryLeaveOrg(id, out Dictionary<string, string> errors))
+            {
+                foreach (KeyValuePair<string, string> error in errors)
+                    modelState.AddModelError(error.Key, error.Value);
+                return BadRequest(modelState);
+            }
+            return Json(typeof(OrganizationViewModel).Name.GetReturnUrl(Url));
+        }
+
+        [HttpGet("AcceptInvite/{id}")]
+        public IActionResult AcceptInvite(string id)
+        {
+            ModelStateDictionary modelState = ModelState;
+            if (!new OrganizationRepository(serviceProvider, context).TryAcceptInvite(id, out Dictionary<string, string> errors))
+            {
+                foreach (KeyValuePair<string, string> error in errors)
+                    modelState.AddModelError(error.Key, error.Value);
+                return BadRequest(modelState);
+            }
+            return Json("");
+        }
+
+        [HttpGet("RejectInvite/{id}")]
+        public IActionResult RejectInvite(string id)
+        {
+            new OrganizationRepository(serviceProvider, context).RejectInvite(id);
+            return Json(typeof(OrganizationViewModel).Name.GetReturnUrl(Url));
         }
 
         [HttpPost("Search")]
         public IActionResult Search(OrganizationsViewModel orgViewModels)
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).Search(orgViewModels);
+            cachService.CacheItem(currentUser.Id, ORGANIZATIONS, orgViewModels);
             return RedirectToAction(ORGANIZATIONS, ORGANIZATION, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpGet("ClearSearch")]
         public IActionResult ClearSearch()
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).ClearSearch();
+            new OrganizationRepository(serviceProvider, context).ClearSearch();
             return RedirectToAction(ORGANIZATIONS, ORGANIZATION, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpPost("SearchDivision")]
         public IActionResult SearchDivision(OrganizationViewModel orgViewModel)
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).SearchDivision(orgViewModel);
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
+            cachService.CacheItem(currentUser.Id, DIVISIONS, orgViewModel);
+            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
         [HttpGet("ClearDivisionSearch")]
         public IActionResult ClearDivisionSearch()
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).ClearDivisionSearch();
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
+            new OrganizationRepository(serviceProvider, context).ClearDivisionSearch();
+            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
         [HttpPost("SearchPosition")]
         public IActionResult SearchPosition(OrganizationViewModel orgViewModel)
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).SearchPosition(orgViewModel);
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
+            cachService.CacheItem(currentUser.Id, POSITIONS, orgViewModel);
+            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
         [HttpGet("ClearPositionSearch")]
         public IActionResult ClearPositionSearch()
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).ClearPositionSearch();
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
+            new OrganizationRepository(serviceProvider, context).ClearPositionSearch();
+            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
         [HttpPost("SearchEmployee")]
         public IActionResult SearchEmployee(OrganizationViewModel orgViewModel)
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).SearchEmployee(orgViewModel);
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
+            cachService.CacheItem(currentUser.Id, EMPLOYEES, orgViewModel);
+            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
         [HttpGet("ClearEmployeeSearch")]
         public IActionResult ClearEmployeeSearch()
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).ClearEmployeeSearch();
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
+            new OrganizationRepository(serviceProvider, context).ClearEmployeeSearch();
+            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
-        /*[HttpPost("SearchResponsibility")]
+        [HttpPost("SearchResponsibility")]
         public IActionResult SearchResponsibility(OrganizationViewModel orgViewModel)
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).SearchResponsibility(orgViewModel);
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
+            cachService.CacheItem(currentUser.Id, RESPONSIBILITIES, orgViewModel);
+            return RedirectToAction(RESPONSIBILITIES, RESPONSIBILITY, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
         [HttpGet("ClearResponsibilitySearch")]
         public IActionResult ClearResponsibilitySearch()
         {
-            new OrganizationRepository(context, viewsInfo, resManager, HttpContext).ClearResponsibilitySearch();
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = CurrentOrganization.Id });
-        }*/
+            new OrganizationRepository(serviceProvider, context).ClearResponsibilitySearch();
+            return RedirectToAction(RESPONSIBILITIES, RESPONSIBILITY, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
+        }
     }
 }

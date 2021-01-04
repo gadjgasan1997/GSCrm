@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GSCrm.Models.Enums;
+using System;
 
 namespace GSCrm.Models.ViewModels
 {

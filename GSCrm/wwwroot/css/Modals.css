@@ -1,4 +1,16 @@
-﻿#divisionModal .modal-body .form-group div {
+﻿@media (min-width: 576px) {
+  .modal-dialog.modal-xxl {
+    max-width: 100%; } }
+
+@media (min-width: 576px) {
+  .modal-dialog.modal-xxl {
+    max-width: 90%; } }
+
+@media (min-width: 1200px) {
+  .modal-dialog.modal-xxl {
+    max-width: 75%; } }
+
+#divisionModal .modal-body .form-group div {
   margin-bottom: 20px; }
 
 #employeePosisionModal .modal-footer .row {
@@ -6,13 +18,46 @@
   #employeePosisionModal .modal-footer .row .col:last-child {
     text-align: end; }
 
-#accountModal .tabs-content #IEOption, #accountModal .tabs-content #LEOption {
+#accountModal #accountModalMainHeader {
+  height: 60px; }
+  #accountModal #accountModalMainHeader > div {
+    height: 100%; }
+    #accountModal #accountModalMainHeader > div > p {
+      height: 60px;
+      margin: 0; }
+
+#accountModal #accountModalMainBody #mainInfoHeader > p,
+#accountModal #accountModalMainBody #chooseNewAccOrgHeader > p {
+  margin: 0; }
+
+#accountModal #accountModalMainBody .tabs-content #IEOption, #accountModal #accountModalMainBody .tabs-content #LEOption {
   display: none; }
+
+#accountModal #accountModalMainBody #appointMeBody .oval-mark {
+  margin-top: 3px; }
+
+#accountModal #accountModalMainBody #userOrgsChoiseList {
+  max-height: 500px;
+  overflow-y: auto; }
+  #accountModal #accountModalMainBody #userOrgsChoiseList .list-group-item {
+    user-select: none;
+    position: relative;
+    z-index: 0; }
+  #accountModal #accountModalMainBody #userOrgsChoiseList .list-group-item[class*="active"] {
+    cursor: auto; }
+  #accountModal #accountModalMainBody #userOrgsChoiseList .list-group-item:not([class*="active"]) {
+    cursor: pointer; }
 
 #accountModal .modal-body input[type="number"]::-webkit-outer-spin-button,
 #accountModal .modal-body input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0; }
+
+#accTeamManagementModal #teamAllEmployees #teamAllEmployeesHeader {
+  width: 100%; }
+
+#accTeamManagementModal #teamAllEmployees .card-body {
+  width: 100%; }
 
 #accTeamManagementModal #teamAllEmployees #allEmployeesList {
   width: 100%; }
@@ -92,6 +137,10 @@
 #responsibilitiesManagmentModal #respsBlock {
   position: relative;
   background-color: white; }
+  #responsibilitiesManagmentModal #respsBlock #responsibilitiesList .list-group-item {
+    user-select: none;
+    overflow-x: hidden;
+    text-overflow: ellipsis; }
 
 #responsibilitiesManagmentModal #newRespBlock {
   display: none;
@@ -107,3 +156,37 @@
     #responsibilitiesManagmentModal #newRespBlock .row .col-md-auto {
       display: inline-flex;
       cursor: pointer; }
+
+#notSettingOptionsModal {
+  background: #FFFFFF;
+  box-shadow: 0px 0px 2px rgba(149, 155, 161, 0.6), 0px 8px 14px rgba(149, 155, 161, 0.3);
+  border-radius: 4px;
+  width: 180px;
+  position: absolute;
+  padding: 5px;
+  z-index: 1000; }
+  #notSettingOptionsModal > p {
+    text-align: center;
+    user-select: none;
+    margin-bottom: 5px; }
+  #notSettingOptionsModal > .row {
+    width: 100%;
+    margin: 0; }
+    #notSettingOptionsModal > .row .col {
+      min-width: 100%;
+      padding-left: 7px;
+      height: 30px; }
+      #notSettingOptionsModal > .row .col input {
+        cursor: pointer;
+        position: relative; }
+      #notSettingOptionsModal > .row .col input::after {
+        position: absolute;
+        content: '';
+        background-color: transparent;
+        height: 30px;
+        width: 160px;
+        top: -7px; }
+      #notSettingOptionsModal > .row .col label {
+        margin-left: 5px;
+        user-select: none;
+        line-height: 30px; }

@@ -1,4 +1,6 @@
-﻿using GSCrm.Helpers;
+﻿using GSCrm.Data;
+using GSCrm.Helpers;
+using GSCrm.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -14,6 +16,7 @@ namespace GSCrm.Models
         public Guid DivisionId { get; set; }
         public Guid? PrimaryPositionId { get; set; }
         public EmployeeStatus EmployeeStatus { get; set; } = EmployeeStatus.None;
+        public EmployeeLockReason EmployeeLockReason { get; set; } = EmployeeLockReason.None;
 
         public List<EmployeePosition> EmployeePositions { get; set; }
         public List<EmployeeContact> EmployeeContacts { get; set; }

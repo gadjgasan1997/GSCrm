@@ -17,27 +17,14 @@ namespace GSCrm.Helpers
         public static Organization GetOrganization(this Division division, ApplicationDbContext context)
         {
             return context.Organizations
+                .AsNoTracking()
                 .Include(div => div.Divisions)
                     .ThenInclude(pos => pos.Positions)
                 .FirstOrDefault(i => i.Id == division.OrganizationId);
         }
-
-        /// <summary>
-        /// Метод возвращает все должности подразделения
-        /// </summary>
-        /// <param name="division"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
         public static List<Position> GetPositions(this Division division, ApplicationDbContext context)
-            => context.Positions.Where(divId => divId.DivisionId == division.Id).ToList();
-
-        /// <summary>
-        /// Метод возвращает всех сотрудников подразделения
-        /// </summary>
-        /// <param name="division"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
+            => context.Positions.AsNoTracking().Where(divId => divId.DivisionId == division.Id).ToList();
         public static List<Employee> GetEmployees(this Division division, ApplicationDbContext context)
-            => context.Employees.Where(divId => divId.DivisionId == division.Id).ToList();
+            => context.Employees.AsNoTracking().Where(divId => divId.DivisionId == division.Id).ToList();
     }
 }

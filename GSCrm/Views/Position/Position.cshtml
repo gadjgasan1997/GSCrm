@@ -62,7 +62,7 @@
                                     <span class="input-group-text" id="basic-addon1">@resManager.GetString("ParentPositionLabel")</span>
                                 </div>
                                 <div id="parentPosition" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Positions" data-autocomplite-name="ParentPosition">
-                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/{POSITION}/GetPositions/{Model.OrganizationId}/")"></a>
+                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetPositions/{Model.OrganizationId}/")"></a>
                                     <input asp-for="ParentPositionName" class="autocomplete-input form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
                                     <ul class="autocomplete-result-list"></ul>
                                 </div>
@@ -76,7 +76,7 @@
                                     <span class="input-group-text" id="basic-addon1">@resManager.GetString("PrimaryEmployeeLabel")</span>
                                 </div>
                                 <div id="primaryEmployee" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Employees" data-autocomplite-name="PrimaryEmployee">
-                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/{EMPLOYEE}/GetEmployees/{Model.OrganizationId}/")"></a>
+                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetEmployeesByInitials/{Model.OrganizationId}/")"></a>
                                     <input asp-for="PrimaryEmployeeInitialName" class="autocomplete-input form-control" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
                                     <ul class="autocomplete-result-list"></ul>
                                 </div>

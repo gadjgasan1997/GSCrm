@@ -1,4 +1,5 @@
 using GSCrm.Data;
+using GSCrm.Data.Cash;
 using GSCrm.Data.ApplicationInfo;
 using GSCrm.Helpers;
 using GSCrm.Localization;
@@ -12,6 +13,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using static GSCrm.CommonConsts;
+using GSCrm.Transactions;
+using GSCrm.Factories;
+using System;
+using AspNetCore.IServiceCollection.AddIUrlHelper;
 
 namespace GSCrm
 {
@@ -31,15 +36,26 @@ namespace GSCrm
             {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
+
+            services.AddSingleton<IUserContextFactory, UserContextFactory>();
+            services.AddHttpContextAccessor();
             services.AddSingleton<ResManager>();
+            services.AddSingleton<IResManager, ResManager>();
+            services.AddScoped<IMapFactory, MapFactory>();
+            services.AddScoped<ITFFactory, TFFactory>();
+            services.AddScoped<IRepositoryFactory, RepositoryFactory>();
             services.AddSingleton<IViewsInfo, ViewsInfo>();
+            services.AddSingleton<ICachService, CachService>();
+            services.AddScoped<ITransaction, Transaction>();
             services.AddTransient<IPasswordValidator<User>, PasswordValidator>();
+
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+            services.AddUrlHelper();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider, ApplicationDbContext context)
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();

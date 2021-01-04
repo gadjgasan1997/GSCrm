@@ -25,8 +25,8 @@
                     let removeDivUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
                     
                     request.CommonDeleteRequest(removeDivUrl)
-                        .fail(() => {
-                            Swal.fire(MessageManager.Invoke("RemoveDivisionError"));
+                        .fail(response => {
+                            Utils.DefaultErrorHandling(response["responseJSON"]);
                             reject();
                         })
                         .done(() => location.reload());

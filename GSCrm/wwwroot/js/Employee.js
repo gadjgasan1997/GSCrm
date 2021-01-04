@@ -12,10 +12,10 @@
             request.JsonPostRequest(createEmpUrl, createEmpData)
                 .fail(response => {
                     if (this.IsUserAccountExists()) {
-                        Utils.CommonErrosHandling(response["responseJSON"], ["CreateDivision", "CreateEmployeeExistsAccount"]);
+                        Utils.CommonErrosHandling(response["responseJSON"], ["CreateEmployee", "CreateEmployeeExistsAccount"]);
                     }
                     else {
-                        Utils.CommonErrosHandling(response["responseJSON"], ["CreateDivision", "CreateEmployeeNewAccount"]);
+                        Utils.CommonErrosHandling(response["responseJSON"], ["CreateEmployee", "CreateEmployeeNewAccount"]);
                     }
                 })
                 .done(newEmployeeUrl => {
@@ -88,8 +88,8 @@
                     let removeEmpUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
 
                     request.CommonDeleteRequest(removeEmpUrl)
-                        .fail(() => {
-                            Swal.fire(MessageManager.Invoke("RemoveEmployeeError"));
+                        .fail(response => {
+                            Utils.DefaultErrorHandling(response["responseJSON"]);
                             reject();
                         })
                         .done(() => location.reload());
@@ -154,10 +154,81 @@
     UpdateGetData() {
         return {
             Id: $("#employeeId").val(),
+            OrganizationId : $("#OrganizationId").val(),
             FirstName: $("#FirstName").val(),
             LastName: $("#LastName").val(),
             MiddleName: $("#MiddleName").val()
         }
+    }
+
+    /** Разблокировка сотрудника */
+    Unlock() {
+        return new Promise((resolve, reject) => {
+            let unlockEmpUrl = location.origin + $("#lockEmployeeForm").attr("action");
+            let unlockEmpData =  this.UnlockGetData();
+            let request = new AjaxRequests();
+            let hasErrors = false;
+            request.JsonPostRequest(unlockEmpUrl, unlockEmpData)
+                .catch(response => {
+                    hasErrors = true;
+                    Utils.CommonErrosHandling(response["responseJSON"], ["UnlockEmployee"]);
+                })
+                .then(() => {
+                    if (!hasErrors) {
+                        location.reload();
+                    }
+                })
+        })
+    }
+
+    UnlockGetData() {
+        // В зависимости от причины блокировки сотрудника
+        let employeeLockReason = $("#employeeLockReason").val();
+        let unlockData = {};
+        switch(employeeLockReason) {
+            // Сотрудник вышел из организации или отказался от инвайта
+            case "RejectInvite":
+            case "EmployeeLeftOrganization":
+                // Получение выбранного варианта(выбора существующего пользователя или создание новой учетной записи)
+                let firstTab = $("#lockEmployeeForm").find(".radio-tabs").find(".form-check")[0]
+                let userAccountExists = $(firstTab).hasClass("active");
+
+                // Выбор существующего пользователя
+                if (userAccountExists) {
+                    unlockData = {
+                        Id: $("#employeeId").val(),
+                        OrganizationId: $("#OrganizationId").val(),
+                        UserName: $("#existsUserName").val(),
+                        UserAccountExists: userAccountExists
+                    }
+                }
+
+                // Создание новой учетной записи 
+                else {
+                    unlockData = {
+                        Id: $("#employeeId").val(),
+                        OrganizationId: $("#OrganizationId").val(),
+                        UserName: $("#newUserName").val(),
+                        Email: $("#newUserEmail").val(),
+                        Password: $("#newUserPassword").val(),
+                        ConfirmPassword: $("#newUserConfirmPassword").val(),
+                        UserAccountExists: userAccountExists
+                    }
+                }
+                break;
+
+            // Отсутствует основная должность
+            default:
+            case "PrimaryPositionAbsent":
+                unlockData = {
+                    Id: $("#employeeId").val(),
+                    OrganizationId: $("#OrganizationId").val(),
+                    DivisionName: $("#DivisionName").val(),
+                    PrimaryPositionName: $("#PrimaryPositionName").val()
+                }
+                break;
+        }
+        return unlockData;
     }
 
     /**
@@ -169,7 +240,7 @@
         modal.modal("hide");
         $(checkGroup).removeClass("active");
         $(checkGroup).find("input").removeAttr("checked");
-        $(checkGroup[0]).addClass("active").find("input").attr("checked", "checked");
+        $(checkGroup[0]).addClass("active").find("input").prop("checked");
         modal.find("#selectUserOption").fadeIn();
         modal.find(".tabs-content .tabs-content-item").hide();
     }
@@ -201,6 +272,11 @@ $("#employeeForm")
         let employee = new Employee();
         employee.Update(event);
     })
+    .off("click", "#initializeRespsBtn").on("click", "#initializeRespsBtn", event => {
+        event.preventDefault();
+        let employeeResponsibilityManagement = new EmployeeResponsibilityManagement();
+        employeeResponsibilityManagement.InitializeResps();
+    })
     .off("click", "#initializePositionsBtn").on("click", "#initializePositionsBtn", event => {
         event.preventDefault();
         let employeePositionsManagement = new EmployeePositionsManagement();
@@ -209,6 +285,11 @@ $("#employeeForm")
 
 // Карточка заблокированного сотрудника
 $("#lockEmployeeForm")
+    .off("click", "#unlockEmpBtn").on("click", "#unlockEmpBtn", event => {
+        event.preventDefault();
+        let employee = new Employee();
+        employee.Unlock();
+    })
     .off("click", "#cancelUnlockEmpBtn").on("click", "#cancelUnlockEmpBtn", event => location.reload());
 
 // Список сотрудников

@@ -243,6 +243,9 @@ namespace GSCrm.Migrations
                     b.Property<Guid>("DivisionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("EmployeeLockReason")
+                        .HasColumnType("int");
+
                     b.Property<int>("EmployeeStatus")
                         .HasColumnType("int");
 
@@ -330,7 +333,101 @@ namespace GSCrm.Migrations
 
                     b.HasIndex("ResponsibilityId");
 
-                    b.ToTable("EmployeeResponsibility");
+                    b.ToTable("EmployeeResponsibilities");
+                });
+
+            modelBuilder.Entity("GSCrm.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NotificationSource")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SourceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Notification");
+                });
+
+            modelBuilder.Entity("GSCrm.Models.OrgNotificationsSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("AccDeleteNot")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AccTeamManagementNot")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AccUpdateNot")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("DivDeleteNot")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmpDeleteNot")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmpUpdateNot")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("PosDeleteNot")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("PosUpdateNot")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("TAccDeleteNot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TAccTeamManagementNot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TAccUpdateNot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TDivDeleteNot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TEmpDeleteNot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TEmpUpdateNot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TPosDeleteNot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TPosUpdateNot")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserOrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserOrganizationId")
+                        .IsUnique();
+
+                    b.ToTable("OrgNotificationsSettings");
                 });
 
             modelBuilder.Entity("GSCrm.Models.Organization", b =>
@@ -422,9 +519,6 @@ namespace GSCrm.Migrations
                     b.Property<bool>("AccChangeType")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("AccContactChangePrimary")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("AccContactCreate")
                         .HasColumnType("bit");
 
@@ -452,6 +546,9 @@ namespace GSCrm.Migrations
                     b.Property<bool>("AccTeamManagement")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("AccUnlock")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("AccUpdate")
                         .HasColumnType("bit");
 
@@ -470,16 +567,22 @@ namespace GSCrm.Migrations
                     b.Property<bool>("EmpContactDelete")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("EmpContactUpdate")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("EmpCreate")
                         .HasColumnType("bit");
 
                     b.Property<bool>("EmpDelete")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("EmpPosDelete")
+                    b.Property<bool>("EmpPossManagement")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("EmpPossManagement")
+                    b.Property<bool>("EmpRespsManagement")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmpUnlock")
                         .HasColumnType("bit");
 
                     b.Property<bool>("EmpUpdate")
@@ -504,6 +607,15 @@ namespace GSCrm.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("PosUpdate")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RespCreate")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RespDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RespUpdate")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -586,11 +698,59 @@ namespace GSCrm.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("GSCrm.Models.UserNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserNotifications");
+                });
+
+            modelBuilder.Entity("GSCrm.Models.UserNotificationsSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("OrgInvoiceNot")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("TOrgInvoiceNot")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
+                    b.ToTable("UserNotificationsSettings");
+                });
+
             modelBuilder.Entity("GSCrm.Models.UserOrganization", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Accepted")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uniqueidentifier");
@@ -738,6 +898,19 @@ namespace GSCrm.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("GSCrm.Models.InboxNotification", b =>
+                {
+                    b.HasBaseType("GSCrm.Models.Notification");
+
+                    b.Property<int>("ActionType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("HasRead")
+                        .HasColumnType("bit");
+
+                    b.HasDiscriminator().HasValue("InboxNotification");
+                });
+
             modelBuilder.Entity("GSCrm.Models.AccountAddress", b =>
                 {
                     b.HasOne("GSCrm.Models.Account", "Account")
@@ -828,7 +1001,7 @@ namespace GSCrm.Migrations
 
             modelBuilder.Entity("GSCrm.Models.EmployeeResponsibility", b =>
                 {
-                    b.HasOne("GSCrm.Models.Employee", "User")
+                    b.HasOne("GSCrm.Models.Employee", "Employee")
                         .WithMany("EmployeeResponsibilities")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -841,6 +1014,15 @@ namespace GSCrm.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("GSCrm.Models.OrgNotificationsSetting", b =>
+                {
+                    b.HasOne("GSCrm.Models.UserOrganization", "UserOrganization")
+                        .WithOne("OrgNotificationsSetting")
+                        .HasForeignKey("GSCrm.Models.OrgNotificationsSetting", "UserOrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("GSCrm.Models.Position", b =>
                 {
                     b.HasOne("GSCrm.Models.Division", "Division")
@@ -848,6 +1030,27 @@ namespace GSCrm.Migrations
                         .HasForeignKey("DivisionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("GSCrm.Models.UserNotification", b =>
+                {
+                    b.HasOne("GSCrm.Models.Notification", "Notification")
+                        .WithMany("UserNotifications")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GSCrm.Models.User", "User")
+                        .WithMany("UserNotifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("GSCrm.Models.UserNotificationsSetting", b =>
+                {
+                    b.HasOne("GSCrm.Models.User", "User")
+                        .WithOne("UserNotificationsSetting")
+                        .HasForeignKey("GSCrm.Models.UserNotificationsSetting", "UserId");
                 });
 
             modelBuilder.Entity("GSCrm.Models.UserOrganization", b =>

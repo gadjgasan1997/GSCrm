@@ -1,36 +1,33 @@
 ﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
-using GSCrm.Localization;
+using GSCrm.Mapping;
 using GSCrm.Models;
+using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using GSCrm.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using System;
 using static GSCrm.CommonConsts;
-using static GSCrm.Repository.PositionRepository;
 
 namespace GSCrm.Controllers
 {
     [Authorize]
     [Route(POS_SUB_POS)]
     public class PositionSubPositionController
-        : MainController<Position, PositionViewModel, PositionValidator, PositionTransformer, PositionRepository>
+        : MainController<Position, PositionViewModel>
     {
-        public PositionSubPositionController(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager)
-            : base(context, viewsInfo, resManager, new PositionTransformer(context, resManager), new PositionRepository(context, viewsInfo, resManager))
+        public PositionSubPositionController(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base(context, serviceProvider)
         { }
 
         [HttpGet("ListOfSubPositions/{pageNumber}")]
         public IActionResult PositionSubPositions(int pageNumber)
         {
-            PositionViewModel positionViewModel = CurrentPosition;
-            User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-            repository = new PositionRepository(context, viewsInfo, resManager, HttpContext);
-            repository.SetViewInfo(currentUser.Id, POS_EMPLOYEES, pageNumber);
-            repository.AttachSubPositions(positionViewModel);
+            PositionViewModel positionViewModel = (PositionViewModel)cachService.GetMainEntity(currentUser, MainEntityType.PositionView);
+            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
+            positionRepository.SetViewInfo(currentUser.Id, POS_EMPLOYEES, pageNumber);
+            positionRepository.AttachSubPositions(positionViewModel);
             return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
         }
     }

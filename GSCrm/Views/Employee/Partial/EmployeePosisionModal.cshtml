@@ -13,7 +13,7 @@
 }
 
 <div id="employeePosisionModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-xxl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">@resManager.GetString("PositionsManagement")</h5>
@@ -41,11 +41,11 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="allPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchAllPosition", EMP_POSITION, new { employeeId = Model.Id })" />
+                                               data-href="@Url.Action("SearchAllPosition", EMP_POSITION)" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearAllPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
-                                               data-href="@Url.Action("ClearAllPositionSearch", EMP_POSITION, new { employeeId = Model.Id })" />
+                                               data-href="@Url.Action("ClearAllPositionSearch", EMP_POSITION)" />
                                     </div>
                                 </div>
                             </div>
@@ -98,11 +98,11 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="selectedPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchSelectedPosition", EMP_POSITION, new { employeeId = Model.Id })" />
+                                               data-href="@Url.Action("SearchSelectedPosition", EMP_POSITION)" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearSelectedPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
-                                               data-href="@Url.Action("ClearSelectedPositionSearch", EMP_POSITION, new { employeeId = Model.Id })" />
+                                               data-href="@Url.Action("ClearSelectedPositionSearch", EMP_POSITION)" />
                                     </div>
                                 </div>
                             </div>

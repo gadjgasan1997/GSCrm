@@ -11,17 +11,6 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления адреса клиента */
-            RemoveAccountAddressError: class {
-                Initialize(inputProperties) {
-                    return {
-                        icon: 'error',
-                        title: Localization.GetString("removeAccAddressError"),
-                        html: inputProperties["error"]
-                    }
-                }
-            },
-
             /** Сообщение с подтверждением закрытия окна управления должностями без синхронизации */
             PositionModalClosedConfirmation: class {
                 Initialize(inputProperties) {
@@ -92,14 +81,19 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления должности сотрудника */
-            RemoveOrgError: class {
+            /** Сообщение с подтверждением выхода из организации */
+            LeaveOrgConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        icon: 'error',
-                        title: Localization.GetString("errorLabel"),
-                        text: Localization.GetString("removeOrgError")
-                      }
+                        title: Localization.GetString("orgLeaving"),
+                        text: Localization.GetString("leaveOrgConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("declineLeave"),
+                        cancelButtonText: Localization.GetString("cancel"),
+                    }
                 }
             },
 
@@ -192,7 +186,7 @@ class MessageManager {
                         confirmButtonText: Localization.GetString("change"),
                         showLoaderOnConfirm: true,
                         cancelButtonText: Localization.GetString("cancel"),
-                        inputPlaceholder: sitePlaceholder,
+                        inputValue: sitePlaceholder,
                         preConfirm: (newSite) => {
                             let request = new AjaxRequests();
                             let newSiteUrl = changeSiteUrl + newSite;
@@ -235,22 +229,6 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением закрытия окна управления командой по клиенту без синхронизации */
-            AccTeamModalClosedConfirmation: class {
-                Initialize(inputProperties) {
-                    return {
-                        title: Localization.GetString("attentionModalClosing"),
-                        text: Localization.GetString("accTeamModalClosingConfirm"),
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptModalClosing"),
-                        cancelButtonText: Localization.GetString("declineModalClosing")
-                    }
-                }
-            },
-
             /** Ошибка удаления контакта клиента */
             RemoveAccountContactError: class {
                 Initialize(inputProperties) {
@@ -280,6 +258,19 @@ class MessageManager {
                         position: 'top-end',
                         icon: 'success',
                         title: Localization.GetString("primaryContactHasBeenChanged"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
+            },
+
+            /** Сообщение об успешном изменении основной организации */
+            PrimaryOrgHasBeenChanged: class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("primaryOrgHasBeenChanged"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -365,6 +356,135 @@ class MessageManager {
                         cancelButtonColor: '#d33',
                         confirmButtonText: Localization.GetString("acceptRemove"),
                         cancelButtonText: Localization.GetString("decline"),
+                    }
+                }
+            },
+
+            /** Сообщение с предложением измениния названия полномочия */
+            ChangingReponsibilityName: class {
+                Initialize(inputProperties) {
+                    let currentReponsibilityName = inputProperties["currentReponsibilityName"];
+                    return {
+                        title: Localization.GetString("changingReponsibilityName"),
+                        input: 'text',
+                        inputAttributes: {
+                          autocapitalize: 'off'
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: Localization.GetString("change"),
+                        cancelButtonText: Localization.GetString("declineModalClosing"),
+                        showLoaderOnConfirm: true,
+                        inputValue: currentReponsibilityName,
+                        allowOutsideClick: () => !Swal.isLoading()
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением закрытия окна без коммита */
+            NotCommitModalClosedConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("attentionModalClosing"),
+                        text: Localization.GetString("notCommitModalClosingConfirm"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptModalClosing"),
+                        cancelButtonText: Localization.GetString("declineModalClosing")
+                    }
+                }
+            },
+
+            /** Ошибка синхронизации должностей */
+            SyncPositionsError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("syncPositionsError"),
+                        text: inputProperties["error"]
+                    }
+                }
+            },
+
+            /** Недостаточно полномочий */
+            HasNotPermissions: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: Localization.GetString("hasNotPermissions"),
+                        text: inputProperties["error"]
+                    }
+                }
+            },
+
+            /** Сообщение, что настройки уведомлений были успешно изменены */
+            NotSettingsCommitSuccess: class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("notSettingsCommitSuccess"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
+            },
+
+            /** Сообщение, что настройки уведомлений были успешно установлены по умолчанию */
+            SetNotSettingsToDefaultSuccess: class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("setNotSettingsToDefaultSuccess"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением установки настроек уведомлений в организациях по умолчанию */
+            ResetOrgNotSettingsConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("setNotSettingsToDefault"),
+                        text: Localization.GetString("setOrgNotSettingsToDefaultConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptSetToDefault"),
+                        cancelButtonText: Localization.GetString("decline"),
+                    }
+                }
+            },
+
+            /** Сообщение с подтверждением установки настроек личных уведомлений по умолчанию */
+            ResetUserNotSettingsConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("setNotSettingsToDefault"),
+                        text: Localization.GetString("setUserNotSettingsToDefaultConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptSetToDefault"),
+                        cancelButtonText: Localization.GetString("decline"),
+                    }
+                }
+            },
+
+            /** Сообщение с информацией, что приглашение было откланено */
+            InviteHasBeenRejected : class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("inviteHasBeenRejected"),
+                        showConfirmButton: false,
+                        timer: 1500
                     }
                 }
             }

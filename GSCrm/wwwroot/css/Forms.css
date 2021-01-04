@@ -4,9 +4,14 @@
   margin-right: auto;
   margin-left: auto; }
 
-.container-layout {
-  margin-left: 10%;
-  width: 90%; }
+@media all and (max-width: 1200px) {
+  .container-layout {
+    width: 100%; } }
+
+@media all and (min-width: 1200px) {
+  .container-layout {
+    margin-left: 10%;
+    width: 90%; } }
 
 .form-shadow {
   position: absolute;
@@ -39,24 +44,27 @@
   max-height: 100px; }
 
 #accountsForm .nav-tabs .nav-item,
-#positionForm .nav-tabs .nav-item {
+#positionForm .nav-tabs .nav-item,
+#employeeForm .nav-tabs .nav-item,
+#notSettingsForm .nav-tabs .nav-item {
   width: 50%; }
 
-#employeeForm .nav-tabs .nav-item,
 #quotesForm .nav-tabs .nav-item {
   width: 33.33%; }
 
 #employeeForm .nav-tabs .nav-item,
 #accountsForm .nav-tabs .nav-item,
 #quotesForm .nav-tabs .nav-item,
-#positionForm .nav-tabs .nav-item {
+#positionForm .nav-tabs .nav-item,
+#notSettingsForm .nav-tabs .nav-item {
   text-align: center;
   margin-top: 35px; }
 
 #employeeForm .nav-link,
 #accountsForm .nav-link,
 #quotesForm .nav-link,
-#positionForm .nav-link {
+#positionForm .nav-link,
+#notSettingsForm .nav-link {
   color: black; }
 
 #positionForm #positionsHierarchy {
@@ -115,9 +123,6 @@
   height: 100%;
   min-width: 100px; }
 
-#accountForm .form-control.wide-form-control {
-  min-width: 200px; }
-
 #accountForm #accountTeam {
   min-width: 270px; }
   #accountForm #accountTeam #accountTeamList {
@@ -137,3 +142,63 @@
 
 #changePrimaryContact {
   display: none; }
+
+#responsibilityHeader > div {
+  width: 100%; }
+  #responsibilityHeader > div > div {
+    height: 40px; }
+    #responsibilityHeader > div > div #orgName {
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      height: 100%; }
+
+#responsibilityForm > div .resp-setting-group {
+  margin-bottom: 15px; }
+  #responsibilityForm > div .resp-setting-group > div h3 {
+    height: 32px;
+    margin: 0; }
+  #responsibilityForm > div .resp-setting-group .switch {
+    margin-top: 6px; }
+
+#responsibilityForm > div .resp-setting {
+  background: #FFFFFF;
+  padding-bottom: 10px;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.16); }
+  #responsibilityForm > div .resp-setting > div:first-child {
+    user-select: none; }
+    #responsibilityForm > div .resp-setting > div:first-child p {
+      line-height: 40px;
+      margin: 0; }
+  #responsibilityForm > div .resp-setting .switch {
+    margin-top: 10px; }
+
+@media (min-width: 1000px) {
+  #responsibilityForm {
+    width: 40%; } }
+
+@media (min-width: 800px) {
+  #responsibilityForm {
+    width: 60%; } }
+
+@media all and (max-width: 800px) {
+  .has-no-permissions-form .row .col:first-child {
+    display: none; } }
+
+.org-invite-not {
+  position: relative; }
+  .org-invite-not .row .flex-grow-0 {
+    position: relative; }
+  .org-invite-not .row .col-lg > p > a {
+    text-decoration: none; }
+  .org-invite-not .row .col-lg > p > a:hover {
+    border-bottom: 2px solid #0366d6; }
+  .org-invite-not .row .col-lg > .btn {
+    height: 35px;
+    padding: 0;
+    cursor: pointer; }
+    .org-invite-not .row .col-lg > .btn > p {
+      margin: 0;
+      line-height: 33px; }
+
+.notification-item .alert-not-light {
+  border-color: #c6c8ca; }

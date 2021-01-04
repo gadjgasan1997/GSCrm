@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GSCrm.Models.Enums;
+using System;
 using System.Collections.Generic;
 
 namespace GSCrm.Models

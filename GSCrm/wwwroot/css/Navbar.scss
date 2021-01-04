@@ -65,7 +65,7 @@
     position: absolute;
     top: 0px;
     width: 10%;
-    height: calc(100% - 60px);
+    height: 100%;
 
     .flex-column {
         margin-top: 100px;
@@ -88,7 +88,6 @@
     margin-left: auto;
 
     .register-nav {
-        //margin-bottom: 50px;
         .nav-item {
             cursor: pointer;
             user-select: none;
@@ -144,4 +143,8 @@
     .nav-link {
         margin: auto;
     }
+}
+
+.nav-narrow {
+    width: 100%
 }

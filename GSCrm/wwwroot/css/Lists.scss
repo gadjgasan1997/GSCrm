@@ -1,7 +1,8 @@
 ﻿#organizationsList {
-    td {
+    .organization-item {
         cursor: pointer;
         position: relative;
+
         a {
             text-decoration: none;
             color: black;
@@ -55,6 +56,108 @@
     }
 }
 
+.not-settings-list-empty {
+    margin: auto;
+    .row {
+        width: 70%;
+        margin: auto
+    }
+}
+
+.not-settings-list,
+#userNotSettingsList {
+    margin: auto;
+
+    .not-setting-group {
+        background: #FFFFFF;
+        padding-bottom: 10px;
+        box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.16);
+
+        .label-bold-lg {
+            margin: 0
+        }
+
+        .arrow-toggler {
+            cursor: pointer;
+        }
+    }
+
+    .not-settings {
+        .not-setting {
+            padding-bottom: 10px;
+
+            > div:first-child {
+                user-select: none;
+
+                p {
+                    line-height: 40px;
+                    margin: 0
+                }
+            }
+
+
+            .not-setting-options {
+                height: 36px;
+
+                > .row {
+                    height: 100%;
+
+                    .col {
+                        height: 100%
+                    }
+                }
+
+                .cogs {
+                    position: relative;
+                    margin-top: 6px;
+                }
+            }
+
+            .switch {
+                margin-top: 10px
+            }
+        }
+    }
+}
+
+#notSettingsActions {
+    width: 100%;
+}
+
+@media (max-width: 800px) {
+    .update-not-setting,
+    .cancel-update-not-setting {
+        width: 75%
+    }
+
+    .not-settings-list-empty {
+        .row {
+            .col:first-child {
+                display: none;
+            }
+        }
+    }
+}
+
+@media (min-width: 800px) {
+    .not-settings-list {
+        width: 60%
+    }
+    #userNotSettingsList {
+        width: 60%
+    }
+    .update-not-setting,
+    .cancel-update-not-setting {
+        width: 50%
+    }
+}
+
+@media (min-width: 1200px) {
+    #userNotSettingsList {
+        width: 40%
+    }
+}
+
 .list-nav {
     .nav-previous, .nav-next {
         font-size: 22px;
@@ -86,5 +189,20 @@
         > div:hover {
             color: #007bff
         }
+    }
+}
+
+@media all and (max-width: 800px) {
+    .notifications-empty-list {
+        .col:first-child {
+            display: none
+        }
+    }
+}
+
+@media all and (min-width: 800px) {
+    #notificationsList {
+        width: 70%;
+        margin: auto;
     }
 }

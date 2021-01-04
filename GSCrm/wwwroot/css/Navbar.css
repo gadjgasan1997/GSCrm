@@ -46,7 +46,7 @@
   position: absolute;
   top: 0px;
   width: 10%;
-  height: calc(100% - 60px); }
+  height: 100%; }
   .vertical-nav .flex-column {
     margin-top: 100px; }
     .vertical-nav .flex-column .nav-item {
@@ -90,3 +90,6 @@
   justify-content: flex-end; }
   .main-nav .nav-link {
     margin: auto; }
+
+.nav-narrow {
+  width: 100%; }

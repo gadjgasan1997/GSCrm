@@ -1,6 +1,12 @@
 {
     "CreateAddress": [
         [
+            ["AccountNotFound"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
             ["CountryIsRequired", "CountryWrong"],
             {
                 "type": "attach",
@@ -44,7 +50,7 @@
     ],
     "UpdateAddress": [
         [
-            ["AddressNotFound", "AddressTypeWrong", "LegalAddressNotUnique", "LegalAddressIsReadonly"],
+            ["AccountNotFound", "AddressNotFound", "AddressTypeWrong", "LegalAddressNotUnique", "LegalAddressIsReadonly"],
             {
                 "type": "swal"
             }
@@ -89,14 +95,13 @@
         [
             ["AccountAddressNotFound", "PrimaryAddressIsReadonly"],
             {
-                "type": "swal",
-                "messageName": "RemoveAccountAddressError"
+                "type": "swal"
             }
         ]
     ],
     "CreateAccount": [
         [
-            ["WrongAccountType"],
+            ["WrongAccountType", "YotNeedCreateOrgToAddAccounts"],
             {
                 "type": "swal"
             }
@@ -223,6 +228,12 @@
     ],
     "CreateAccountContact": [
         [
+            ["AccountNotFound"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
             ["WrongContactType"],
             {
                 "type": "attach",
@@ -267,6 +278,12 @@
     ],
     "UpdateAccountContact": [
         [
+            ["AccountNotFound"],
+            {
+                "type": "swal"
+            }
+        ],
+        [
             ["WrongContactType"],
             {
                 "type": "attach",
@@ -310,6 +327,12 @@
         ]
     ],
     "RemoveAccountContact": [
+        [
+            ["AccountNotFound"],
+            {
+                "type": "swal"
+            }
+        ],
         [
             ["AccountContactNotFound", "PrimaryIndividualContactIsReadonly"],
             {
@@ -429,14 +452,18 @@
     ],
     "Signup": [
         [
-            ["UserNameLength", "UserNameAlreadyExists"],
+            ["UserNameLength",
+            "UserNameAlreadyExists",
+            "InvalidUserName"],
             {
                 "type": "attach",
                 "elements": ["#SignupUserNameError"]
             }
         ],
         [
-            ["EmailIsNull", "EmailAlreadyExists"],
+            ["EmailIsNull",
+            "EmailAlreadyExists",
+            "WrongEmailFormat"],
             {
                 "type": "attach",
                 "elements": ["#SignupEmailError"]
@@ -471,11 +498,20 @@
                 "type": "attach",
                 "elements": ["#LoginPasswordError"]
             }
+        ],
+        [
+            ["ConfirmYourEmail"],
+            {
+                "type": "swal"
+            }
         ]
     ],
-    "Synchronize": [
+    "SynchronizeManagers": [
         [
-            ["SyncManagersException"],
+            ["AccountManagerNotFound",
+            "EmployeeNotExists",
+            "AccountManagerIsLocked",
+            "AccountManagerIsNonActive"],
             {
                 "type": "swal"
             }
@@ -486,12 +522,6 @@
                 "type": "attach",
                 "elements": ["#primaryManagerError"]
             }
-        ],
-        [
-            ["AccountManagerIsLocked"],
-            {
-                "type": "swal"
-            }
         ]
     ],
     "CreateDivision": [
@@ -501,11 +531,18 @@
                 "type": "attach",
                 "elements": ["#divNameError"]
             }
+        ],
+        [
+            ["DivisionNotExists"],
+            {
+                "type": "attach",
+                "elements": ["#parentDivError"]
+            }
         ]
     ],
     "CreateEmployee": [
         [
-            ["UserNameAlreadyExists"],
+            ["UserNameAlreadyExists", "UserNameWrong"],
             {
                 "type": "attach",
                 "elements": ["#newUserNameError"]
@@ -570,7 +607,11 @@
     ],
     "CreateEmployeeExistsAccount": [
         [
-            ["UserNotExists", "UserAccountIsBusy", "UserNameLength", "UserNameIsNull"],
+            ["UserNotExists",
+            "UserAccountIsBusy",
+            "UserNameLength",
+            "UserNameIsNull",
+            "UserAlreadyHasInviteNotification"],
             {
                 "type": "attach",
                 "elements": ["#existsUserNameError"]
@@ -579,7 +620,11 @@
     ],
     "CreateEmployeeNewAccount": [
         [
-            ["UserNotExists", "UserAccountIsBusy", "UserNameLength", "UserNameIsNull"],
+            ["UserNotExists",
+            "UserAccountIsBusy",
+            "UserNameLength",
+            "UserNameIsNull",
+            "InvalidUserName"],
             {
                 "type": "attach",
                 "elements": ["#newUserNameError"]
@@ -650,7 +695,7 @@
     ],
     "RemoveEmployeePosition": [
         [
-            ["RecordNotFound", "PrimaryPositionIsReadonly"],
+            ["PrimaryPositionIsReadonly"],
             {
                 "type": "swal",
                 "messageName": "RemovePositionError"
@@ -659,10 +704,10 @@
     ],
     "SyncPositions": [
         [
-            ["PrimaryPositionIsReadonly"],
+            ["PrimaryPositionIsReadonly", "PosIsAlreadyAdded", "AddPosNotExists", "RemovePosNotExists"],
             {
                 "type": "swal",
-                "messageName": "syncPositionsErrors"
+                "messageName": "SyncPositionsError"
             }
         ]
     ],
@@ -801,16 +846,93 @@
     ],
     "AddAccManager": [
         [
-            ["AccountNotFound"],
-            {
-                "type": "swal"
-            }
-        ],
-        [
             ["EmployeeNotExists"],
             {
                 "type": "attach",
                 "elements": ["#accManagerError"]
+            }
+        ]
+    ],
+    "CreateResponsibility": [
+        [
+            ["ResponsibilityNameLength", "ResponsibilityAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#responsibilityNameError"]
+            }
+        ]
+    ],
+    "UpdateResponsibility": [
+        [
+            ["ResponsibilityNameLength", "ResponsibilityAlreadyExists"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "SynchronizeResponsibilities": [
+        [
+            ["RespIsAlreadyAdded", "AddRespNotExists", "RemoveRespNotExists"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "RemoveOrg": [
+        [
+            ["AnotherOrgIsReadonly"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "UnlockEmployee": [
+        [
+            ["DivisionNameLength",
+            "DivisionNotExists",
+            "PositionNameLength",
+            "PositionNotExists",
+            "UserNameIsNull",
+            "UserNotExists",
+            "UserAccountIsBusy",
+            "PositionNotExists",
+            "UserNameAlreadyExists",
+            "UserNameWrong",
+            "UserNameLength",
+            "EmailIsNull",
+            "WrongEmailFormat",
+            "EmailAlreadyExists",
+            "PasswordLength",
+            "PasswordNotContainsDigits",
+            "PasswordNotContainsLetters",
+            "ConfirmPasswordLength",
+            "PasswordsNotEquals"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "LeaveOrg": [
+        [
+            ["CannotLeaveYourOrg"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "NotSettingCommit": [
+        [
+            ["NotSettingNotFound"],
+            {
+                "type": "swal"
+            }
+        ]
+    ],
+    "AcceptInvite": [
+        [
+            ["RecordNotFound"],
+            {
+                "type": "swal"
             }
         ]
     ]

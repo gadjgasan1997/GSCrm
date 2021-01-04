@@ -30,7 +30,19 @@
   .empty-table tbody tr td:last-child {
     width: 67%;
     text-align: left;
-    font-size: 28px; }
+    font-size: 26px; }
+  .empty-table .empty-title {
+    margin: 0;
+    white-space: break-spaces;
+    margin-bottom: 10px;
+    margin-top: 10px; }
+
+.empty-title-table .empty-title {
+  margin: 0;
+  font-size: 20px;
+  white-space: break-spaces;
+  margin-bottom: 10px;
+  margin-top: 10px; }
 
 .fl-table td, .fl-table th {
   text-align: center;
@@ -64,22 +76,20 @@
 
 /* Responsive */
 @media (max-width: 767px) {
-  .fl-table:not([class*="empty-table"]) {
+  .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) {
     display: block;
     width: 100%; }
-    .fl-table:not([class*="empty-table"]) thead {
-      float: left;
-      padding-top: 10px; }
-    .fl-table:not([class*="empty-table"]) thead, .fl-table:not([class*="empty-table"]) tbody, .fl-table:not([class*="empty-table"]) thead th {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) thead {
+      float: left; }
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) thead, .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tbody, .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) thead th {
       display: block; }
-    .fl-table:not([class*="empty-table"]) thead th:last-child {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) thead th:last-child {
       border-bottom: none; }
-    .fl-table:not([class*="empty-table"]) tbody {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tbody {
       width: auto;
       position: relative;
-      overflow-x: auto;
-      padding-top: 10px; }
-    .fl-table:not([class*="empty-table"]) td, .fl-table:not([class*="empty-table"]) th {
+      overflow-x: auto; }
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) td, .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) th {
       padding: 20px .625em .625em .625em;
       height: 60px;
       vertical-align: middle;
@@ -87,21 +97,21 @@
       width: 120px;
       font-size: 13px;
       text-overflow: ellipsis; }
-    .fl-table:not([class*="empty-table"]) thead th {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) thead th {
       text-align: left;
       border-bottom: 1px solid #f7f7f9; }
-    .fl-table:not([class*="empty-table"]) tbody tr {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tbody tr {
       display: table-cell; }
-    .fl-table:not([class*="empty-table"]) tbody tr:nth-child(odd) {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tbody tr:nth-child(odd) {
       background: none; }
-    .fl-table:not([class*="empty-table"]) tr:nth-child(even) {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tr:nth-child(even) {
       background: transparent; }
-    .fl-table:not([class*="empty-table"]) tr td:nth-child(odd) {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tr td:nth-child(odd) {
       background: #F8F8F8;
       border-right: 1px solid #E6E4E4; }
-    .fl-table:not([class*="empty-table"]) tr td:nth-child(even) {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tr td:nth-child(even) {
       border-right: 1px solid #E6E4E4; }
-    .fl-table:not([class*="empty-table"]) tbody td {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) tbody td {
       display: block;
       text-align: center; }
   .fl-table[class*="empty-table"] thead tr th:first-child,
