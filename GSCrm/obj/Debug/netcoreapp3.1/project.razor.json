@@ -1,5 +1,5 @@
 {
-  "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\GSCrm.csproj",
+  "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\GSCrm.csproj",
   "Configuration": {
     "ConfigurationName": "MVC-3.0",
     "LanguageVersion": "3.0",
@@ -14392,418 +14392,418 @@
   "RootNamespace": "GSCrm",
   "Documents": [
     {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\QuotesList.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\QuotesList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\PositionsList.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\PositionsList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Auth\\ConfirmEmailMessage.cshtml",
-      "TargetPath": "Views\\Auth\\ConfirmEmailMessage.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeeContactsFilter.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmployeeContactsFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Auth\\ResetPasswordSpecifyEmail.cshtml",
-      "TargetPath": "Views\\Auth\\ResetPasswordSpecifyEmail.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\DivisionModal.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\DivisionModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\PositionsFilter.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\PositionsFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Shared\\Partial\\Navigation.cshtml",
-      "TargetPath": "Views\\Shared\\Partial\\Navigation.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountTypeRadioTabs.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountTypeRadioTabs.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountAddressesManagement.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountAddressesManagement.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountAddressUpdateModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountAddressUpdateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\_ViewStart.cshtml",
-      "TargetPath": "Views\\_ViewStart.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\DivisionsFilter.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\DivisionsFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\PositionEmployeesList.cshtml",
-      "TargetPath": "Views\\Position\\Partial\\PositionEmployeesList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Division\\Division.cshtml",
-      "TargetPath": "Views\\Division\\Division.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\HasNoPermissionsForSee.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\HasNoPermissionsForSee.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\CurrentAccounts.cshtml",
-      "TargetPath": "Views\\Account\\CurrentAccounts.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeePositionsFilter.cshtml",
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeePositionsFilter.cshtml",
       "TargetPath": "Views\\Employee\\Partial\\EmployeePositionsFilter.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\ContactsList.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\ContactsList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\CurrentAccountsFilter.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\CurrentAccountsFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\_ViewImports.cshtml",
-      "TargetPath": "Views\\_ViewImports.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Auth\\ResetPassword.cshtml",
-      "TargetPath": "Views\\Auth\\ResetPassword.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\InvoicesList.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\InvoicesList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
-      "TargetPath": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\HasNoPermissionsForSee.cshtml",
-      "TargetPath": "Views\\Position\\Partial\\HasNoPermissionsForSee.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Employee.cshtml",
-      "TargetPath": "Views\\Employee\\Employee.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\ChangeLegalAddressModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\ChangeLegalAddressModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\PositionEmployeesFilter.cshtml",
-      "TargetPath": "Views\\Position\\Partial\\PositionEmployeesFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmpContactCreateModal.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmpContactCreateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\PositionSubPositionsList.cshtml",
-      "TargetPath": "Views\\Position\\Partial\\PositionSubPositionsList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Organizations.cshtml",
-      "TargetPath": "Views\\Organization\\Organizations.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmpContactUpdateModal.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmpContactUpdateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\DocumentsList.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\DocumentsList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountContactsManagement.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountContactsManagement.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\ResponsibilitiesManagmentModal.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\ResponsibilitiesManagmentModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeeResponsibilityModal.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmployeeResponsibilityModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AddAccountManagerModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AddAccountManagerModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Position.cshtml",
-      "TargetPath": "Views\\Position\\Position.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountTeamManagement.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountTeamManagement.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountInvoicesManagement.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountInvoicesManagement.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Auth\\EmailConfirmed.cshtml",
-      "TargetPath": "Views\\Auth\\EmailConfirmed.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Shared\\_Layout.cshtml",
-      "TargetPath": "Views\\Shared\\_Layout.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\EmployeesList.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\EmployeesList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\NotificationsSetting\\Partial\\UserNotificationsSettings.cshtml",
-      "TargetPath": "Views\\NotificationsSetting\\Partial\\UserNotificationsSettings.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountInvoiceUpdateModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountInvoiceUpdateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\AllAccounts.cshtml",
-      "TargetPath": "Views\\Account\\AllAccounts.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\User\\User.cshtml",
-      "TargetPath": "Views\\User\\User.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AllAccountsFilter.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AllAccountsFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\NotificationsSetting\\NotificationsSettings.cshtml",
-      "TargetPath": "Views\\NotificationsSetting\\NotificationsSettings.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\ChangeDivisionModal.cshtml",
-      "TargetPath": "Views\\Position\\Partial\\ChangeDivisionModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Accounts.cshtml",
-      "TargetPath": "Views\\Account\\Accounts.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\NotificationsSetting\\Partial\\OrgNotificationsSettings.cshtml",
-      "TargetPath": "Views\\NotificationsSetting\\Partial\\OrgNotificationsSettings.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Responsibility\\Partial\\HasNoPermissionsForSee.cshtml",
-      "TargetPath": "Views\\Responsibility\\Partial\\HasNoPermissionsForSee.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeeSubordinatesFilter.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmployeeSubordinatesFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Auth\\ResetPasswordSuccess.cshtml",
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Auth\\ResetPasswordSuccess.cshtml",
       "TargetPath": "Views\\Auth\\ResetPasswordSuccess.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Auth\\Index.cshtml",
-      "TargetPath": "Views\\Auth\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeeContactsList.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmployeeContactsList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\PositionModal.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\PositionModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\ChangeDivisionModal.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\ChangeDivisionModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Account.cshtml",
-      "TargetPath": "Views\\Account\\Account.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Responsibility\\Responsibility.cshtml",
-      "TargetPath": "Views\\Responsibility\\Responsibility.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeePositionsList.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmployeePositionsList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Auth\\ResetPasswordMessage.cshtml",
-      "TargetPath": "Views\\Auth\\ResetPasswordMessage.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountContactUpdateModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountContactUpdateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeeSubordinatesList.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmployeeSubordinatesList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\PositionSubPositionsFilter.cshtml",
-      "TargetPath": "Views\\Position\\Partial\\PositionSubPositionsFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\HasNoPermissionsForSee.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\HasNoPermissionsForSee.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeePosisionModal.cshtml",
-      "TargetPath": "Views\\Employee\\Partial\\EmployeePosisionModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AddressesList.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AddressesList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Shared\\Error.cshtml",
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Shared\\Error.cshtml",
       "TargetPath": "Views\\Shared\\Error.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Organization.cshtml",
-      "TargetPath": "Views\\Organization\\Organization.cshtml",
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\EmployeesList.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\EmployeesList.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\EmployeesFilter.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\EmployeesFilter.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountAddressCreateModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountAddressCreateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountInvoiceCreateModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountInvoiceCreateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\InboxNotification\\InboxNotifications.cshtml",
-      "TargetPath": "Views\\InboxNotification\\InboxNotifications.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountContactCreateModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountContactCreateModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountModal.cshtml",
-      "TargetPath": "Views\\Account\\Partial\\AccountModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Home\\Index.cshtml",
-      "TargetPath": "Views\\Home\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\OrganizationModal.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\OrganizationModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\DivisionsList.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\DivisionsList.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\EmployeeModal.cshtml",
-      "TargetPath": "Views\\Organization\\Partial\\EmployeeModal.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Shared\\_AuthLayout.cshtml",
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Shared\\_AuthLayout.cshtml",
       "TargetPath": "Views\\Shared\\_AuthLayout.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\HasNoPermissionsForSee.cshtml",
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Auth\\ResetPasswordSpecifyEmail.cshtml",
+      "TargetPath": "Views\\Auth\\ResetPasswordSpecifyEmail.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Responsibility\\Responsibility.cshtml",
+      "TargetPath": "Views\\Responsibility\\Responsibility.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Home\\Index.cshtml",
+      "TargetPath": "Views\\Home\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Division\\Division.cshtml",
+      "TargetPath": "Views\\Division\\Division.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AllAccountsFilter.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AllAccountsFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountAddressesManagement.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountAddressesManagement.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\_ViewImports.cshtml",
+      "TargetPath": "Views\\_ViewImports.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\NotificationsSetting\\Partial\\OrgNotificationsSettings.cshtml",
+      "TargetPath": "Views\\NotificationsSetting\\Partial\\OrgNotificationsSettings.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountTypeRadioTabs.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountTypeRadioTabs.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Auth\\Index.cshtml",
+      "TargetPath": "Views\\Auth\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountAddressCreateModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountAddressCreateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeeSubordinatesList.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeeSubordinatesList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\InboxNotification\\InboxNotifications.cshtml",
+      "TargetPath": "Views\\InboxNotification\\InboxNotifications.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeeSubordinatesFilter.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeeSubordinatesFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\_ViewStart.cshtml",
+      "TargetPath": "Views\\_ViewStart.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Account.cshtml",
+      "TargetPath": "Views\\Account\\Account.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountInvoiceUpdateModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountInvoiceUpdateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\DivisionsList.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\DivisionsList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Auth\\ConfirmEmailMessage.cshtml",
+      "TargetPath": "Views\\Auth\\ConfirmEmailMessage.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Organization.cshtml",
+      "TargetPath": "Views\\Organization\\Organization.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\ContactsList.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\ContactsList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeeContactsFilter.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeeContactsFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\DivisionModal.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\DivisionModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Organizations.cshtml",
+      "TargetPath": "Views\\Organization\\Organizations.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeeResponsibilityModal.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeeResponsibilityModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountInvoicesManagement.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountInvoicesManagement.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\HasNoPermissionsForSee.cshtml",
       "TargetPath": "Views\\Account\\Partial\\HasNoPermissionsForSee.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Auth\\ResetPassword.cshtml",
+      "TargetPath": "Views\\Auth\\ResetPassword.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountContactUpdateModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountContactUpdateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\QuotesList.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\QuotesList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\PositionsFilter.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\PositionsFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AddAccountManagerModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AddAccountManagerModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmpContactUpdateModal.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmpContactUpdateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Position\\Partial\\PositionEmployeesFilter.cshtml",
+      "TargetPath": "Views\\Position\\Partial\\PositionEmployeesFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AddressesList.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AddressesList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\NotificationsSetting\\NotificationsSettings.cshtml",
+      "TargetPath": "Views\\NotificationsSetting\\NotificationsSettings.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Position\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Position\\Partial\\HasNoPermissionsForSee.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Position\\Partial\\PositionSubPositionsFilter.cshtml",
+      "TargetPath": "Views\\Position\\Partial\\PositionSubPositionsFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeePositionsList.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeePositionsList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmpContactCreateModal.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmpContactCreateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Auth\\ResetPasswordMessage.cshtml",
+      "TargetPath": "Views\\Auth\\ResetPasswordMessage.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\CurrentAccounts.cshtml",
+      "TargetPath": "Views\\Account\\CurrentAccounts.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\DocumentsList.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\DocumentsList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeePosisionModal.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeePosisionModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Employee.cshtml",
+      "TargetPath": "Views\\Employee\\Employee.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountContactCreateModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountContactCreateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\CurrentAccountsFilter.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\CurrentAccountsFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\HasNoPermissionsForSee.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\ResponsibilitiesManagmentModal.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\ResponsibilitiesManagmentModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Accounts.cshtml",
+      "TargetPath": "Views\\Account\\Accounts.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Responsibility\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Responsibility\\Partial\\HasNoPermissionsForSee.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\ChangeLegalAddressModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\ChangeLegalAddressModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\ChangeDivisionModal.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\ChangeDivisionModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\PositionsList.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\PositionsList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\EmployeesFilter.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\EmployeesFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Auth\\EmailConfirmed.cshtml",
+      "TargetPath": "Views\\Auth\\EmailConfirmed.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\OrganizationModal.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\OrganizationModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\EmployeeModal.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\EmployeeModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountContactsManagement.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountContactsManagement.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountInvoiceCreateModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountInvoiceCreateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountAddressUpdateModal.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountAddressUpdateModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Position\\Partial\\PositionSubPositionsList.cshtml",
+      "TargetPath": "Views\\Position\\Partial\\PositionSubPositionsList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\DivisionsFilter.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\DivisionsFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\User\\User.cshtml",
+      "TargetPath": "Views\\User\\User.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\HasNoPermissionsForSee.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\InvoicesList.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\InvoicesList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Organization\\Partial\\PositionModal.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\PositionModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\Partial\\AccountTeamManagement.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\AccountTeamManagement.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Position\\Position.cshtml",
+      "TargetPath": "Views\\Position\\Position.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\NotificationsSetting\\Partial\\UserNotificationsSettings.cshtml",
+      "TargetPath": "Views\\NotificationsSetting\\Partial\\UserNotificationsSettings.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Account\\AllAccounts.cshtml",
+      "TargetPath": "Views\\Account\\AllAccounts.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+      "TargetPath": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Shared\\Partial\\Navigation.cshtml",
+      "TargetPath": "Views\\Shared\\Partial\\Navigation.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Shared\\_Layout.cshtml",
+      "TargetPath": "Views\\Shared\\_Layout.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Employee\\Partial\\EmployeeContactsList.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeeContactsList.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Position\\Partial\\ChangeDivisionModal.cshtml",
+      "TargetPath": "Views\\Position\\Partial\\ChangeDivisionModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\Views\\Position\\Partial\\PositionEmployeesList.cshtml",
+      "TargetPath": "Views\\Position\\Partial\\PositionEmployeesList.cshtml",
       "FileKind": "mvc"
     }
   ],

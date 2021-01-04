@@ -30,5 +30,19 @@ namespace GSCrm.Controllers
             inboxNotsViewModel.UserNotificationsSettingId = userNotSetting.Id.ToString();
             return View(INBOX_NOTS, inboxNotsViewModel);
         }
+
+        [HttpGet("MakeHasReed/{id}")]
+        public IActionResult MakeHasReed(string id)
+        {
+            new InboxNotificationRepository(serviceProvider, context).SetHasReedFlag(id, true);
+            return Json("");
+        }
+
+        [HttpGet("MakeHasNoReed/{id}")]
+        public IActionResult MakeHasNoReed(string id)
+        {
+            new InboxNotificationRepository(serviceProvider, context).SetHasReedFlag(id, false);
+            return Json("");
+        }
     }
 }

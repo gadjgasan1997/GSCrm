@@ -521,7 +521,7 @@ namespace GSCrm.Repository
         public bool TryChangePrimaryOrg(string newPrimaryOrgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangePrimaryOrganization);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangePrimaryOrganization);
 
             // Проверки
             CheckOrganizationExists(newPrimaryOrgId);
@@ -529,15 +529,15 @@ namespace GSCrm.Repository
             {
                 currentUser.PrimaryOrganizationId = (Guid)transaction.GetParameterValue("Organiztionid");
                 transaction.AddChange(currentUser, EntityState.Modified);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакрции и выход
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -551,7 +551,7 @@ namespace GSCrm.Repository
         public bool TryLeaveOrg(string orgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.LeaveOrganization);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.LeaveOrganization);
 
             // Вызов всех проверок
             if (TryLeaveOrgValidate(orgId))
@@ -575,16 +575,16 @@ namespace GSCrm.Repository
                 transaction.AddChange(currentEmployee, EntityState.Modified);
 
                 // Попытка коммита
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -597,7 +597,7 @@ namespace GSCrm.Repository
         public bool TryAcceptInvite(string orgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
 
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
@@ -617,16 +617,16 @@ namespace GSCrm.Repository
                 CreateOrgNotificationsSetting(transaction);
 
                 // Попытка коммита
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -637,7 +637,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void RejectInvite(string orgId)
         {
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
 
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
@@ -649,11 +649,11 @@ namespace GSCrm.Repository
                 currentEmployee.Lock(EmployeeLockReason.RejectInvite);
                 transaction.AddChange(currentEmployee, EntityState.Modified);
                 transaction.AddChange(userOrganization, EntityState.Deleted);
-                transactionFactory.TryCommit(transaction, errors);
+                viewModelsTransactionFactory.TryCommit(transaction, errors);
             }
 
             // Закрытие транзакции
-            transactionFactory.Close(transaction, TransactionStatus.Success);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Success);
         }
 
         /// <summary>

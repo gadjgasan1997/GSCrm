@@ -95,7 +95,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool SetNotSettingsToDefault(ModelStateDictionary modelState)
         {
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.InitNotSetting);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.InitNotSetting);
 
             // Инициализация настроек уведомлений значениями по умолчанию
             context.GetNotificationsSettings(currentUser).ForEach(orgNotSetting =>
@@ -105,16 +105,16 @@ namespace GSCrm.Repository
             });
 
             // Попытка сделать коммит
-            if (transactionFactory.TryCommit(transaction, errors))
+            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
             {
-                transactionFactory.Close(transaction);
+                viewModelsTransactionFactory.Close(transaction);
                 return true;
             }
 
             // Добавление ошибок при неудаче
             foreach (KeyValuePair<string, string> error in errors)
                 modelState.AddModelError(error.Key, error.Value);
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
         #endregion

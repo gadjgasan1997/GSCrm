@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\GSCrm.csproj": {}
+    "C:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\GSCrm.csproj": {}
   },
   "projects": {
-    "C:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\GSCrm.csproj": {
+    "C:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\GSCrm.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\GSCrm.csproj",
+        "projectUniqueName": "C:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\GSCrm.csproj",
         "projectName": "GSCrm",
-        "projectPath": "C:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\GSCrm.csproj",
+        "projectPath": "C:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\GSCrm.csproj",
         "packagesPath": "C:\\Users\\gadjg\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\obj\\",
+        "outputPath": "C:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\gadjg\\AppData\\Roaming\\NuGet\\NuGet.Config",

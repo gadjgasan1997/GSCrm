@@ -59,7 +59,11 @@ namespace GSCrm.Repository
         /// <summary>
         /// Сервис транзакций
         /// </summary>
-        protected readonly ITransactionFactory<TViewModel> transactionFactory;
+        protected readonly ITransactionFactory<TViewModel> viewModelsTransactionFactory;
+        /// <summary>
+        /// Сервис транзакций
+        /// </summary>
+        protected readonly ITransactionFactory<TDataModel> dataModelsTransactionFactory;
         protected ITransaction transaction;
         /// <summary>
         /// Менеджер ресурсов для доступа к переводам
@@ -90,7 +94,8 @@ namespace GSCrm.Repository
             IMapFactory mapFactory = serviceProvider.GetService(typeof(IMapFactory)) as IMapFactory;
             TFFactory = serviceProvider.GetService(typeof(ITFFactory)) as ITFFactory;
             map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
-            transactionFactory = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
+            viewModelsTransactionFactory = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
+            dataModelsTransactionFactory = TFFactory.GetTransactionFactory<TDataModel>(serviceProvider, context);
             viewsInfo = serviceProvider.GetService(typeof(IViewsInfo)) as IViewsInfo;
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
@@ -114,7 +119,7 @@ namespace GSCrm.Repository
             this.currentUser = currentUser ?? this.currentUser;
 
             // Создание и открытие транзакции
-            transaction = transactionFactory.Create(this.currentUser.Id, OperationType.Create, entityToCreate);
+            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Create, entityToCreate);
 
             // Проверка прав пользователя на совершение действия
             if (!RespsIsCorrectOnCreate(entityToCreate))
@@ -128,9 +133,9 @@ namespace GSCrm.Repository
                     TDataModel dataModel = map.OnModelCreate(entityToCreate);
                     transaction.AddChange(dataModel, EntityState.Added);
                     NewRecord = dataModel;
-                    if (transactionFactory.TryCommit(transaction, errors))
+                    if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                     {
-                        transactionFactory.Close(transaction);
+                        viewModelsTransactionFactory.Close(transaction);
                         return true;
                     }
                 }
@@ -141,7 +146,7 @@ namespace GSCrm.Repository
                 modelState.AddModelError(error.Key, error.Value);
 
             // Закрытие транзакции и выход
-            transactionFactory.Close(transaction);
+            viewModelsTransactionFactory.Close(transaction);
             return false;
         }
         /// <summary>
@@ -171,7 +176,7 @@ namespace GSCrm.Repository
             this.currentUser = currentUser ?? this.currentUser;
 
             // Создание и открытие транзакции
-            transaction = transactionFactory.Create(this.currentUser.Id, OperationType.Update, entityToUpdate);
+            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Update, entityToUpdate);
 
             // Поиск записи
             Guid entityToUpdateId = entityToUpdate.Id;
@@ -191,10 +196,10 @@ namespace GSCrm.Repository
                         // Обновление записи
                         transaction.AddChange(dataModel, EntityState.Modified);
                         ChangedRecord = dataModel;
-                        if (transactionFactory.TryCommit(transaction, errors))
+                        if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                         {
                             // Закрытие транзакции
-                            transactionFactory.Close(transaction);
+                            viewModelsTransactionFactory.Close(transaction);
                             // Получение из бд обновленной записи, преобразование ее в модель отображения
                             entityToUpdate = map.DataToViewModel(dataModel);
                             return true;
@@ -213,7 +218,7 @@ namespace GSCrm.Repository
             UpdateAddErrors(modelState);
 
             // Закрытие транзакции
-            transactionFactory.Close(transaction);
+            viewModelsTransactionFactory.Close(transaction);
             FailureUpdateHandler(entityToUpdate);
             return false;
         }
@@ -255,7 +260,7 @@ namespace GSCrm.Repository
         public bool TryDelete(string id, ModelStateDictionary modelState, User currentUser = null)
         {
             this.currentUser = currentUser ?? this.currentUser;
-            transaction = transactionFactory.Create(this.currentUser.Id, OperationType.Delete, id);
+            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Delete, id);
             if (TryParseId(id, out Guid guid))
             {
                 TDataModel entityToDelete = dbSet.FirstOrDefault(i => i.Id == guid);
@@ -271,9 +276,9 @@ namespace GSCrm.Repository
                         if (TryDeletePrepare(entityToDelete))
                         {
                             transaction.AddChange(entityToDelete, EntityState.Deleted);
-                            if (transactionFactory.TryCommit(transaction, errors))
+                            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                             {
-                                transactionFactory.Close(transaction);
+                                viewModelsTransactionFactory.Close(transaction);
                                 return true;
                             }
                         }
@@ -287,7 +292,7 @@ namespace GSCrm.Repository
                 modelState.AddModelError(error.Key, error.Value);
 
             // Закрытие транзакции
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 

@@ -221,6 +221,8 @@
         "commitOrgSettingsPath": "/CommitOrgSettings/",
         "commitUserSettingsPath": "/CommitUserSettings/",
         "setOrgNotSettingsToDefaultPath": "/SetOrgNotSettingsToDefault/",
-        "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/"
+        "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/",
+        "makeNotHasReed": "/MakeHasReed/",
+        "makeNotHasNoReed": "/MakeHasNoReed/"
     }
 }

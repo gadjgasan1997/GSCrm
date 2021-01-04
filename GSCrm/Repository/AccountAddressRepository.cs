@@ -313,7 +313,7 @@ namespace GSCrm.Repository
                 transaction.AddChange(newLegalAddress, EntityState.Modified);
                 return true;
             }
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -326,7 +326,7 @@ namespace GSCrm.Repository
         public bool TryChangeLegalAddress(AccountAddressViewModel addressViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangeAccountLegalAddress, addressViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangeAccountLegalAddress, addressViewModel);
 
             // Проверка полномочий
             if (!new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccUpdate", transaction))
@@ -347,15 +347,15 @@ namespace GSCrm.Repository
                 transaction.AddChange(newLegalAddress, EntityState.Modified);
 
                 // Попытка закоммитить
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return !errors.Any();
         }

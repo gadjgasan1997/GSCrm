@@ -26,7 +26,7 @@ namespace GSCrm.Transactions
         /// <summary>
         /// Словарь со всеми транзакциями, в качестве ключа выступает id пользователя
         /// </summary>
-        private static readonly Dictionary<string, List<ITransaction>> _authUsersTransactions = new Dictionary<string, List<ITransaction>>();
+        private static readonly Dictionary<string, List<ITransaction>> _transactions = new Dictionary<string, List<ITransaction>>();
         #endregion
 
         #region Constructs
@@ -39,7 +39,6 @@ namespace GSCrm.Transactions
             currentUser = userContextServices.HttpContext.GetCurrentUser(context);
         }
         #endregion
-
 
         public ITransaction Create(string userId, OperationType operationType, TEntity entity)
         {
@@ -78,10 +77,10 @@ namespace GSCrm.Transactions
             transaction.Name = GetTransactionName(operationType);
             transaction.OperationType = operationType;
             transaction.TransactionStatus = TransactionStatus.Success;
-            if (!_authUsersTransactions.ContainsKey(userId))
-                _authUsersTransactions.Add(userId, new List<ITransaction>() { transaction });
-            else if (_authUsersTransactions[userId].FirstOrDefault(i => i.Name == transaction.Name) == null)
-                _authUsersTransactions[userId].Add(transaction);
+            if (!_transactions.ContainsKey(userId))
+                _transactions.Add(userId, new List<ITransaction>() { transaction });
+            else if (_transactions[userId].FirstOrDefault(i => i.Name == transaction.Name) == null)
+                _transactions[userId].Add(transaction);
         }
 
         protected virtual void CreateHandler(OperationType operationType, TEntity entity) { }
@@ -113,14 +112,14 @@ namespace GSCrm.Transactions
 
         public void Close(ITransaction transaction, TransactionStatus transactionStatus = TransactionStatus.None)
         {
-            if (!_authUsersTransactions.ContainsKey(transaction.UserId)) return;
-            ITransaction transation = _authUsersTransactions[transaction.UserId].FirstOrDefault(i => i.Name == transaction.Name);
+            if (!_transactions.ContainsKey(transaction.UserId)) return;
+            ITransaction transation = _transactions[transaction.UserId].FirstOrDefault(i => i.Name == transaction.Name);
             if (transation != null)
             {
                 // В случае, если не был подан никакой статус, то транзакция закрывается с текущим
                 transactionStatus = transactionStatus == TransactionStatus.None ? transaction.TransactionStatus : transactionStatus;
                 CloseHandler(transactionStatus);
-                _authUsersTransactions.GetValueOrDefault(transaction.UserId).Remove(transation);
+                _transactions.GetValueOrDefault(transaction.UserId).Remove(transation);
                 return;
             }
         }
@@ -129,8 +128,8 @@ namespace GSCrm.Transactions
 
         public ITransaction GetTransaction(string userId, OperationType operationType)
         {
-            if (!_authUsersTransactions.ContainsKey(userId)) return null;
-            return _authUsersTransactions[userId].FirstOrDefault(n => n.Name == GetTransactionName(operationType));
+            if (!_transactions.ContainsKey(userId)) return null;
+            return _transactions[userId].FirstOrDefault(n => n.Name == GetTransactionName(operationType));
         }
 
         /// <summary>
@@ -184,6 +183,7 @@ namespace GSCrm.Transactions
                 ("OrgNotificationsSettingViewModel", OperationType.Update) => "OrgNotificationsSettingUpdate",
                 ("OrgNotificationsSettingViewModel", OperationType.InitNotSetting) => "OrgNotificationsSettingUpdate",
                 ("Notification", OperationType.SendNotification) => "SendNotification",
+                ("InboxNotification", OperationType.Update) => "UpdateInboxNotification",
                 ("UserViewModel", OperationType.Register) => "RegisterUser",
                 ("UserViewModel", OperationType.Login) => "LoginUser",
                 ("UserViewModel", OperationType.ResetPasswordSpecifyEmail) => "ResetUserPasswordSpecifyEmail",

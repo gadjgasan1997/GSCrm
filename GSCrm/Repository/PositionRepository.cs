@@ -432,7 +432,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryChangeDivision(PositionViewModel positionViewModel, out Dictionary<string, string> errors)
         {
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangePositionDivision, positionViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangePositionDivision, positionViewModel);
             if (TryChangeDivisionValidate(positionViewModel))
             {
                 Position position = context.Positions
@@ -449,14 +449,14 @@ namespace GSCrm.Repository
                 position.PrimaryEmployeeId = null;
                 position.ParentPositionId = null;
                 transaction.AddChange(position, EntityState.Modified);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     errors = this.errors;
                     return true;
                 }
             }
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }

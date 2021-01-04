@@ -506,17 +506,17 @@ namespace GSCrm.Repository
         public bool TryChangeDivision(EmployeeViewModel employeeViewModel, out Dictionary<string, string> errors)
         {
             errors = new Dictionary<string, string>();
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangeEmployeeDivision, employeeViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangeEmployeeDivision, employeeViewModel);
             if (TryChangeDivisionValidate(employeeViewModel))
             {
                 new EmployeeMap(serviceProvider, context).ChangeDivision(employeeViewModel);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -530,7 +530,7 @@ namespace GSCrm.Repository
         public bool TryUnlock(ref EmployeeViewModel employeeViewModel, out Dictionary<string, string> errors)
         {
             // Получение сотрудника из бд
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.UnlockEmployee, employeeViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockEmployee, employeeViewModel);
             Employee employee = (Employee)transaction.GetParameterValue("Employee");
 
             // В зависимости от причины, по которой был заблокирован сотрудник
@@ -545,9 +545,9 @@ namespace GSCrm.Repository
                         new EmployeeMap(serviceProvider, context).UnlockEmployeeOnUserAccountAbsent(employeeViewModel.UserAccountExists);
 
                         // Попытка сделать коммит
-                        if (transactionFactory.TryCommit(transaction, this.errors))
+                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                         {
-                            transactionFactory.Close(transaction);
+                            viewModelsTransactionFactory.Close(transaction);
                             employeeViewModel = map.DataToViewModel(employee);
                             AttachPositions(employeeViewModel);
                             AttachContacts(employeeViewModel);
@@ -569,9 +569,9 @@ namespace GSCrm.Repository
                         new EmployeeMap(serviceProvider, context).UnlockEmployeeOnPositionAbsent();
 
                         // Попытка сделать коммит
-                        if (transactionFactory.TryCommit(transaction, this.errors))
+                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                         {
-                            transactionFactory.Close(transaction);
+                            viewModelsTransactionFactory.Close(transaction);
                             employeeViewModel = map.DataToViewModel(employee);
                             AttachPositions(employeeViewModel);
                             AttachContacts(employeeViewModel);
@@ -585,7 +585,7 @@ namespace GSCrm.Repository
             // Иначе данные из бд преобразуются в данные для отображения без прикрепления контактов и должностей
             errors = this.errors;
             employeeViewModel = map.DataToViewModel(employee);
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 

@@ -282,9 +282,9 @@ namespace GSCrm.Repository
                 }
 
                 // Закрытие транзакции, если не было ошибок и коммит прошел успешно
-                if (!this.errors.Any() && transactionFactory.TryCommit(syncRespsTransaction, this.errors))
+                if (!this.errors.Any() && viewModelsTransactionFactory.TryCommit(syncRespsTransaction, this.errors))
                 {
-                    transactionFactory.Close(syncRespsTransaction);
+                    viewModelsTransactionFactory.Close(syncRespsTransaction);
                     return true;
                 }
             }

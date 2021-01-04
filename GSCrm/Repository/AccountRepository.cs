@@ -1449,7 +1449,7 @@ namespace GSCrm.Repository
         public bool TryChangePrimaryContact(AccountViewModel accountViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangeAccountPrimaryContact, accountViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangeAccountPrimaryContact, accountViewModel);
             if (TryChangePrimaryContactValidate(accountViewModel))
             {
                 // В зависимости от типа клиента
@@ -1472,16 +1472,16 @@ namespace GSCrm.Repository
                 transaction.AddChange(account, EntityState.Modified);
                 
                 // Попытка закоммитить
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Добавление ошибок, закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -1494,20 +1494,20 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryChangeSite(string accountId, out Dictionary<string, string> errors, string newSite = null)
         {
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.Update, accountId);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.Update, accountId);
             if (TryChangeSiteValidate(accountId))
             {
                 Account account = (Account)transaction.GetParameterValue("Account");
                 account.Site = newSite;
                 transaction.AddChange(account, EntityState.Modified);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     errors = this.errors;
                     return true;
                 }
             }
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -1521,7 +1521,7 @@ namespace GSCrm.Repository
         public bool TryUnlockAccount(AccountViewModel accountViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.UnlockAccount, accountViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockAccount, accountViewModel);
             Employee employee = default;
             InvokeIntermittinActions(errors, new List<Action>()
             {
@@ -1541,16 +1541,16 @@ namespace GSCrm.Repository
             if (!this.errors.Any())
             {
                 new AccountMap(serviceProvider, context).UnlockAccount(employee);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Запись ошибок, закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VukvKTgvTVs8uBjOFlRQKl9EvqiEKLBeow1rIfty01HNtEpB9U4S7O+Zm0jMstvRtw55sipHVv+cvViBqzFT2g==",
+  "dgSpecHash": "cktvhpUh6UKYkI/DpSfTL+3mPKZ6OinORsoK6m2aDrMAIclvmayLjKWZIc5Ac4rPgcs9y95K838qeOi4p2fuzw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\GSCrm.csproj",
+  "projectFilePath": "C:\\Users\\gadjg\\source\\repos\\GitHubProjects\\GSCrm\\feature\\Notifications\\GSCrm\\GSCrm.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\gadjg\\.nuget\\packages\\aspnetcore.iservicecollection.addiurlhelper\\1.1.0\\aspnetcore.iservicecollection.addiurlhelper.1.1.0.nupkg.sha512",
     "C:\\Users\\gadjg\\.nuget\\packages\\mailkit\\2.10.1\\mailkit.2.10.1.nupkg.sha512",
