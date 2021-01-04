@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using static GSCrm.CommonConsts;
 using GSCrm.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace GSCrm.Data.ApplicationInfo
 {
@@ -31,18 +32,7 @@ namespace GSCrm.Data.ApplicationInfo
             return viewsData[userId][viewName];
         }
 
-        public void Reset(string userId, string viewName, int currentPageNumber = DEFAULT_MIN_PAGE_NUMBER)
-        {
-            if (new[] { userId, viewName }.IsNullOrEmpty()) return;
-            if (!viewsData.ContainsKey(userId)) return;
-            if (!viewsData[userId].ContainsKey(viewName)) return;
-            ViewInfo viewInfo = viewsData[userId].GetValueOrDefault(viewName);
-            if (viewInfo != null)
-            {
-                viewInfo.CurrentPageNumber = currentPageNumber;
-                viewInfo.SkipItemsCount = default;
-                viewInfo.SkipSteps = default;
-            }
-        }
+        public ViewInfo Get(ApplicationDbContext context, HttpContext httpContext, string viewName)
+            => Get(httpContext.GetCurrentUser(context).Id, viewName);
     }
 }

@@ -1,10 +1,18 @@
-﻿using GSCrm.Models.ViewModels;
+﻿using GSCrm.Data;
+using GSCrm.Data.ApplicationInfo;
+using GSCrm.Mapping;
+using GSCrm.Helpers;
+using GSCrm.Localization;
+using GSCrm.Models;
+using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using GSCrm.Validators;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Utils
 {
@@ -60,24 +68,41 @@ namespace GSCrm.Utils
         }
 
         /// <summary>
-        /// Метод вызывает список обработчиков, которые проверяют данные на наличие ошибок, и, в случае обнаружения, тут же выходят
+        /// Метод вызывает список обработчиков, которые выполняют определенные действия, и, в случае обнаружения, тут же выходят
         /// </summary>
-        /// <param name="checkHandlers"></param>
-        public static void InvokeIntermittingChecks(Dictionary<string, string> errors, IEnumerable<Action> checkHandlers)
+        /// <param name="actions"></param>
+        public static void InvokeIntermittinActions(Dictionary<string, string> errors, IEnumerable<Action> actions)
         {
             if (errors.Any()) return;
-            foreach (Action checkHandler in checkHandlers)
+            foreach (Action action in actions)
             {
-                checkHandler();
+                action();
                 if (errors.Any()) break;
             }
         }
 
         /// <summary>
-        /// Метод вызывает список обработчиков, которые проверяют данные на наличие ошибок, и не прерываются при их обнаружении
+        /// Метод вызывает список обработчиков, которые выполняют определенные действия, и, в случае обнаружения, тут же выходят
+        /// Также эта перегрузка выходит при передаче флага "needStop" со значением "true"
         /// </summary>
-        /// <param name="checkHandlers"></param>
-        public static void InvokeAllChecks(IEnumerable<Action> checkHandlers)
-            => checkHandlers.ToList().ForEach(checkHandler => checkHandler());
+        /// <param name="errors"></param>
+        /// <param name="needStop"></param>
+        /// <param name="actions"></param>
+        public static void InvokeIntermittinActions(Dictionary<string, string> errors, bool needStop, IEnumerable<Action> actions)
+        {
+            if (needStop || errors.Any()) return;
+            foreach (Action action in actions)
+            {
+                action();
+                if (errors.Any()) break;
+            }
+        }
+
+        /// <summary>
+        /// Метод вызывает список обработчиков, которые выполняют определенные действия, и не прерываются при их обнаружении
+        /// </summary>
+        /// <param name="actions"></param>
+        public static void InvokeAllChecks(IEnumerable<Action> actions)
+            => actions.ToList().ForEach(checkHandler => checkHandler());
     }
 }

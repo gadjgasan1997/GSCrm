@@ -7,5 +7,6 @@ namespace GSCrm.Models
 {
     public class Task : BaseDataModel
     {
+        
     }
 }

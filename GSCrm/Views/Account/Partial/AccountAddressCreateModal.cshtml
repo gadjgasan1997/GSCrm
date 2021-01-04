@@ -15,7 +15,7 @@
                 <form method="post" asp-controller="@ACC_ADDRESS" asp-action="Create">
                     <div class="form-group mt-3">
                         <div id="createAccAddressCountry" class="autocomplete default-autocomplete" data-autocomplite-type="countries">
-                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{APP_INFO}/GetCountries/")"></a>
+                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetCountries/")"></a>
                             <input id="createAccAddressCountryVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("Country")" />
                             <ul class="autocomplete-result-list"></ul>
                         </div>

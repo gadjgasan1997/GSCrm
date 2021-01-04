@@ -8,13 +8,13 @@ namespace GSCrm.Validators
 {
     public class PersonValidator
     {
-        private readonly ResManager resManager;
+        private readonly IResManager resManager;
         private const int FIRST_NAME_MIN_LENGTH = 2;
         private const int FIRST_NAME_MAX_LENGTH = 300;
         private const int LAST_NAME_MIN_LENGTH = 2;
         private const int LAST_NAME_MAX_LENGTH = 300;
         private const int MID_NAME_MAX_LENGTH = 300;
-        public PersonValidator(ResManager resManager)
+        public PersonValidator(IResManager resManager)
         {
             this.resManager = resManager;
         }
@@ -43,7 +43,7 @@ namespace GSCrm.Validators
         /// <param name="errors"></param>
         public void CheckPersonPhoneNumber(string phoneNumber, ref Dictionary<string, string> errors)
         {
-            if (string.IsNullOrEmpty(phoneNumber) || Regex.IsMatch(phoneNumber, @"[^0-9()-]+$"))
+            if (!string.IsNullOrEmpty(phoneNumber) && Regex.IsMatch(phoneNumber, @"[^0-9()-]+$"))
                 errors.Add("WrongPhoneFormat", resManager.GetString("WrongPhoneFormat"));
         }
 
@@ -52,11 +52,9 @@ namespace GSCrm.Validators
         /// </summary>
         /// <param name="email"></param>
         /// <param name="errors"></param>
-        public void CheckPersonEmail(string email, ref Dictionary<string, string> errors)
+        public void CheckPersonEmail(string email, Dictionary<string, string> errors)
         {
-            if (string.IsNullOrEmpty(email))
-                errors.Add("WrongEmailFormat", resManager.GetString("WrongEmailFormat"));
-            else
+            if (!string.IsNullOrEmpty(email))
             {
                 try
                 {

@@ -1,4 +1,22 @@
-﻿#divisionModal .modal-body .form-group div {
+﻿@media (min-width: 576px) {
+    .modal-dialog.modal-xxl {
+        max-width: 100%
+    }
+}
+
+@media (min-width: 576px) {
+    .modal-dialog.modal-xxl {
+        max-width: 90%
+    }
+}
+
+@media (min-width: 1200px) {
+    .modal-dialog.modal-xxl {
+        max-width: 75%
+    }
+}
+
+#divisionModal .modal-body .form-group div {
     margin-bottom: 20px
 }
 
@@ -12,9 +30,56 @@
 }
 
 #accountModal {
-    .tabs-content {
-        #IEOption, #LEOption {
-            display: none
+    #accountModalMainHeader {
+        height: 60px;
+
+        > div {
+            height: 100%;
+
+            > p {
+                height: 60px;
+                margin: 0
+            }
+        }
+    }
+
+    #accountModalMainBody {
+        #mainInfoHeader,
+        #chooseNewAccOrgHeader {
+            > p {
+                margin: 0;
+            }
+        }
+
+        .tabs-content {
+            #IEOption, #LEOption {
+                display: none
+            }
+        }
+
+        #appointMeBody {
+            .oval-mark {
+                margin-top: 3px
+            }
+        }
+
+        #userOrgsChoiseList {
+            max-height: 500px;
+            overflow-y: auto;
+
+            .list-group-item {
+                user-select: none;
+                position: relative;
+                z-index: 0;
+            }
+
+            .list-group-item[class*="active"] {
+                cursor: auto
+            }
+
+            .list-group-item:not([class*="active"]) {
+                cursor: pointer
+            }
         }
     }
 
@@ -29,8 +94,16 @@
 
 #accTeamManagementModal {
     #teamAllEmployees {
-        #allEmployeesList {
+        #teamAllEmployeesHeader {
             width: 100%
+        }
+
+        .card-body {
+            width: 100%
+        }
+
+        #allEmployeesList {
+            width: 100%;
         }
 
         #allEmployeesNav {
@@ -153,6 +226,14 @@
     #respsBlock {
         position: relative;
         background-color: white;
+
+        #responsibilitiesList {
+            .list-group-item {
+                user-select: none;
+                overflow-x: hidden;
+                text-overflow: ellipsis;
+            }
+        }
     }
 
     #newRespBlock {
@@ -171,6 +252,53 @@
             .col-md-auto {
                 display: inline-flex;
                 cursor: pointer
+            }
+        }
+    }
+}
+
+#notSettingOptionsModal {
+    background: #FFFFFF;
+    box-shadow: 0px 0px 2px rgba(149, 155, 161, 0.6), 0px 8px 14px rgba(149, 155, 161, 0.3);
+    border-radius: 4px;
+    width: 180px;
+    position: absolute;
+    padding: 5px;
+    z-index: 1000;
+
+    > p {
+        text-align: center;
+        user-select: none;
+        margin-bottom: 5px;
+    }
+
+    > .row {
+        width: 100%;
+        margin: 0;
+
+        .col {
+            min-width: 100%;
+            padding-left: 7px;
+            height: 30px;
+
+            input {
+                cursor: pointer;
+                position: relative
+            }
+
+            input::after {
+                position: absolute;
+                content: '';
+                background-color: transparent;
+                height: 30px;
+                width: 160px;
+                top: -7px;
+            }
+
+            label {
+                margin-left: 5px;
+                user-select: none;
+                line-height: 30px;
             }
         }
     }

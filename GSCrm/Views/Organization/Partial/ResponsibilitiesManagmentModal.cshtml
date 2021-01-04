@@ -1,6 +1,15 @@
-﻿@inject ResManager resManager
+﻿@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
 @model OrganizationViewModel
 @using static GSCrm.CommonConsts
+@{
+    int responsibilitiesCount = Model.Responsibilities.Count();
+    string currentUserId = User.GetUserModel(context).Id;
+}
 
 <div id="responsibilitiesManagmentModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -13,28 +22,26 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div id="newRespBlock">
+            <form id="newRespBlock" asp-controller="@RESPONSIBILITY" asp-action="Create">
                 <div class="row">
                     <div class="col">
-                        <input class="form-control" placeholder="@resManager.GetString("NewRespName")" />
+                        <input id="responsibilityName" class="form-control" placeholder="@resManager.GetString("NewRespName")" />
+                        <ul id="responsibilityNameError" data-connect-el="responsibilityName" class="d-none under-field-error label-sm mt-2"></ul>
                     </div>
                     <div class="col-md-auto p-md-0">
-                        <div id="newRespBlockOpen" class="col text-center mt-3 mt-md-2 pl-3">
+                        <div id="newRespBlockSave" class="col text-center mt-3 mt-md-2 pl-3">
                             <span class="icon-checkmark"></span>
                         </div>
-                        <div id="newRespBlockClose" class="col text-center mt-3 mt-md-2 pl-4">
+                        <div id="newRespBlockCancel" class="col text-center mt-3 mt-md-2 pl-4">
                             <span class="icon-close"></span>
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-2">
-                    <button class="btn btn-link">@resManager.GetString("ConfigureResponsibility")</button>
-                </div>
-            </div>
+            </form>
             <div id="respsBlock">
                 <div id="respsBlockMask"></div>
                 <div class="modal-body">
-                    <form asp-controller="@ORGANIZATION" asp-action="SearchResponsibility">
+                    <form id="searchRespBlock" asp-controller="@ORGANIZATION" asp-action="SearchResponsibility">
                         <div class="mb-3">
                             <input asp-for="SeacrhResponsibilityName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
                         </div>
@@ -48,11 +55,39 @@
                         </div>
                     </form>
                     <ul id="responsibilitiesList" class="mt-1 list-group">
-                        @*@foreach (ResponsibilityViewModel responsibility in Model.Responsibilities)
+                        @foreach (ResponsibilityViewModel responsibility in Model.Responsibilities)
                         {
-                            <li class="list-group-item">@responsibility.Name</li>
-                        }*@
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col">
+                                        @Html.ActionLink(responsibility.Name, RESPONSIBILITY, RESPONSIBILITY, new { id = responsibility.Id })
+                                    </div>
+                                    <div class="col-auto remove-item-btn">
+                                        <div class="remove-item-url" hidden="hidden">
+                                            @Html.ActionLink(responsibility.Name, "Delete", RESPONSIBILITY, new { id = responsibility.Id })
+                                        </div>
+                                        <span class="icon-bin"></span>
+                                    </div>
+                                </div>
+                            </li>
+                        }
                     </ul>
+                    <div class="list-nav row no-gutters justify-content-center mt-3">
+                        <div class="col">
+                            <div class="nav-previous">
+                                <div class="nav-url" data-href="@Url.Action("PreviousResponsibilities", RESPONSIBILITY)">
+                                    <span class="icon-chevron-thin-left"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="nav-next">
+                                <div class="nav-url" data-href="@Url.Action("NextResponsibilities", RESPONSIBILITY)">
+                                    <span class="icon-chevron-thin-right"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

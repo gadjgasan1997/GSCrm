@@ -1,0 +1,506 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model ResponsibilityViewModel
+@{
+    string currentUserId = User.GetUserModel(context).Id;
+    ViewInfo orgView = viewsInfo.Get(currentUserId, ORGANIZATIONS);
+}
+
+@* // Хлебные крошки *@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb one-line-crumbs">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+                @resManager.GetString(ORGANIZATIONS)
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@ORGANIZATION" asp-action="BackToOrganization" asp-route-orgId="@Model.OrganizationId">
+                @resManager.GetString(ORGANIZATION): @Model.OrganizationName
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(RESPONSIBILITY): @Model.Name</li>
+    </ol>
+</nav>
+
+<div id="responsibilityHeader" class="input-group text-center mt-3">
+    <div class="row">
+        <div class="col-sm text-center text-sm-right">
+            <h3 id="orgName" class="m-0">@Model.Name</h3>
+        </div>
+        <div class="col-sm input-group-append change-url-btn">
+            <div id="changeRespNameBtn" class="input-group-text ml-auto ml-sm-0 mr-auto mt-2 mt-sm-0">
+                <span class="icon-pencil"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<form id="responsibilityForm" class="mt-4 ml-3" asp-controller="@RESPONSIBILITY" asp-action="Update">
+    <input id="respId" asp-for="Id" hidden="hidden" />
+    <input id="orgId" asp-for="OrganizationId" hidden="hidden" />
+    <div class="mt-2">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("Organization")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="OrgDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("OrgDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.OrgDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("Division")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="DivCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("DivCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.DivCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="DivDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("DivDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.DivDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("Position")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="PosCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("PosCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.PosCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="PosDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("PosDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.PosDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="PosUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("PosUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.PosUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="PosChangeDivRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("PosChangeDiv")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.PosChangeDiv ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("Employee")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpChangeDivRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpChangeDiv")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpChangeDiv ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpPossManagementRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpPossManagement")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpPossManagement ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpRespsManagementRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpRespsManagement")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpRespsManagement ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpContactCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpContactCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpContactCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpContactUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpContactUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpContactUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpContactDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpContactDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpContactDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("Responsibility")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="RespCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("RespCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.RespCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="RespUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("RespUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.RespUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="RespDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("RespDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.RespDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("Account")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccChangeTypeRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccChangeType")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccChangeType ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccUnlockRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccUnlock")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccUnlock ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccTeamManagementRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccTeamManagement")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccTeamManagement ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("AccountContatcs")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccContactCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccContactCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccContactCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccContactUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccContactUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccContactUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccContactDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccContactDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccContactDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("AccountAddresses")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccAddressCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccAddressCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccAddressCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccAddressUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccAddressUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccAddressUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccAddressDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccAddressDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccAddressDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="row resp-setting-group">
+            <div class="col-md">
+                <h3 class="label-bold-lg">@resManager.GetString("AccountInvoices")</h3>
+            </div>
+            <div class="col-auto">
+                <div class="switch switch-disable">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccInvoiceCreateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccInvoiceCreate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccInvoiceCreate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccInvoiceUpdateRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccInvoiceUpdate")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccInvoiceUpdate ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="AccInvoiceDeleteRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("AccInvoiceDelete")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.AccInvoiceDelete ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="responsibilityActions" class="row justify-content-around mt-3">
+        <div class="col text-center">
+            <button id="updateResp" disabled="disabled" type="submit" class="btn btn-outline-dark">@resManager.GetString("CommitChanges")</button>
+        </div>
+        <div class="col text-center">
+            <button id="cancelUpdateResp" disabled="disabled" class="btn btn-outline-danger">@resManager.GetString("CancelLabel")</button>
+        </div>
+    </div>
+</form>

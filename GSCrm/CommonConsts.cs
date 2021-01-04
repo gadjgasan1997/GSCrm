@@ -6,26 +6,31 @@
         public const string APP_INFO = "AppInfo";
         public const string ORG_VIEWS_REL_PATH = "~/Views/" + ORGANIZATION + "/";
         public const string AUTH_VIEWS_REL_PATH = "~/Views/" + AUTH + "/";
+        public const string DIV_VIEWS_REL_PATH = "~/Views/" + DIVISION + "/";
         public const string EMP_VIEWS_REL_PATH = "~/Views/" + EMPLOYEE + "/";
         public const string POS_VIEWS_REL_PATH = "~/Views/" + POSITION + "/";
+        public const string RESP_VIEWS_REL_PATH = "~/Views/" + RESPONSIBILITY + "/";
         public const string ACC_VIEWS_REL_PATH = "~/Views/" + ACCOUNT + "/";
         public const string QT_VIEWS_REL_PATH = "~/Views/" + QUOTE + "/";
+        public const string NOT_VIEWS_REL_PATH = "~/Views/" + NOTIFICATION + "/";
+        public const string NOT_SETTING_VIEWS_REL_PATH = "~/Views/" + NOT_SETTING + "/";
         public const string AUTH = "Auth";
         public const string USER = "User";
 
         // Организация
         public const string ORGANIZATION = "Organization";
         public const string ORGANIZATIONS = "Organizations";
-        public const string RESPONSIBILITY = "Responsibility";
-        public const string RESPONSIBILITIES = "Responsibilities";
         public const string DIVISION = "Division";
         public const string DIVISIONS = "Divisions";
         public const string POSITION = "Position";
         public const string POSITIONS = "Positions";
-
-        // Сотрудник
         public const string EMPLOYEE = "Employee";
         public const string EMPLOYEES = "Employees";
+        public const string RESPONSIBILITY = "Responsibility";
+        public const string RESPONSIBILITIES = "Responsibilities";
+        public const string OWNER = "Owner";
+
+        // Сотрудник
         public const string EMP_POSITION = "EmployeePosition";
         public const string EMP_POSITIONS = "EmployeePositions";
         public const string CONTACT = "Contact";
@@ -38,6 +43,10 @@
         public const string SUBORDINATES = "Subordinates";
         public const string EMP_SUB = "EmployeeSubordinate";
         public const string EMP_SUBS = "EmployeeSubordinates";
+        public const string EMP_RESPONSIBILITY = "EmployeeResponsibility";
+        public const string EMP_RESPONSIBILITIES = "EmployeeResponsibilities";
+        public const string ALL_EMP_RESPS = "AllEmployeeResponsibility";
+        public const string SELECTED_EMP_RESPS = "SelectedEmployeeResponsibilities";
 
         // Должность
         public const string POS_EMPLOYEE = "PositionEmployee";
@@ -76,11 +85,22 @@
         public const string ALL_QUOTES = "AllQuotes";
         public const string CURRENT_QUOTES = "CurrentQuotes";
 
+        // Уведомление
+        public const string INBOX_NOT = "InboxNotification";
+        public const string INBOX_NOTS = "InboxNotifications";
+        public const string NOTIFICATION = "Notification";
+        public const string NOTIFICATIONS = "Notifications";
+        public const string NOT_SETTING = "NotificationsSetting";
+        public const string NOT_SETTINGS = "NotificationsSettings";
+        public const string USER_NOT_SETTING = "UserNotificationsSetting";
+        public const string USER_NOT_SETTINGS = "UsersNotificationsSettings";
+
         // Прочие
         public const string REGION_KEY = "Region";
         public const string CITY_KEY = "City";
         public const string STREET_KEY = "Street";
         public const string HOUSE_KEY = "House";
+        public const string PC = "PermissionsCheck";
 
         // Числовые
         public const int DEFAULT_ITEMS_COUNT = 10;

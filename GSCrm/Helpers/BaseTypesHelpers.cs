@@ -1,6 +1,9 @@
-﻿using GSCrm.DataTransformers;
+﻿using GSCrm.Data;
+using GSCrm.Mapping;
 using GSCrm.Models;
+using GSCrm.Transactions;
 using GSCrm.Models.ViewModels;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,43 +63,41 @@ namespace GSCrm.Helpers
         /// </summary>
         /// <typeparam name="TViewModel">Тип списка моделей уровня представления</typeparam>
         /// <typeparam name="TDataModel">Тип списка моделей уровня данных</typeparam>
-        /// <typeparam name="TTransformer">Тип преобразователя между уровнем данных и уровнем уотображения</typeparam>
+        /// <typeparam name="TMap">Тип преобразователя между уровнем данных и уровнем уотображения</typeparam>
         /// <param name="dataModels">Список моделей уровня данных</param>
         /// <param name="limitingFunc">Действие, ограничивающее коллекцию уровня данных перед ее преобразованием в коллекцию уровня отображения</param>
         /// <returns name="viewModels">Список моделей уровня отображения</returns>
-        public static List<TViewModel> TransformToViewModels<TDataModel, TViewModel, TTransformer>(
+        public static List<TViewModel> MapToViewModels<TDataModel, TViewModel>(
             this List<TDataModel> dataModels,
-            TTransformer transformer,
+            IMap<TDataModel, TViewModel> map,
             Func<List<TDataModel>, List<TDataModel>> limitingFunc)
                 where TViewModel : BaseViewModel, new()
                 where TDataModel : BaseDataModel, new()
-                where TTransformer : BaseTransformer<TDataModel, TViewModel>
         {
             List<TViewModel> viewModels = new List<TViewModel>();
             if (dataModels?.Count > 0)
             {
                 limitingFunc(dataModels).ForEach(dataModel =>
                 {
-                    viewModels.Add(transformer.DataToViewModel(dataModel));
+                    viewModels.Add(map.DataToViewModel(dataModel));
                 });
             }
             return viewModels;
         }
 
-        public static List<TViewModel> TransformToViewModels<TDataModel, TViewModel, TTransformer>(
+        public static List<TViewModel> MapToViewModels<TDataModel, TViewModel>(
             this List<TDataModel> dataModels,
-            TTransformer transformer,
+            IMap<TDataModel, TViewModel> map,
             Func<TDataModel, bool> limitingFunc)
                 where TViewModel : BaseViewModel, new()
                 where TDataModel : BaseDataModel, new()
-                where TTransformer : BaseTransformer<TDataModel, TViewModel>
         {
             List<TViewModel> viewModels = new List<TViewModel>();
             if (dataModels?.Count > 0)
             {
                 dataModels.Where(limitingFunc).ToList().ForEach(dataModel =>
                 {
-                    viewModels.Add(transformer.DataToViewModel(dataModel));
+                    viewModels.Add(map.DataToViewModel(dataModel));
                 });
             }
             return viewModels;
@@ -107,24 +108,32 @@ namespace GSCrm.Helpers
         /// </summary>
         /// <typeparam name="TDataModel"></typeparam>
         /// <typeparam name="TViewModel"></typeparam>
-        /// <typeparam name="TTransformer"></typeparam>
+        /// <typeparam name="TMap"></typeparam>
         /// <param name="dataModels"></param>
-        /// <param name="transformer"></param>
+        /// <param name="map"></param>
         /// <returns></returns>
-        public static List<TViewModel> GetViewModelsFromData<TDataModel, TViewModel, TTransformer>(this List<TDataModel> dataModels, TTransformer transformer)
+        public static List<TViewModel> GetViewModelsFromData<TDataModel, TViewModel>(this List<TDataModel> dataModels, IMap<TDataModel, TViewModel> map)
                 where TViewModel : BaseViewModel, new()
                 where TDataModel : BaseDataModel, new()
-                where TTransformer : BaseTransformer<TDataModel, TViewModel>
         {
             List<TViewModel> viewModels = new List<TViewModel>();
             if (dataModels?.Count > 0)
             {
                 dataModels.ForEach(dataModel =>
                 {
-                    viewModels.Add(transformer.DataToViewModel(dataModel));
+                    viewModels.Add(map.DataToViewModel(dataModel));
                 });
             }
             return viewModels;
         }
+
+        /// <summary>
+        /// Метод добавляет к массиву набор параметров
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array">Исходный массив</param>
+        /// <param name="parameters">Добавляемые параметры</param>
+        /// <returns></returns>
+        public static T[] With<T>(this T[] array, params T[] parameters) => array.Concat(parameters.ToList()).ToArray();
     }
 }

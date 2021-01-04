@@ -14467,6 +14467,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Organization\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Organization\\Partial\\HasNoPermissionsForSee.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\CurrentAccounts.cshtml",
       "TargetPath": "Views\\Account\\CurrentAccounts.cshtml",
       "FileKind": "mvc"
@@ -14504,6 +14509,11 @@
     {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
       "TargetPath": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Position\\Partial\\HasNoPermissionsForSee.cshtml",
       "FileKind": "mvc"
     },
     {
@@ -14557,6 +14567,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeeResponsibilityModal.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\EmployeeResponsibilityModal.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AddAccountManagerModal.cshtml",
       "TargetPath": "Views\\Account\\Partial\\AddAccountManagerModal.cshtml",
       "FileKind": "mvc"
@@ -14592,6 +14607,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\NotificationsSetting\\Partial\\UserNotificationsSettings.cshtml",
+      "TargetPath": "Views\\NotificationsSetting\\Partial\\UserNotificationsSettings.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountInvoiceUpdateModal.cshtml",
       "TargetPath": "Views\\Account\\Partial\\AccountInvoiceUpdateModal.cshtml",
       "FileKind": "mvc"
@@ -14612,6 +14632,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\NotificationsSetting\\NotificationsSettings.cshtml",
+      "TargetPath": "Views\\NotificationsSetting\\NotificationsSettings.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\ChangeDivisionModal.cshtml",
       "TargetPath": "Views\\Position\\Partial\\ChangeDivisionModal.cshtml",
       "FileKind": "mvc"
@@ -14619,6 +14644,16 @@
     {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Accounts.cshtml",
       "TargetPath": "Views\\Account\\Accounts.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\NotificationsSetting\\Partial\\OrgNotificationsSettings.cshtml",
+      "TargetPath": "Views\\NotificationsSetting\\Partial\\OrgNotificationsSettings.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Responsibility\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Responsibility\\Partial\\HasNoPermissionsForSee.cshtml",
       "FileKind": "mvc"
     },
     {
@@ -14657,6 +14692,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Responsibility\\Responsibility.cshtml",
+      "TargetPath": "Views\\Responsibility\\Responsibility.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\EmployeePositionsList.cshtml",
       "TargetPath": "Views\\Employee\\Partial\\EmployeePositionsList.cshtml",
       "FileKind": "mvc"
@@ -14679,6 +14719,11 @@
     {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Position\\Partial\\PositionSubPositionsFilter.cshtml",
       "TargetPath": "Views\\Position\\Partial\\PositionSubPositionsFilter.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Employee\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Employee\\Partial\\HasNoPermissionsForSee.cshtml",
       "FileKind": "mvc"
     },
     {
@@ -14717,6 +14762,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\InboxNotification\\InboxNotifications.cshtml",
+      "TargetPath": "Views\\InboxNotification\\InboxNotifications.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\AccountContactCreateModal.cshtml",
       "TargetPath": "Views\\Account\\Partial\\AccountContactCreateModal.cshtml",
       "FileKind": "mvc"
@@ -14749,6 +14799,11 @@
     {
       "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Shared\\_AuthLayout.cshtml",
       "TargetPath": "Views\\Shared\\_AuthLayout.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\gadjg\\source\\repos\\GSCrm\\GSCrm\\Views\\Account\\Partial\\HasNoPermissionsForSee.cshtml",
+      "TargetPath": "Views\\Account\\Partial\\HasNoPermissionsForSee.cshtml",
       "FileKind": "mvc"
     }
   ],

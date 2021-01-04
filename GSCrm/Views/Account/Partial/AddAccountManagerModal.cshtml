@@ -12,11 +12,11 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="post" asp-controller="@ACCOUNT" asp-action="AddAccountManager">
+                <form method="post" asp-controller="@ACCOUNT" asp-action="UnlockAccount">
                     <div class="mt-3">
                         <input id="accManagerId" hidden="hidden" />
                         <div id="accManager" class="autocomplete default-autocomplete" data-autocomplite-type="Accounts" data-autocomplite-name="AccountManager">
-                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{ORGANIZATION}/GetEmployees/{Model.OrganizationId}/")"></a>
+                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetOrgEmployeesByInitials/{Model.OrganizationId}/")"></a>
                             <input id="accManagerVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("AccountManager")" />
                             <ul class="autocomplete-result-list"></ul>
                         </div>

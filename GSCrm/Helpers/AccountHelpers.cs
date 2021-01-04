@@ -1,6 +1,7 @@
 ﻿using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,52 +9,38 @@ namespace GSCrm.Helpers
 {
     public static class AccountHelpers
     {
-        /// <summary>
-        /// Метод возвращает список всех контактов клиента
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        #region Contacts
         public static List<AccountContact> GetContacts(this AccountViewModel accountViewModel, ApplicationDbContext context)
-            => context.AccountContacts.Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+            => context.AccountContacts.AsNoTracking().Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+        public static List<AccountContact> GetContacts(this Account account, ApplicationDbContext context)
+            => context.AccountContacts.AsNoTracking().Where(acId => acId.AccountId == account.Id).ToList();
+        #endregion
 
-        /// <summary>
-        /// Методы возвращают список всех адресов клиента
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        #region Addresses
         public static List<AccountAddress> GetAddresses(this AccountViewModel accountViewModel, ApplicationDbContext context)
-            => context.AccountAddresses.Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+            => context.AccountAddresses.AsNoTracking().Where(acId => acId.AccountId == accountViewModel.Id).ToList();
         public static List<AccountAddress> GetAddresses(this Account account, ApplicationDbContext context)
-            => context.AccountAddresses.Where(acId => acId.AccountId == account.Id).ToList();
+            => context.AccountAddresses.AsNoTracking().Where(acId => acId.AccountId == account.Id).ToList();
+        #endregion
 
-        /// <summary>
-        /// Метод возвращает список всех банковских реквизитов клиента
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        #region Invoices
         public static List<AccountInvoice> GetInvoices(this AccountViewModel accountViewModel, ApplicationDbContext context)
-            => context.AccountInvoices.Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+            => context.AccountInvoices.AsNoTracking().Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+        public static List<AccountInvoice> GetInvoices(this Account account, ApplicationDbContext context)
+            => context.AccountInvoices.AsNoTracking().Where(acId => acId.AccountId == account.Id).ToList();
+        #endregion
 
-        /// <summary>
-        /// Метод возвращает список всех сделок клиента
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        #region Quotes
         public static List<AccountQuote> GetQuotes(this AccountViewModel accountViewModel, ApplicationDbContext context)
-            => context.AccountQuotes.Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+            => context.AccountQuotes.AsNoTracking().Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+        #endregion
 
-        /// <summary>
-        /// Метод возвращает список всех менеджеров клиента
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        #region Managers
         public static List<AccountManager> GetManagers(this AccountViewModel accountViewModel, ApplicationDbContext context)
-            => context.AccountManagers.Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+            => context.AccountManagers.AsNoTracking().Where(acId => acId.AccountId == accountViewModel.Id).ToList();
+        public static List<AccountManager> GetManagers(this Account account, ApplicationDbContext context)
+            => context.AccountManagers.AsNoTracking().Where(acId => acId.AccountId == account.Id).ToList();
+        #endregion
 
         /// <summary>
         /// Метод возвращает полное имя физического лица

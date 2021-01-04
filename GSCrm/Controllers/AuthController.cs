@@ -1,34 +1,32 @@
 ﻿using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Services;
-using GSCrm.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
+using GSCrm.Repository;
 using static GSCrm.CommonConsts;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
+using GSCrm.Data;
 
 namespace GSCrm.Controllers
 {
     //[Route(AUTH)]
     public class AuthController : Controller
     {
-        private readonly IConfiguration configuration;
+        private readonly IServiceProvider serviceProvider;
+        private readonly ApplicationDbContext context;
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
-        private readonly ResManager resManager;
-        public AuthController(IConfiguration configuration, UserManager<User> userManager, SignInManager<User> signInManager, ResManager resManager)
+        public AuthController(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
-            this.configuration = configuration;
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.resManager = resManager;
+            this.serviceProvider = serviceProvider;
+            this.context = context;
+            userManager = serviceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
+            signInManager = serviceProvider.GetService(typeof(SignInManager<User>)) as SignInManager<User>;
         }
 
         /// <summary>
@@ -48,35 +46,13 @@ namespace GSCrm.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Signup(UserModel model)
+        public async Task<IActionResult> Signup(UserViewModel model)
         {
-            AuthValidatior authValidation = new AuthValidatior(userManager, resManager);
-            Dictionary<string, string> errors = authValidation.RegistrationCheck(model);
-            if (!errors.Any())
-            {
-                User user = new User()
-                {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    EmailConfirmed = false
-                };
-                IdentityResult identityResult = await userManager.CreateAsync(user, model.Password);
-                if (identityResult.Succeeded)
-                {
-                    string token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                    string confirmEmailUrl = Url.Action("ConfirmEmail", AUTH, new { userId = user.Id, token }, protocol: HttpContext.Request.Scheme);
-                    EmailSender emailSender = new EmailSender(configuration, resManager);
-                    await emailSender.SendRegisterConfirmationEmail(model, confirmEmailUrl);
-                    return Json(Url.Action("ConfirmEmailMessage", AUTH));
-                }
-                else
-                {
-                    foreach (IdentityError error in identityResult.Errors)
-                        ModelState.AddModelError(error.Code, error.Description);
-                }
-            }
-            errors.ToList().ForEach(error => ModelState.AddModelError(error.Key, error.Value));
-            return BadRequest(ModelState);
+            ModelStateDictionary modelState = ModelState;
+            AuthRepository authRepository = new AuthRepository(serviceProvider, context);
+            if (await authRepository.TrySignup(model, Url, modelState))
+                return Json(Url.Action("ConfirmEmailMessage", AUTH));
+            else return BadRequest(ModelState);
         }
 
         /// <summary>
@@ -123,27 +99,13 @@ namespace GSCrm.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Login(UserModel model)
+        public async Task<IActionResult> Login(UserViewModel model)
         {
-            AuthValidatior authValidation = new AuthValidatior(userManager, resManager);
-            Dictionary<string, string> errors = authValidation.LoginCheck(model);
-            if (!errors.Any())
-            {
-                User user = await userManager.FindByNameAsync(model.UserName);
-                if (user != null)
-                {
-                    if (user.EmailConfirmed)
-                    {
-                        await signInManager.SignOutAsync();
-                        SignInResult signInResult = await signInManager.PasswordSignInAsync(user, model.Password, true, true);
-                        if (signInResult.Succeeded)
-                            return Json(Url.Action("Index", "Home"));
-                    }
-                    else ModelState.AddModelError("ConfirmYourEmail", resManager.GetString("ConfirmYourEmail"));
-                }
-            }
-            errors.ToList().ForEach(error => ModelState.AddModelError(error.Key, error.Value));
-            return BadRequest(ModelState);
+            ModelStateDictionary modelState = ModelState;
+            AuthRepository authRepository = new AuthRepository(serviceProvider, context);
+            if (await authRepository.TryLogin(model, modelState))
+                return Json(Url.Action("Index", "Home"));
+            else return BadRequest(ModelState);
         }
 
         /// <summary>
@@ -166,23 +128,13 @@ namespace GSCrm.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> ResetPasswordSendEmail(UserModel model)
+        public async Task<IActionResult> ResetPasswordSendEmail(UserViewModel model)
         {
-            AuthValidatior authValidation = new AuthValidatior(userManager, resManager);
-            Dictionary<string, string> errors = authValidation.SpecifyEmailCheck(model);
-            if (!errors.Any())
-            {
-                User user = await userManager.FindByEmailAsync(model.Email);
-                if (user != null)
-                {
-                    EmailSender emailSender = new EmailSender(configuration, resManager);
-                    string resetPasswordUrl = Url.Action("ResetPassword", AUTH, new { }, HttpContext.Request.Scheme);
-                    await emailSender.SendResetPasswordEmail(model, resetPasswordUrl);
-                    return RedirectToAction("ResetPasswordMessage", AUTH);
-                }
-            }
-            errors.ToList().ForEach(error => ModelState.AddModelError(error.Key, error.Value));
-            return View("ResetPasswordSpecifyEmail", ModelState);
+            ModelStateDictionary modelState = ModelState;
+            AuthRepository authRepository = new AuthRepository(serviceProvider, context);
+            if (await authRepository.TrySendResetPasswordEmail(model, Url, modelState))
+                return View("ResetPasswordMessage", model);
+            else return View("ResetPasswordSpecifyEmail", model);
         }
 
         /// <summary>
@@ -198,21 +150,13 @@ namespace GSCrm.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> ResetPassword(UserModel model)
+        public async Task<IActionResult> ResetPassword(UserViewModel model)
         {
-            AuthValidatior authValidation = new AuthValidatior(userManager, resManager);
-            Dictionary<string, string> errors = authValidation.ResetPasswordCheck(model);
-            if (!errors.Any())
-            {
-                User user = await userManager.FindByNameAsync(model.UserName);
-                if (user != null)
-                {
-                    await userManager.ChangePasswordAsync(user, model.OldPassword, model.Password);
-                    return RedirectToAction("ResetPasswordSuccess");
-                }
-            }
-            errors.ToList().ForEach(error => ModelState.AddModelError(error.Key, error.Value));
-            return View("ResetPassword", ModelState);
+            ModelStateDictionary modelState = ModelState;
+            AuthRepository authRepository = new AuthRepository(serviceProvider, context);
+            if (await authRepository.TryResetPassword(model, modelState))
+                return View("ResetPasswordSuccess", model);
+            else return View("ResetPassword", model);
         }
 
         /// <summary>

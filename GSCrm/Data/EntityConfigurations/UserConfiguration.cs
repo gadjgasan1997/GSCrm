@@ -15,6 +15,12 @@ namespace GSCrm.Data.EntityConfigurations
                 .HasForeignKey(uId => uId.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder
+                .HasMany(userNot => userNot.UserNotifications)
+                .WithOne(u => u.User)
+                .HasForeignKey(uId => uId.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Преобразование перечисления
             modelBuilder.Property(lang
                 => lang.DefaultLanguage).HasConversion(

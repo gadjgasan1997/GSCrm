@@ -10,7 +10,8 @@
 @{
     int currentAccountsCount = Model.CurrentAccounts.Count();
     bool showES = currentAccountsCount == 0 && new[] { Model.CurrentAccountsSearchName, Model.CurrentAccountsSearchType }.AllIsNullOrEmpty();
-    string currentUserId = User.GetUserModel(context).Id;
+    User currentUser = User.GetUserModel(context);
+    string currentUserId = currentUser.Id;
 }
 <div class="tab-pane fade show" id="currentAccounts" role="tabpanel" aria-labelledby="currentAccountsTab">
     @if (!showES)
@@ -19,7 +20,7 @@
         await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/CurrentAccountsFilter.cshtml");
     }
     <form id="currentAccounts" class="table-wrapper">
-        <table class="fl-table @(!showES ? "" : "empty-table")">
+        <table class="fl-table @(showES ? "empty-table" : string.Empty)">
             <thead>
                 @if (!showES)
                 {
@@ -28,16 +29,17 @@
                         <th>@resManager.GetString("AccountType")</th>
                     </tr>
                 }
-                else { <tr><th></th><th></th></tr> }
+                else
+                {
+                    <tr><th></th><th></th></tr>
+                }
             </thead>
             <tbody>
                 @if (showES)
                 {
                     <tr>
                         <td><img src="~/img/default-empty.svg" /></td>
-                        <td>
-                            <input type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#accountModal" value="@resManager.GetString("ESAccount")">
-                        </td>
+                        <td>@resManager.GetString("ESAccount")</td>
                     </tr>
                 }
                 @foreach (AccountViewModel account in Model.CurrentAccounts)

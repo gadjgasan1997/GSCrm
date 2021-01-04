@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GSCrm.Models.Enums;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GSCrm.Models

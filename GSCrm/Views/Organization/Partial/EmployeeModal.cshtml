@@ -101,7 +101,7 @@
                             <div class="col-sm">
                                 <div class="mt-4">
                                     <div id="employeeDiv" class="autocomplete default-autocomplete">
-                                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{DIVISION}/GetDivisions/{Model.Id}/")"></a>
+                                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetDivisions/{Model.Id}/")"></a>
                                         <input id="employeeDivVal" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
                                         <ul class="autocomplete-result-list"></ul>
                                     </div>
@@ -110,7 +110,7 @@
 
                                 <div class="mt-4">
                                     <div id="employeePosition" class="autocomplete default-autocomplete" data-autocomplite-type="Positions" data-autocomplite-name="EmployeePosition">
-                                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/{POSITION}/GetPositions/{Model.Id}/")"></a>
+                                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetPositions/{Model.Id}/")"></a>
                                         <input id="employeePositionVal" class="autocomplete-input form-control" placeholder="@resManager.GetString(POSITION)" />
                                         <ul class="autocomplete-result-list"></ul>
                                     </div>

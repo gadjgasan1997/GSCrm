@@ -10,55 +10,36 @@ namespace GSCrm.Helpers
 {
     public static class ContextHelpers
     {
+        #region Organization
         /// <summary>
         /// Метод возвращает список всех организаций, в которых состоит текущий пользователь
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="httpContext"></param>
+        /// <param name="currentUser"></param>
         /// <returns></returns>
-        public static List<Organization> GetOrganizations(this ApplicationDbContext context, User currentUser = null)
+        public static List<Organization> GetOrganizations(this ApplicationDbContext context, User currentUser)
         {
-            if (currentUser == null) return context.Organizations.ToList();
-            Func<Organization, bool> predicate = org => org.UserOrganizations.Select(i => i.UserId).ToList().Contains(currentUser.Id);
-            return context.Organizations.Include(orgs => orgs.UserOrganizations).Where(predicate).ToList();
+            Func<Organization, bool> predicate = org => org.UserOrganizations.Where(userOrg => userOrg.Accepted).Select(userOrg => userOrg.UserId).ToList().Contains(currentUser.Id);
+            return context.Organizations.AsNoTracking().Include(orgs => orgs.UserOrganizations).Where(predicate).ToList();
         }
 
-        /// <summary>
-        /// Получает список подразделений с должностями
-        /// </summary>
-        /// <param name="organizationId"></param>
-        /// <param name="divisionName"></param>
-        /// <returns></returns>
         public static List<Division> GetOrgDivisions(this ApplicationDbContext context, Guid organizationId)
-            => context.Divisions.Include(pos => pos.Positions).Where(orgId => orgId.OrganizationId == organizationId).ToList();
+            => context.Divisions.AsNoTracking().Include(pos => pos.Positions).Where(orgId => orgId.OrganizationId == organizationId).ToList();
 
-        /// <summary>
-        /// Получает список должностей организации
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="organizationId"></param>
-        /// <returns></returns>
         public static List<Position> GetOrgPositions(this ApplicationDbContext context, Guid organizationId)
         {
-            List<Position> orgPositions = new List<Position>();
-            List<Division> orgDivisions = GetOrgDivisions(context, organizationId);
-            orgDivisions.ForEach(orgDivision => orgPositions.AddRange(orgDivision.Positions));
-            return orgPositions;
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
+            return organization.GetPositions(context);
         }
 
-        /// <summary>
-        /// Получает список сотрудников организации
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="organizationId"></param>
-        /// <returns></returns>
         public static List<Employee> GetOrgEmployees(this ApplicationDbContext context, Guid organizationId)
         {
-            List<Employee> divisionsEmployees = new List<Employee>();
-            GetOrgDivisions(context, organizationId).ForEach(division => divisionsEmployees.AddRange(division.GetEmployees(context)));
-            return divisionsEmployees;
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
+            return organization.GetEmployees(context);
         }
+        #endregion
 
+        #region Accounts
         /// <summary>
         /// Метод возвращает список всех клиентов организации по типу
         /// </summary>
@@ -67,7 +48,7 @@ namespace GSCrm.Helpers
         /// <param name="accountType">Тип клиента</param>
         /// <returns></returns>
         public static List<Account> GetAccountsByType(this ApplicationDbContext context, Guid organizationId, AccountType accountType)
-            => context.Accounts.Where(acc => acc.OrganizationId == organizationId && acc.AccountType == accountType).ToList();
+            => context.Accounts.AsNoTracking().Where(acc => acc.OrganizationId == organizationId && acc.AccountType == accountType).ToList();
 
         /// <summary>
         /// Методы возвращают разные списки с клиентами
@@ -78,7 +59,8 @@ namespace GSCrm.Helpers
         public static List<Account> GetAllAccounts(this ApplicationDbContext context, User currentUser)
         {
             List<Account> accounts = new List<Account>();
-            List<UserOrganization> userOrganizations = context.UserOrganizations.Where(userId => userId.UserId == currentUser.Id).ToList();
+            Func<UserOrganization, bool> predicate = userOrg => userOrg.UserId == currentUser.Id && userOrg.Accepted;
+            List<UserOrganization> userOrganizations = context.UserOrganizations.AsNoTracking().Where(predicate).ToList();
             userOrganizations.ForEach(userOrganization => accounts.AddRange(context.GetOrgAccounts(userOrganization.OrganizationId)));
             return accounts;
         }
@@ -87,8 +69,10 @@ namespace GSCrm.Helpers
             => context.GetOrgAccounts(currentUser.PrimaryOrganizationId);
 
         public static List<Account> GetOrgAccounts(this ApplicationDbContext context, Guid organizationId)
-            => context.Accounts.Where(acc => acc.OrganizationId == organizationId).ToList();
+            => context.Accounts.AsNoTracking().Where(acc => acc.OrganizationId == organizationId).ToList();
+        #endregion
 
+        #region Quotes
         /// <summary>
         /// Методы возвращают разные списки со сделками
         /// </summary>
@@ -107,6 +91,70 @@ namespace GSCrm.Helpers
             => context.GetOrgQuotes(currentUser.PrimaryOrganizationId);
 
         public static List<Quote> GetOrgQuotes(this ApplicationDbContext context, Guid organizationId)
-            => context.Quotes.Where(orgId => orgId.OrganizationId == organizationId).ToList();
+            => context.Quotes.AsNoTracking().Where(orgId => orgId.OrganizationId == organizationId).ToList();
+        #endregion
+
+        #region Notification
+        /// <summary>
+        /// Метод возвращает список всех уведомлений, адресованных пользователю
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="currentUser"></param>
+        /// <returns></returns>
+        public static List<InboxNotification> GetInboxNotifications(this ApplicationDbContext context, User currentUser)
+        {
+            Func<InboxNotification, bool> predicate = not => not.UserNotifications.Select(i => i.UserId).ToList().Contains(currentUser.Id);
+            return context.InboxNotifications.AsNoTracking().Include(not => not.UserNotifications).Where(predicate).ToList();
+        }
+
+        /// <summary>
+        /// Метод возвращает список всех настроек уведомлений пользователя во всех организациях
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="currentUser"></param>
+        /// <returns></returns>
+        public static List<OrgNotificationsSetting> GetNotificationsSettings(this ApplicationDbContext context, User currentUser)
+            => context.UserOrganizations
+                .AsNoTracking().Include(userOrg => userOrg.OrgNotificationsSetting)
+                .Where(userOrg => userOrg.UserId == currentUser.Id && userOrg.Accepted)
+                .Select(userOrg => userOrg.OrgNotificationsSetting).ToList();
+
+        /// <summary>
+        /// Метод возвращает список всех настроек уведомлений пользователя
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="currentUser"></param>
+        /// <returns></returns>
+        public static List<UserNotificationsSetting> GetUserNotificationsSettings(this ApplicationDbContext context, User currentUser)
+            => context.UserNotificationsSettings.AsNoTracking().Where(i => i.UserId == currentUser.Id).ToList();
+        #endregion
+
+        #region Employee
+        /// <summary>
+        /// Метод возвращает текущего сотрудника по id Организации и id пользователя
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="organizationId">Id организации</param>
+        /// <param name="currentUserId">Id текущего пользователя</param>
+        /// <returns></returns>
+        public static Employee GetCurrentEmployee(this ApplicationDbContext context, Guid organizationId, Guid currentUserId)
+        {
+            if (organizationId == null || currentUserId == null) return null;
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
+            return GetCurrentEmployee(context, organization, currentUserId);
+        }
+
+        public static Employee GetCurrentEmployee(this ApplicationDbContext context, Organization organization, Guid currentUserId)
+        {
+            // Получение всех сотрудников организации
+            if (organization == null || currentUserId == null) return null;
+            List<Employee> divisionsEmployees = new List<Employee>();
+            List<Division> allDivisions = organization.GetDivisions(context);
+            allDivisions.ForEach(division => divisionsEmployees.AddRange(division.GetEmployees(context)));
+
+            // Получение нужного сотрудника
+            return divisionsEmployees.FirstOrDefault(i => i.UserId == currentUserId);
+        }
+        #endregion
     }
 }

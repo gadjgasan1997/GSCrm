@@ -1,92 +1,74 @@
-﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
-using GSCrm.Helpers;
-using GSCrm.Localization;
+﻿using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Validators;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
+using GSCrm.Data;
+using GSCrm.Transactions;
 
 namespace GSCrm.Repository
 {
-    public class EmployeePositionRepository : GenericRepository<EmployeePosition, EmployeePositionViewModel, EmployeePositionValidator, EmployeePositionTransformer>
+    public class EmployeePositionRepository : BaseRepository<EmployeePosition, EmployeePositionViewModel>
     {
-        private readonly User currentUser;
-        private readonly Dictionary<string, string> syncErrors;
-        private readonly List<EmployeePosition> positionsToAdd;
-        private readonly List<EmployeePosition> positionsToRemove;
-        private const int SYNC_POS_ITEMS_COUNT = 5;
+        #region Declarations
+        /// <summary>
+        /// Ошибки, возникшие при синхронизации списка должностей
+        /// </summary>
+        private readonly Dictionary<string, string> syncErrors = new Dictionary<string, string>();
+        /// <summary>
+        /// Должности, которые пользователь выбрал для добавления в список должностей сотрудника
+        /// </summary>
+        private readonly List<EmployeePosition> positionsToAdd = new List<EmployeePosition>();
+        /// <summary>
+        /// Должности сотрудника, которые пользователь хочет удалить из его списка должностей
+        /// </summary>
+        private readonly List<EmployeePosition> positionsToRemove = new List<EmployeePosition>();
+        /// <summary>
+        /// Количество одновременно отоброжаемых должностей из списка всех должностей организации
+        /// </summary>
+        private const int ALL_EMP_POSS_COUNT = 5;
+        /// <summary>
+        /// Количество одновременно отоброжаемых должностей из списка всех должностей сотрудника
+        /// </summary>
+        private const int SELECTED_EMP_POSS_COUNT = 5;
+        /// <summary>
+        /// Транзакция для синхронизации должностей
+        /// </summary>
+        private ITransaction syncPossTransaction;
+        private readonly ITransactionFactory<SyncPositionsViewModel> syncPossTransactionFactory;
+        #endregion
 
-        public EmployeePositionRepository(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager, HttpContext httpContext = null)
-            : base(context, viewsInfo, resManager, new EmployeePositionValidator(context, resManager), new EmployeePositionTransformer(context, resManager))
+        #region Constructors
+        public EmployeePositionRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base(serviceProvider, context)
         {
-            syncErrors = new Dictionary<string, string>();
-            positionsToAdd = new List<EmployeePosition>();
-            positionsToRemove = new List<EmployeePosition>();
-            if (httpContext != null)
-                currentUser = httpContext.GetCurrentUser(context);
+            syncPossTransactionFactory = TFFactory.GetTransactionFactory<SyncPositionsViewModel>(serviceProvider, context);
         }
+        #endregion
 
         #region Override Methods
-        public override bool TryDeletePrepare(Guid id, EmployeePosition employeePosition, ModelStateDictionary modelState)
+        protected override bool TryDeletePrepare(EmployeePosition employeePosition)
         {
-            if (!base.TryDeletePrepare(id, employeePosition, modelState)) return false;
+            if (!base.TryDeletePrepare(employeePosition)) return false;
             UpdatePositionPrimaryEmployee(employeePosition);
             return true;
         }
         #endregion
 
-        /// <summary>
-        /// Метод устанавливает значения для поиска по всем должностям
-        /// </summary>
-        /// <param name="empPosViewModelCash"></param>
-        /// <returns></returns>
-        public void SearchAllPosition(EmployeeViewModel employeeViewModel)
-        {
-            //viewsInfo.Reset(ALL_EMP_POSS);
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, ALL_EMP_POSS);
-            employeeViewModelCash.IdCash.AddOrReplace(currentUser.Id, employeeViewModel.Id);
-            employeeViewModelCash.DivisionIdCash.AddOrReplace(currentUser.Id, employeeViewModel.DivisionId);
-            employeeViewModelCash.OrganizationIdCash.AddOrReplace(currentUser.Id, employeeViewModel.OrganizationId);
-            employeeViewModelCash.SearchAllPosNameCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchAllPosName?.ToLower().TrimStartAndEnd());
-            employeeViewModelCash.SearchAllParentPosNameCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchAllParentPosName?.ToLower().TrimStartAndEnd());
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, ALL_EMP_POSS, employeeViewModelCash);
-        }
-
+        #region Searching
         /// <summary>
         /// Метод очищает поиск по всем должностям
         /// </summary>
         public void ClearAllPositionSearch()
         {
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, ALL_EMP_POSS);
-            employeeViewModelCash.SearchAllPosNameCash.AddOrReplace(currentUser.Id, default);
-            employeeViewModelCash.SearchAllParentPosNameCash.AddOrReplace(currentUser.Id, default);
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, ALL_EMP_POSS, employeeViewModelCash);
-        }
-
-        /// <summary>
-        /// Метод устанавливает значения для поиска по выбранным должностям
-        /// </summary>
-        /// <param name="empPosViewModelCash"></param>
-        /// <returns></returns>
-        public void SearchSelectedPosition(EmployeeViewModel employeeViewModel)
-        {
-            //viewsInfo.Reset(SELECTED_EMP_POSS);
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, SELECTED_EMP_POSS);
-            employeeViewModelCash.IdCash.AddOrReplace(currentUser.Id, employeeViewModel.Id);
-            employeeViewModelCash.DivisionIdCash.AddOrReplace(currentUser.Id, employeeViewModel.DivisionId);
-            employeeViewModelCash.OrganizationIdCash.AddOrReplace(currentUser.Id, employeeViewModel.OrganizationId);
-            employeeViewModelCash.SearchSelectedPosNameCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchSelectedPosName?.ToLower().TrimStartAndEnd());
-            employeeViewModelCash.SearchSelectedParentPosNameCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchSelectedParentPosName?.ToLower().TrimStartAndEnd());
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, SELECTED_EMP_POSS, employeeViewModelCash);
+            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
+            employeeViewModelCash.SearchAllPosName = default;
+            employeeViewModelCash.SearchAllParentPosName = default;
+            cachService.CacheItem(currentUser.Id, ALL_EMP_POSS, employeeViewModelCash);
         }
 
         /// <summary>
@@ -94,33 +76,36 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSelectedPositionSearch()
         {
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, SELECTED_EMP_POSS);
-            employeeViewModelCash.SearchSelectedPosNameCash.AddOrReplace(currentUser.Id, default);
-            employeeViewModelCash.SearchSelectedParentPosNameCash.AddOrReplace(currentUser.Id, default);
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, SELECTED_EMP_POSS, employeeViewModelCash);
+            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
+            employeeViewModelCash.SearchSelectedPosName = default;
+            employeeViewModelCash.SearchSelectedParentPosName = default;
+            cachService.CacheItem(currentUser.Id, SELECTED_EMP_POSS, employeeViewModelCash);
         }
+        #endregion
 
+        #region Attaching All Positions
         /// <summary>
         /// Метод возвращает список всех должностей исходя из подразделения основной должности сотрудника
         /// </summary>
         /// <param name="employeeId"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Position> GetAllPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Position> AttachAllPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, ALL_EMP_POSS, pageNumber, SYNC_POS_ITEMS_COUNT);
+            SetViewInfo(currentUser.Id, ALL_EMP_POSS, pageNumber, ALL_EMP_POSS_COUNT);
 
-            // Получение списка всех должностей подразделения и его исключение из него списка должностей сотрудника
+            // Получение списка всех должностей подразделения и исключение из него списка должностей сотрудника
             List<Position> allPositions = GetAllPositions(employeeId);
-            List<Position> selectedPositions = GetEmployeePositions(employeeId).GetPositionsFromEmployeePositions(context);
+            List<EmployeePosition> employeePositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
+            List<Position> selectedPositions = employeePositions.GetPositionsFromEmployeePositions(context);
             allPositions = allPositions.Except(selectedPositions, new PositionEqualityComparer()).ToList();
             List<Position> allPositionsExceptSelected = new List<Position>(allPositions);
 
             // Ограничение списка должностей по фильтрам и номеру страницы
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, ALL_EMP_POSS);
+            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
             LimitAllPosByName(employeeViewModelCash, ref allPositions);
             LimitAllPosByParent(employeeViewModelCash, allPositionsExceptSelected, ref allPositions);
-            LimitListByPageNumber(currentUser.Id, ALL_EMP_POSS, ref allPositions, SYNC_POS_ITEMS_COUNT);
+            LimitListByPageNumber(ALL_EMP_POSS, ref allPositions, ALL_EMP_POSS_COUNT);
             return allPositions;
         }
 
@@ -131,9 +116,8 @@ namespace GSCrm.Repository
         /// <param name="positionsToLimit"></param>
         private void LimitAllPosByName(EmployeeViewModel employeeViewModelCash, ref List<Position> positionsToLimit)
         {
-            string searchAllPosName = employeeViewModelCash.SearchAllPosNameCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchAllPosName))
-                positionsToLimit = positionsToLimit.Where(n => n.Name.Contains(searchAllPosName)).ToList();
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchAllPosName))
+                positionsToLimit = positionsToLimit.Where(n => n.Name.Contains(employeeViewModelCash.SearchAllPosName)).ToList();
         }
 
         /// <summary>
@@ -144,34 +128,35 @@ namespace GSCrm.Repository
         /// <param name="positionsToLimit"></param>
         private void LimitAllPosByParent(EmployeeViewModel employeeViewModelCash, List<Position> allPositionsExceptSelected, ref List<Position> positionsToLimit)
         {
-            string searchAllParentPosName = employeeViewModelCash.SearchAllParentPosNameCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchAllParentPosName))
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchAllParentPosName))
             {
                 TransformCollection(
                     collectionToLimit: ref positionsToLimit,
                     limitingCollection: allPositionsExceptSelected,
-                    limitCondition: n => n.Name.ToLower().Contains(searchAllParentPosName),
+                    limitCondition: n => n.Name.ToLower().Contains(employeeViewModelCash.SearchAllParentPosName),
                     selectCondition: i => i.Id,
                     removeCondition: (positionIdList, position) => position.ParentPositionId == null || !positionIdList.Contains((Guid)position.ParentPositionId));
             }
         }
+        #endregion
 
+        #region Attaching Selected Positions
         /// <summary>
         /// Метод возвращает список должностей сотрудника для модального окна с ограничением в 5 записей
         /// </summary>
         /// <param name="employeeId"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<EmployeePosition> GetSelectedPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<EmployeePosition> AttachSelectedPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, SELECTED_EMP_POSS, pageNumber, SYNC_POS_ITEMS_COUNT);
+            SetViewInfo(currentUser.Id, SELECTED_EMP_POSS, pageNumber, SELECTED_EMP_POSS_COUNT);
 
             // Ограничение списка должностей по фильтрам и номеру страницы
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, SELECTED_EMP_POSS);
-            List<EmployeePosition> selectedPositions = GetEmployeePositions(employeeId);
+            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
+            List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
             LimitSelectedPosByName(employeeViewModelCash, ref selectedPositions);
             LimitSelectedPosByParent(employeeViewModelCash, ref selectedPositions);
-            LimitListByPageNumber(currentUser.Id, SELECTED_EMP_POSS, ref selectedPositions, SYNC_POS_ITEMS_COUNT);
+            LimitListByPageNumber(SELECTED_EMP_POSS, ref selectedPositions, SELECTED_EMP_POSS_COUNT);
             return selectedPositions;
         }
 
@@ -182,14 +167,12 @@ namespace GSCrm.Repository
         /// <param name="positionsToLimit"></param>
         private void LimitSelectedPosByName(EmployeeViewModel employeeViewModelCash, ref List<EmployeePosition> positionsToLimit)
         {
-            string searchSelectedPosName = employeeViewModelCash.SearchSelectedPosNameCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchSelectedPosName))
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchSelectedPosName))
             {
-                employeeViewModelCash.DivisionId = employeeViewModelCash.DivisionIdCash.GetValueOrDefault(currentUser.Id);
                 TransformCollection(
                     collectionToLimit: ref positionsToLimit,
-                    limitingCollection: employeeViewModelCash.GetDivision(context).Positions,
-                    limitCondition: n => n.Name.ToLower().Contains(searchSelectedPosName),
+                    limitingCollection: employeeViewModelCash.GetDivision(context).GetPositions(context),
+                    limitCondition: n => n.Name.ToLower().Contains(employeeViewModelCash.SearchSelectedPosName),
                     selectCondition: i => i.Id,
                     removeCondition: (positionIdList, employeePosition) => employeePosition.PositionId != null && !positionIdList.Contains((Guid)employeePosition.PositionId));
             }
@@ -202,23 +185,12 @@ namespace GSCrm.Repository
         /// <param name="positionsToLimit"></param>
         private void LimitSelectedPosByParent(EmployeeViewModel employeeViewModelCash, ref List<EmployeePosition> positionsToLimit)
         {
-            string searchSelectedParentPosName = employeeViewModelCash.SearchSelectedParentPosNameCash.GetValueOrDefault(currentUser.Id);
-            positionsToLimit = positionsToLimit.LimitByParent(context, employeeViewModelCash, searchSelectedParentPosName, currentUser.Id);
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchSelectedParentPosName))
+                positionsToLimit = positionsToLimit.LimitByParent(context, employeeViewModelCash, employeeViewModelCash.SearchSelectedParentPosName);
         }
+        #endregion
 
-        /// <summary>
-        /// Метод возвращает список должностей сотрудника для таблицы с ограничением в 10 записей
-        /// </summary>
-        /// <param name="employeeId"></param>
-        /// <param name="pageNumber"></param>
-        /// <returns></returns>
-        public List<EmployeePosition> GetSelectedPositionsForTable(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
-        {
-            List<EmployeePosition> selectedPositions = GetEmployeePositions(employeeId);
-            LimitListByPageNumber(currentUser.Id, SELECTED_EMP_POSS, ref selectedPositions, pageNumber);
-            return selectedPositions;
-        }
-
+        #region Other Methods
         /// <summary>
         /// Метод вызывается при удалении должности сотрудника для обновления данных об основном сотруднике на этой должности
         /// В случае, если на удаляемой из списка должностей сотрудника должности основным сотрудником является текущий сотрудник,
@@ -227,22 +199,10 @@ namespace GSCrm.Repository
         /// <param name="employeePosition"></param>
         private void UpdatePositionPrimaryEmployee(EmployeePosition employeePosition)
         {
-            Position position = context.Positions.FirstOrDefault(i => i.Id == employeePosition.PositionId);
+            Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == employeePosition.PositionId);
             if (position.PrimaryEmployeeId == employeePosition.EmployeeId)
                 position.PrimaryEmployeeId = null;
             context.Positions.Update(position);
-        }
-
-        /// <summary>
-        /// Метод возвращает список должностей сотрудника
-        /// </summary>
-        /// <param name="employeeId"></param>
-        /// <returns></returns>
-        private List<EmployeePosition> GetEmployeePositions(Guid employeeId)
-        {
-            Employee employee = context.Employees.FirstOrDefault(i => i.Id == employeeId);
-            List<EmployeePosition> employeePositions = context.EmployeePositions.Where(empId => empId.EmployeeId == employeeId).ToList();
-            return employeePositions;
         }
 
         /// <summary>
@@ -257,7 +217,7 @@ namespace GSCrm.Repository
             if (employee.PrimaryPositionId != Guid.Empty)
             {
                 Position primaryPosition = employee.GetPrimaryPosition(context);
-                allPositions = primaryPosition.Division.Positions;
+                allPositions = primaryPosition.GetDivision(context).GetPositions(context);
             }
 
             else
@@ -275,27 +235,43 @@ namespace GSCrm.Repository
         /// <param name="syncViewModel"></param>
         /// <param name="errors"></param>
         /// <returns></returns>
-        public bool TrySyncPositions(SyncPositionsViewModel syncViewModel, Dictionary<string, string> errors)
+        public bool TrySyncPositions(SyncPositionsViewModel syncViewModel, ref Dictionary<string, string> errors)
         {
+            syncPossTransaction = syncPossTransactionFactory.Create(currentUser.Id, OperationType.EmployeePositionsManagement, syncViewModel);
             Employee employee = context.Employees
+                .AsNoTracking()
                 .Include(empPos => empPos.EmployeePositions)
                     .ThenInclude(pos => pos.Position)
                 .FirstOrDefault(i => i.Id == syncViewModel.EmployeeId);
 
-            FormAddPositinosList(syncViewModel.PositionsToAdd, employee);
-            FormRemovePositionsList(syncViewModel, employee);
-            if (syncErrors.Any())
+            InvokeIntermittinActions(this.errors, new List<Action>()
             {
-                errors = syncErrors;
-                return false;
+                () => {
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpPossManagement", syncPossTransaction))
+                         AddHasNoPermissionsError(OperationType.EmployeePositionsManagement);
+                },
+                () => {
+                    FormAddPositinosList(syncViewModel.PositionsToAdd, employee);
+                },
+                () => {
+                    FormRemovePositionsList(syncViewModel, employee);
+                }
+            });
+            if (!this.errors.Any())
+            {
+                AddPositions();
+                RemovePositions();
+                if (!string.IsNullOrEmpty(syncViewModel.PrimaryPositionName))
+                    SetPrimaryPosition(syncViewModel.PrimaryPositionName, employee);
+                if (syncPossTransactionFactory.TryCommit(syncPossTransaction, this.errors))
+                {
+                    syncPossTransactionFactory.Close(syncPossTransaction);
+                    return true;
+                }
             }
-
-            AddPositions();
-            RemovePositions();
-            if (!string.IsNullOrEmpty(syncViewModel.PrimaryPositionName))
-                SetPrimaryPosition(syncViewModel.PrimaryPositionName, employee);
-            context.SaveChanges();
-            return true;
+            errors = this.errors;
+            syncPossTransactionFactory.Close(syncPossTransaction, TransactionStatus.Error);
+            return false;
         }
 
         /// <summary>
@@ -305,22 +281,33 @@ namespace GSCrm.Repository
         /// <param name="employee"></param>
         private void FormAddPositinosList(List<string> positionsToAdd, Employee employee)
         {
-            Division employeeDivision = employee.GetDivision(context);
-            List<Position> allPositions = employeeDivision.Positions;
-
+            List<Position> allPositions = employee.GetDivision(context).GetPositions(context);
             positionsToAdd.ForEach(positionName =>
             {
-                Position position = employeeDivision.Positions.FirstOrDefault(n => n.Name == positionName);
+                Position position = allPositions.FirstOrDefault(n => n.Name == positionName);
+
+                // Если должность найдена
                 if (position != null)
                 {
-                    this.positionsToAdd.Add(new EmployeePosition()
+                    if (employee.EmployeePositions.Select(pos => pos.Position.Name).Contains(positionName))
                     {
-                        Employee = employee,
-                        EmployeeId = employee.Id,
-                        Position = position,
-                        PositionId = position.Id
-                    });
+                        syncErrors.Add("PosIsAlreadyAdded", resManager.GetString("PosIsAlreadyAdded"));
+                        return;
+                    }
+
+                    // Если она уже не была добавлена в список должностей
+                    if (!this.positionsToAdd.Select(pos => pos.Position.Name).Contains(positionName))
+                    {
+                        this.positionsToAdd.Add(new EmployeePosition()
+                        {
+                            Employee = employee,
+                            EmployeeId = employee.Id,
+                            Position = position,
+                            PositionId = position.Id
+                        });
+                    }
                 }
+                else syncErrors.Add("AddPosNotExists", resManager.GetString("AddPosNotExists"));
             });
         }
 
@@ -331,7 +318,6 @@ namespace GSCrm.Repository
         /// <param name="employee"></param>
         private void FormRemovePositionsList(SyncPositionsViewModel syncViewModel, Employee employee)
         {
-            List<EmployeePosition> selectedPositions = employee.EmployeePositions;
             syncViewModel.PositionsToRemove.ForEach(positionName =>
             {
                 if (positionName == syncViewModel.PrimaryPositionName)
@@ -339,8 +325,15 @@ namespace GSCrm.Repository
                 else
                 {
                     EmployeePosition employeePosition = employee.EmployeePositions.FirstOrDefault(n => n.Position.Name == positionName);
+
+                    // Если должность найдена
                     if (employeePosition != null)
-                        positionsToRemove.Add(employeePosition);
+                    {
+                        // Если она уже не была добавлена в список должностей на удаление
+                        if (!positionsToRemove.Select(resp => resp.Position.Name).Contains(positionName))
+                            positionsToRemove.Add(employeePosition);
+                    }
+                    else syncErrors.Add("RemovePosNotExists", resManager.GetString("RemovePosNotExists"));
                 }
             });
         }
@@ -352,7 +345,7 @@ namespace GSCrm.Repository
         {
             positionsToAdd.ForEach(postionToAdd =>
             {
-                context.EmployeePositions.Add(postionToAdd);
+                syncPossTransaction.AddChange(postionToAdd, EntityState.Added);
             });
         }
 
@@ -365,7 +358,7 @@ namespace GSCrm.Repository
             positionsToRemove.ForEach(postionToRemove =>
             {
                 UpdatePositionPrimaryEmployee(postionToRemove);
-                context.EmployeePositions.Remove(postionToRemove);
+                syncPossTransaction.AddChange(postionToRemove, EntityState.Deleted);
             });
         }
 
@@ -377,11 +370,9 @@ namespace GSCrm.Repository
         {
             EmployeePosition selectedPrimaryPosition = employee.EmployeePositions.FirstOrDefault(n => n.Position.Name == primaryPositionName);
             EmployeePosition currentPrimaryPosition = employee.EmployeePositions.FirstOrDefault(i => i.PositionId == employee.PrimaryPositionId);
-            if (selectedPrimaryPosition.Id != currentPrimaryPosition.Id)
-            {
-                employee.PrimaryPositionId = selectedPrimaryPosition.PositionId;
-                context.Employees.Update(employee);
-            }
+            employee.PrimaryPositionId = selectedPrimaryPosition.PositionId;
+            syncPossTransaction.AddChange(employee, EntityState.Modified);
         }
+        #endregion
     }
 }

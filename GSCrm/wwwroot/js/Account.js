@@ -32,6 +32,7 @@ class Account {
     /** Получение данных для отправки при создании клиента */
     CreateGetData() {
         let accountType = this.GetAccountType();
+        let selectedOrg = $($("#userOrgsChoiseList").find(".active")[0]);
         return {
             FirstName: $("#accFirstName").val(),
             LastName: $("#accLastName").val(),
@@ -42,6 +43,8 @@ class Account {
             OKPO: $("#accOKPO").val(),
             OGRN: $("#accOGRN").val(),
             Country: $("#accCountry .autocomplete-input").val(),
+            AppointMe: $("#appointMeBody").find(".oval-mark-check").length > 0,
+            OrganizationId: $(selectedOrg).find(".choise-userorg-id").text(),
             PrimaryManagerInitialName: $("#accManager .autocomplete-input").val(),
             AccountType: accountType
         }
@@ -86,9 +89,28 @@ class Account {
     /** Действия при отмене создания клиента */
     CancelCreate() {
         $("#accountModal").modal("hide");
-        this.CreateClearFields();
-        Utils.ClearErrors();
-        Account.SetDefaultTab();
+        setTimeout(() => {
+            // Установка первой организации пользователя как выбранную
+            $("#userOrgsChoiseList .active").each((index, item) => {
+                $(item).removeClass("active");
+            })
+            $($("#userOrgsChoiseList .list-group-item")[0]).addClass("active");
+
+            // Проставление галки "Назначить меня"
+            let mark = $("#appointMeBody").find(".oval-mark");
+            if (mark.length > 0) {
+                let button = new Button();
+                button.OvalCheckmarkCheck($(mark));
+            }
+
+            // Проставление поля с выбором менеджера в "ридонли"
+            $("#accManagerVal").attr("readonly", true);
+
+            // Очистка полей, ошибок и проставление вкладки по умолчанию
+            this.CreateClearFields();
+            Utils.ClearErrors();
+            Account.SetDefaultTab();
+        }, 150);
     }
 
     /** Изменение сайта клиента */
@@ -263,8 +285,8 @@ class Account {
                     let removeAccUrl = $(event.currentTarget).attr("href");
                     let request = new AjaxRequests();
                     request.CommonDeleteRequest(removeAccUrl)
-                        .fail(() => {
-                            Swal.fire(MessageManager.Invoke("RemoveAccountError"));
+                        .fail(response => {
+                            Utils.DefaultErrorHandling(response["responseJSON"]);
                             reject();
                         })
                         .done(() => {
@@ -364,6 +386,27 @@ $("#accountModal")
         event.preventDefault();
         let account = new Account();
         account.CancelCreate();
+    })
+    .off("click", ".oval-mark").on("click", ".oval-mark", event => {
+        event.preventDefault();
+        let button = new Button();
+        button.OvalCheckmarkCheck($(event.currentTarget));
+        $("#accManagerVal").attr("readonly", true); 
+    })
+    .off("click", ".oval-mark-check").on("click", ".oval-mark-check", event => {
+        event.preventDefault();
+        let button = new Button();
+        button.OvalCheckmarkCheck($(event.currentTarget));
+        $("#accManagerVal").attr("readonly", false); 
+    })
+    .off("click", "#userOrgsChoiseList .list-group-item").on("click", "#userOrgsChoiseList .list-group-item", event => {
+        event.preventDefault();
+        if (!$(event.currentTarget).hasClass("active")) {
+            $("#userOrgsChoiseList .active").each((index, item) => {
+                $(item).removeClass("active");
+            })
+            $(event.currentTarget).addClass("active");
+        }
     });
 
 // Список клиентов
@@ -374,9 +417,7 @@ $("#accountsForm")
     })
     .off("click", "#accountTabs .nav-item").on("click", "#accountTabs .nav-item", event => {
         let navTab = new NavTab();
-        navTab.Remember(event, "currentAccsTab");
-        let navConnectedTab = new NavConnectedTab();
-        navConnectedTab.Remember(event, "currentAccsConnectedTab");
+        navTab.Remember(event, "currentAccountsTab");
     });
 
 // Карточка клиента
@@ -418,6 +459,7 @@ $("#accountAddInfoForm")
         vertNavTab.Remember(event, "currentAccTab");
     });
 
+// Изменение юридического адреса клиента
 $("#changeLEAddrModal")
     .off("click", "#accAddressNotLegalList .list-group-item").on("click", "#accAddressNotLegalList .list-group-item", event => {
         if (!$(event.currentTarget).hasClass("active")) {

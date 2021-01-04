@@ -1,0 +1,145 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model EmployeeViewModel
+@{
+    string currentUserId = User.GetUserModel(context).Id;
+}
+
+<div id="empRespManagement" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xxl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@resManager.GetString("EmployeeRespManagement")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-controller="@EMP_RESPONSIBILITY" asp-action="Synchronize">
+                    <div class="row">
+                        <div class="col-xl">
+                            <div class="row justify-content-center">
+                                <p class="label-md m-0">@resManager.GetString("AllRespsExceptSelected")</p>
+                            </div>
+                            <div class="card-body">
+                                <input asp-for="Id" hidden="hidden" />
+                                <div class="row justify-content-around form-group mb-0 mt-1">
+                                    <div class="col-lg mb-4 mb-lg-0">
+                                        <input asp-for="SearchAllRespName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
+                                    </div>
+                                    <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                                        <input id="allRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
+                                               data-href="@Url.Action("SearchAllResponsibilities", EMP_RESPONSIBILITY)" />
+                                    </div>
+                                    <div class="col-auto text-center flex-grow-0">
+                                        <input id="clearAllRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
+                                               data-href="@Url.Action("ClearAllResponsibilitiesSearch", EMP_RESPONSIBILITY)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-wrapper mt-3">
+                                <table id="allResps" class="fl-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="d-none"></th>
+                                            <th class="label-non-select">@resManager.GetString("NameLabel")</th>
+                                            <th class="action-column"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-xl">
+                            <div id="allRespsNav" class="list-nav row no-gutters justify-content-center mt-3">
+                                <div class="col">
+                                    <div class="nav-previous">
+                                        <div class="nav-url" data-href="@Url.Action("PreviousAllRecords", EMP_RESPONSIBILITY, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-left"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="nav-next">
+                                        <div class="nav-url" data-href="@Url.Action("NextAllRecords", EMP_RESPONSIBILITY, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-right"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-xl mt-5">
+                            <div class="row justify-content-center">
+                                <p class="label-md m-0">@resManager.GetString("SelectedResps")</p>
+                            </div>
+                            <div class="card-body">
+                                <input asp-for="Id" hidden="hidden" />
+                                <div class="row justify-content-around form-group mb-0 mt-1">
+                                    <div class="col-lg mb-4 mb-lg-0">
+                                        <input asp-for="SearchSelectedRespName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
+                                    </div>
+                                    <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                                        <input id="selectedRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
+                                               data-href="@Url.Action("SearchSelectedResponsibilities", EMP_RESPONSIBILITY)" />
+                                    </div>
+                                    <div class="col-auto text-center flex-grow-0">
+                                        <input id="clearSelectedRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
+                                               data-href="@Url.Action("ClearSelectedResponsibilitiesSearch", EMP_RESPONSIBILITY)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-wrapper mt-3">
+                                <table id="selectedResps" class="fl-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="d-none"></th>
+                                            <th class="label-non-select">@resManager.GetString("NameLabel")</th>
+                                            <th class="action-column"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-xl mb-2">
+                            <div id="selectedRespsNav" class="list-nav row no-gutters justify-content-center mt-3">
+                                <div class="col">
+                                    <div class="nav-previous">
+                                        <div class="nav-url" data-href="@Url.Action("PreviousSelectedRecords", EMP_RESPONSIBILITY, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-left"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="nav-next">
+                                        <div class="nav-url" data-href="@Url.Action("NextSelectedRecords", EMP_RESPONSIBILITY, new { employeeId = Model.Id })">
+                                            <span class="icon-chevron-thin-right"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="row justify-content-between m-0 w-100">
+                    <div class="col text-center">
+                        <input id="syncEmpRespsBtn" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Synchronize")" />
+                    </div>
+                    <div class="col text-center">
+                        <input id="cancelSyncEmpRespsBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

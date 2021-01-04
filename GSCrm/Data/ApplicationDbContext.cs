@@ -17,13 +17,17 @@ namespace GSCrm.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeContact> EmployeeContacts { get; set; }
         public DbSet<EmployeePosition> EmployeePositions { get; set; }
-        //public DbSet<Event> Events { get; set; }
+        public DbSet<EmployeeResponsibility> EmployeeResponsibilities { get; set; }
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<Division> Divisions { get; set; }
         public DbSet<UserOrganization> UserOrganizations { get; set; }
+        public DbSet<OrgNotificationsSetting> OrgNotificationsSettings { get; set; }
+        public DbSet<UserNotificationsSetting> UserNotificationsSettings { get; set; }
+        public DbSet<UserNotification> UserNotifications { get; set; }
         public DbSet<Position> Positions { get; set; }
-        //public DbSet<Task> Tasks { get; set; }
         public DbSet<Responsibility> Responsibilities { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<InboxNotification> InboxNotifications { get; set; }
 
         public ApplicationDbContext() { }
         public ApplicationDbContext(DbContextOptions options) : base(options)
@@ -42,7 +46,7 @@ namespace GSCrm.Data
             modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
             modelBuilder.ApplyConfiguration(new PositionConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
-            //modelBuilder.ApplyConfiguration(new UserOrganizationConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationConfiguration());
         }
     }
 }

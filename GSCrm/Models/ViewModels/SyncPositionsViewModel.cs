@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GSCrm.Models.ViewModels
 {
-    public class SyncPositionsViewModel
+    public class SyncPositionsViewModel : BaseViewModel
     {
         public Guid EmployeeId { get; set; }
         public string PrimaryPositionName { get; set; }

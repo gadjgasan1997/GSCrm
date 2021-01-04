@@ -1,8 +1,7 @@
 ﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
-using GSCrm.Localization;
+using GSCrm.Mapping;
 using GSCrm.Models;
+using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using GSCrm.Validators;
@@ -11,27 +10,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using static GSCrm.CommonConsts;
-using static GSCrm.Repository.AccountRepository;
 
 namespace GSCrm.Controllers
 {
     [Authorize]
     [Route(ACC_ADDRESS)]
     public class AccountAddressController
-        : MainController<AccountAddress, AccountAddressViewModel, AccountAddressValidatior, AccountAddressTransformer, AccountAddressRepository>
+        : MainController<AccountAddress, AccountAddressViewModel>
     {
-        public AccountAddressController(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager)
-            : base(context, viewsInfo, resManager, new AccountAddressTransformer(context, resManager), new AccountAddressRepository(context, viewsInfo, resManager))
+        public AccountAddressController(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base(context, serviceProvider)
         { }
 
         [HttpGet("ListOfAddresses/{pageNumber}")]
         public IActionResult Addresses(int pageNumber)
         {
-            AccountViewModel accountViewModel = CurrentAccount;
-            AccountRepository accountRepository = new AccountRepository(context, viewsInfo, resManager, HttpContext);
-            User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
+            AccountViewModel accountViewModel = (AccountViewModel)cachService.GetMainEntity(currentUser, MainEntityType.AccountView);
+            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
             accountRepository.SetViewInfo(currentUser.Id, ACC_ADDRESSES, pageNumber);
             accountRepository.AttachAddresses(accountViewModel);
             return View($"{ACC_VIEWS_REL_PATH}{ACCOUNT}.cshtml", accountViewModel);
@@ -40,34 +37,22 @@ namespace GSCrm.Controllers
         [HttpGet(ADDRESS)]
         public IActionResult Address(string id)
         {
-            if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid Id))
+            if (!repository.TryGetItemById(id, out AccountAddress accountAddress))
                 return View("Error");
-
-            AccountAddress accountAddress = context.AccountAddresses.FirstOrDefault(i => i.Id == Id);
-            if (accountAddress == null)
-                return View("Error");
-
-            return Json(transformer.DataToViewModel(accountAddress));
+            return Json(map.DataToViewModel(accountAddress));
         }
 
-        [HttpPost("Create")]
-        public override IActionResult Create(AccountAddressViewModel addressViewModel)
+        [HttpPost("ChangeLegalAddress")]
+        public IActionResult ChangeLegalAddress(AccountAddressViewModel addressViewModel)
         {
             ModelStateDictionary modelState = ModelState;
-            AccountAddressRepository addressRepository = new AccountAddressRepository(context, resManager, HttpContext);
-            if (addressRepository.TryCreate(ref addressViewModel, modelState))
-                return Json("");
-            return BadRequest(modelState);
-        }
-
-        [HttpPost("Update")]
-        public override IActionResult Update(AccountAddressViewModel addressViewModel)
-        {
-            ModelStateDictionary modelState = ModelState;
-            AccountAddressRepository addressRepository = new AccountAddressRepository(context, resManager, HttpContext);
-            if (addressRepository.TryUpdate(ref addressViewModel, modelState))
-                return Json("");
-            return BadRequest(modelState);
+            if (!new AccountAddressRepository(serviceProvider, context).TryChangeLegalAddress(addressViewModel, out Dictionary<string, string> errors))
+            {
+                foreach (KeyValuePair<string, string> error in errors)
+                    modelState.AddModelError(error.Key, error.Value);
+                return BadRequest(modelState);
+            }
+            return Json("");
         }
     }
 }

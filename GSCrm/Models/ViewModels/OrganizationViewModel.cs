@@ -16,16 +16,7 @@ namespace GSCrm.Models.ViewModels
         public string SearchEmployeePrimaryPosName { get; set; }
         public string SeacrhEmployeeDivName { get; set; }
         public string SeacrhResponsibilityName { get; set; }
-        public Dictionary<string, string> SearchDivNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchParentDivNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchPosNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SeacrhPositionDivNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchParentPosNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchPrimaryEmployeeNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchEmployeeNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchEmployeePrimaryPosNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SeacrhEmployeeDivNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SeacrhResponsibilityNameCash { get; set; } = new Dictionary<string, string>();
+        public bool Accepted { get; set; }
         public IEnumerable<DivisionViewModel> Divisions { get; set; }
         public IEnumerable<PositionViewModel> Positions { get; set; }
         public IEnumerable<EmployeeViewModel> Employees { get; set; }

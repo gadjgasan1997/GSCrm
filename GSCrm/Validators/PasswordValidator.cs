@@ -15,10 +15,10 @@ namespace GSCrm.Validators
     /// </summary>
     public class PasswordValidator : IPasswordValidator<User>
     {
-        private readonly ResManager resManager;
+        private readonly IResManager resManager;
         private const int PASSWORD_MIN_LENGTH = 8;
         private const int PASSWORD_MAX_LENGTH = 35;
-        public PasswordValidator(ResManager resManager)
+        public PasswordValidator(IResManager resManager)
         {
             this.resManager = resManager;
         }
@@ -68,10 +68,10 @@ namespace GSCrm.Validators
         /// и его совпадение с паролем из поля "пароль"
         /// </summary>
         /// <param name="model"></param>
-        public Task<IdentityResult> CheckPasswordConfirmation(UserModel model)
+        public Task<IdentityResult> CheckPasswordConfirmation(UserViewModel model)
         {
             List<IdentityError> errors = new List<IdentityError>();
-            if (string.IsNullOrEmpty(model.ConfirmPassword) || model.ConfirmPassword.Length < PASSWORD_MIN_LENGTH || model.ConfirmPassword.Length > PASSWORD_MAX_LENGTH)
+            if (string.IsNullOrEmpty(model.ConfirmPassword))
             {
                 errors.Add(new IdentityError()
                 {

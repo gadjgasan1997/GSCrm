@@ -1,8 +1,7 @@
 ﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
-using GSCrm.Localization;
+using GSCrm.Mapping;
 using GSCrm.Models;
+using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using GSCrm.Validators;
@@ -11,27 +10,26 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using static GSCrm.CommonConsts;
-using static GSCrm.Repository.EmployeeRepository;
 
 namespace GSCrm.Controllers
 {
     [Authorize]
     [Route(EMP_SUB)]
     public class EmployeeSubordinateController
-        : MainController<Employee, EmployeeViewModel, EmployeeValidator, EmployeeTransformer, EmployeeRepository>
+        : MainController<Employee, EmployeeViewModel>
     {
-        public EmployeeSubordinateController(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager)
-            : base(context, viewsInfo, resManager, new EmployeeTransformer(context, resManager), new EmployeeRepository(context, viewsInfo, resManager))
+        public EmployeeSubordinateController(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base(context, serviceProvider)
         { }
 
         [HttpGet("ListOfSubordinates/{pageNumber}")]
         public IActionResult Subordinates(int pageNumber)
         {
             User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
-            EmployeeViewModel employeeViewModel = CurrentEmployee;
-            repository = new EmployeeRepository(context, viewsInfo, resManager, HttpContext);
-            repository.SetViewInfo(currentUser.Id, EMP_SUBS, pageNumber);
-            repository.AttachSubordinates(employeeViewModel);
+            EmployeeViewModel employeeViewModel = (EmployeeViewModel)cachService.GetMainEntity(currentUser, MainEntityType.EmployeeView);
+            EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
+            employeeRepository.SetViewInfo(currentUser.Id, EMP_SUBS, pageNumber);
+            employeeRepository.AttachSubordinates(employeeViewModel);
             return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
         }
     }

@@ -17,6 +17,17 @@
         })
     }
 
+    GetCreationData() {
+        return {
+            Name: $("#positionName").val(),
+            OrganizationId: $("#orgId").val(),
+            DivisionName: BaseAutocomplete.GetValue($("#positionDivModal")),
+            ParentPositionName: BaseAutocomplete.GetValue($("#parentPositionModal")),
+            PrimaryEmployeeId: $("#positionModal #primaryEmployeeId").val(),
+            PrimaryEmployeeInitialName: $("#positionModal #primaryEmployeeModalVal").val()
+        }
+    }
+
     /**
      * Удаление должности
      * @param {*} event 
@@ -29,8 +40,8 @@
                     let removePosUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
         
                     request.CommonDeleteRequest(removePosUrl)
-                        .fail(() => {
-                            Swal.fire(MessageManager.Invoke("RemovePositionError"));
+                        .fail(response => {
+                            Utils.DefaultErrorHandling(response["responseJSON"]);
                             reject();
                         })
                         .done(() => location.reload());
@@ -43,16 +54,6 @@
         this.ClearFields();
         Utils.ClearErrors();
         $("#positionModal").modal("hide");
-    }
-
-    GetCreationData() {
-        return {
-            Name: $("#positionName").val(),
-            OrganizationId: $("#orgId").val(),
-            DivisionName: BaseAutocomplete.GetValue($("#positionDivModal")),
-            ParentPositionName: BaseAutocomplete.GetValue($("#parentPositionModal")),
-            PrimaryEmployeeId: $("#positionModal #primaryEmployeeId").val()
-        }
     }
 
     /**
@@ -120,6 +121,7 @@
             DivisionName: $("#positionDiv").val(),
             ParentPositionName: $("#ParentPositionName").val(),
             PrimaryEmployeeId: $("#primaryEmployeeId").val(),
+            PrimaryEmployeeInitialName: $("#PrimaryEmployeeInitialName").val(),
             OrganizationId: $("#OrganizationId").val()
         }
     }

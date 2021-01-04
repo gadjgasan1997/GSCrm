@@ -12,7 +12,8 @@
 @model OrganizationsViewModel
 @{
     IEnumerable<OrganizationViewModel> organizations = Model.OrganizationViewModels;
-    string currentUserId = User.GetUserModel(context).Id;
+    User currentUser = User.GetUserModel(context);
+    string currentUserId = currentUser.Id;
 }
 @* // Хлебные крошки *@
 <nav aria-label="breadcrumb">
@@ -26,6 +27,13 @@
     <div class="form-shadow d-none"></div>
     @* // Модальное окно создания организации *@
     @{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/OrganizationModal.cshtml"); }
+
+    <div id="changePrimaryOrg" class="mb-3" style="display: none">
+        <form class="row justify-content-end m-auto" method="post" asp-controller="@ORGANIZATION" asp-action="ChangePrimaryOrg">
+            <input id="changePrimaryOrgBtn" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ChangePrimaryOrg")" />
+        </form>
+        <input id="PrimaryOrganizationId" hidden="hidden" value="@currentUser.PrimaryOrganizationId" />
+    </div>
 
     <form id="createOrgForm" method="post" asp-controller="@ORGANIZATION" asp-action="Search">
         <div class="row justify-content-around">
@@ -60,6 +68,8 @@
                 {
                     <tr>
                         <th>@resManager.GetString("NameLabel")</th>
+                        <th>@resManager.GetString("YourOrg")</th>
+                        <th>@resManager.GetString("IsPrimaryOrg")</th>
                     </tr>
                 }
                 else
@@ -77,10 +87,39 @@
                         </td>
                     </tr>
                 }
-                @foreach (OrganizationViewModel model in organizations)
+                @foreach (OrganizationViewModel orgViewModel in organizations)
                 {
                     <tr>
-                        <td class="tooltip-cell-src tooltip-cell-link label-non-select organization-item">@Html.ActionLink(model.Name, ORGANIZATION, ORGANIZATION, new { id = model.Id })</td>
+                        <td class="organization-id d-none">@orgViewModel.Id</td>
+                        <td class="tooltip-cell-src tooltip-cell-link label-non-select organization-item">@Html.ActionLink(orgViewModel.Name, ORGANIZATION, ORGANIZATION, new { id = orgViewModel.Id })</td>
+                        @if (orgViewModel.OwnerId == currentUserId)
+                        {
+                            <td class="readonly-checkmark">
+                                <span class="icon-checkmark"></span>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        @if (orgViewModel.Id == currentUser.PrimaryOrganizationId)
+                        {
+                            <td>
+                                <div>
+                                    <div class="oval-mark-readonly mark-table-cell">
+                                        <div class="icon-checkmark"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <div>
+                                    <div class="oval-mark mark-table-cell"></div>
+                                </div>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>

@@ -1,7 +1,5 @@
 ﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
-using GSCrm.Localization;
+using GSCrm.Mapping;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
@@ -18,23 +16,18 @@ namespace GSCrm.Controllers
     [Authorize]
     [Route(ACC_INVOICE)]
     public class AccountInvoiceController
-        : MainController<AccountInvoice, AccountInvoiceViewModel, AccountInvoiceValidatior, AccountInvoiceTransformer, AccountInvoiceRepository>
+        : MainController<AccountInvoice, AccountInvoiceViewModel>
     {
-        public AccountInvoiceController(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager)
-            : base(context, viewsInfo, resManager, new AccountInvoiceTransformer(context, resManager), new AccountInvoiceRepository(context, viewsInfo, resManager))
+        public AccountInvoiceController(IServiceProvider serviceProvider, ApplicationDbContext context)
+            : base(context, serviceProvider)
         { }
 
         [HttpGet(INVOICE)]
         public IActionResult Invoice(string id)
         {
-            if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid Id))
+            if (!repository.TryGetItemById(id, out AccountInvoice accountInvoice))
                 return View("Error");
-
-            AccountInvoice accountInvoice = context.AccountInvoices.FirstOrDefault(i => i.Id == Id);
-            if (accountInvoice == null)
-                return View("Error");
-
-            return Json(transformer.DataToViewModel(accountInvoice));
+            return Json(map.DataToViewModel(accountInvoice));
         }
     }
 }

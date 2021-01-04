@@ -7,7 +7,7 @@ namespace GSCrm.Models
     {
         [ForeignKey("Employee")]
         public Guid EmployeeId { get; set; }
-        public Employee User { get; set; }
+        public Employee Employee { get; set; }
 
         [ForeignKey("Responsibility")]
         public Guid ResponsibilityId { get; set; }

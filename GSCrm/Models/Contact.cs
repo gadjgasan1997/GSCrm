@@ -1,4 +1,6 @@
-﻿namespace GSCrm.Models
+﻿using GSCrm.Models.Enums;
+
+namespace GSCrm.Models
 {
     public abstract class Contact : BaseDataModel
     {

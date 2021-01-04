@@ -1,5 +1,5 @@
 ﻿using GSCrm.Data;
-using GSCrm.DataTransformers;
+using GSCrm.Mapping;
 using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
@@ -28,30 +28,20 @@ namespace GSCrm.Helpers
         }
 
         /// <summary>
-        /// Метод проверяет, содержится ли должность среди списка должностей
-        /// </summary>
-        /// <param name="employeePositions"></param>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        public static bool ContainsPosition(this List<EmployeePosition> employeePositions, Position position)
-            => employeePositions.Select(posId => posId.PositionId).Contains(position.Id);
-
-        /// <summary>
         /// Ограничение списка подразделений по названию родительского
         /// </summary>
         /// <param name="positionsToLimit"></param>
         /// <param name="context"></param>
         /// <param name="employeeViewModelCash"></param>
-        public static List<EmployeePosition> LimitByParent(this List<EmployeePosition> positionsToLimit, ApplicationDbContext context, EmployeeViewModel employeeViewModelCash, string parentPosName, string userId)
+        public static List<EmployeePosition> LimitByParent(this List<EmployeePosition> positionsToLimit, ApplicationDbContext context, EmployeeViewModel employeeViewModelCash, string parentPosName)
         {
             if (positionsToLimit.Count > 0 && !string.IsNullOrEmpty(parentPosName))
             {
-                employeeViewModelCash.DivisionId = employeeViewModelCash.DivisionIdCash.GetValueOrDefault(userId);
                 Division division = employeeViewModelCash.GetDivision(context);
                 if (division != null)
                 {
                     // Поиск должностей, содержащих в названии введенное значение в поле "SearchParentPosName"
-                    List<Position> divisionPositions = division.Positions;
+                    List<Position> divisionPositions = division.GetPositions(context);
                     Func<Position, bool> parentPosPredicate = n => n.Name.ToLower().Contains(parentPosName);
                     List<Position> parentPositions = divisionPositions.Where(parentPosPredicate).ToList();
 

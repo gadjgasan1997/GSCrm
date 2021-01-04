@@ -28,6 +28,7 @@
 
 .empty-table {
     border-collapse: collapse;
+
     thead tr,
     tbody tr {
         td:first-child {
@@ -37,8 +38,26 @@
         td:last-child {
             width: 67%;
             text-align: left;
-            font-size: 28px
+            font-size: 26px
         }
+    }
+
+    .empty-title {
+        margin: 0;
+        white-space: break-spaces;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+}
+
+.empty-title-table {
+    //table-layout: fixed;
+    .empty-title {
+        margin: 0;
+        font-size: 20px;
+        white-space: break-spaces;
+        margin-bottom: 10px;
+        margin-top: 10px;
     }
 }
 
@@ -85,13 +104,12 @@
 /* Responsive */
 
 @media (max-width: 767px) {
-    .fl-table:not([class*="empty-table"]) {
+    .fl-table:not([class*="empty-table"]):not([class*="empty-title-table"]) {
         display: block;
         width: 100%;
 
         thead {
             float: left;
-            padding-top: 10px;
         }
 
         thead, tbody, thead th {
@@ -106,7 +124,6 @@
             width: auto;
             position: relative;
             overflow-x: auto;
-            padding-top: 10px;
         }
 
         td, th {

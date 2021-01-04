@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace GSCrm.Models.ViewModels
 {
@@ -16,15 +16,45 @@ namespace GSCrm.Models.ViewModels
         public string ParentPositionName { get; set; }
         public Guid? PrimaryEmployeeId { get; set; }
         public string PrimaryEmployeeInitialName { get; set; }
+
+        /// <summary>
+        /// Поиск по сотрудникам, занимающим эту должность
+        /// </summary>
+        #region Position Employees Search
+        /// <summary>
+        /// Поиск по инициалам сотрудника
+        /// </summary>
         public string SearchEmployeeInitialName { get; set; }
+        #endregion
+
+        /// <summary>
+        /// Поиск по дочерним должностям
+        /// </summary>
+        #region Position Sub Positions Search
+        /// <summary>
+        /// Поиск по названию должности
+        /// </summary>
         public string SearchSubPositionName { get; set; }
+
+        /// <summary>
+        /// Поиск по основному сотруднику на должности
+        /// </summary>
         public string SearchSubPositionPrimaryEmployee { get; set; }
-        public Dictionary<string, Guid> DivisionIdCash { get; set; } = new Dictionary<string, Guid>();
-        public Dictionary<string, string> SearchEmployeeInitialNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchSubPositionNameCash { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> SearchSubPositionPrimaryEmployeeCash { get; set; } = new Dictionary<string, string>();
+        #endregion
+
+        #region Linked Lists
+        /// <summary>
+        /// Иерархия родительских должностей
+        /// </summary>
         public List<PositionViewModel> PositionsHierarchy { get; set; } = new List<PositionViewModel>();
+        /// <summary>
+        /// Список сотрудников, занимающих эту должность
+        /// </summary>
         public List<EmployeeViewModel> PositionEmployees { get; set; } = new List<EmployeeViewModel>();
+        /// <summary>
+        /// Список дочерних должностей
+        /// </summary>
         public List<PositionViewModel> SubPositions { get; set; } = new List<PositionViewModel>();
+        #endregion
     }
 }

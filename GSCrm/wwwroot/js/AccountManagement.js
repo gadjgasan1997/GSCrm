@@ -23,7 +23,7 @@ class AccountManagement {
     }
 
     /**
-     * Метод получает записи для модельного окна управления командой по клиенту
+     * Метод получает записи для модального окна управления командой по клиенту
      */
     GetRecords(event) {
         return new Promise((resolve, reject) => {
@@ -44,7 +44,7 @@ class AccountManagement {
     }
 
     /**
-     * Метод отрисовывает модельное окно при иницилазиации
+     * Метод отрисовывает модальное окно при иницилазиации
      * @param {*} response 
      */
     Render(response) {
@@ -149,7 +149,7 @@ class AccountManagement {
             "<div class='d-flex w-100 justify-content-between'>" +
             "<h5 class='mr-1'>" + initialName + "</h5>" +
             "<div><div class='oval-mark'></div></div></div>" +
-            "<p class='mb-1'>" + positionName + "</p>" +
+            "<p class='mb-1'>" + (positionName == null ? "" : positionName) + "</p>" +
             "<small class='mb-1'>" + phoneNumber + "</small>" +
             "</a></div>");
 
@@ -159,7 +159,7 @@ class AccountManagement {
             "<div class='d-flex w-100 justify-content-between'>" +
             "<h5 class='mr-1'>" + initialName + "</h5>" +
             "<div><div class='oval-mark-readonly'><div class='icon-checkmark'></div></div></div></div>" +
-            "<p class='mb-1'>" + positionName + "</p>" +
+            "<p class='mb-1'>" + (positionName == null ? "" : positionName) + "</p>" +
             "<small class='mb-1'>" + phoneNumber + "</small>" +
             "</a></div>");
 
@@ -171,13 +171,15 @@ class AccountManagement {
      * @param {*} employee 
      */
     GetAllEmployeesRow(employee) {
+        let positionName = employee["primaryPositionName"];
+        if (positionName == null) positionName = "";
         return "<tr>" +
-        "<td class='employee-id d-none'>" + employee["id"] + "</td>" +
-        "<td>" + employee["fullInitialName"] + "</td>" +
-        "<td>" + employee["divisionName"] + "</td>" +
-        "<td>" + employee["primaryPositionName"] + "</td>" +
-        '<td class="checkmark"><span class="icon-checkmark"></span></td>' +
-        "</tr>"
+            "<td class='employee-id d-none'>" + employee["id"] + "</td>" +
+            "<td>" + employee["fullInitialName"] + "</td>" +
+            "<td>" + employee["divisionName"] + "</td>" +
+            "<td>" + positionName + "</td>" +
+            '<td class="checkmark"><span class="icon-checkmark"></span></td>' +
+            "</tr>";
     }
 
     /**
@@ -441,7 +443,7 @@ class AccountManagement {
             event.preventDefault();
 
             // Запрос подтверждения на закрытие, в случае успеха обнуление переменных и закрытие окна
-            Swal.fire(MessageManager.Invoke("AccTeamModalClosedConfirmation")).then(dialogResult => {
+            Swal.fire(MessageManager.Invoke("NotCommitModalClosedConfirmation")).then(dialogResult => {
                 if (dialogResult.value) {
                     this.ClearAccTeamManagementSearch().then(() => {
                         this.ClearAccTeamChangesHistory();
@@ -472,7 +474,6 @@ class AccountManagement {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
             let clearAccTeamSearchUrl = Localization.GetUri("clearAccTeamSearch");
-
             request.CommonGetRequest(clearAccTeamSearchUrl)
                 .fail(() => reject(error))
                 .done(() => resolve())
@@ -500,7 +501,7 @@ class AccountManagement {
 
             request.JsonPostRequest(syncAccTeamUrl, syncAccTeamData)
                 .fail(response => {
-                    Utils.CommonErrosHandling(response["responseJSON"], ["Synchronize"]);
+                    Utils.CommonErrosHandling(response["responseJSON"], ["SynchronizeManagers"]);
                     reject(errors);
                 })
                 .done(response => {

@@ -54,9 +54,9 @@ class AccountInvoice {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
             let editItemBtn = $(event.currentTarget).closest(".edit-item-btn");
-            let getAddressUrl = $(editItemBtn).find(".edit-item-url a").attr("href");
+            let getInvoiceUrl = $(editItemBtn).find(".edit-item-url a").attr("href");
             
-            request.JsonGetRequest(getAddressUrl)
+            request.JsonGetRequest(getInvoiceUrl)
                 .fail(() => reject())
                 .done(response => {
                     this.InitializeFields(response);
@@ -71,7 +71,7 @@ class AccountInvoice {
      */
     InitializeFields(invoiceData) {
         localStorage.setItem("accountinvoiceData", invoiceData);
-        $("#accAddressId").val(invoiceData["id"]);
+        $("#accInvoiceId").val(invoiceData["id"]);
         $("#updateAccInvoiceBankName").val(invoiceData["bankName"]);
         $("#updateAccInvoiceCity").val(invoiceData["city"]);
         $("#updateAccInvoiceChecking").val(invoiceData["checkingAccount"]);
@@ -87,7 +87,7 @@ class AccountInvoice {
      */
     Update(event) {
         return new Promise((resolve, reject) => {
-            let accInvoiceUpdateUrl = $(event.currentTarget).find(".remove-item-url").text();
+            let accInvoiceUpdateUrl = $(event.currentTarget).closest("#accInvoiceUpdateModal").find("form").attr("action");
             let accInvoiceUpdateData = this.UpdateGetData();
             let request = new AjaxRequests();
 
@@ -105,6 +105,7 @@ class AccountInvoice {
     /** Метод возвращает данные, необходимы для изменения реквизита */
     UpdateGetData() {
         return {
+            Id: $("#accInvoiceId").val(),
             AccountId: $("#accountId").val(),
             BankName: $("#updateAccInvoiceBankName").val(),
             City: $("#updateAccInvoiceCity").val(),
@@ -137,7 +138,10 @@ class AccountInvoice {
             let removeAccInvoiceUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
 
             request.CommonDeleteRequest(removeAccInvoiceUrl)
-                .fail(() => reject())
+                .fail(response => {
+                    Utils.DefaultErrorHandling(response["responseJSON"]);
+                    reject();
+                })
                 .done(() => location.reload());
         });
     }

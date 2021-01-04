@@ -33,6 +33,7 @@
             },
             {
                 "AutocompliteNames": ["AccountManager"],
+                "GetUrlOverride": "GetPrimaryAccountManager",
                 "SelectPropertyName": "fullInitialName"
             }
         ],

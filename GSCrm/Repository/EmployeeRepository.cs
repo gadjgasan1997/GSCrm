@@ -1,116 +1,119 @@
-﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.DataTransformers;
+﻿using GSCrm.Mapping;
 using GSCrm.Helpers;
-using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Validators;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
+using GSCrm.Data;
+using GSCrm.Transactions;
+using GSCrm.Models.ViewTypes;
+using GSCrm.Models.Enums;
+using GSCrm.Notifications;
+using GSCrm.Notifications.Factories.UserNotFactories0;
+using GSCrm.Notifications.Params;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GSCrm.Repository
 {
-    public class EmployeeRepository : GenericRepository<Employee, EmployeeViewModel, EmployeeValidator, EmployeeTransformer>
+    public class EmployeeRepository : BaseRepository<Employee, EmployeeViewModel>
     {
-        private User userAccount;
-        private readonly User currentUser;
+        #region Declarations
         private readonly UserManager<User> userManager;
-        private Organization currentOrganization;
-        public static EmployeeViewModel CurrentEmployee { get; set; }
-        public EmployeeRepository(ApplicationDbContext context, ResManager resManager) : base(context, resManager) { }
-        public EmployeeRepository(ApplicationDbContext context, IViewsInfo viewsInfo, ResManager resManager, HttpContext httpContext = null, UserManager<User> userManager = null)
-            : base(context, viewsInfo, resManager, new EmployeeValidator(userManager, context, resManager), new EmployeeTransformer(context, resManager, httpContext))
+        /// <summary>
+        /// Все основные типы представлений, связанные с сотрудником
+        /// </summary>
+        public static EmployeeViewType[] EmpBaseViewTypes => new EmployeeViewType[] {
+            EmployeeViewType.EMP_POSITIONS, EmployeeViewType.EMP_CONTACTS, EmployeeViewType.EMP_SUBS };
+        #endregion
+
+        #region Construts
+        public EmployeeRepository(IServiceProvider serviceProvider, ApplicationDbContext context, UserManager<User> userManager = null)
+            : base(serviceProvider, context)
         {
-            this.userManager = userManager;
-            if (httpContext != null)
-                currentUser = httpContext.GetCurrentUser(context);
+            this.userManager = serviceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
         }
+        #endregion
 
         #region Override Methods
-        public override bool TryCreatePrepare(EmployeeViewModel employeeViewModel, ModelStateDictionary modelState)
+        public override bool HasPermissionsForSeeItem(Employee employee)
         {
-            if (!base.TryCreatePrepare(employeeViewModel, modelState)) return false;
-            SetUpCurrentOrganization(employeeViewModel);
-            if (!TryPrepareUserAccount(employeeViewModel, modelState)) return false;
-            SetUpUserOrganization(userAccount);
-            employeeViewModel.UserId = userAccount.Id;
-
-            // Проставление Id основной организации новому сотруднику
-            if (userAccount.PrimaryOrganizationId == Guid.Empty)
-                userAccount.PrimaryOrganizationId = currentUser.PrimaryOrganizationId;
-            context.Users.Update(userAccount);
-            return true;
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            return organizationRepository.HasPermissionsForSeeOrgItem();
         }
 
-        public override void FailureUpdateHandler(EmployeeViewModel employeeViewModel, Action<EmployeeViewModel> handler = null)
+        protected override bool RespsIsCorrectOnCreate(EmployeeViewModel employeeViewModel)
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpCreate", transaction);
+
+        protected override bool TryCreatePrepare(EmployeeViewModel employeeViewModel)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => CheckEmployeeAccount(employeeViewModel),
+                () => {
+                    new PersonValidator(resManager)
+                        .CheckPersonName(employeeViewModel.FirstName, employeeViewModel.LastName, employeeViewModel.MiddleName, ref errors);
+                },
+                () => {
+                    new PersonValidator(resManager).CheckPersonEmail(employeeViewModel.Email, errors);
+                },
+                () => CheckDivisionLength(employeeViewModel),
+                () => DivisionExists(currentOrganization.GetDivisions(context), employeeViewModel.DivisionName),
+                () => CheckPositionLength(employeeViewModel),
+                () => CheckPositionExists(employeeViewModel),
+                () => TryPrepareEmployeeAccount(employeeViewModel)
+            });
+            return !errors.Any();
+        }
+
+        protected override bool RespsIsCorrectOnUpdate(EmployeeViewModel employeeViewModel)
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpUpdate", transaction);
+
+        protected override bool TryUpdatePrepare(EmployeeViewModel employeeViewModel)
+        {
+            new PersonValidator(resManager).CheckPersonName(employeeViewModel.FirstName, employeeViewModel.LastName, employeeViewModel.MiddleName, ref errors);
+            return !errors.Any();
+        }
+
+        protected override void FailureUpdateHandler(EmployeeViewModel employeeViewModel)
         {
             if (TryGetItemById(employeeViewModel.Id, out Employee employee))
             {
-                employeeViewModel = transformer.DataToViewModel(employee);
-                employeeViewModel = transformer.UpdateViewModelFromCash(employeeViewModel);
-                AttachContacts(employeeViewModel);
+                employeeViewModel = map.DataToViewModel(employee);
+                employeeViewModel = new EmployeeMap(serviceProvider, context).Refresh(employeeViewModel, currentUser, EmpBaseViewTypes);
                 AttachPositions(employeeViewModel);
+                AttachContacts(employeeViewModel);
+                AttachSubordinates(employeeViewModel);
             }
         }
 
-        public override bool TryDeletePrepare(Guid id, Employee employee, ModelStateDictionary modelState)
+        protected override bool RespsIsCorrectOnDelete(Employee employee)
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpDelete", transaction);
+
+        protected override bool TryDeletePrepare(Employee employee)
         {
-            if (!base.TryDeletePrepare(id, employee, modelState)) return false;
             RemoveUserOrganization(employee);
-            new AccountRepository(context, resManager).CheckAccountsForLock(employee);
+            new AccountRepository(serviceProvider, context).CheckAccountsForLock(employee, transaction);
             return true;
         }
         #endregion
 
         #region Searching
         /// <summary>
-        /// Метод устанавливает значения для поиска по должностям
-        /// </summary>
-        /// <param name="empViewModelCash"></param>
-        /// <returns></returns>
-        public void SearchPosition(EmployeeViewModel employeeViewModel)
-        {
-            //viewsInfo.Reset(EMP_POSITIONS);
-            EmployeeViewModel empViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_POSITIONS);
-            empViewModelCash.DivisionIdCash.AddOrReplace(currentUser.Id, employeeViewModel.DivisionId);
-            empViewModelCash.SearchPosNameCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchPosName?.ToLower().TrimStartAndEnd());
-            empViewModelCash.SearchParentPosNameCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchParentPosName?.ToLower().TrimStartAndEnd());
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, EMP_POSITIONS, empViewModelCash);
-        }
-
-        /// <summary>
         /// Метод очищает поиск по должностям
         /// </summary>
         public void ClearPositionSearch()
         {
-            EmployeeViewModel empViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_POSITIONS);
-            empViewModelCash.SearchPosNameCash.AddOrReplace(currentUser.Id, default);
-            empViewModelCash.SearchParentPosNameCash.AddOrReplace(currentUser.Id, default);
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, EMP_POSITIONS, empViewModelCash);
-        }
-
-        /// <summary>
-        /// Метод устанавливает значения для поиска по должностям
-        /// </summary>
-        /// <param name="empViewModelCash"></param>
-        /// <returns></returns>
-        public void SearchContact(EmployeeViewModel employeeViewModel)
-        {
-            //viewsInfo.Reset(EMP_CONTACTS);
-            EmployeeViewModel empViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_CONTACTS);
-            empViewModelCash.DivisionIdCash.AddOrReplace(currentUser.Id, employeeViewModel.DivisionId);
-            empViewModelCash.SearchContactTypeCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchContactType);
-            empViewModelCash.SearchContactPhoneCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchContactPhone?.ToLower().TrimStartAndEnd());
-            empViewModelCash.SearchContactEmailCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchContactEmail?.ToLower().TrimStartAndEnd());
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, EMP_CONTACTS, empViewModelCash);
+            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_POSITIONS);
+            empViewModelCash.SearchPosName = default;
+            empViewModelCash.SearchParentPosName = default;
+            cachService.CacheItem(currentUser.Id, EMP_POSITIONS, empViewModelCash);
         }
 
         /// <summary>
@@ -118,24 +121,11 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearContactSearch()
         {
-            EmployeeViewModel empViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_CONTACTS);
-            empViewModelCash.SearchContactTypeCash.AddOrReplace(currentUser.Id, string.Empty);
-            empViewModelCash.SearchContactPhoneCash.AddOrReplace(currentUser.Id, default);
-            empViewModelCash.SearchContactEmailCash.AddOrReplace(currentUser.Id, default);
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, EMP_CONTACTS, empViewModelCash);
-        }
-
-        /// <summary>
-        /// Метод устанавливает значения для поиска по подчиненным
-        /// </summary>
-        /// <param name="empViewModelCash"></param>
-        /// <returns></returns>
-        public void SearchSubordinate(EmployeeViewModel employeeViewModel)
-        {
-            //viewsInfo.Reset(EMP_SUBS);
-            EmployeeViewModel empViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_SUBS);
-            empViewModelCash.SearchSubordinateFullNameCash.AddOrReplace(currentUser.Id, employeeViewModel.SearchSubordinateFullName?.ToLower().TrimStartAndEnd());
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, EMP_SUBS, empViewModelCash);
+            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_CONTACTS);
+            empViewModelCash.SearchContactType = default;
+            empViewModelCash.SearchContactPhone = default;
+            empViewModelCash.SearchContactEmail = default;
+            cachService.CacheItem(currentUser.Id, EMP_CONTACTS, empViewModelCash);
         }
 
         /// <summary>
@@ -143,9 +133,9 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSubordinateSearch()
         {
-            EmployeeViewModel empViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_SUBS);
-            empViewModelCash.SearchSubordinateFullNameCash.AddOrReplace(currentUser.Id, default);
-            ModelCash<EmployeeViewModel>.SetViewModel(currentUser.Id, EMP_SUBS, empViewModelCash);
+            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_SUBS);
+            empViewModelCash.SearchSubordinateFullName = default;
+            cachService.CacheItem(currentUser.Id, EMP_SUBS, empViewModelCash);
         }
         #endregion
 
@@ -157,18 +147,16 @@ namespace GSCrm.Repository
         public void AttachPositions(EmployeeViewModel employeeViewModel)
         {
             employeeViewModel.EmployeePositionViewModels = employeeViewModel.GetPositions(context)
-                .TransformToViewModels<EmployeePosition, EmployeePositionViewModel, EmployeePositionTransformer>(
-                    transformer: new EmployeePositionTransformer(context, resManager),
-                    limitingFunc: GetLimitedPositionsList);
+                .MapToViewModels(new EmployeePositionMap(serviceProvider, context), GetLimitedPositionsList);
         }
 
         private List<EmployeePosition> GetLimitedPositionsList(List<EmployeePosition> positions)
         {
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_POSITIONS);
+            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_POSITIONS);
             List<EmployeePosition> limitedPositions = positions;
             LimitPosByName(employeeViewModelCash, ref limitedPositions);
             LimitPosByParent(employeeViewModelCash, ref limitedPositions);
-            LimitListByPageNumber(currentUser.Id, EMP_POSITIONS, ref limitedPositions);
+            LimitListByPageNumber(EMP_POSITIONS, ref limitedPositions);
             return limitedPositions;
         }
 
@@ -179,14 +167,12 @@ namespace GSCrm.Repository
         /// <param name="positionsToLimit"></param>
         private void LimitPosByName(EmployeeViewModel employeeViewModelCash, ref List<EmployeePosition> positionsToLimit)
         {
-            string searchPosName = employeeViewModelCash.SearchPosNameCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchPosName))
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchPosName))
             {
-                employeeViewModelCash.DivisionId = employeeViewModelCash.DivisionIdCash.GetValueOrDefault(currentUser.Id);
                 TransformCollection(
                     collectionToLimit: ref positionsToLimit,
-                    limitingCollection: employeeViewModelCash.GetDivision(context).Positions,
-                    limitCondition: n => n.Name.ToLower().Contains(searchPosName),
+                    limitingCollection: employeeViewModelCash.GetDivision(context).GetPositions(context),
+                    limitCondition: n => n.Name.ToLower().Contains(employeeViewModelCash.SearchPosName),
                     selectCondition: i => i.Id,
                     removeCondition: (positionIdList, employeePosition) => employeePosition.PositionId == null || !positionIdList.Contains((Guid)employeePosition.PositionId));
             }
@@ -199,8 +185,8 @@ namespace GSCrm.Repository
         /// <param name="positionsToLimit"></param>
         private void LimitPosByParent(EmployeeViewModel employeeViewModelCash, ref List<EmployeePosition> positionsToLimit)
         {
-            string searchParentPosName = employeeViewModelCash.SearchParentPosNameCash.GetValueOrDefault(currentUser.Id);
-            positionsToLimit = positionsToLimit.LimitByParent(context, employeeViewModelCash, searchParentPosName, currentUser.Id);
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchParentPosName))
+                positionsToLimit = positionsToLimit.LimitByParent(context, employeeViewModelCash, employeeViewModelCash.SearchParentPosName);
         }
         #endregion
 
@@ -212,19 +198,17 @@ namespace GSCrm.Repository
         public void AttachContacts(EmployeeViewModel employeeViewModel)
         {
             employeeViewModel.EmployeeContactViewModels = employeeViewModel.GetContacts(context)
-                .TransformToViewModels<EmployeeContact, EmployeeContactViewModel, EmployeeContactTransformer>(
-                    transformer: new EmployeeContactTransformer(context, resManager),
-                    limitingFunc: GetLimitedContactsList);
+                .MapToViewModels(new EmployeeContactMap(serviceProvider, context), GetLimitedContactsList);
         }
 
         private List<EmployeeContact> GetLimitedContactsList(List<EmployeeContact> contacts)
         {
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_CONTACTS);
+            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_CONTACTS);
             List<EmployeeContact> limitedContacts = contacts;
             LimitContactsByType(employeeViewModelCash, ref limitedContacts);
             LimitContactsByPhone(employeeViewModelCash, ref limitedContacts);
             LimitContactsByEmail(employeeViewModelCash, ref limitedContacts);
-            LimitListByPageNumber(currentUser.Id, EMP_CONTACTS, ref limitedContacts);
+            LimitListByPageNumber(EMP_CONTACTS, ref limitedContacts);
             return limitedContacts;
         }
 
@@ -235,9 +219,8 @@ namespace GSCrm.Repository
         /// <param name="contactsToLimit"></param>
         private void LimitContactsByType(EmployeeViewModel employeeViewModelCash, ref List<EmployeeContact> contactsToLimit)
         {
-            string searchContactType = employeeViewModelCash.SearchContactTypeCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchContactType))
-                contactsToLimit = contactsToLimit.Where(t => t.ContactType.ToString() == searchContactType).ToList();
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchContactType))
+                contactsToLimit = contactsToLimit.Where(t => t.ContactType.ToString() == employeeViewModelCash.SearchContactType).ToList();
         }
 
         /// <summary>
@@ -247,9 +230,8 @@ namespace GSCrm.Repository
         /// <param name="contactsToLimit"></param>
         private void LimitContactsByPhone(EmployeeViewModel employeeViewModelCash, ref List<EmployeeContact> contactsToLimit)
         {
-            string searchContactPhone = employeeViewModelCash.SearchContactPhoneCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchContactPhone))
-                contactsToLimit = contactsToLimit.Where(p => p.PhoneNumber.ToLower().Contains(searchContactPhone)).ToList();
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchContactPhone))
+                contactsToLimit = contactsToLimit.Where(p => p.PhoneNumber.ToLower().Contains(employeeViewModelCash.SearchContactPhone)).ToList();
         }
 
         /// <summary>
@@ -259,9 +241,8 @@ namespace GSCrm.Repository
         /// <param name="contactsToLimit"></param>
         private void LimitContactsByEmail(EmployeeViewModel employeeViewModelCash, ref List<EmployeeContact> contactsToLimit)
         {
-            string searchContactEmail = employeeViewModelCash.SearchContactEmailCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchContactEmail))
-                contactsToLimit = contactsToLimit.Where(p => p.Email.ToLower().Contains(searchContactEmail)).ToList();
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchContactEmail))
+                contactsToLimit = contactsToLimit.Where(p => p.Email.ToLower().Contains(employeeViewModelCash.SearchContactEmail)).ToList();
         }
         #endregion
 
@@ -273,17 +254,15 @@ namespace GSCrm.Repository
         public void AttachSubordinates(EmployeeViewModel employeeViewModel)
         {
             employeeViewModel.SubordinatesViewModels = employeeViewModel.GetSubordinates(context)
-                .TransformToViewModels<Employee, EmployeeViewModel, EmployeeTransformer>(
-                    transformer: new EmployeeTransformer(context, resManager),
-                    limitingFunc: GetLimitedSubordinatesList);
+                .MapToViewModels(new EmployeeMap(serviceProvider, context), GetLimitedSubordinatesList);
         }
 
         private List<Employee> GetLimitedSubordinatesList(List<Employee> employees)
         {
-            EmployeeViewModel employeeViewModelCash = ModelCash<EmployeeViewModel>.GetViewModel(currentUser.Id, EMP_SUBS);
+            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_SUBS);
             List<Employee> limitedSubordinates = employees;
             LimitSubordinatesByFullName(employeeViewModelCash, ref limitedSubordinates);
-            LimitListByPageNumber(currentUser.Id, EMP_SUBS, ref limitedSubordinates);
+            LimitListByPageNumber(EMP_SUBS, ref limitedSubordinates);
             return limitedSubordinates;
         }
 
@@ -294,9 +273,215 @@ namespace GSCrm.Repository
         /// <param name="employeesToLimit"></param>
         private void LimitSubordinatesByFullName(EmployeeViewModel employeeViewModelCash, ref List<Employee> employeesToLimit)
         {
-            string searchSubordinateFullName = employeeViewModelCash.SearchSubordinateFullNameCash.GetValueOrDefault(currentUser.Id);
-            if (!string.IsNullOrEmpty(searchSubordinateFullName))
-                employeesToLimit = employeesToLimit.Where(emp => emp.GetFullName().ToLower().Contains(searchSubordinateFullName)).ToList();
+            if (!string.IsNullOrEmpty(employeeViewModelCash.SearchSubordinateFullName))
+                employeesToLimit = employeesToLimit.Where(emp => emp.GetFullName().ToLower().Contains(employeeViewModelCash.SearchSubordinateFullName)).ToList();
+        }
+        #endregion
+
+        #region Validations
+        /// <summary>
+        /// Проверяет прикрепленный к работнику или вновь созданный аккаунт
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        private void CheckEmployeeAccount(EmployeeViewModel employeeViewModel)
+        {
+            if (employeeViewModel.UserAccountExists)
+                CheckExistsEmployeeAccount(employeeViewModel);
+            else CheckNewEmployeeAccount(employeeViewModel);
+        }
+
+        /// <summary>
+        /// Проверяет на существование и занятость акккаунт
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        private void CheckExistsEmployeeAccount(EmployeeViewModel employeeViewModel)
+        {
+            // Проверка имени пользователя
+            if (string.IsNullOrEmpty(employeeViewModel.UserName))
+            {
+                errors.Add("UserNameIsNull", resManager.GetString("UserNameIsNull"));
+                return;
+            }
+
+            // Проверка, что такая учетная запись существует в этой организации
+            User user = context.Users
+                .Include(u => u.UserOrganizations)
+                .AsNoTracking().FirstOrDefault(n => n.UserName == employeeViewModel.UserName);
+            if (user == null)
+            {
+                errors.Add("UserNotExists", resManager.GetString("UserNotExists"));
+                return;
+            }
+            else transaction.AddParameter("UserAccount", user);
+
+            // Проверка, что пользователю уже не было выслано приглашение
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            if (user.UserOrganizations.FirstOrDefault(org => org.OrganizationId == currentOrganization.Id && !org.Accepted) != null)
+            {
+                errors.Add("UserAlreadyHasInviteNotification", resManager.GetString("UserAlreadyHasInviteNotification"));
+                return;
+            }
+
+            // Проверка, что учетная запись не занята другим сотрудником
+            Employee employeeWithSameAccount = context.GetOrgEmployees(employeeViewModel.OrganizationId).FirstOrDefault(i => i.UserId == Guid.Parse(user.Id));
+            if (employeeWithSameAccount != null)
+            {
+                errors.Add("UserAccountIsBusy", $"{resManager.GetString("UserAccountIsBusy")}: {employeeWithSameAccount.GetIntialsFullName()}");
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Проверяет новый созданный акккаунт
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        private void CheckNewEmployeeAccount(EmployeeViewModel employeeViewModel)
+        {
+            AuthRepository authRepository = new AuthRepository(serviceProvider, context);
+            UserViewModel userModel = new UserViewModel()
+            {
+                UserName = employeeViewModel.UserName,
+                Email = employeeViewModel.Email,
+                Password = employeeViewModel.Password,
+                ConfirmPassword = employeeViewModel.ConfirmPassword
+            };
+            authRepository.TrySignupValidate(userModel);
+            authRepository.Errors.ToList().ForEach(error => errors.Add(error.Key, error.Value));
+        }
+
+        /// <summary>
+        /// Проверка на заполненность подразделения
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        private void CheckDivisionLength(EmployeeViewModel employeeViewModel)
+        {
+            if (string.IsNullOrEmpty(employeeViewModel.DivisionName))
+                errors.Add("DivisionNameLength", resManager.GetString("DivisionNameLength"));
+        }
+
+        /// <summary>
+        /// Метод проверяет наличие подразделения с таким именем
+        /// </summary>
+        /// <param name="allDivisions"></param>
+        /// <param name="divisionName"></param>
+        /// <returns></returns>
+        private bool DivisionExists(List<Division> allDivisions, string divisionName)
+        {
+            Division division = allDivisions.FirstOrDefault(n => n.Name == divisionName);
+            if (division != null)
+            {
+                transaction.AddParameter("Division", division);
+                return true;
+            }
+            errors.Add("DivisionNotExists", resManager.GetString("DivisionNotExists"));
+            return false;
+        }
+
+        /// <summary>
+        /// Проверка на заполненность основной должности
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        private void CheckPositionLength(EmployeeViewModel employeeViewModel)
+        {
+            if (string.IsNullOrEmpty(employeeViewModel.PrimaryPositionName))
+                errors.Add("PositionNameLength", resManager.GetString("PositionNameLength"));
+        }
+
+        /// <summary>
+        /// Метод проверяет наличие должности в поданом на вход подразделении
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        /// <param name="division"></param>
+        private void CheckPositionExists(EmployeeViewModel employeeViewModel)
+        {
+            Division division = (Division)transaction.GetParameterValue("Division");
+            Position primaryPosition = division.GetPositions(context).FirstOrDefault(n => n.Name == employeeViewModel.PrimaryPositionName);
+            if (primaryPosition == null)
+            {
+                errors.Add("PositionNotExists", resManager.GetString("PositionNotExists"));
+                return;
+            }
+            transaction.AddParameter("PrimaryPosition", primaryPosition);
+        }
+
+        /// <summary>
+        /// Метод проверяет модель при изменении подразделения на сотруднике
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        /// <param name="modelState"></param>
+        /// <returns></returns>
+        private bool TryChangeDivisionValidate(EmployeeViewModel employeeViewModel)
+        {
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => {
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpChangeDiv", transaction))
+                         AddHasNoPermissionsError(OperationType.ChangeEmployeeDivision);
+                },
+                () => CheckDivisionLength(employeeViewModel),
+                () => CheckPositionLength(employeeViewModel),
+                () => CheckDivisionForSelected(employeeViewModel),
+                () => {
+                    if (!errors.Any() && DivisionExists((List<Division>)transaction.GetParameterValue("AllDivisions"), employeeViewModel.DivisionName))
+                        CheckPositionExists(employeeViewModel);
+                }
+            });
+            return !errors.Any();
+        }
+
+        /// <summary>
+        /// Метод проверяет, что пользователь выбрал другое подразделение для сотрудника при его изменении
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        /// <param name="division"></param>
+        private void CheckDivisionForSelected(EmployeeViewModel employeeViewModel)
+        {
+            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            List<Division> allDivisions = (List<Division>)transaction.GetParameterValue("AllDivisions");
+            Division currentDivision = allDivisions.FirstOrDefault(i => i.Id == employee.DivisionId);
+            if (currentDivision.Name == employeeViewModel.DivisionName)
+                errors.Add("ThisEmployeeDivisionIsAlreadySelect", resManager.GetString("ThisEmployeeDivisionIsAlreadySelect"));
+        }
+
+        /// <summary>
+        /// Метод проверяет модель при разблокировке сотрудника в случае блокировки из-за отсутствия должности
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        /// <returns></returns>
+        private bool TryUnlockValidateOnPositionAbsent(EmployeeViewModel employeeViewModel)
+        {
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => {
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpUnlock", transaction))
+                         AddHasNoPermissionsError(OperationType.UnlockEmployee);
+                },
+                () => CheckDivisionLength(employeeViewModel),
+                () => CheckPositionLength(employeeViewModel),
+                () => {
+                    if (DivisionExists((List<Division>)transaction.GetParameterValue("AllDivisions"), employeeViewModel.DivisionName))
+                        CheckPositionExists(employeeViewModel);
+                }
+            });
+            return !errors.Any();
+        }
+
+        /// <summary>
+        /// Метод проверяет модель при разблокировке сотрудника в случае его выхода из организации
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        /// <returns></returns>
+        private bool TryUnlockValidateOnUserAccountAbsent(EmployeeViewModel employeeViewModel)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => CheckEmployeeAccount(employeeViewModel),
+                () => {
+                    new PersonValidator(resManager).CheckPersonEmail(employeeViewModel.Email, errors);
+                }
+            });
+            return !errors.Any();
         }
         #endregion
 
@@ -309,31 +494,30 @@ namespace GSCrm.Repository
         {
             Organization organization = employeeToDelete.GetOrganization(context);
             Func<UserOrganization, bool> predicate = i => i.UserId == employeeToDelete.UserId.ToString() && i.OrganizationId == organization.Id;
-            UserOrganization userOrganization = context.UserOrganizations.FirstOrDefault(predicate);
-            context.Entry(userOrganization).State = EntityState.Deleted;
-            context.UserOrganizations.Remove(userOrganization);
+            UserOrganization userOrganization = context.UserOrganizations.AsNoTracking().FirstOrDefault(predicate);
+            transaction.AddChange(userOrganization, EntityState.Deleted);
         }
 
         /// <summary>
-        /// Метод выполняет попытку смены подразделения и, в случае неуспеха, записывает в модель состояния ошибки
+        /// Метод выполняет попытку смены подразделения
         /// </summary>
         /// <param name="employeeViewModel"></param>
-        /// <param name="modelState"></param>
         /// <returns></returns>
-        public bool TryChangeDivision(EmployeeViewModel employeeViewModel, ModelStateDictionary modelState)
+        public bool TryChangeDivision(EmployeeViewModel employeeViewModel, out Dictionary<string, string> errors)
         {
-            if (TryChangeDivisionValidate(employeeViewModel, modelState))
+            errors = new Dictionary<string, string>();
+            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangeEmployeeDivision, employeeViewModel);
+            if (TryChangeDivisionValidate(employeeViewModel))
             {
-                SetUpCurrentOrganization(employeeViewModel);
-                Division newDivision = GetNewDivision(employeeViewModel);
-                Position newPrimaryPosition = GetNewPrimaryPosition(employeeViewModel, newDivision);
-                Employee employee = context.Employees.Include(pos => pos.EmployeePositions).FirstOrDefault(i => i.Id == employeeViewModel.Id);
-                SetNewDivision(employee, newDivision);
-                RemoveOldEmployeePositions(employee);
-                AddEmployeePosition(employee, newPrimaryPosition);
-                context.SaveChanges();
-                return true;
+                new EmployeeMap(serviceProvider, context).ChangeDivision(employeeViewModel);
+                if (transactionFactory.TryCommit(transaction, this.errors))
+                {
+                    transactionFactory.Close(transaction);
+                    return true;
+                }
             }
+            transactionFactory.Close(transaction, TransactionStatus.Error);
+            errors = this.errors;
             return false;
         }
 
@@ -343,217 +527,163 @@ namespace GSCrm.Repository
         /// <param name="employeeViewModel"></param>
         /// <param name="modelState"></param>
         /// <returns></returns>
-        public bool TryUnlock(ref EmployeeViewModel employeeViewModel, ModelStateDictionary modelState)
+        public bool TryUnlock(ref EmployeeViewModel employeeViewModel, out Dictionary<string, string> errors)
         {
             // Получение сотрудника из бд
-            Guid employeeId = employeeViewModel.Id;
-            Employee employee = context.Employees
-                .Include(empPos => empPos.EmployeePositions)
-                .FirstOrDefault(i => i.Id == employeeId);
+            transaction = transactionFactory.Create(currentUser.Id, OperationType.UnlockEmployee, employeeViewModel);
+            Employee employee = (Employee)transaction.GetParameterValue("Employee");
 
-            /* Если валидация проходит успешно, происходят действия по разблокировке и
-            данные из бд преобразуются в данные для отображения с прикреплением контактов и должностей */
-            if (TryUnlockValidate(employeeViewModel, modelState))
+            // В зависимости от причины, по которой был заблокирован сотрудник
+            switch (employee.EmployeeLockReason)
             {
-                UnlockEmployeeSetDivision(employeeViewModel, employee);
-                UnlockEmployeeSetPosition(employeeViewModel, employee);
-                employee.Unlock();
-                context.Update(employee);
-                context.SaveChanges();
+                // Разблокировка в случае блокировки из-за выхода сотрудника из организации или отказа от приглашения
+                case EmployeeLockReason.RejectInvite:
+                case EmployeeLockReason.EmployeeLeftOrganization:
+                    if (TryUnlockValidateOnUserAccountAbsent(employeeViewModel) && TryPrepareEmployeeAccount(employeeViewModel))
+                    {
+                        // Маппинг
+                        new EmployeeMap(serviceProvider, context).UnlockEmployeeOnUserAccountAbsent(employeeViewModel.UserAccountExists);
 
-                employeeViewModel = transformer.DataToViewModel(employee);
-                AttachPositions(employeeViewModel);
-                AttachContacts(employeeViewModel);
-                return true;
+                        // Попытка сделать коммит
+                        if (transactionFactory.TryCommit(transaction, this.errors))
+                        {
+                            transactionFactory.Close(transaction);
+                            employeeViewModel = map.DataToViewModel(employee);
+                            AttachPositions(employeeViewModel);
+                            AttachContacts(employeeViewModel);
+                            errors = this.errors;
+                            return true;
+                        }
+                    }
+                    break;
+
+                // Разблокировка в случае блокировки из-за отсутствия подразделения или основной должности
+                case EmployeeLockReason.DivisionAbsent:
+                case EmployeeLockReason.PrimaryPositionAbsent:
+                default:
+                    /* Если валидация проходит успешно, происходят действия по разблокировке и
+                       данные из бд преобразуются в данные для отображения с прикреплением контактов и должностей */
+                    if (TryUnlockValidateOnPositionAbsent(employeeViewModel))
+                    {
+                        // Маппинг
+                        new EmployeeMap(serviceProvider, context).UnlockEmployeeOnPositionAbsent();
+
+                        // Попытка сделать коммит
+                        if (transactionFactory.TryCommit(transaction, this.errors))
+                        {
+                            transactionFactory.Close(transaction);
+                            employeeViewModel = map.DataToViewModel(employee);
+                            AttachPositions(employeeViewModel);
+                            AttachContacts(employeeViewModel);
+                            errors = this.errors;
+                            return true;
+                        }
+                    }
+                    break;
             }
 
             // Иначе данные из бд преобразуются в данные для отображения без прикрепления контактов и должностей
-            else
-            {
-                employeeViewModel = transformer.DataToViewModel(employee);
-                return false;
-            }
+            errors = this.errors;
+            employeeViewModel = map.DataToViewModel(employee);
+            transactionFactory.Close(transaction, TransactionStatus.Error);
+            return false;
         }
 
         /// <summary>
-        /// Метод устанавливает новое подразделение при разблокировке сотруднкиа
+        /// Метод выполняет подготовительные действия, необходимые при создании аккаунта сотрудника
         /// </summary>
         /// <param name="employeeViewModel"></param>
-        private void UnlockEmployeeSetDivision(EmployeeViewModel employeeViewModel, Employee employee)
+        /// <returns></returns>
+        private bool TryPrepareEmployeeAccount(EmployeeViewModel employeeViewModel)
         {
-            Division employeeDivision = employee.GetDivision(context);
-            if (employeeDivision.Name != employeeViewModel.DivisionName)
+            InvokeIntermittinActions(errors, new List<Action>()
             {
-                List<Division> divisions = context.GetOrgDivisions(employeeViewModel.OrganizationId);
-                Division newDivision = divisions.FirstOrDefault(n => n.Name == employeeViewModel.DivisionName);
-                SetNewDivision(employee, newDivision);
-            }
+                () => {
+                    // В случае, если такой аккаунт существует, а не был создан организацией, пользователю высылается инвайт
+                    if (employeeViewModel.UserAccountExists)
+                        SendOrgInvite();
+                    else TryCreateUserAccount(employeeViewModel);
+                },
+                () => {
+                    // Если аккаунт существует, то добавляется организация в список организаций пользователя с признаком, что приглашение в организацию не было принято
+                    if (employeeViewModel.UserAccountExists)
+                        CreateUserOrganization(false);
+                    else
+                    {
+                        // Иначе организация добавляется в список организаций пользователя с признаком, что приглашение было приянто
+                        // и добавляется настройка уведомлений от этой организации
+                        CreateUserOrganization();
+                        OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+                        organizationRepository.CreateOrgNotificationsSetting(transaction);
+                    }
+                }
+            });
+            return !errors.Any();
         }
-
-        /// <summary>
-        /// Метод устанавливает новую должность при разблокировке сотрудника
-        /// </summary>
-        /// <param name="employeeViewModel"></param>
-        private void UnlockEmployeeSetPosition(EmployeeViewModel employeeViewModel, Employee employee)
-        {
-            Division employeeDivision = employee.GetDivision(context);
-            Position newPosition = employeeDivision.Positions.FirstOrDefault(n => n.Name == employeeViewModel.PrimaryPositionName);
-            if (!employee.EmployeePositions.ContainsPosition(newPosition))
-                AddEmployeePosition(employee, newPosition);
-            SetPrimaryPosition(employee, newPosition);
-        }
-
-        /// <summary>
-        /// Устанаваливает текущую организацию
-        /// </summary>
-        /// <param name="employeeViewModel"></param>
-        private void SetUpCurrentOrganization(EmployeeViewModel employeeViewModel) => currentOrganization = employeeViewModel.GetOrganization(context);
 
         /// <summary>
         /// Метод проверяет существует ли пользователь с таким именем в организации, и если нет, создает его
         /// </summary>
         /// <param name="employeeViewModel"></param>
-        private bool TryPrepareUserAccount(EmployeeViewModel employeeViewModel, ModelStateDictionary modelState)
+        private bool TryCreateUserAccount(EmployeeViewModel employeeViewModel)
         {
-            if (employeeViewModel.UserAccountExists)
-                userAccount = context.Users.FirstOrDefault(n => n.UserName == employeeViewModel.UserName);
-            else
+            // Создание пользователя
+            AuthRepository authRepository = new AuthRepository(serviceProvider, context);
+            User userAccount = authRepository.TryCreateUser(new UserViewModel()
             {
-                userAccount = new User()
-                {
-                    UserName = employeeViewModel.UserName,
-                    Email = employeeViewModel.Email,
-                    EmailConfirmed = true
-                };
-                IdentityResult identityResult = userManager.CreateAsync(userAccount, employeeViewModel.Password).Result;
-                if (!identityResult.Succeeded)
-                {
-                    foreach (IdentityError identityError in identityResult.Errors)
-                        modelState.AddModelError(identityError.Code, identityError.Description);
-                    return false;
-                }
+                UserName = employeeViewModel.UserName,
+                Email = employeeViewModel.Email,
+                Password = employeeViewModel.Password,
+                ConfirmPassword = employeeViewModel.ConfirmPassword,
+                EmailConfirmed = true
+            }, errors, transaction).Result;
+
+            // Если не было ошибок
+            if (userAccount != null)
+            {
+                // Проставление Id основной организации новому сотруднику
+                if (userAccount.PrimaryOrganizationId == Guid.Empty)
+                    userAccount.PrimaryOrganizationId = currentUser.PrimaryOrganizationId;
+                transaction.AddParameter("UserAccount", userAccount);
+                return true;
             }
-            return true;
+
+            return false;
         }
 
         /// <summary>
         /// Метод добавляет организацию в список организаций пользователя
         /// </summary>
-        /// <param name="employeeViewModel"></param>
-        private void SetUpUserOrganization(User user)
+        /// <param name="acceptedFlag">Признак, принял ли пользователь приглашение в организацию</param>
+        private void CreateUserOrganization(bool acceptedFlag = true)
         {
-            user.UserOrganizations.Add(new UserOrganization()
+            User userAccount = (User)transaction.GetParameterValue("UserAccount");
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            UserOrganization newUserOrganization = new UserOrganization()
             {
+                Accepted = acceptedFlag,
                 Organization = currentOrganization,
                 OrganizationId = currentOrganization.Id,
-                User = user,
-                UserId = user.Id
-            });
-        }
-
-        /// <summary>
-        /// Метод проверяет модель при изменении подразделения на сотруднике
-        /// </summary>
-        /// <param name="employeeViewModel"></param>
-        /// <param name="modelState"></param>
-        /// <returns></returns>
-        private bool TryChangeDivisionValidate(EmployeeViewModel employeeViewModel, ModelStateDictionary modelState)
-        {
-            Dictionary<string, string> errors = validator.ChangeDivisionCheck(employeeViewModel);
-            if (errors.Any())
-            {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Метод проверяет модель при разблокировке сотрудника
-        /// </summary>
-        /// <param name="employeeViewModel"></param>
-        /// <param name="modelState"></param>
-        /// <returns></returns>
-        private bool TryUnlockValidate(EmployeeViewModel employeeViewModel, ModelStateDictionary modelState)
-        {
-            Dictionary<string, string> errors = validator.UnlockValidateCheck(employeeViewModel);
-            if (errors.Any())
-            {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Метод возвращает новое подразделение при смене подразделения на сотруднике
-        /// </summary>
-        /// <param name="employeeViewModel"></param>
-        /// <returns></returns>
-        private Division GetNewDivision(EmployeeViewModel employeeViewModel)
-        {
-            string newDivisionName = employeeViewModel.DivisionName;
-            return currentOrganization.Divisions.FirstOrDefault(n => n.Name == newDivisionName);
-        }
-
-        /// <summary>
-        /// Метод возвращает новую должность при смене подразделения на сотруднике
-        /// </summary>
-        /// <param name="employeeViewModel"></param>
-        /// <param name="newDivision">Новое подразделение</param>
-        /// <returns></returns>
-        private Position GetNewPrimaryPosition(EmployeeViewModel employeeViewModel, Division newDivision)
-        {
-            string primaryPositionName = employeeViewModel.PrimaryPositionName;
-            return newDivision.Positions.FirstOrDefault(n => n.Name == primaryPositionName);
-        }
-
-        /// <summary>
-        /// Метод устанавливает новое подразделение у сотрудника
-        /// </summary>
-        /// <param name="employee"></param>
-        /// <param name="newDivision"></param>
-        private void SetNewDivision(Employee employee, Division newDivision) => employee.DivisionId = newDivision.Id;
-
-        /// <summary>
-        /// Метод создает и добавляет новую должность в список должностей сотрудника
-        /// и устанавливает пришедшую на вход должность как основную
-        /// </summary>
-        /// <param name="employee"></param>
-        /// <param name="newPrimaryPosition"></param>
-        private void AddEmployeePosition(Employee employee, Position newPrimaryPosition)
-        {
-            EmployeePosition employeePosition = new EmployeePosition()
-            {
-                Id = Guid.NewGuid(),
-                Employee = employee,
-                EmployeeId = employee.Id,
-                Position = newPrimaryPosition,
-                PositionId = newPrimaryPosition.Id
+                User = userAccount,
+                UserId = userAccount.Id
             };
-            SetPrimaryPosition(employee, newPrimaryPosition);
-            context.EmployeePositions.Add(employeePosition);
+            transaction.AddChange(newUserOrganization, EntityState.Added);
+            transaction.AddParameter("UserOrganization", newUserOrganization);
         }
 
         /// <summary>
-        /// Метод устанавливает для сотрудника основную должность
+        /// Метод отсылает пользователю приглашение вступить в организацию
         /// </summary>
-        /// <param name="employee"></param>
-        /// <param name="primaryPosition"></param>
-        private void SetPrimaryPosition(Employee employee, Position primaryPosition) => employee.PrimaryPositionId = primaryPosition.Id;
-
-        /// <summary>
-        /// Удаление из контекста всех должностей сотрудника
-        /// </summary>
-        /// <param name="employee"></param>
-        private void RemoveOldEmployeePositions(Employee employee)
+        private void SendOrgInvite()
         {
-            employee.EmployeePositions.ForEach(employeePosition =>
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            User existsUserAccount = (User)transaction.GetParameterValue("UserAccount");
+            OrgInviteParams orgInviteParams = new OrgInviteParams()
             {
-                context.EmployeePositions.Remove(employeePosition);
-            });
+                Organization = currentOrganization,
+                OrgInviteUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme)
+            };
+            new OrgInviteNotFactory(serviceProvider, context, orgInviteParams).Send(Guid.Parse(existsUserAccount.Id));
         }
         #endregion
     }

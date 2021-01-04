@@ -20,7 +20,14 @@
   font-family: IBM Plex Sans;
   font-style: normal;
   font-weight: normal;
-  font-size: 26px; }
+  font-size: 24px; }
+
+.label-bold-lg {
+  font-family: IBM Plex Sans;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 32px; }
 
 .label-non-select {
   user-select: none; }
