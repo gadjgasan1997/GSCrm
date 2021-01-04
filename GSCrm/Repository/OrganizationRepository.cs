@@ -373,8 +373,9 @@ namespace GSCrm.Repository
         /// Добавляет полномочия к организации, преобразую данные в отображение для выбранной страницы
         /// </summary>
         /// <returns></returns>
-        public void AttachResponsibilities(OrganizationViewModel orgViewModel)
+        public void AttachResponsibilities(OrganizationViewModel orgViewModel, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
+            SetViewInfo(RESPONSIBILITIES, pageNumber, RESPONSIBILITIES_COUNT);
             orgViewModel.Responsibilities = orgViewModel.GetResponsibilities(context)
                 .MapToViewModels(new ResponsibilityMap(serviceProvider, context), GetLimitedResponsibilitiesList);
         }
@@ -384,7 +385,7 @@ namespace GSCrm.Repository
             OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, RESPONSIBILITIES);
             List<Responsibility> limitedResponsibilities = responsibilities;
             LimitRespByName(orgViewModelCash, ref limitedResponsibilities);
-            LimitListByPageNumber(RESPONSIBILITIES, ref limitedResponsibilities, RESPONSIBILITIES_COUNT);
+            LimitListByPageNumber(RESPONSIBILITIES, ref limitedResponsibilities);
             return limitedResponsibilities;
         }
 

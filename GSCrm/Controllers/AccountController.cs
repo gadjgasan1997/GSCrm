@@ -31,7 +31,7 @@ namespace GSCrm.Controllers
             AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
             AccountsViewModel accountsViewModel = new AccountsViewModel();
             new AccountMap(serviceProvider, context).InitializeAccountsViewModel(accountsViewModel);
-            accountRepository.SetViewInfo(currentUser.Id, ALL_ACCS, pageNumber);
+            accountRepository.SetViewInfo(ALL_ACCS, pageNumber);
             accountRepository.AttachAccounts(ref accountsViewModel);
             return View(ACCOUNTS, accountsViewModel);
         }
@@ -42,7 +42,7 @@ namespace GSCrm.Controllers
             AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
             AccountsViewModel accountsViewModel = new AccountsViewModel();
             new AccountMap(serviceProvider, context).InitializeAccountsViewModel(accountsViewModel);
-            accountRepository.SetViewInfo(currentUser.Id, CURRENT_ACCS, pageNumber);
+            accountRepository.SetViewInfo(CURRENT_ACCS, pageNumber);
             accountRepository.AttachAccounts(ref accountsViewModel);
             return View(ACCOUNTS, accountsViewModel);
         }

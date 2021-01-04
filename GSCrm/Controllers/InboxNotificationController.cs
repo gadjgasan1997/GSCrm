@@ -16,6 +16,11 @@ namespace GSCrm.Controllers
     [Route(INBOX_NOT)]
     public class InboxNotificationController : MainController<InboxNotification, InboxNotificationViewModel>
     {
+        /// <summary>
+        /// Количество уведомлений для отображения
+        /// </summary>
+        private readonly int INBOX_NOTS_COUNT = 5;
+
         public InboxNotificationController(ApplicationDbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
         { }
 
@@ -24,7 +29,7 @@ namespace GSCrm.Controllers
         {
             InboxNotificationsViewModel inboxNotsViewModel = cachService.GetCachedItem<InboxNotificationsViewModel>(currentUser.Id, INBOX_NOTS);
             InboxNotificationRepository inboxNotRepository = new InboxNotificationRepository(serviceProvider, context);
-            inboxNotRepository.SetViewInfo(currentUser.Id, INBOX_NOTS, pageNumber);
+            inboxNotRepository.SetViewInfo(INBOX_NOTS, pageNumber, INBOX_NOTS_COUNT);
             inboxNotRepository.AttachNotifications(ref inboxNotsViewModel);
             UserNotificationsSetting userNotSetting = context.UserNotificationsSettings.AsNoTracking().FirstOrDefault(u => u.UserId == currentUser.Id);
             inboxNotsViewModel.UserNotificationsSettingId = userNotSetting.Id.ToString();

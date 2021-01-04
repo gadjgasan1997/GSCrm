@@ -7,6 +7,6 @@ namespace GSCrm.Data.ApplicationInfo
     {
         public int CurrentPageNumber { get; set; } = DEFAULT_MIN_PAGE_NUMBER;
         public int SkipSteps { get; set; }
-        public int SkipItemsCount { get; set; }
+        public int ItemsCount { get; set; } = DEFAULT_ITEMS_COUNT;
     }
 }

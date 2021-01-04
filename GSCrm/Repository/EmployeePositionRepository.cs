@@ -92,7 +92,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<Position> AttachAllPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, ALL_EMP_POSS, pageNumber, ALL_EMP_POSS_COUNT);
+            SetViewInfo(ALL_EMP_POSS, pageNumber, ALL_EMP_POSS_COUNT);
 
             // Получение списка всех должностей подразделения и исключение из него списка должностей сотрудника
             List<Position> allPositions = GetAllPositions(employeeId);
@@ -105,7 +105,7 @@ namespace GSCrm.Repository
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
             LimitAllPosByName(employeeViewModelCash, ref allPositions);
             LimitAllPosByParent(employeeViewModelCash, allPositionsExceptSelected, ref allPositions);
-            LimitListByPageNumber(ALL_EMP_POSS, ref allPositions, ALL_EMP_POSS_COUNT);
+            LimitListByPageNumber(ALL_EMP_POSS, ref allPositions);
             return allPositions;
         }
 
@@ -149,14 +149,14 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<EmployeePosition> AttachSelectedPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, SELECTED_EMP_POSS, pageNumber, SELECTED_EMP_POSS_COUNT);
+            SetViewInfo(SELECTED_EMP_POSS, pageNumber, SELECTED_EMP_POSS_COUNT);
 
             // Ограничение списка должностей по фильтрам и номеру страницы
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
             List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
             LimitSelectedPosByName(employeeViewModelCash, ref selectedPositions);
             LimitSelectedPosByParent(employeeViewModelCash, ref selectedPositions);
-            LimitListByPageNumber(SELECTED_EMP_POSS, ref selectedPositions, SELECTED_EMP_POSS_COUNT);
+            LimitListByPageNumber(SELECTED_EMP_POSS, ref selectedPositions);
             return selectedPositions;
         }
 

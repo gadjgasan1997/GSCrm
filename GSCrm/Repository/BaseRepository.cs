@@ -318,12 +318,13 @@ namespace GSCrm.Repository
         #endregion
 
         #region Other Methods
-        public virtual void SetViewInfo(string userId, string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT, int pageStep = DEFAULT_PAGE_STEP)
+        public virtual void SetViewInfo(string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT)
         {
-            ViewInfo viewInfo = viewsInfo.Get(userId, viewName);
+            ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, viewName);
             viewInfo.CurrentPageNumber = pageNumber <= DEFAULT_MIN_PAGE_NUMBER ? DEFAULT_MIN_PAGE_NUMBER : pageNumber;
-            viewInfo.SkipSteps = viewInfo.CurrentPageNumber - pageStep;
-            viewsInfo.Set(userId, viewName, viewInfo);
+            viewInfo.SkipSteps = viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP;
+            viewInfo.ItemsCount = itemsCount;
+            viewsInfo.Set(currentUser.Id, viewName, viewInfo);
         }
 
         /// <summary>
@@ -332,21 +333,20 @@ namespace GSCrm.Repository
         /// <typeparam name="TItemsListType"></typeparam>
         /// <param name="viewName"></param>
         /// <param name="itemsToLimit"></param>
-        /// <param name="itemsCount"></param>
         /// <returns></returns>
-        protected void LimitListByPageNumber<TItemsListType>(string viewName, ref List<TItemsListType> itemsToLimit, int itemsCount = DEFAULT_ITEMS_COUNT, int pageStep = DEFAULT_PAGE_STEP)
+        protected void LimitListByPageNumber<TItemsListType>(string viewName, ref List<TItemsListType> itemsToLimit)
             where TItemsListType : class
         {
             ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, viewName);
             if (viewInfo != null)
             {
-                List<TItemsListType> limitedItems = itemsToLimit.Skip(viewInfo.SkipSteps * itemsCount).Take(itemsCount).ToList();
+                List<TItemsListType> limitedItems = itemsToLimit.Skip(viewInfo.SkipSteps * viewInfo.ItemsCount).Take(viewInfo.ItemsCount).ToList();
                 if (limitedItems.Count == 0)
                 {
-                    int newSkipItemsCount = (viewInfo.SkipSteps - pageStep) * itemsCount;
+                    int newSkipItemsCount = (viewInfo.SkipSteps - DEFAULT_PAGE_STEP) * viewInfo.ItemsCount;
                     limitedItems = itemsToLimit.Skip(newSkipItemsCount).ToList();
                     viewInfo.CurrentPageNumber--;
-                    viewInfo.SkipSteps -= pageStep;
+                    viewInfo.SkipSteps -= DEFAULT_PAGE_STEP;
                 }
                 itemsToLimit = limitedItems;
             }

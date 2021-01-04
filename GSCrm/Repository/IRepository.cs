@@ -49,12 +49,10 @@ namespace GSCrm.Repository
         /// Устанавливает константы, отвечающие за номер страницы(currentPageNumber), 
         /// количество отображдаемых элементов(skipItemsCount)
         /// и количество шагов для пропуска элементов(skipSteps)
-        /// <param name="userId"></param>
         /// <param name="viewName"></param>
         /// <param name="pageNumber"></param>
         /// <param name="itemsCount"></param>
-        /// <param name="pageStep"></param>
-        void SetViewInfo(string userId, string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT, int pageStep = DEFAULT_PAGE_STEP);
+        void SetViewInfo(string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT);
         /// <summary>
         /// Методы пытаются найти сущность и, в случае успеха, возвращают ее
         /// </summary>

@@ -240,7 +240,6 @@ C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\bin
 C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Runtime.Caching.dll
 C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Runtime.Caching.dll
 C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\obj\Debug\netcoreapp3.1\GSCrm.csprojAssemblyReference.cache
 C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\obj\Debug\netcoreapp3.1\GSCrm.Resource.resources
 C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\obj\Debug\netcoreapp3.1\GSCrm.csproj.GenerateResource.cache
 C:\Users\gadjg\source\repos\GitHubProjects\GSCrm\feature\Notifications\GSCrm\obj\Debug\netcoreapp3.1\GSCrm.AssemblyInfoInputs.cache

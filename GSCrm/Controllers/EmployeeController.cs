@@ -34,7 +34,7 @@ namespace GSCrm.Controllers
         {
             OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.SetViewInfo(currentUser.Id, EMPLOYEES, pageNumber);
+            organizationRepository.SetViewInfo(EMPLOYEES, pageNumber);
             organizationRepository.AttachEmployees(orgViewModel);
             return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
         }

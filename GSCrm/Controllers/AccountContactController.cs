@@ -31,7 +31,7 @@ namespace GSCrm.Controllers
         {
             AccountViewModel accountViewModel = (AccountViewModel)cachService.GetMainEntity(currentUser, MainEntityType.AccountView);
             AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            accountRepository.SetViewInfo(currentUser.Id, ACC_CONTACTS, pageNumber);
+            accountRepository.SetViewInfo(ACC_CONTACTS, pageNumber);
             accountRepository.AttachContacts(accountViewModel);
             return View($"{ACC_VIEWS_REL_PATH}{ACCOUNT}.cshtml", accountViewModel);
         }

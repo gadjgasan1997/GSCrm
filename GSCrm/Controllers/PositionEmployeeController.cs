@@ -26,7 +26,7 @@ namespace GSCrm.Controllers
         {
             PositionViewModel positionViewModel = (PositionViewModel)cachService.GetMainEntity(currentUser, MainEntityType.PositionView);
             PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            positionRepository.SetViewInfo(currentUser.Id, POS_EMPLOYEES, pageNumber);
+            positionRepository.SetViewInfo(POS_EMPLOYEES, pageNumber);
             positionRepository.AttachEmployees(positionViewModel);
             return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
         }

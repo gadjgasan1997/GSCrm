@@ -77,7 +77,7 @@ namespace GSCrm.Repository
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, pageNumber, ALL_EMPLOYEES_COUNT);
+                SetViewInfo(ACC_TEAM_ALL_EMPLOYEES, pageNumber, ALL_EMPLOYEES_COUNT);
 
                 List<Employee> teamAllEmployees = context.GetOrgEmployees(account.OrganizationId);
                 AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
@@ -85,7 +85,7 @@ namespace GSCrm.Repository
                 LimitAllEmployeesByName(ref teamAllEmployees, accountViewModelCash);
                 LimitAllEmployeesByDivision(ref teamAllEmployees, accountViewModelCash);
                 LimitAllEmployeesByPosition(ref teamAllEmployees, accountViewModelCash);
-                LimitListByPageNumber(ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees, ALL_EMPLOYEES_COUNT);
+                LimitListByPageNumber(ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees);
                 return teamAllEmployees;
             }
             return new List<Employee>();
@@ -161,7 +161,7 @@ namespace GSCrm.Repository
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, pageNumber, SELECTED_EMPLOYEES_COUNT);
+                SetViewInfo(ACC_TEAM_SELECTED_EMPLOYEES, pageNumber, SELECTED_EMPLOYEES_COUNT);
 
                 AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
                 List<AccountManager> teamSelectedEmployees = context.AccountManagers

@@ -42,7 +42,7 @@ namespace GSCrm.Controllers
         {
             AllNotificationsSettingsViewModel allSettingsViewModel = cachService.GetCachedItem<AllNotificationsSettingsViewModel>(currentUser.Id, NOT_SETTINGS);
             OrgNotificationsSettingRepository orgNotSettingRepository = new OrgNotificationsSettingRepository(serviceProvider, context);
-            orgNotSettingRepository.SetViewInfo(currentUser.Id, NOT_SETTINGS, pageNumber);
+            orgNotSettingRepository.SetViewInfo(NOT_SETTINGS, pageNumber);
             orgNotSettingRepository.AttachSettings(ref allSettingsViewModel);
             return View(NOT_SETTINGS, allSettingsViewModel);
         }
