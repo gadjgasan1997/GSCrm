@@ -27,8 +27,7 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories
                 {
                     Id = Guid.NewGuid(),
                     ActionType = NotificationActionType.Hide,
-                    Content = resManager.GetString("DivDeleteNotContent"),
-                    HasRead = false
+                    Content = resManager.GetString("DivDeleteNotContent")
                 },
                 _ => default
             };

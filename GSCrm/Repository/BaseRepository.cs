@@ -273,6 +273,7 @@ namespace GSCrm.Repository
                     transaction.AddParameter("RecordToRemove", recordToRemove);
                     if (RespsIsCorrectOnDelete(entityToDelete))
                     {
+                        // Выполнение подготовительных действий
                         if (TryDeletePrepare(entityToDelete))
                         {
                             transaction.AddChange(entityToDelete, EntityState.Deleted);
@@ -293,6 +294,32 @@ namespace GSCrm.Repository
 
             // Закрытие транзакции
             viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            return false;
+        }
+
+        /// <summary>
+        /// Метод удаляет уже найденную запись без проверки ее на существование и наличие полномочий у пользователя
+        /// Вызывается из внешних репозиториев
+        /// </summary>
+        /// <param name="entityToDelete"></param>
+        /// <returns></returns>
+        public bool TryDelete(TDataModel entityToDelete)
+        {
+            transaction = dataModelsTransactionFactory.Create(currentUser.Id, OperationType.Delete, entityToDelete);
+
+            // Выполнение подготовительных действий
+            if (TryDeletePrepare(entityToDelete))
+            {
+                transaction.AddChange(entityToDelete, EntityState.Deleted);
+                if (dataModelsTransactionFactory.TryCommit(transaction, errors))
+                {
+                    dataModelsTransactionFactory.Close(transaction);
+                    return true;
+                }
+            }
+
+            // Закрытие транзакции
+            dataModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 

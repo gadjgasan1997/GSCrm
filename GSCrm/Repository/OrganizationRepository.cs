@@ -13,6 +13,7 @@ using GSCrm.Transactions;
 using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
+using GSCrm.Notifications;
 
 namespace GSCrm.Repository
 {
@@ -600,6 +601,9 @@ namespace GSCrm.Repository
             errors = this.errors;
             transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
 
+            // Удаление уведомления в любом случае
+            RemoveOrgIniteNot();
+
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
             if (!errors.Any())
@@ -650,11 +654,31 @@ namespace GSCrm.Repository
                 currentEmployee.Lock(EmployeeLockReason.RejectInvite);
                 transaction.AddChange(currentEmployee, EntityState.Modified);
                 transaction.AddChange(userOrganization, EntityState.Deleted);
-                viewModelsTransactionFactory.TryCommit(transaction, errors);
             }
 
-            // Закрытие транзакции
+            // Удаление уведомления
+            RemoveOrgIniteNot();
+
+            // Попытка сделать коммит и закрытие транзакции
+            viewModelsTransactionFactory.TryCommit(transaction, errors);
             viewModelsTransactionFactory.Close(transaction, TransactionStatus.Success);
+        }
+
+        /// <summary>
+        /// Метод удаляет уведомление о приглашении в организацию 
+        /// </summary>
+        private void RemoveOrgIniteNot()
+        {
+            // Удаление уведомления, если оно было присланов в Инбоксы
+            Func<UserNotification, bool> predicate = userNot => userNot.Notification.NotificationType == NotificationType.OrgInvite;
+            context.GetUserNotificationsExt(currentUser).Where(predicate).ToList().ForEach(userNot =>
+            {
+                if (userNot.Notification is InboxNotification inboxNotification)
+                {
+                    if (new InboxNotificationRepository(serviceProvider, context).TryDelete(inboxNotification))
+                        new UserNotificationRepository(serviceProvider, context).OnUserNotRemoved(userNot);
+                }
+            });
         }
 
         /// <summary>

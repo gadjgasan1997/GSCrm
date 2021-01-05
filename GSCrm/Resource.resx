@@ -1221,6 +1221,9 @@
   <data name="Quotes" xml:space="preserve">
     <value>Сделки</value>
   </data>
+  <data name="ReadAllNots" xml:space="preserve">
+    <value>Прочесть все уведомления</value>
+  </data>
   <data name="RecordNotFound" xml:space="preserve">
     <value>Запись не найдена</value>
   </data>

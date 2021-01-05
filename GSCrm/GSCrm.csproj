@@ -97,7 +97,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\InboxNotification\Partial\" />
+    <Folder Include="Views\UserNotification\Partial\" />
   </ItemGroup>
 
 </Project>

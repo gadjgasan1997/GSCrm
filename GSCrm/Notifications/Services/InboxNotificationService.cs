@@ -1,6 +1,7 @@
 ﻿using GSCrm.Data;
 using GSCrm.Factories;
 using GSCrm.Models;
+using GSCrm.Repository;
 using GSCrm.Transactions;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,9 +14,13 @@ namespace GSCrm.Notifications.Services
     /// </summary>
     public class InboxNotificationService
     {
+        private readonly IServiceProvider serviceProvider;
+        private readonly ApplicationDbContext context;
         private readonly ITransactionFactory<Notification> transactionFactory;
         public InboxNotificationService(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
+            this.serviceProvider = serviceProvider;
+            this.context = context;
             ITFFactory TFFactory = serviceProvider.GetService(typeof(ITFFactory)) as ITFFactory;
             transactionFactory = TFFactory.GetTransactionFactory<Notification>(serviceProvider, context);
         }
@@ -37,7 +42,10 @@ namespace GSCrm.Notifications.Services
 
             Dictionary<string, string> errors = new Dictionary<string, string>();
             if (transactionFactory.TryCommit(transaction, errors))
+            {
                 transactionFactory.Close(transaction);
+                new UserNotificationRepository(serviceProvider, context).OnUserNotAdded(targetUser);
+            }
             else transactionFactory.Close(transaction, TransactionStatus.Error);
         }
     }

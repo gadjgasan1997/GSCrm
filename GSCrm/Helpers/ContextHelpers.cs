@@ -101,6 +101,18 @@ namespace GSCrm.Helpers
         /// <param name="context"></param>
         /// <param name="currentUser"></param>
         /// <returns></returns>
+        public static List<UserNotification> GetUserNotifications(this ApplicationDbContext context, User currentUser)
+            => context.UserNotifications.AsNoTracking().Where(userNot => userNot.UserId == currentUser.Id).ToList();
+
+        /// <summary>
+        /// Метод возвращает список всех уведомлений, адресованных пользователю с притягиванием моделей "Notification"
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="currentUser"></param>
+        /// <returns></returns>
+        public static List<UserNotification> GetUserNotificationsExt(this ApplicationDbContext context, User currentUser)
+            => context.UserNotifications.Include(userNot => userNot.Notification).AsNoTracking().Where(userNot => userNot.UserId == currentUser.Id).ToList();
+
         public static List<InboxNotification> GetInboxNotifications(this ApplicationDbContext context, User currentUser)
         {
             Func<InboxNotification, bool> predicate = not => not.UserNotifications.Select(i => i.UserId).ToList().Contains(currentUser.Id);

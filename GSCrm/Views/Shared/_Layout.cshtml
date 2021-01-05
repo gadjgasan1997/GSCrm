@@ -1,10 +1,14 @@
 ﻿@inject ResManager resManager
 @inject ApplicationDbContext context
+@inject IServiceProvider serviceProvider
 @using GSCrm.Data
+@using GSCrm.Data.Cash
 @using GSCrm.Helpers
 @using static GSCrm.CommonConsts
 @{
-    User userModel = @User.GetUserModel(context);
+    User currentUser = User.GetUserModel(context);
+    ICachService cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
+
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -32,10 +36,17 @@
         <nav class="navbar navbar-expand-xl navbar-toggleable-xl navbar-dark bg-dark border-bottom box-shadow" style="z-index: 100">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">GSCrm</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                <div class="row d-xl-none nav-nots">
+                    <div class="col">
+                        <div class="nav-nots-link popover-source" data-toggle="popover" data-placement="bottom" data-content=""></div>
+                    </div>
+                    <div class="col">
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                </div>
                 <div class="navbar-collapse collapse d-xl-inline-flex flex-xl-row-reverse">
                     <ul class="navbar-nav main-nav flex-grow-1">
                         <li class="nav-item text-center d-block d-xl-none">
@@ -48,10 +59,10 @@
                             <a class="nav-link text-white label-md" asp-area="" asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="1">@resManager.GetString(ORGANIZATIONS)</a>
                         </li>
                         <li class="nav-item text-center d-block d-xl-none">
-                            <a class="nav-link text-white label-md" asp-area="" asp-controller="@INBOX_NOT" asp-action="@INBOX_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
+                            <a class="nav-link text-white label-md" asp-area="" asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
                         </li>
-                        <li class="nav-item text-center mb-2 mb-xl-0">
-                            <a class="nav-link user-profile-link text-white label-md" asp-area="" asp-controller="@USER" asp-action="@USER" asp-route-id="@userModel?.Id">@User.Identity.Name</a>
+                        <li class="nav-item text-center mb-2 mb-xl-0 mr-0 mr-xl-2">
+                            <a class="nav-link user-profile-link text-white label-md" asp-area="" asp-controller="@USER" asp-action="@USER" asp-route-id="@currentUser?.Id">@User.Identity.Name</a>
                         </li>
                         <li class="nav-item text-center mb-2 mb-xl-0">
                             <form method="post" asp-controller="Auth" asp-action="LogOut">
@@ -75,7 +86,9 @@
                 <a class="nav-link text-white label-md" asp-area="" asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="1">@resManager.GetString(ORGANIZATIONS)</a>
             </li>
             <li class="nav-item text-center">
-                <a class="nav-link text-white label-md" asp-area="" asp-controller="@INBOX_NOT" asp-action="@INBOX_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
+                <a class="nav-link text-white label-md" asp-area="" asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
+                <div class="nots-link popover-source" data-toggle="popover" data-placement="right" data-content="">
+                </div>
             </li>
         </ul>
     </div>
@@ -92,6 +105,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script src="~/lib/autocomplete-master/min/Autocomplite.min.js"></script>
     <script src="~/lib/malihu-custom-scrollbar-plugin-master/js/uncompressed/jquery.mCustomScrollbar.js"></script>
+    <script src="~/js/Initializer.js" asp-append-version="true"></script>
     <script src="~/js/Masks.js" asp-append-version="true"></script>
     <script src="~/js/Tabs.js" asp-append-version="true"></script>
     <script src="~/js/Button.js" asp-append-version="true"></script>
