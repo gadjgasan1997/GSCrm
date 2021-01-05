@@ -1,9 +1,9 @@
 class Notification {
     //#region HasReedSign
-    /** Ìåòîä ïîìå÷àåò óâåäîìëåíèå êàê ïðî÷èòàííîå */
+    /** ÐœÐµÑ‚Ð¾Ð´ Ð¿Ð¾Ð¼ÐµÑ‡Ð°ÐµÑ‚ ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ðµ ÐºÐ°Ðº Ð¿Ñ€Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½Ð½Ð¾Ðµ */
     MakeHasReed(event) {
         return new Promise((resolve, reject) => {
-            // Èçìåíåíèÿ öâåòà óâåäîìëåíèÿ
+            // Ð˜Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ Ñ†Ð²ÐµÑ‚Ð° ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ
             let notificationItem = $(event.currentTarget).closest(".notification-item");
             $(notificationItem)
                 .find(".alert")
@@ -11,7 +11,7 @@ class Notification {
                 .addClass("alert-light")
                 .addClass("alert-not-light");
 
-            // Çàïðîñ íà ïðîñòàíîâêó ïðèçíàêà
+            // Ð—Ð°Ð¿Ñ€Ð¾Ñ Ð½Ð° Ð¿Ñ€Ð¾ÑÑ‚Ð°Ð½Ð¾Ð²ÐºÑƒ Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ°
             let notificationItemId = $(notificationItem).find(".notification-item-id").val();
             let makeHasReedBaseUrl = $(event.currentTarget).closest("form").attr("action");
             let makeHasReedUrl = makeHasReedBaseUrl + Localization.GetUri("makeNotHasReed") + notificationItemId;
@@ -20,10 +20,10 @@ class Notification {
         })
     }
 
-    /** Ìåòîä ïîìå÷àåò óâåäîìëåíèå êàê íå ïðî÷èòàííîå */
+    /** ÐœÐµÑ‚Ð¾Ð´ Ð¿Ð¾Ð¼ÐµÑ‡Ð°ÐµÑ‚ ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ðµ ÐºÐ°Ðº Ð½Ðµ Ð¿Ñ€Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½Ð½Ð¾Ðµ */
     MakeHasNoReed(event) {
         return new Promise((resolve, reject) => {
-            // Èçìåíåíèÿ öâåòà óâåäîìëåíèÿ
+            // Ð˜Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ Ñ†Ð²ÐµÑ‚Ð° ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ
             let notificationItem = $(event.currentTarget).closest(".notification-item");
             $(notificationItem)
                 .find(".alert")
@@ -31,7 +31,7 @@ class Notification {
                 .removeClass("alert-not-light")
                 .addClass("alert-dark");
 
-            // Çàïðîñ íà ïðîñòàíîâêó ïðèçíàêà
+            // Ð—Ð°Ð¿Ñ€Ð¾Ñ Ð½Ð° Ð¿Ñ€Ð¾ÑÑ‚Ð°Ð½Ð¾Ð²ÐºÑƒ Ð¿Ñ€Ð¸Ð·Ð½Ð°ÐºÐ°
             let notificationItemId = $(notificationItem).find(".notification-item-id").val();
             let makeHasNoReedBaseUrl = $(event.currentTarget).closest("form").attr("action");
             let makeHasNoReedUrl = makeHasNoReedBaseUrl + Localization.GetUri("makeNotHasNoReed") + notificationItemId;
@@ -40,7 +40,7 @@ class Notification {
         })
     }
 
-    /** Ìåòîä ïîìå÷àåò âñå óâåäîìëåíèÿ êàê ïðî÷èòàííûå */
+    /** ÐœÐµÑ‚Ð¾Ð´ Ð¿Ð¾Ð¼ÐµÑ‡Ð°ÐµÑ‚ Ð²ÑÐµ ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ ÐºÐ°Ðº Ð¿Ñ€Ð¾Ñ‡Ð¸Ñ‚Ð°Ð½Ð½Ñ‹Ðµ */
     ReadAll() {
         return new Promise((resolve, reject) => {
             let readAllUrl = $("#readAllNots").closest("form").attr("action");
@@ -52,7 +52,7 @@ class Notification {
 
     //#region OrgInvite
     /**
-     * Ñîãëàñèå íà âñòóïëåíèå â îðãàíèçàöèþ
+     * Ð¡Ð¾Ð³Ð»Ð°ÑÐ¸Ðµ Ð½Ð° Ð²ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ðµ Ð² Ð¾Ñ€Ð³Ð°Ð½Ð¸Ð·Ð°Ñ†Ð¸ÑŽ
      * @param {*} event 
      */
     AcceptInvite(event) {
@@ -74,7 +74,7 @@ class Notification {
     }
 
     /**
-     * Îòêàç îò âñòóïëåíèÿ â îðãàíèçàöèþ
+     * ÐžÑ‚ÐºÐ°Ð· Ð¾Ñ‚ Ð²ÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ñ Ð² Ð¾Ñ€Ð³Ð°Ð½Ð¸Ð·Ð°Ñ†Ð¸ÑŽ
      * @param {*} event 
      */
     RejectInvite(event) {
@@ -89,44 +89,44 @@ class Notification {
     //#endregion
 }
 
-// ×åêáîêñû óâåäîìëåíèé
+// Ð§ÐµÐºÐ±Ð¾ÐºÑÑ‹ ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ð¹
 $("#notificationsList")
-    // Ïðî÷åñòü âñå óâåäîìëåíèÿ
+    // ÐŸÑ€Ð¾Ñ‡ÐµÑÑ‚ÑŒ Ð²ÑÐµ ÑƒÐ²ÐµÐ´Ð¾Ð¼Ð»ÐµÐ½Ð¸Ñ
     .off("click", "#readAllNots").on("click", "#readAllNots", event => {
         event.stopPropagation();
         event.preventDefault();
         let notification = new Notification();
         notification.ReadAll();
     })
-    // Ïðîñòàâëåíèå ÷åêáîêñà
+    // ÐŸÑ€Ð¾ÑÑ‚Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ñ‡ÐµÐºÐ±Ð¾ÐºÑÐ°
     .off("click", ".cbx-not-onload").on("click", ".cbx-not-onload", event => {
         $(event.currentTarget).removeClass("cbx-not-onload");
         $(event.currentTarget).addClass("cbx-not");
         let notification = new Notification();
         notification.MakeHasNoReed(event);
     })
-    // Ïðîñòàâëåíèå ÷åêáîêñà
+    // ÐŸÑ€Ð¾ÑÑ‚Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ñ‡ÐµÐºÐ±Ð¾ÐºÑÐ°
     .off("click", ".cbx-not-non-active").on("click", ".cbx-not-non-active", event => {
         $(event.currentTarget).removeClass("cbx-not-non-active");
         $(event.currentTarget).addClass("cbx-not");
         let notification = new Notification();
         notification.MakeHasNoReed(event);
     })
-    // Ñíÿòèå ÷åêáîêñà
+    // Ð¡Ð½ÑÑ‚Ð¸Ðµ Ñ‡ÐµÐºÐ±Ð¾ÐºÑÐ°
     .off("click", ".cbx-not").on("click", ".cbx-not", event => {
         $(event.currentTarget).removeClass("cbx-not");
         $(event.currentTarget).addClass("cbx-not-non-active");
         let notification = new Notification();
         notification.MakeHasReed(event);
     })
-    // Ïðèíÿòèå ïðèãëàøåíèÿ â îðãàíèçàöèþ
+    // ÐŸÑ€Ð¸Ð½ÑÑ‚Ð¸Ðµ Ð¿Ñ€Ð¸Ð³Ð»Ð°ÑˆÐµÐ½Ð¸Ñ Ð² Ð¾Ñ€Ð³Ð°Ð½Ð¸Ð·Ð°Ñ†Ð¸ÑŽ
     .off("click", ".accept-invite-btn").on("click", ".accept-invite-btn", event => {
         event.preventDefault();
         event.stopPropagation();
         let notification = new Notification();
         notification.AcceptInvite(event);
     })
-    // Îòêàç îò ïðèãëàøåíèÿ â îðãàíèçàöèþ
+    // ÐžÑ‚ÐºÐ°Ð· Ð¾Ñ‚ Ð¿Ñ€Ð¸Ð³Ð»Ð°ÑˆÐµÐ½Ð¸Ñ Ð² Ð¾Ñ€Ð³Ð°Ð½Ð¸Ð·Ð°Ñ†Ð¸ÑŽ
     .off("click", ".reject-invite-btn").on("click", ".reject-invite-btn", event => {
         event.preventDefault();
         event.stopPropagation();
