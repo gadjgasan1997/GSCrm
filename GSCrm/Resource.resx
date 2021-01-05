@@ -774,6 +774,9 @@
   <data name="FullName" xml:space="preserve">
     <value>Полное имя</value>
   </data>
+  <data name="GSCrmEmailSubject" xml:space="preserve">
+    <value>GSCrm</value>
+  </data>
   <data name="HasNoPermissions" xml:space="preserve">
     <value>Недостаточно полномочий для совершения действия</value>
   </data>
@@ -1028,6 +1031,9 @@
   </data>
   <data name="OrgDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления организации</value>
+  </data>
+  <data name="OrgEmailSubject" xml:space="preserve">
+    <value>Организация {orgName}</value>
   </data>
   <data name="OrgInviteInboxContent" xml:space="preserve">
     <value>Вы получили приглашение вступить в организацию {orgName}</value>

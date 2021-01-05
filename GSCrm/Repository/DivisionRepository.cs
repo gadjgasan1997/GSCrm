@@ -12,6 +12,7 @@ namespace GSCrm.Repository
     public class DivisionRepository : BaseRepository<Division, DivisionViewModel>
     {
         private const int DIVISION_NAME_MIN_LENGTH = 3;
+
         #region Constructs
         public DivisionRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(serviceProvider, context)

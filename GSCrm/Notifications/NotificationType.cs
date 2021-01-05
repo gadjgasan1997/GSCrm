@@ -2,18 +2,22 @@
 {
     public enum NotificationType
     {
-        None,
+        None = 0,
         /// <summary>
         /// Приглашение в организацию
         /// </summary>
-        OrgInvite,
+        OrgInvite = 1,
         /// <summary>
         /// Регистрация
         /// </summary>
-        Register,
+        Register = 2,
         /// <summary>
         /// Сброс пароля
         /// </summary>
-        ResetPassword
+        ResetPassword = 3,
+        /// <summary>
+        /// Удаление подразделения
+        /// </summary>
+        DivDelete = 4
     }
 }

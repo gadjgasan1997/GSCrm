@@ -3,6 +3,8 @@ using GSCrm.Data.Cash;
 using GSCrm.Factories;
 using GSCrm.Helpers;
 using GSCrm.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -17,8 +19,16 @@ namespace GSCrm.Transactions
         protected readonly IServiceProvider serviceProvider;
         protected readonly ICachService cachService;
         protected ITransaction transaction;
-        protected readonly ApplicationDbContext context;
         protected readonly User currentUser;
+        protected readonly ApplicationDbContext context;
+        /// <summary>
+        /// Http context
+        /// </summary>
+        protected readonly HttpContext httpContext;
+        /// <summary>
+        /// Хелпер для работы с урлами
+        /// </summary>
+        protected readonly IUrlHelper urlHelper;
         /// <summary>
         /// Массив из базовых типов операций
         /// </summary>
@@ -36,7 +46,9 @@ namespace GSCrm.Transactions
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             this.context = context;
             IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
-            currentUser = userContextServices.HttpContext.GetCurrentUser(context);
+            httpContext = userContextServices.HttpContext;
+            currentUser = httpContext.GetCurrentUser(context);
+            urlHelper = serviceProvider.GetService(typeof(IUrlHelper)) as IUrlHelper;
         }
         #endregion
 

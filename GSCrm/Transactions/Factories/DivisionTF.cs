@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using GSCrm.Notifications;
 using System.Collections.Generic;
+using GSCrm.Notifications.Factories.OrgNotFactories;
+using GSCrm.Notifications.Params;
+using static GSCrm.CommonConsts;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -37,10 +41,17 @@ namespace GSCrm.Transactions.Factories
                 switch (transaction.OperationType)
                 {
                     case OperationType.Delete:
+                        Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
                         Division division = (Division)transaction.GetParameterValue("RecordToRemove");
                         List<Employee> divEmployees = context.Employees.AsNoTracking().Where(div => div.DivisionId == division.Id).ToList();
-                        /*NotificationFactory notificationFactory = new DivDeleteNotFactory(serviceProvider, context);
-                        notificationFactory.SendAsync(division.OrganizationId, divEmployees);*/
+                        DivDeleteParams divDeleteParams = new DivDeleteParams()
+                        {
+                            Organization = currentOrganization,
+                            OrganizationUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme),
+                            RemovedDivision = division
+                        };
+                        DivDeleteNotFactory divDeleteNotFactory = new DivDeleteNotFactory(serviceProvider, context, divDeleteParams);
+                        divDeleteNotFactory.Send(division.OrganizationId, divEmployees);
                         break;
                 }
             }
