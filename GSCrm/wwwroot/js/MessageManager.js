@@ -487,6 +487,19 @@ class MessageManager {
                         timer: 1500
                     }
                 }
+            },
+
+            /** Сообщение с информацией, что приглашение было принято */
+            InviteHasBeenAccepted : class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("inviteHasBeenAccepted"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
             }
         }[messageName];
         return messages.Initialize(inputProperties);

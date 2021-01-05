@@ -285,10 +285,12 @@
 
 .org-invite-not {
     position: relative;
+
     .row {
         .flex-grow-0 {
             position: relative
         }
+
         .col-lg {
             > p {
                 > a {
@@ -303,6 +305,7 @@
             > .btn {
                 height: 35px;
                 padding: 0;
+                overflow-y: hidden;
                 cursor: pointer;
 
                 > p {

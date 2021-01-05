@@ -203,6 +203,9 @@
         },
         "inviteHasBeenRejected": {
             "ru-RU": "Приглашение на вступление в организацию было откланено"
+        },
+        "inviteHasBeenAccepted": {
+            "ru-RU": "Приглашение на вступление в организацию было принято"
         }
     },
     "uri": {
@@ -223,6 +226,7 @@
         "setOrgNotSettingsToDefaultPath": "/SetOrgNotSettingsToDefault/",
         "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/",
         "makeNotHasReed": "/MakeHasReed/",
-        "makeNotHasNoReed": "/MakeHasNoReed/"
+        "makeNotHasNoReed": "/MakeHasNoReed/",
+        "initalizeAppDataUrl": "/AppData/InitalizeAppData/"
     }
 }

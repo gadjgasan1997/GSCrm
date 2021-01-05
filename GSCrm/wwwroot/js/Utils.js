@@ -8,54 +8,57 @@ class Utils {
      * @param {*} errorsTypeCodes Массив с кодами типов ошибок
      */
     static CommonErrosHandling(errorsArray, errorsTypeCodes) {
-        !Utils.IsNullOrEmpty(errorsTypeCodes) && errorsTypeCodes.map(errorsTypeCode => {
-            let typeErrors = ErrorsManager.GetError(errorsTypeCode);
-            let errorAlertsArray = [];
-            if (typeErrors != undefined) {
-                for(let errorName in errorsArray) {
-                    let errorText = Array.isArray(errorsArray[errorName]) ? errorsArray[errorName][0] : errorsArray[errorName];
-
-                    // Получение списка всех массивов с ошибками, среди ключей которых содержится название текущей ошибки
-                    let errorHandlers = Utils.GetErrorHandlers(errorName, typeErrors);
-
-                    // Если обработчики не найдены, попытка обработать дефолтовые ошибки
-                    if (errorHandlers.length == 0) {
-                        let alertError = Utils.GetDefaultErrorMessage({
-                            messageName: errorName,
-                            errorText: errorText
-                        });
-                        alertError != undefined && errorAlertsArray.push(alertError);
-                    }
-        
-                    // Обработка ошибок
-                    errorHandlers.map(errorHandler => {
-                        let errorSettings = errorHandler[1];
-                        let errorType = errorSettings["type"];
-                        switch(errorType) {
-                            // Когда ошибки должны добавляться в элемент
-                            case "attach":
-                                Utils.ErrorTypeAttachHandler({
-                                    elements: errorSettings["elements"],
-                                    errorText: errorText
-                                });
-                                break;
-
-                            // Когда должен происходить алерт
-                            case "swal":
-                                errorAlertsArray.push(Utils.GetErrorMessage({
-                                    messageName: errorSettings["messageName"],
-                                    errorText: errorText
-                                }));
-                                break;
+        return new Promise((resolve, reject) => {
+            !Utils.IsNullOrEmpty(errorsTypeCodes) && errorsTypeCodes.map(errorsTypeCode => {
+                let typeErrors = ErrorsManager.GetError(errorsTypeCode);
+                let errorAlertsArray = [];
+                if (typeErrors != undefined) {
+                    for(let errorName in errorsArray) {
+                        let errorText = Array.isArray(errorsArray[errorName]) ? errorsArray[errorName][0] : errorsArray[errorName];
+    
+                        // Получение списка всех массивов с ошибками, среди ключей которых содержится название текущей ошибки
+                        let errorHandlers = Utils.GetErrorHandlers(errorName, typeErrors);
+    
+                        // Если обработчики не найдены, попытка обработать дефолтовые ошибки
+                        if (errorHandlers.length == 0) {
+                            let alertError = Utils.GetDefaultErrorMessage({
+                                messageName: errorName,
+                                errorText: errorText
+                            });
+                            alertError != undefined && errorAlertsArray.push(alertError);
                         }
-                    });
+            
+                        // Обработка ошибок
+                        errorHandlers.map(errorHandler => {
+                            let errorSettings = errorHandler[1];
+                            let errorType = errorSettings["type"];
+                            switch(errorType) {
+                                // Когда ошибки должны добавляться в элемент
+                                case "attach":
+                                    Utils.ErrorTypeAttachHandler({
+                                        elements: errorSettings["elements"],
+                                        errorText: errorText
+                                    });
+                                    break;
+    
+                                // Когда должен происходить алерт
+                                case "swal":
+                                    errorAlertsArray.push(Utils.GetErrorMessage({
+                                        messageName: errorSettings["messageName"],
+                                        errorText: errorText
+                                    }));
+                                    break;
+                            }
+                        });
+                    }
                 }
-            }
-
-            if (errorAlertsArray.length > 0) {
-                Swal.queue(errorAlertsArray);
-            }
-        });
+    
+                if (errorAlertsArray.length > 0) {
+                    Swal.queue(errorAlertsArray).then(() => resolve());
+                }
+                else resolve();
+            });
+        })
     }
 
     /**

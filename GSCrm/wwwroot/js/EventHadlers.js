@@ -1,116 +1,5 @@
 ﻿// Инициализация автокомплита
-$(document).ready(() => {
-    RestoreTabs();
-    RestoreDropdowns();
-    RestoreCheckMarks();
-    InitializeConfigs();
-    AttachAutocomplite();
-    AttachMasks();
-    InitializeScrools();
-    InitializeToolTips();
-})
-
-// Заполнение объекта с локализацией
-function InitializeConfigs() {
-    $.getJSON(location.origin + "/js/FrontResource.json", data => {
-        Localization.SetData(data);
-    });
-
-    $.getJSON(location.origin + "/js/ErrorsData.json", data => {
-        ErrorsManager.SetData(data);
-    });
-
-    $.getJSON(location.origin + "/js/AutocomplitesData.json", data => {
-        BaseAutocomplete.SetData(data);
-    });
-}
-
-// Восстановление вкладок
-function RestoreTabs() {
-    let navTab = new NavTab();
-    navTab.Restore();
-    let vertNavTab = new VertNavTab();
-    vertNavTab.Restore();
-    let navConnectedTab = new NavConnectedTab();
-    navConnectedTab.Restore();
-    let vertNavConnectedTab = new VertNavConnectedTab();
-    vertNavConnectedTab.Restore();
-}
-
-// Восстановление выпадающих списков
-function RestoreDropdowns() {
-    let dropdown = new Dropdowns();
-    dropdown.Initialize();
-}
-
-// Инициализация автокомплитов
-function AttachAutocomplite() {
-    document.querySelectorAll(".autocomplete").forEach(control => {
-        BaseAutocomplete.Initialize(control);
-    });
-}
-
-// Инициализация масок
-function AttachMasks() {
-    Mask.Initialize();
-}
-
-// Восстановление чекбоксов
-function RestoreCheckMarks() {
-    let button = new Button();
-    button.InitializeCheckMarks();
-}
-
-// Инициализация кастомных скроллбаров
-function InitializeScrools() {
-    // Иерархия должностей
-    $("#positionsHierarchy").mCustomScrollbar({
-        axis:"y",
-        theme:"dark"
-    });
-
-    // Команда по клиенту
-    $("#selectedEmployeesList").mCustomScrollbar({
-        axis:"x",
-        theme:"dark",
-        updateOnContentResize: false
-    });
-
-    // Список возможных адресов для выбора нового юридического
-    $("#changeLEAddrModal #accAddressNotLegalList").mCustomScrollbar({
-        axis:"y",
-        theme:"dark"
-    });
-
-    // Список организаций, в которых состоит пользователь
-    $("#accountModal #userOrgsChoiseList").mCustomScrollbar({
-        axis:"y",
-        theme:"dark"
-    });
-}
-
-// Метод инициализрует всплывающие подсказки
-function InitializeToolTips() {
-    let tooltip = new Tooltip();
-    tooltip.Initialize();
-}
-
-// Обновление кастомных скроллбаров
-function ReInitScrools() {
-    // Команда по клиенту
-    $("#selectedEmployeesList").mCustomScrollbar("destroy");
-    $("#selectedEmployeesList").mCustomScrollbar({
-        axis:"x",
-        theme:"dark"
-    });
-}
-
-function GetViewsInfo() {
-    let request = new AjaxRequests();
-        request.CommonGetRequest("/Test/ViewsInfo/")
-            .fail(error => console.log(error))
-            .done(result => console.log(result));
-}
+$(document).ready(() => Initializer.Execute())
 
 // Dropdowns
 $(document).click(function () {
@@ -236,3 +125,13 @@ $(document)
     .off("click", ".navbar .navbar-avatar a").on("click", ".navbar .navbar-avatar a", event => {
         event.stopPropagation();
     })
+
+// Всплывающие подсказки
+$(document).off("click", "body").on("click", "body", event => {
+    $('.popover').popover("hide");
+})
+
+$(document).off("click", ".popover-source").on("click", ".popover-source", event => {
+    event.stopPropagation();
+    event.preventDefault();
+})

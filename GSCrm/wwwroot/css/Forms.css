@@ -195,6 +195,7 @@
   .org-invite-not .row .col-lg > .btn {
     height: 35px;
     padding: 0;
+    overflow-y: hidden;
     cursor: pointer; }
     .org-invite-not .row .col-lg > .btn > p {
       margin: 0;

@@ -333,11 +333,14 @@
   .list-nav .nav-previous > div:hover, .list-nav .nav-next > div:hover {
     color: #007bff; }
 
-@media all and (max-width: 800px) {
+@media all and (max-width: 720px) {
   .notifications-empty-list .col:first-child {
     display: none; } }
 
-@media all and (min-width: 800px) {
+@media screen and (max-width: 720px) {
   #notificationsList {
-    width: 70%;
-    margin: auto; } }
+    width: 100%; } }
+
+@media screen and (min-width: 720px) {
+  #notificationsList {
+    width: 70%; } }
