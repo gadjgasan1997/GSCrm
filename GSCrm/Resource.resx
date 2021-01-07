@@ -1402,7 +1402,7 @@
     <value>Тип</value>
   </data>
   <data name="UnhandledException" xml:space="preserve">
-    <value>UnhandledException</value>
+    <value>Во время выполнения операции произошло необработанное исключение</value>
   </data>
   <data name="Unlock" xml:space="preserve">
     <value>Разблокировать</value>

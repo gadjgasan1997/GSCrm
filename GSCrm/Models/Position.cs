@@ -12,7 +12,7 @@ namespace GSCrm.Models
         public Guid? PrimaryEmployeeId { get; set; }
 
         [ForeignKey("Division")]
-        public Guid DivisionId { get; set; }
+        public Guid? DivisionId { get; set; }
         public Division Division { get; set; }
 
         public List<EmployeePosition> EmployeePositions { get; set; }

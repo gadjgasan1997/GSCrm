@@ -116,11 +116,11 @@ class Utils {
         switch(messageName) {
             // необработанное исключение
             case "UnhandledException":
-                return MessageManager.Invoke("CommonError", { "error": Localization.GetString("unhandledException") });
+                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : Localization.GetString("unhandledException") });
                 
             // Запись не найдена
             case "RecordNotFound":
-                return MessageManager.Invoke("CommonError", { "error": Localization.GetString("recordNotFound") });
+                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : Localization.GetString("recordNotFound") });
             
             // Обработка ошибок, коды которых удовлетворяют определенным паттернам
             default:

@@ -258,7 +258,7 @@ namespace GSCrm.Repository
                     limitingCollection: context.GetOrgDivisions(orgViewModelCash.Id),
                     limitCondition: n => n.Name.ToLower().Contains(orgViewModelCash.SeacrhPositionDivName),
                     selectCondition: i => i.Id,
-                    removeCondition: (divisionIdList, position) => !divisionIdList.Contains(position.DivisionId));
+                    removeCondition: (divisionIdList, position) => !divisionIdList.Contains((Guid)position.DivisionId));
             }
         }
 
@@ -364,7 +364,7 @@ namespace GSCrm.Repository
                     limitingCollection: context.GetOrgDivisions(orgViewModelCash.Id),
                     limitCondition: n => n.Name.ToLower().Contains(orgViewModelCash.SeacrhEmployeeDivName),
                     selectCondition: i => i.Id,
-                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains(employee.DivisionId));
+                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains((Guid)employee.DivisionId));
             }
         }
         #endregion

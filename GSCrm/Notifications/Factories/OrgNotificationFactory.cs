@@ -33,7 +33,7 @@ namespace GSCrm.Notifications.Factories
                     .FirstOrDefault(i => i.UserId == targetuserId.ToString() && i.OrganizationId == organizationId);
 
                 // Если требуется раассылка
-                if (NeedNotification(userOrganization?.OrgNotificationsSetting))
+                if (userOrganization?.OrgNotificationsSetting != null && NeedNotification(userOrganization.OrgNotificationsSetting))
                 {
                     // Для всех способов рассыкли, доступных для этого типа уведомления
                     GetNotificationTargets(userOrganization.OrgNotificationsSetting).ForEach(async notificationTarget =>

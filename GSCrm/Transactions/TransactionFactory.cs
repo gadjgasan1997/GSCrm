@@ -2,6 +2,7 @@
 using GSCrm.Data.Cash;
 using GSCrm.Factories;
 using GSCrm.Helpers;
+using GSCrm.Localization;
 using GSCrm.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Transactions
 {
@@ -19,6 +21,7 @@ namespace GSCrm.Transactions
         protected readonly IServiceProvider serviceProvider;
         protected readonly ICachService cachService;
         protected ITransaction transaction;
+        protected readonly IResManager resManager;
         protected readonly User currentUser;
         protected readonly ApplicationDbContext context;
         /// <summary>
@@ -43,6 +46,7 @@ namespace GSCrm.Transactions
         public TransactionFactory(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
             this.serviceProvider = serviceProvider;
+            resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             this.context = context;
             IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
@@ -115,7 +119,11 @@ namespace GSCrm.Transactions
             }
             catch (Exception ex)
             {
-                errors.Add(ex.Source, ex.Message);
+#if DEBUG
+                errors.Add("UnhandledException", ex.InnerException?.Message ?? ex.Message);
+#else
+                errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
+#endif
                 efTransaction.Rollback();
                 transaction.TransactionStatus = TransactionStatus.Error;
                 return false;

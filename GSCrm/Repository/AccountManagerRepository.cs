@@ -130,7 +130,7 @@ namespace GSCrm.Repository
                     limitingCollection: context.GetOrgDivisions(accountViewModelCash.OrganizationId),
                     limitCondition: n => n.Name.ToLower().Contains(accountViewModelCash.SearchAllManagersDivision),
                     selectCondition: i => i.Id,
-                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains(employee.DivisionId));
+                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains((Guid)employee.DivisionId));
             }
         }
 

@@ -71,7 +71,7 @@ namespace GSCrm.Helpers
             => context.EmployeeContacts.AsNoTracking().Where(empId => empId.EmployeeId == employeeViewModel.Id).ToList();
 
         public static List<Employee> GetSubordinates(this Employee employee, ApplicationDbContext context)
-            => GetSubordinates(context, employee.Id, employee.DivisionId, employee.PrimaryPositionId);
+            => GetSubordinates(context, employee.Id, (Guid)employee.DivisionId, employee.PrimaryPositionId);
 
         public static List<Employee> GetSubordinates(this EmployeeViewModel employeeViewModel, ApplicationDbContext context)
             => GetSubordinates(context, employeeViewModel.Id, employeeViewModel.DivisionId, employeeViewModel.PrimaryPositionId);
