@@ -95,7 +95,7 @@ namespace GSCrm.Repository
                 transaction.AddParameter("CurrentOrganization", currentOrganization);
 
                 // Проверка полномочий
-                if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("AccCreate", transaction))
+                if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("AccCreate", transaction))
                     AddHasNoPermissionsError(OperationType.Create);
 
                 // Остальные проверки

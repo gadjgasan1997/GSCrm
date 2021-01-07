@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GSCrm.Models.Enums;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -7,6 +8,8 @@ namespace GSCrm.Models.ViewModels
     public class PositionViewModel : BaseViewModel
     {
         public string Name { get; set; }
+        public PositionStatus PositionStatus { get; set; }
+        public PositionLockReason PositionLockReason { get; set; }
         public bool IsPrimary { get; set; }
         public Guid OrganizationId { get; set; }
         public string OrganizationName { get; set; }

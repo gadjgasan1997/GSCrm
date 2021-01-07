@@ -15,21 +15,6 @@
     ViewInfo orgView = viewsInfo.Get(currentUserId, ORGANIZATIONS);
 }
 
-@* // Модальное окно управления полномочиями *@
-@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeeResponsibilityModal.cshtml"); }
-
-@* // Модальное окно управления должностями *@
-@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeePosisionModal.cshtml"); }
-
-@* // Модальное окно изменения подразделения *@
-@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmpContactUpdateModal.cshtml"); }
-
-@* // Модальное окно создания контакта сотрудника *@
-@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmpContactCreateModal.cshtml"); }
-
-@* // Модальное окно изменения подразделения сотрудника *@
-@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/ChangeDivisionModal.cshtml"); }
-
 @* // Хлебные крошки *@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb one-line-crumbs">
@@ -198,6 +183,21 @@
                 break;
 
             case "Active":
+                @* // Модальное окно управления полномочиями *@
+                await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeeResponsibilityModal.cshtml");
+
+                @* // Модальное окно управления должностями *@
+                await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeePosisionModal.cshtml");
+
+                @* // Модальное окно изменения подразделения *@
+                await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmpContactUpdateModal.cshtml");
+
+                @* // Модальное окно создания контакта сотрудника *@
+                await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmpContactCreateModal.cshtml");
+
+                @* // Модальное окно изменения подразделения сотрудника *@
+                await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/ChangeDivisionModal.cshtml");
+
                 <form class="mt-2" asp-controller="@EMPLOYEE" asp-action="Update">
                     <div asp-validation-summary="All"></div>
                     <div class="form-group">

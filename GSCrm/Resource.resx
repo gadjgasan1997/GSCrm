@@ -1134,6 +1134,9 @@
   <data name="PositionEmployees" xml:space="preserve">
     <value>Сотрудники, занимающие должность</value>
   </data>
+  <data name="PositionIsLock" xml:space="preserve">
+    <value>Должность заблокирована. Для разблокировки внесите ее в какое-либо подразделение</value>
+  </data>
   <data name="PositionNameLength" xml:space="preserve">
     <value>Название должности не может быть меньше трех сиволов</value>
   </data>
@@ -1409,6 +1412,9 @@
   </data>
   <data name="UnlockEmployeeNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для разблокировки сотрудника</value>
+  </data>
+  <data name="UnlockPositionNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для разблокировки должности</value>
   </data>
   <data name="Update" xml:space="preserve">
     <value>Обновить</value>

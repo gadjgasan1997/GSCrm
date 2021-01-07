@@ -177,6 +177,7 @@ namespace GSCrm.Transactions
                 ("PositionViewModel", OperationType.Update) => "PositionUpdate",
                 ("PositionViewModel", OperationType.Delete) => "PositionDelete",
                 ("PositionViewModel", OperationType.ChangePositionDivision) => "ChangePositionDivision",
+                ("PositionViewModel", OperationType.UnlockPosition) => "UnlockPosition",
                 ("EmployeeViewModel", OperationType.Create) => "EmployeeCreate",
                 ("EmployeeViewModel", OperationType.Update) => "EmployeeUpdate",
                 ("EmployeeViewModel", OperationType.Delete) => "EmployeeDelete",

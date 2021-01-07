@@ -9,6 +9,7 @@ using System.Linq;
 using static GSCrm.CommonConsts;
 using GSCrm.Data;
 using Microsoft.EntityFrameworkCore;
+using GSCrm.Transactions;
 
 namespace GSCrm.Mapping
 {
@@ -80,6 +81,15 @@ namespace GSCrm.Mapping
             return positionViewModel;
         }
 
+        public void UnlockOnDivisionAbsent(Position position)
+        {
+            SetTransaction(OperationType.UnlockPosition);
+            position.Unlock();
+            Division newDivision = (Division)transaction.GetParameterValue("Division");
+            position.DivisionId = newDivision.Id;
+            transaction.AddChange(position, EntityState.Modified);
+        }
+
         /// <summary>
         /// Преобразует модель уровня данных в модель уровня отображения, НЕ выполняя расчет иерархии родительских должностей
         /// Требуется, так как, если запускать метод "GetViewModelsFromData" на иерархии должностей, то он для каждой
@@ -106,7 +116,9 @@ namespace GSCrm.Mapping
                 OrganizationId = organization.Id,
                 OrganizationName = organization.Name,
                 PrimaryEmployeeId = primaryEmployee?.Id,
-                PrimaryEmployeeInitialName = primaryEmployee?.GetIntialsFullName()
+                PrimaryEmployeeInitialName = primaryEmployee?.GetIntialsFullName(),
+                PositionStatus = position.PositionStatus,
+                PositionLockReason = position.PositionLockReason
             };
             return positionViewModel;
         }

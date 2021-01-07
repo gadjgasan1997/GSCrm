@@ -21,7 +21,7 @@ namespace GSCrm.Repository
 
         #region Override Methods
         protected override bool RespsIsCorrectOnCreate(DivisionViewModel divisionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("DivCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("DivCreate", transaction);
 
         protected override bool TryCreatePrepare(DivisionViewModel divisionViewModel)
         {
@@ -35,7 +35,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(Division division)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("DivDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("DivDelete", transaction);
         #endregion
 
         #region Validations

@@ -4,6 +4,7 @@
 @using static GSCrm.CommonConsts
 @using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
+@using GSCrm.Models.Enums
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
@@ -13,9 +14,6 @@
     string currentUserId = User.GetUserModel(context).Id;
     ViewInfo orgView = viewsInfo.Get(currentUserId, ORGANIZATIONS);
 }
-
-@* // Модальное окно изменения подразделения сотрудника *@
-@{ await Html.RenderPartialAsync($"{POS_VIEWS_REL_PATH}Partial/ChangeDivisionModal.cshtml"); }
 
 @* // Хлебные крошки *@
 <nav aria-label="breadcrumb">
@@ -35,7 +33,12 @@
     </ol>
 </nav>
 
+@if (Model.PositionStatus == PositionStatus.Active)
+{
 <div id="positionForm">
+    @* // Модальное окно изменения подразделения сотрудника *@
+    @{ await Html.RenderPartialAsync($"{POS_VIEWS_REL_PATH}Partial/ChangeDivisionModal.cshtml"); }
+
     <div class="row justify-content-center mb-4 mt-4">
         <h3 class="label-non-select text-center m-0">@Model.Name</h3>
     </div>
@@ -167,3 +170,48 @@
         </div>
     </div>
 </div>
+}
+else
+{
+<form id="lockPositionForm" asp-controller="@POSITION" asp-action="Unlock">
+    <input id="positionLockReason" hidden="hidden" value="@Model.PositionLockReason" />
+    @switch (Model.PositionLockReason)
+    {
+        default:
+        case PositionLockReason.DivisionAbsent:
+            <div class="mt-2 text-center">
+                <p class="label-md">@resManager.GetString("PositionIsLock")</p>
+            </div>
+            <div class="mt-2">
+                <input id="positionId" asp-for="Id" hidden="hidden" />
+                <input asp-for="OrganizationId" hidden="hidden" />
+                <div class="row">
+                    <div class="col">
+                        <div class="mt-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend m-auto">
+                                    <span class="input-group-text" id="basic-addon1">@resManager.GetString(DIVISION)</span>
+                                </div>
+                                <div id="positionDiv" class="autocomplete default-autocomplete flex-grow-1">
+                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetDivisions/{Model.OrganizationId}/")"></a>
+                                    <input asp-for="DivisionName" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
+                                    <ul class="autocomplete-result-list"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <span asp-validation-for="DivisionName"></span>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col text-left">
+                        <input id="unlockPosBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("Unlock")" />
+                    </div>
+                    <div class="col text-right">
+                        <input id="cancelUnlockPosBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+                    </div>
+                </div>
+            </div>
+        break;
+    }
+</form>
+}

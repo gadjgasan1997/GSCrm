@@ -68,6 +68,19 @@ namespace GSCrm.Controllers
             return Json("");
         }
 
+        [HttpPost("Unlock")]
+        public IActionResult Unlock(PositionViewModel positionViewModel)
+        {
+            ModelStateDictionary modelState = ModelState;
+            if (!new PositionRepository(serviceProvider, context).TryUnlock(ref positionViewModel, out Dictionary<string, string> errors))
+            {
+                foreach (KeyValuePair<string, string> error in errors)
+                    modelState.AddModelError(error.Key, error.Value);
+                return BadRequest(modelState);
+            }
+            return Json("");
+        }
+
         [HttpPost("SearchEmployee")]
         public IActionResult SearchEmployee(PositionViewModel positionViewModel)
         {

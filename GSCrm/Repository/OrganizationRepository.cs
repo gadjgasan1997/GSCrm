@@ -514,7 +514,7 @@ namespace GSCrm.Repository
         /// <param name="actionName"></param>
         /// <param name="transaction"></param>
         /// <returns></returns>
-        public bool CheckPermissionForEmployeeGroup(string actionName, ITransaction transaction)
+        public bool CheckPermissionForOrgGroup(string actionName, ITransaction transaction)
         {
             Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             if (!currentUser.NeedCheckResps(currentOrganization)) return true;

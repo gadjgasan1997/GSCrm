@@ -48,7 +48,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnCreate(EmployeeViewModel employeeViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpCreate", transaction);
 
         protected override bool TryCreatePrepare(EmployeeViewModel employeeViewModel)
         {
@@ -73,7 +73,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(EmployeeViewModel employeeViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpUpdate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUpdate", transaction);
 
         protected override bool TryUpdatePrepare(EmployeeViewModel employeeViewModel)
         {
@@ -94,7 +94,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(Employee employee)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpDelete", transaction);
 
         protected override bool TryDeletePrepare(Employee employee)
         {
@@ -416,7 +416,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpChangeDiv", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpChangeDiv", transaction))
                          AddHasNoPermissionsError(OperationType.ChangeEmployeeDivision);
                 },
                 () => CheckDivisionLength(employeeViewModel),
@@ -454,7 +454,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpUnlock", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock", transaction))
                          AddHasNoPermissionsError(OperationType.UnlockEmployee);
                 },
                 () => CheckDivisionLength(employeeViewModel),

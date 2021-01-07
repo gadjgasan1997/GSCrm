@@ -16,7 +16,7 @@ namespace GSCrm.Transactions.Factories
 
         protected override void CreateHandler(OperationType operationType, PositionViewModel positionViewModel)
         {
-            if (operationType.IsInList(baseOperationTypes.With(OperationType.ChangePositionDivision)))
+            if (operationType.IsInList(baseOperationTypes.With(OperationType.ChangePositionDivision, OperationType.UnlockPosition)))
             {
                 Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
                 transaction.AddParameter("CurrentOrganization", currentOrganization);

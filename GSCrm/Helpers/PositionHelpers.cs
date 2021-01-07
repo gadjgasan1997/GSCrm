@@ -67,5 +67,11 @@ namespace GSCrm.Helpers
             position.PositionStatus = PositionStatus.Lock;
             position.PositionLockReason = lockReason;
         }
+
+        public static void Unlock(this Position position)
+        {
+            position.PositionStatus = PositionStatus.Active;
+            position.PositionLockReason = PositionLockReason.None;
+        }
     }
 }

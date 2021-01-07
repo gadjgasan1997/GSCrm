@@ -44,7 +44,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnCreate(PositionViewModel positionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
 
         protected override bool TryCreatePrepare(PositionViewModel positionViewModel)
         {
@@ -69,7 +69,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(PositionViewModel positionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
 
         protected override bool TryUpdatePrepare(PositionViewModel positionViewModel)
         {
@@ -111,7 +111,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(Position position)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
 
         protected override void FailureUpdateHandler(PositionViewModel positionViewModel)
         {
@@ -394,7 +394,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosChangeDiv", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosChangeDiv", transaction))
                          AddHasNoPermissionsError(OperationType.ChangePositionDivision);
                 },
                 () => CheckDivisionLength(positionViewModel),
@@ -416,6 +416,25 @@ namespace GSCrm.Repository
             Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionViewModel.Id);
             if (position.DivisionId == newDivision.Id)
                 errors.Add("ThisPositionDivisionIsAlreadySelect", resManager.GetString("ThisPositionDivisionIsAlreadySelect"));
+        }
+
+        /// <summary>
+        /// Метод выполняет проверки, необходимые при разблокировке должности
+        /// </summary>
+        /// <param name="positionViewModel"></param>
+        /// <returns></returns>
+        private bool TryUnlockValidate(PositionViewModel positionViewModel)
+        {
+            InvokeIntermittinActions(errors, new List<Action>()
+            {   
+                () => {
+                    /*if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosUnlock", transaction))
+                         AddHasNoPermissionsError(OperationType.UnlockPosition);*/
+                },
+                () => CheckDivisionLength(positionViewModel),
+                () => DivisionExists(positionViewModel)
+            });
+            return !errors.Any();
         }
         #endregion
 
@@ -508,7 +527,7 @@ namespace GSCrm.Repository
         /// </summary>
         /// <param name="position"></param>
         /// <param name="transaction"></param>
-        public void CheckEmployeePositions(Position position)
+        private void CheckEmployeePositions(Position position)
         {
             position.AddEmployeePositions(context).EmployeePositions.ForEach(employeePosition =>
             {
@@ -522,6 +541,44 @@ namespace GSCrm.Repository
                 }
                 transaction.AddChange(employeePosition, EntityState.Deleted);
             });
+        }
+
+        /// <summary>
+        /// Метод пытается разблокировать должность
+        /// </summary>
+        /// <param name="positionViewModel"></param>
+        /// <param name="errors"></param>
+        /// <returns></returns>
+        public bool TryUnlock(ref PositionViewModel positionViewModel, out Dictionary<string, string> errors)
+        {
+            // Получение сотрудника из бд
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockPosition, positionViewModel);
+            Guid positionId = positionViewModel.Id;
+            Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionId);
+
+            // В зависимости от причины, по которой была заблокирована должность
+            switch (position.PositionLockReason)
+            {
+                default:
+                case PositionLockReason.DivisionAbsent:
+                    if (TryUnlockValidate(positionViewModel))
+                    {
+                        new PositionMap(serviceProvider, context).UnlockOnDivisionAbsent(position);
+                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                        {
+                            viewModelsTransactionFactory.Close(transaction);
+                            errors = this.errors;
+                            return true;
+                        }
+                    }
+                    break;
+            }
+
+            // Иначе данные из бд преобразуются в данные для отображения без прикрепления контактов и должностей
+            errors = this.errors;
+            positionViewModel = map.DataToViewModel(position);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            return false;
         }
         #endregion
     }

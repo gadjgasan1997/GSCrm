@@ -20,7 +20,7 @@ namespace GSCrm.Repository
 
         #region Override Methods
         protected override bool RespsIsCorrectOnCreate(EmployeeContactViewModel contactViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpContactCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactCreate", transaction);
 
         protected override bool TryCreatePrepare(EmployeeContactViewModel contactViewModel)
         {
@@ -29,7 +29,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(EmployeeContactViewModel contactViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpContactUpdate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactUpdate", transaction);
 
         protected override bool TryUpdatePrepare(EmployeeContactViewModel contactViewModel)
         {
@@ -38,7 +38,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(EmployeeContact employeeContact)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpContactDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactDelete", transaction);
         #endregion
 
         #region Validations

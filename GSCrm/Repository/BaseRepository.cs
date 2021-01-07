@@ -475,6 +475,7 @@ namespace GSCrm.Repository
                 ("PositionViewModel", OperationType.Update) => ("PosUpdateNoRes", resManager.GetString("PosUpdateNoRes")),
                 ("PositionViewModel", OperationType.Delete) => ("PosDeleteNoRes", resManager.GetString("PosDeleteNoRes")),
                 ("PositionViewModel", OperationType.ChangePositionDivision) => ("ChangePositionDivisionNoRes", resManager.GetString("ChangePositionDivisionNoRes")),
+                ("PositionViewModel", OperationType.UnlockPosition) => ("UnlockPositionNoRes", resManager.GetString("UnlockPositionNoRes")),
                 ("EmployeeViewModel", OperationType.Create) => ("EmpCreateNoRes", resManager.GetString("EmpCreateNoRes")),
                 ("EmployeeViewModel", OperationType.Update) => ("EmpUpdateNoRes", resManager.GetString("EmpUpdateNoRes")),
                 ("EmployeeViewModel", OperationType.Delete) => ("EmpDeleteNoRes", resManager.GetString("EmpDeleteNoRes")),

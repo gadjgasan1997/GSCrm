@@ -173,7 +173,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(this.errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpRespsManagement", syncRespsTransaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpRespsManagement", syncRespsTransaction))
                          AddHasNoPermissionsError(OperationType.EmployeeResponsibilitiesManagement);
                 },
                 () => {
