@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GSCrm.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -8,6 +9,9 @@ namespace GSCrm.Models
     public class Position : BaseDataModel
     {
         public string Name { get; set; }
+        public PositionStatus PositionStatus { get; set; } = PositionStatus.Active;
+        public PositionLockReason PositionLockReason { get; set; } = PositionLockReason.None;
+
         public Guid? ParentPositionId { get; set; }
         public Guid? PrimaryEmployeeId { get; set; }
 

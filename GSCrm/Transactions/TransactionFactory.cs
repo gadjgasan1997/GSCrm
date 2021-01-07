@@ -56,6 +56,7 @@ namespace GSCrm.Transactions
         }
         #endregion
 
+        #region Create
         public ITransaction Create(string userId, OperationType operationType, TEntity entity)
         {
             CreateTransaction(operationType, userId);
@@ -104,9 +105,30 @@ namespace GSCrm.Transactions
         protected virtual void CreateHandler(OperationType operationType, string recordId) { }
 
         protected virtual void CreateHandler(OperationType operationType) { }
+        #endregion
 
+        #region Close
+        public void Close(ITransaction transaction, TransactionStatus transactionStatus = TransactionStatus.None)
+        {
+            if (!_transactions.ContainsKey(transaction.UserId)) return;
+            ITransaction transation = _transactions[transaction.UserId].FirstOrDefault(i => i.Name == transaction.Name);
+            if (transation != null)
+            {
+                // В случае, если не был подан никакой статус, то транзакция закрывается с текущим
+                transactionStatus = transactionStatus == TransactionStatus.None ? transaction.TransactionStatus : transactionStatus;
+                CloseHandler(transactionStatus);
+                _transactions.GetValueOrDefault(transaction.UserId).Remove(transation);
+                return;
+            }
+        }
+
+        protected virtual void CloseHandler(TransactionStatus transactionStatus) { }
+        #endregion
+
+        #region Other
         public virtual bool TryCommit(ITransaction transaction, Dictionary<string, string> errors)
         {
+            BeforeCommit(transaction.OperationType);
             using IDbContextTransaction efTransaction = context.Database.BeginTransaction();
             try
             {
@@ -130,21 +152,7 @@ namespace GSCrm.Transactions
             }
         }
 
-        public void Close(ITransaction transaction, TransactionStatus transactionStatus = TransactionStatus.None)
-        {
-            if (!_transactions.ContainsKey(transaction.UserId)) return;
-            ITransaction transation = _transactions[transaction.UserId].FirstOrDefault(i => i.Name == transaction.Name);
-            if (transation != null)
-            {
-                // В случае, если не был подан никакой статус, то транзакция закрывается с текущим
-                transactionStatus = transactionStatus == TransactionStatus.None ? transaction.TransactionStatus : transactionStatus;
-                CloseHandler(transactionStatus);
-                _transactions.GetValueOrDefault(transaction.UserId).Remove(transation);
-                return;
-            }
-        }
-
-        protected virtual void CloseHandler(TransactionStatus transactionStatus) { }
+        protected virtual void BeforeCommit(OperationType operationType) { }
 
         public ITransaction GetTransaction(string userId, OperationType operationType)
         {
@@ -210,5 +218,6 @@ namespace GSCrm.Transactions
                 ("UserViewModel", OperationType.ResetPassword) => "ResetUserPassword",
                 _ => string.Empty
             };
+        #endregion
     }
 }
