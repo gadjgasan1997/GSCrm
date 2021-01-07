@@ -3,6 +3,7 @@ using GSCrm.Helpers;
 using GSCrm.Models.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace GSCrm.Models
@@ -17,6 +18,10 @@ namespace GSCrm.Models
         public Guid? PrimaryPositionId { get; set; }
         public EmployeeStatus EmployeeStatus { get; set; } = EmployeeStatus.None;
         public EmployeeLockReason EmployeeLockReason { get; set; } = EmployeeLockReason.None;
+
+        [ForeignKey("Organization")]
+        public Guid OrganizationId { get; set; }
+        public Organization Organization { get; set; }
 
         public List<EmployeePosition> EmployeePositions { get; set; }
         public List<EmployeeContact> EmployeeContacts { get; set; }

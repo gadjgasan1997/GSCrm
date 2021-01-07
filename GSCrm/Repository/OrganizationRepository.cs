@@ -217,8 +217,15 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void AttachPositions(OrganizationViewModel orgViewModel)
         {
-            orgViewModel.Positions = orgViewModel.GetPositions(context)
-                .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedPositionsList);
+            try
+            {
+                orgViewModel.Positions = orgViewModel.GetAllPositions(context)
+                    .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedPositionsList);
+            }
+            catch(Exception ex)
+            {
+                var test = ex;
+            }
         }
 
         private List<Position> GetLimitedPositionsList(List<Position> positions)
@@ -306,7 +313,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void AttachEmployees(OrganizationViewModel orgViewModel)
         {
-            orgViewModel.Employees = orgViewModel.GetEmployees(context)
+            orgViewModel.Employees = orgViewModel.GetAllEmployees(context)
                 .MapToViewModels(new EmployeeMap(serviceProvider, context), GetLimitedEmployeesList);
         }
 

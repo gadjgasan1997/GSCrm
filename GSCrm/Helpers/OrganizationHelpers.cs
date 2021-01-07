@@ -17,29 +17,17 @@ namespace GSCrm.Helpers
         #endregion
 
         #region Positions
-        public static List<Position> GetPositions(this OrganizationViewModel orgViewModel, ApplicationDbContext context)
-            => orgViewModel.GetDivisions(context).GetPositions(context);
+        public static List<Position> GetAllPositions(this OrganizationViewModel orgViewModel, ApplicationDbContext context)
+            => context.Positions.AsNoTracking().Where(pos => pos.OrganizationId == orgViewModel.Id).ToList();
         public static List<Position> GetPositions(this Organization organization, ApplicationDbContext context)
-            => organization.GetDivisions(context).GetPositions(context);
-        private static List<Position> GetPositions(this List<Division> allDivisions, ApplicationDbContext context)
-        {
-            List<Position> positions = new List<Position>();
-            allDivisions.ForEach(division => positions.AddRange(division.GetPositions(context)));
-            return positions;
-        }
+            => context.Positions.AsNoTracking().Where(pos => pos.OrganizationId == organization.Id).ToList();
         #endregion
 
         #region Employees
-        public static List<Employee> GetEmployees(this OrganizationViewModel orgViewModel, ApplicationDbContext context)
-            => orgViewModel.GetDivisions(context).GetEmployees(context);
+        public static List<Employee> GetAllEmployees(this OrganizationViewModel orgViewModel, ApplicationDbContext context)
+            => context.Employees.AsNoTracking().Where(pos => pos.OrganizationId == orgViewModel.Id).ToList();
         public static List<Employee> GetEmployees(this Organization organization, ApplicationDbContext context)
-            => organization.GetDivisions(context).GetEmployees(context);
-        private static List<Employee> GetEmployees(this List<Division> allDivisions, ApplicationDbContext context)
-        {
-            List<Employee> divisionsEmployees = new List<Employee>();
-            allDivisions.ForEach(division => divisionsEmployees.AddRange(division.GetEmployees(context)));
-            return divisionsEmployees;
-        }
+            => context.Employees.AsNoTracking().Where(pos => pos.OrganizationId == organization.Id).ToList();
         #endregion
 
         #region Responsibilities

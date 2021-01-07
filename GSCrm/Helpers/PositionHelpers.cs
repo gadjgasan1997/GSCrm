@@ -14,12 +14,7 @@ namespace GSCrm.Helpers
     {
         #region Organizaqtions
         public static Organization GetOrganization(this Position position, ApplicationDbContext context)
-        {
-            Division positionDiv = context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == position.DivisionId);
-            return GetOrganization(positionDiv.OrganizationId, context);
-        }
-        private static Organization GetOrganization(Guid organizationId, ApplicationDbContext context)
-            => context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
+            => context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == position.OrganizationId);
         #endregion
 
         #region Divisions
@@ -46,7 +41,7 @@ namespace GSCrm.Helpers
 
         #region Positions
         public static Position GetParentPosition(this Position position, ApplicationDbContext context)
-            => context.Positions.AsNoTracking().Include(div => div.Division).FirstOrDefault(i => i.Id == position.ParentPositionId);
+            => context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == position.ParentPositionId);
         public static Position GetParentPosition(this PositionViewModel positionViewModel, Division division, ApplicationDbContext context)
             => division.GetPositions(context).FirstOrDefault(n => n.Name == positionViewModel.ParentPositionName);
         public static List<Position> GetSubPositions(this Position position, ApplicationDbContext context)

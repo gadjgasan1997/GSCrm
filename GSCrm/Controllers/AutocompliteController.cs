@@ -81,7 +81,7 @@ namespace GSCrm.Controllers
                     Division selectedDivision = divisions.FirstOrDefault(n => n.Name == divNamePart);
                     if (selectedDivision == null) return Json("");
 
-                    List<PositionViewModel> positionViewModels = selectedDivision.Positions
+                    List<PositionViewModel> positionViewModels = selectedDivision.GetPositions(context)
                         .MapToViewModels(positionMap, pos => pos.Name.ToLower().Contains(posNamePart.TrimStartAndEnd().ToLower()));
                     return Json(positionViewModels);
                 }

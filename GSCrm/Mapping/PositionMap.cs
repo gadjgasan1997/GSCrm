@@ -23,7 +23,6 @@ namespace GSCrm.Mapping
             Division division = (Division)transaction.GetParameterValue("Division");
             Position position = new Position()
             {
-                Division = division,
                 DivisionId = division.Id,
                 Name = positionViewModel.Name
             };
@@ -92,15 +91,15 @@ namespace GSCrm.Mapping
         private PositionViewModel DataToViewModelExceptHierarchy(Position position)
         {
             Division division = position.GetDivision(context);
-            Organization organization = division.GetOrganization(context);
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == position.OrganizationId);
             Position parentPosition = position.GetParentPosition(context);
             Employee primaryEmployee = position.GetPrimaryEmployee(context);
             PositionViewModel positionViewModel = new PositionViewModel()
             {
                 Id = position.Id,
                 Name = position.Name,
-                DivisionId = division.Id,
-                DivisionName = division.Name,
+                DivisionId = division?.Id,
+                DivisionName = division?.Name,
                 ParentPositionId = parentPosition?.Id,
                 ParentPositionName = parentPosition?.Name,
                 OrganizationId = organization.Id,

@@ -10,7 +10,7 @@ namespace GSCrm.Models.ViewModels
         public bool IsPrimary { get; set; }
         public Guid OrganizationId { get; set; }
         public string OrganizationName { get; set; }
-        public Guid DivisionId { get; set; }
+        public Guid? DivisionId { get; set; }
         public string DivisionName { get; set; }
         public Guid? ParentPositionId { get; set; }
         public string ParentPositionName { get; set; }

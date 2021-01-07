@@ -24,7 +24,7 @@ namespace GSCrm.Helpers
         }
 
         public static List<Division> GetOrgDivisions(this ApplicationDbContext context, Guid organizationId)
-            => context.Divisions.AsNoTracking().Include(pos => pos.Positions).Where(orgId => orgId.OrganizationId == organizationId).ToList();
+            => context.Divisions.AsNoTracking().Where(orgId => orgId.OrganizationId == organizationId).ToList();
 
         public static List<Position> GetOrgPositions(this ApplicationDbContext context, Guid organizationId)
         {

@@ -66,14 +66,14 @@ namespace GSCrm.Mapping
             Position primaryPosition = employee.GetPrimaryPosition(context);
             Employee supervisor = employee.GetSupervisor(context);
             Division division = employee.GetDivision(context);
-            Organization organization = division.GetOrganization(context);
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == employee.OrganizationId);
             return new EmployeeViewModel()
             {
                 Id = employee.Id,
                 OrganizationId = organization.Id,
                 OrganizationName = organization.Name,
-                DivisionId = division.Id,
-                DivisionName = division.Name,
+                DivisionId = division?.Id,
+                DivisionName = division?.Name,
                 FirstName = employee.FirstName,
                 LastName = employee.LastName,
                 MiddleName = employee.MiddleName,

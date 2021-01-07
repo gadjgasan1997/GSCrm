@@ -224,7 +224,7 @@ namespace GSCrm.Repository
             {
                 Division division = context.Divisions.FirstOrDefault(i => i.Id == employee.DivisionId);
                 Organization organization = division.GetOrganization(context);
-                organization.Divisions.ForEach(division => allPositions.AddRange(division.Positions));
+                organization.GetDivisions(context).ForEach(division => allPositions.AddRange(division.GetPositions(context)));
             }
             return allPositions;
         }

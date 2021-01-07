@@ -18,7 +18,7 @@ namespace GSCrm.Data.EntityConfigurations
                 .HasMany(empPos => empPos.EmployeePositions)
                 .WithOne(emp => emp.Employee)
                 .HasForeignKey(empId => empId.EmployeeId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder
                 .HasMany(empResp => empResp.EmployeeResponsibilities)

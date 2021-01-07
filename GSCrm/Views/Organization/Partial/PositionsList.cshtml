@@ -53,7 +53,12 @@
                     {
                         <tr>
                             <td class="tooltip-cell-src tooltip-cell-link label-non-select position-item">@Html.ActionLink(position.Name, POSITION, POSITION, new { id = position.Id })</td>
-                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">@Html.ActionLink(position.DivisionName, DIVISION, DIVISION, new { id = position.DivisionId })</td>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">
+                                @if (!string.IsNullOrEmpty(position.DivisionName))
+                                {
+                                    @Html.ActionLink(position.DivisionName, DIVISION, DIVISION, new { id = position.DivisionId })
+                                }
+                            </td>
                             <td class="tooltip-cell-src tooltip-cell-link label-non-select employee-item">
                                 @if (!string.IsNullOrEmpty(position.PrimaryEmployeeInitialName))
                                 {

@@ -444,7 +444,6 @@ namespace GSCrm.Repository
                 ResetParentPositionForChilds(position);
 
                 Division newDivision = context.GetOrgDivisions(positionViewModel.OrganizationId).FirstOrDefault(n => n.Name == positionViewModel.DivisionName);
-                position.Division = newDivision;
                 position.DivisionId = newDivision.Id;
                 position.PrimaryEmployeeId = null;
                 position.ParentPositionId = null;

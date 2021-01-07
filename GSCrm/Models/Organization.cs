@@ -9,10 +9,14 @@ namespace GSCrm.Models
 
         public List<UserOrganization> UserOrganizations { get; set; }
         public List<Division> Divisions { get; set; }
+        public List<Position> Positions { get; set; }
+        public List<Employee> Employees { get; set; }
         public Organization()
         {
             UserOrganizations = new List<UserOrganization>();
             Divisions = new List<Division>();
+            Positions = new List<Position>();
+            Employees = new List<Employee>();
         }
     }
 }

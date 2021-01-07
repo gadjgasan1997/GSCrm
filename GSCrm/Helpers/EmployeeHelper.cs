@@ -45,10 +45,7 @@ namespace GSCrm.Helpers
         }
 
         public static Organization GetOrganization(this Employee employee, ApplicationDbContext context)
-        {
-            Division employeeDivision = employee.GetDivision(context);
-            return context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == employeeDivision.OrganizationId);
-        }
+            => context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == employee.OrganizationId);
 
         public static Division GetDivision(this Employee employee, ApplicationDbContext context)
             => context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == employee.DivisionId);
@@ -76,8 +73,9 @@ namespace GSCrm.Helpers
         public static List<Employee> GetSubordinates(this EmployeeViewModel employeeViewModel, ApplicationDbContext context)
             => GetSubordinates(context, employeeViewModel.Id, employeeViewModel.DivisionId, employeeViewModel.PrimaryPositionId);
 
-        private static List<Employee> GetSubordinates(ApplicationDbContext context, Guid employeeId, Guid divisionId, Guid? primaryPositionId)
+        private static List<Employee> GetSubordinates(ApplicationDbContext context, Guid employeeId, Guid? divisionId, Guid? primaryPositionId)
         {
+            if (divisionId == null) return new List<Employee>();
             List<Employee> subordinates = new List<Employee>();
             Division division = context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == divisionId);
             List<Position> childPositions = division.GetPositions(context).Where(pos => pos.ParentPositionId == primaryPositionId).ToList();
