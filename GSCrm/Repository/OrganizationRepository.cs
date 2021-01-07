@@ -608,9 +608,6 @@ namespace GSCrm.Repository
             errors = this.errors;
             transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
 
-            // Удаление уведомления в любом случае
-            RemoveOrgIniteNot();
-
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
             if (!errors.Any())
@@ -631,6 +628,8 @@ namespace GSCrm.Repository
                 // Попытка коммита
                 if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
+                    // Удаление уведомления в случае успеха
+                    RemoveOrgIniteNot();
                     viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }

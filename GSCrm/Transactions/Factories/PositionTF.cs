@@ -6,6 +6,7 @@ using GSCrm.Models;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Helpers;
 using GSCrm.Models.Enums;
+using GSCrm.Repository;
 
 namespace GSCrm.Transactions.Factories
 {

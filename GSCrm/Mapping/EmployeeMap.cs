@@ -32,6 +32,7 @@ namespace GSCrm.Mapping
                 MiddleName = employeeViewModel.MiddleName,
                 PrimaryPositionId = primaryPosition.Id,
                 DivisionId = division.Id,
+                OrganizationId = division.OrganizationId,
                 UserId = Guid.Parse(userAccount.Id)
             };
 

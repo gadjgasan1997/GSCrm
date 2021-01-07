@@ -127,12 +127,8 @@ namespace GSCrm.Repository
         protected override bool TryDeletePrepare(Position position)
         {
             if (!base.TryDeletePrepare(position)) return false;
-            position = context.Positions
-                .AsNoTracking()
-                .Include(empPos => empPos.EmployeePositions)
-                    .ThenInclude(emp => emp.Employee)
-                .FirstOrDefault(i => i.Id == position.Id);
-            position.EmployeePositions.ForEach(employeePosition => CheckEmployeeForLock(employeePosition, position));
+            position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == position.Id);
+            CheckEmployeePositions(position);
             return true;
         }
         #endregion
@@ -435,12 +431,8 @@ namespace GSCrm.Repository
             transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangePositionDivision, positionViewModel);
             if (TryChangeDivisionValidate(positionViewModel))
             {
-                Position position = context.Positions
-                    .AsNoTracking()
-                    .Include(empPos => empPos.EmployeePositions)
-                        .ThenInclude(emp => emp.Employee)
-                    .FirstOrDefault(i => i.Id == positionViewModel.Id);
-                DeletePositionFromEmployees(position);
+                Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionViewModel.Id);
+                CheckEmployeePositions(position);
                 ResetParentPositionForChilds(position);
 
                 Division newDivision = context.GetOrgDivisions(positionViewModel.OrganizationId).FirstOrDefault(n => n.Name == positionViewModel.DivisionName);
@@ -509,32 +501,27 @@ namespace GSCrm.Repository
         }
 
         /// <summary>
-        /// Метод удаляет текущую должность у всех сотрудников подразделения
+        /// Вызывается для корректного удаления должности
+        /// Метод проверяет необходимость в блокировке сотрудников, находящихся на заданной должности
+        /// И в случае необходимости лочит их, стирая PrimaryPositionId на сотруднике
+        /// После этого помечает должность на удаление
         /// </summary>
         /// <param name="position"></param>
-        private void DeletePositionFromEmployees(Position position)
+        /// <param name="transaction"></param>
+        public void CheckEmployeePositions(Position position)
         {
-            position.EmployeePositions.ForEach(employeePosition =>
+            position.AddEmployeePositions(context).EmployeePositions.ForEach(employeePosition =>
             {
-                CheckEmployeeForLock(employeePosition, position);
+                Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == employeePosition.EmployeeId);
+                if (employee.PrimaryPositionId == position.Id)
+                {
+                    employee.PrimaryPositionId = null;
+                    employee.Lock(EmployeeLockReason.PrimaryPositionAbsent);
+                    new AccountRepository(serviceProvider, context).CheckAccountsForLock(employee, transaction);
+                    transaction.AddChange(employee, EntityState.Modified);
+                }
                 transaction.AddChange(employeePosition, EntityState.Deleted);
             });
-        }
-
-        /// <summary>
-        /// Метод проверяет необходимость в блокировке сотрудника, находящихся на заданной должности(требуется при удалении или смене подразделения)
-        /// И в случае необходимости лочит его, стирая PrimaryPositionId на сотруднике
-        /// </summary>
-        /// <param name="position"></param>
-        private void CheckEmployeeForLock(EmployeePosition employeePosition, Position position)
-        {
-            if (employeePosition.Employee.PrimaryPositionId == position.Id)
-            {
-                employeePosition.Employee.PrimaryPositionId = null;
-                employeePosition.Employee.Lock(EmployeeLockReason.PrimaryPositionAbsent);
-                new AccountRepository(serviceProvider, context).CheckAccountsForLock(employeePosition.Employee, transaction);
-                transaction.AddChange(employeePosition.Employee, EntityState.Modified);
-            }
         }
         #endregion
     }

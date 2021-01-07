@@ -37,6 +37,18 @@ namespace GSCrm.Helpers
             => context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == position.PrimaryEmployeeId);
         public static Employee GetPrimaryEmployee(this PositionViewModel positionViewModel, ApplicationDbContext context)
             => context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == positionViewModel.PrimaryEmployeeId);
+        /// <summary>
+        /// Метод добавляет к должности список сотрудников, ее занимающих
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static Position AddEmployeePositions(this Position position, ApplicationDbContext context)
+        {
+            List<EmployeePosition> employeePositions = context.EmployeePositions.AsNoTracking().Where(empPos => empPos.PositionId == position.Id).ToList();
+            position.EmployeePositions.AddRange(employeePositions);
+            return position;
+        }
         #endregion
 
         #region Positions

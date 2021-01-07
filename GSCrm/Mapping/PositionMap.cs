@@ -23,6 +23,7 @@ namespace GSCrm.Mapping
             Division division = (Division)transaction.GetParameterValue("Division");
             Position position = new Position()
             {
+                OrganizationId = division.OrganizationId,
                 DivisionId = division.Id,
                 Name = positionViewModel.Name
             };

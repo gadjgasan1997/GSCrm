@@ -1014,12 +1014,12 @@ namespace GSCrm.Migrations
                     b.HasOne("GSCrm.Models.Employee", "Employee")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("GSCrm.Models.Position", "Position")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("GSCrm.Models.EmployeeResponsibility", b =>

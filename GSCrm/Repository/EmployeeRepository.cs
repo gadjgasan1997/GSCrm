@@ -98,6 +98,7 @@ namespace GSCrm.Repository
 
         protected override bool TryDeletePrepare(Employee employee)
         {
+            CheckEmployeePositions(employee);
             RemoveUserOrganization(employee);
             new AccountRepository(serviceProvider, context).CheckAccountsForLock(employee, transaction);
             return true;
@@ -684,6 +685,27 @@ namespace GSCrm.Repository
                 OrgInviteUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme)
             };
             new OrgInviteNotFactory(serviceProvider, context, orgInviteParams).Send(Guid.Parse(existsUserAccount.Id));
+        }
+
+        /// <summary>
+        /// Вызывается для корректного удаления сотрудника
+        /// Метод проверяет необходимость установить id основного сотрудника в null для должностей,
+        /// где удаляемый сотрудник является основным
+        /// После этого помечает должность на удаление
+        /// </summary>
+        /// <param name="employee"></param>
+        public void CheckEmployeePositions(Employee employee)
+        {
+            employee.AddEmployeePositions(context).EmployeePositions.ForEach(employeePosition =>
+            {
+                Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == employeePosition.PositionId);
+                if (position.PrimaryEmployeeId == employee.Id)
+                {
+                    position.PrimaryEmployeeId = null;
+                    transaction.AddChange(position, EntityState.Modified);
+                }
+                transaction.AddChange(employeePosition, EntityState.Deleted);
+            });
         }
         #endregion
     }

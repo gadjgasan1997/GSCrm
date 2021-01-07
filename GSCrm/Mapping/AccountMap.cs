@@ -124,7 +124,7 @@ namespace GSCrm.Mapping
             // Проставление списка всех организаций, в которых состоит пользователь
             List<Organization> organizations = context.UserOrganizations
                 .AsNoTracking().Include(org => org.Organization)
-                .Where(userOrg => userOrg.UserId == currentUser.Id)
+                .Where(userOrg => userOrg.UserId == currentUser.Id && userOrg.Accepted)
                 .Select(org => org.Organization).ToList();
             accountsViewModel.UserOrganizations = organizations.GetViewModelsFromData(new OrganizationMap(serviceProvider, context));
 
