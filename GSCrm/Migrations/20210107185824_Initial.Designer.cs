@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GSCrm.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210107142502_07.01.2021")]
-    partial class _07012021
+    [Migration("20210107185824_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -260,6 +260,9 @@ namespace GSCrm.Migrations
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("PrimaryPositionId")
                         .HasColumnType("uniqueidentifier");
 
@@ -267,6 +270,8 @@ namespace GSCrm.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("Employees");
                 });
@@ -461,15 +466,24 @@ namespace GSCrm.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ParentPositionId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PositionLockReason")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PositionStatus")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("PrimaryEmployeeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DivisionId");
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("Positions");
                 });
@@ -975,6 +989,15 @@ namespace GSCrm.Migrations
                     b.HasOne("GSCrm.Models.Organization", "Organization")
                         .WithMany("Divisions")
                         .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GSCrm.Models.Employee", b =>
+                {
+                    b.HasOne("GSCrm.Models.Organization", "Organization")
+                        .WithMany("Employees")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -991,14 +1014,12 @@ namespace GSCrm.Migrations
             modelBuilder.Entity("GSCrm.Models.EmployeePosition", b =>
                 {
                     b.HasOne("GSCrm.Models.Employee", "Employee")
-                        .WithMany("EmployeePositions")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("EmployeeId");
 
                     b.HasOne("GSCrm.Models.Position", "Position")
-                        .WithMany("EmployeePositions")
-                        .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("PositionId");
                 });
 
             modelBuilder.Entity("GSCrm.Models.EmployeeResponsibility", b =>
@@ -1027,10 +1048,11 @@ namespace GSCrm.Migrations
 
             modelBuilder.Entity("GSCrm.Models.Position", b =>
                 {
-                    b.HasOne("GSCrm.Models.Division", "Division")
+                    b.HasOne("GSCrm.Models.Organization", "Organization")
                         .WithMany("Positions")
-                        .HasForeignKey("DivisionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("GSCrm.Models.UserNotification", b =>

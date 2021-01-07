@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GSCrm.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210105035122_05.01.20201")]
-    partial class _050120201
+    [Migration("20210107190110_07.01.2021.")]
+    partial class _07012021
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -242,7 +242,7 @@ namespace GSCrm.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DivisionId")
+                    b.Property<Guid?>("DivisionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("EmployeeLockReason")
@@ -260,6 +260,9 @@ namespace GSCrm.Migrations
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("PrimaryPositionId")
                         .HasColumnType("uniqueidentifier");
 
@@ -267,6 +270,8 @@ namespace GSCrm.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("Employees");
                 });
@@ -455,21 +460,30 @@ namespace GSCrm.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DivisionId")
+                    b.Property<Guid?>("DivisionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ParentPositionId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PositionLockReason")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PositionStatus")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("PrimaryEmployeeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DivisionId");
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("Positions");
                 });
@@ -975,6 +989,15 @@ namespace GSCrm.Migrations
                     b.HasOne("GSCrm.Models.Organization", "Organization")
                         .WithMany("Divisions")
                         .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GSCrm.Models.Employee", b =>
+                {
+                    b.HasOne("GSCrm.Models.Organization", "Organization")
+                        .WithMany("Employees")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -993,12 +1016,12 @@ namespace GSCrm.Migrations
                     b.HasOne("GSCrm.Models.Employee", "Employee")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("GSCrm.Models.Position", "Position")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("GSCrm.Models.EmployeeResponsibility", b =>
@@ -1027,9 +1050,9 @@ namespace GSCrm.Migrations
 
             modelBuilder.Entity("GSCrm.Models.Position", b =>
                 {
-                    b.HasOne("GSCrm.Models.Division", "Division")
+                    b.HasOne("GSCrm.Models.Organization", "Organization")
                         .WithMany("Positions")
-                        .HasForeignKey("DivisionId")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
