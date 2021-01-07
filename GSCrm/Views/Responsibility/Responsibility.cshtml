@@ -152,6 +152,16 @@
                 </div>
             </div>
         </div>
+        <div id="PosUnlockRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("PosUnlock")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.PosUnlock ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
@@ -200,6 +210,16 @@
             </div>
             <div class="col-auto">
                 <div class="switch @(Model.EmpChangeDiv ? "switch-active" : "switch-disable")">
+                    <div class="switch-tumbler"></div>
+                </div>
+            </div>
+        </div>
+        <div id="EmpUnlockRespBlock" class="row resp-setting">
+            <div class="col-md">
+                <p>@resManager.GetString("EmpUnlock")</p>
+            </div>
+            <div class="col-auto">
+                <div class="switch @(Model.EmpUnlock ? "switch-active" : "switch-disable")">
                     <div class="switch-tumbler"></div>
                 </div>
             </div>

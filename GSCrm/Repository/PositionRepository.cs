@@ -428,8 +428,8 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {   
                 () => {
-                    /*if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosUnlock", transaction))
-                         AddHasNoPermissionsError(OperationType.UnlockPosition);*/
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosUnlock", transaction))
+                         AddHasNoPermissionsError(OperationType.UnlockPosition);
                 },
                 () => CheckDivisionLength(positionViewModel),
                 () => DivisionExists(positionViewModel)

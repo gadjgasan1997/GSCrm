@@ -23,6 +23,7 @@ namespace GSCrm.Models
         public bool PosDelete { get; set; }
         public bool PosUpdate { get; set; }
         public bool PosChangeDiv { get; set; }
+        public bool PosUnlock { get; set; }
         #endregion
 
         #region Employee

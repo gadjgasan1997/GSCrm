@@ -22,9 +22,10 @@ namespace GSCrm.Models.ViewModels
         public bool PosDelete { get; set; }
         public bool PosUpdate { get; set; }
         public bool PosChangeDiv { get; set; }
+        public bool PosUnlock { get; set; }
         #endregion
 
-        #region 
+        #region Employee
         public bool EmpCreate { get; set; }
         public bool EmpDelete { get; set; }
         public bool EmpUpdate { get; set; }

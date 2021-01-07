@@ -620,6 +620,9 @@ namespace GSCrm.Migrations
                     b.Property<bool>("PosDelete")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("PosUnlock")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("PosUpdate")
                         .HasColumnType("bit");
 
@@ -1014,12 +1017,12 @@ namespace GSCrm.Migrations
                     b.HasOne("GSCrm.Models.Employee", "Employee")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("GSCrm.Models.Position", "Position")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("GSCrm.Models.EmployeeResponsibility", b =>

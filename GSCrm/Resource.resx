@@ -1173,6 +1173,9 @@
   <data name="Postal" xml:space="preserve">
     <value>Почтовый</value>
   </data>
+  <data name="PosUnlock" xml:space="preserve">
+    <value>Разблокировка должности</value>
+  </data>
   <data name="PosUpdate" xml:space="preserve">
     <value>Обновление должности</value>
   </data>
