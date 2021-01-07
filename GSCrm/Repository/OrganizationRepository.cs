@@ -574,14 +574,27 @@ namespace GSCrm.Repository
                     transaction.AddChange(currentUser, EntityState.Modified);
                 }
 
-                // Блокировка сотрудника
-                currentEmployee = (Employee)transaction.GetParameterValue("CurrentEmployee");
-                currentEmployee.UserId = Guid.Empty;
-                currentEmployee.Lock(EmployeeLockReason.EmployeeLeftOrganization);
+                // Если сотрудник в статусе активного, необходимо его заблокировать
+                Employee currentEmployee = (Employee)transaction.GetParameterValue("CurrentEmployee");
+                if (currentEmployee.EmployeeStatus == EmployeeStatus.Active)
+                {
+                    // Блокировка сотрудника
+                    currentEmployee.UserId = Guid.Empty;
+                    currentEmployee.Lock(EmployeeLockReason.EmployeeLeftOrganization);
 
-                // Удаление всех клиентов, где заблокированный сотрудник является единственным менеджером
-                new AccountRepository(serviceProvider, context).CheckAccountsForLock(currentEmployee, transaction);
-                transaction.AddChange(currentEmployee, EntityState.Modified);
+                    // Удаление всех клиентов, где заблокированный сотрудник является единственным менеджером
+                    new AccountRepository(serviceProvider, context).CheckAccountsForLock(currentEmployee, transaction);
+                    transaction.AddChange(currentEmployee, EntityState.Modified);
+                }
+                // Иначе, если он уже был заблокирован, то в причину блокировки устанавливается значение "LockedEmployeeLeftOrg"
+                else if (currentEmployee.EmployeeStatus == EmployeeStatus.Lock)
+                {
+                    // Блокировка сотрудника
+                    currentEmployee = (Employee)transaction.GetParameterValue("CurrentEmployee");
+                    currentEmployee.UserId = Guid.Empty;
+                    currentEmployee.Lock(EmployeeLockReason.LockedEmployeeLeftOrg);
+                    transaction.AddChange(currentEmployee, EntityState.Modified);
+                }
 
                 // Попытка коммита
                 if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
@@ -618,7 +631,7 @@ namespace GSCrm.Repository
                 transaction.AddChange(userOrganization, EntityState.Modified);
 
                 // Проставление статуса сотрудника в "Active"
-                currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
+                Employee currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
                 currentEmployee.EmployeeStatus = EmployeeStatus.Active;
                 transaction.AddChange(currentEmployee, EntityState.Modified);
 
@@ -655,7 +668,7 @@ namespace GSCrm.Repository
             if (!errors.Any())
             {
                 UserOrganization userOrganization = (UserOrganization)transaction.GetParameterValue("UserOrganization");
-                currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
+                Employee currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
                 currentEmployee.UserId = Guid.Empty;
                 currentEmployee.Lock(EmployeeLockReason.RejectInvite);
                 transaction.AddChange(currentEmployee, EntityState.Modified);

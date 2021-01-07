@@ -158,14 +158,8 @@ namespace GSCrm.Helpers
 
         public static Employee GetCurrentEmployee(this ApplicationDbContext context, Organization organization, Guid currentUserId)
         {
-            // Получение всех сотрудников организации
             if (organization == null || currentUserId == null) return null;
-            List<Employee> divisionsEmployees = new List<Employee>();
-            List<Division> allDivisions = organization.GetDivisions(context);
-            allDivisions.ForEach(division => divisionsEmployees.AddRange(division.GetEmployees(context)));
-
-            // Получение нужного сотрудника
-            return divisionsEmployees.FirstOrDefault(i => i.UserId == currentUserId);
+            return context.Employees.AsNoTracking().FirstOrDefault(emp => emp.OrganizationId == organization.Id && emp.UserId == currentUserId);
         }
         #endregion
     }

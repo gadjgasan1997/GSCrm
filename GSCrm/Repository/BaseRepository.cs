@@ -37,10 +37,6 @@ namespace GSCrm.Repository
         /// Текущий пользователь
         /// </summary>
         protected User currentUser;
-        /// <summary>
-        /// Текущий сотрудник
-        /// </summary>
-        protected Employee currentEmployee;
         protected DbSet<TDataModel> dbSet;
         protected IServiceProvider serviceProvider;
         protected readonly ITFFactory TFFactory;

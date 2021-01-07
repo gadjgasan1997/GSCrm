@@ -82,8 +82,8 @@ namespace GSCrm.Mapping
                 FullInitialName = employee.GetIntialsFullName(),
                 PrimaryPositionId = primaryPosition?.Id,
                 PrimaryPositionName = primaryPosition?.Name,
-                EmployeeStatus = employee.EmployeeStatus.ToString(),
-                EmployeeLockReason = employee.EmployeeLockReason.ToString(),
+                EmployeeStatus = employee.EmployeeStatus,
+                EmployeeLockReason = employee.EmployeeLockReason,
                 SupervisorId = supervisor?.Id.ToString(),
                 SupervisorInitialName = supervisor?.GetIntialsFullName()
             };

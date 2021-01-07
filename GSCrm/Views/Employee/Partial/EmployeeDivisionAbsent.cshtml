@@ -1,0 +1,54 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@model EmployeeViewModel
+
+<div class="mt-2 text-center">
+    <p class="label-md">@resManager.GetString("EmployeeIsLock")</p>
+</div>
+<form id="lockEmployeeForm" class="mt-2" asp-controller="@EMPLOYEE" asp-action="Unlock">
+    <input id="employeeId" asp-for="Id" hidden="hidden" />
+    <input asp-for="OrganizationId" hidden="hidden" />
+    <div class="row">
+        <div class="col">
+            <div class="mt-4">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend m-auto">
+                        <span class="input-group-text" id="basic-addon1">@resManager.GetString(DIVISION)</span>
+                    </div>
+                    <div id="employeeDiv" class="autocomplete default-autocomplete flex-grow-1">
+                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetDivisions/{Model.OrganizationId}/")"></a>
+                        <input asp-for="DivisionName" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
+                        <ul class="autocomplete-result-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <span asp-validation-for="DivisionName"></span>
+        </div>
+
+        <div class="col">
+            <div class="mt-4">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend m-auto">
+                        <span class="input-group-text" id="basic-addon1">@resManager.GetString(POSITION)</span>
+                    </div>
+                    <div id="employeePosition" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Positions" data-autocomplite-name="EmployeePosition">
+                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetPositions/{Model.OrganizationId}/")"></a>
+                        <input asp-for="PrimaryPositionName" class="autocomplete-input form-control" placeholder="@resManager.GetString(POSITION)" />
+                        <ul class="autocomplete-result-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <span asp-validation-for="PrimaryPositionName"></span>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col text-left">
+            <input id="unlockEmpBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("Unlock")" />
+        </div>
+        <div class="col text-right">
+            <input id="cancelUnlockEmpBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+        </div>
+    </div>
+</form>
