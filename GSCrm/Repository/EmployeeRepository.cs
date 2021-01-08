@@ -67,7 +67,12 @@ namespace GSCrm.Repository
                 () => DivisionExists(currentOrganization.GetDivisions(context), employeeViewModel.DivisionName),
                 () => CheckPositionLength(employeeViewModel),
                 () => CheckPositionExists(employeeViewModel),
-                () => TryPrepareEmployeeAccount(employeeViewModel)
+                () => TryPrepareEmployeeAccount(employeeViewModel),
+                () => {
+                    // В случае, если такой аккаунт существует, а не был создан организацией, пользователю высылается инвайт
+                    if (employeeViewModel.UserAccountExists)
+                        SendOrgInvite();
+                }
             });
             return !errors.Any();
         }
@@ -423,7 +428,7 @@ namespace GSCrm.Repository
                 () => CheckPositionLength(employeeViewModel),
                 () => CheckDivisionForSelected(employeeViewModel),
                 () => {
-                    if (!errors.Any() && DivisionExists((List<Division>)transaction.GetParameterValue("AllDivisions"), employeeViewModel.DivisionName))
+                    if (DivisionExists((List<Division>)transaction.GetParameterValue("AllDivisions"), employeeViewModel.DivisionName))
                         CheckPositionExists(employeeViewModel);
                 }
             });
@@ -477,9 +482,41 @@ namespace GSCrm.Repository
             Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             InvokeIntermittinActions(errors, new List<Action>()
             {
+                () => {
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock", transaction))
+                         AddHasNoPermissionsError(OperationType.UnlockEmployee);
+                },
                 () => CheckEmployeeAccount(employeeViewModel),
                 () => {
                     new PersonValidator(resManager).CheckPersonEmail(employeeViewModel.Email, errors);
+                }
+            });
+            return !errors.Any();
+        }
+
+        /// <summary>
+        /// Метод проверяет модель при разблокировке в случае, если заблокированный сотрудник вышел из организации
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        /// <returns></returns>
+        private bool TryUnlockValidateOnLockedEmployeeLeftOrg(EmployeeViewModel employeeViewModel)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => {
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock", transaction))
+                         AddHasNoPermissionsError(OperationType.UnlockEmployee);
+                },
+                () => CheckEmployeeAccount(employeeViewModel),
+                () => {
+                    new PersonValidator(resManager).CheckPersonEmail(employeeViewModel.Email, errors);
+                },
+                () => CheckDivisionLength(employeeViewModel),
+                () => CheckPositionLength(employeeViewModel),
+                () => {
+                    if (DivisionExists((List<Division>)transaction.GetParameterValue("AllDivisions"), employeeViewModel.DivisionName))
+                        CheckPositionExists(employeeViewModel);
                 }
             });
             return !errors.Any();
@@ -543,15 +580,15 @@ namespace GSCrm.Repository
                     if (TryUnlockValidateOnUserAccountAbsent(employeeViewModel) && TryPrepareEmployeeAccount(employeeViewModel))
                     {
                         // Маппинг
-                        new EmployeeMap(serviceProvider, context).UnlockEmployeeOnUserAccountAbsent(employeeViewModel.UserAccountExists);
+                        new EmployeeMap(serviceProvider, context).UnlockOnUserAccountAbsent(employeeViewModel.UserAccountExists);
 
                         // Попытка сделать коммит
                         if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                         {
                             viewModelsTransactionFactory.Close(transaction);
-                            employeeViewModel = map.DataToViewModel(employee);
-                            AttachPositions(employeeViewModel);
-                            AttachContacts(employeeViewModel);
+                            if (employeeViewModel.UserAccountExists)
+                                SendOrgInvite();
+                            OnUnlockSuccess(ref employeeViewModel, employee);
                             errors = this.errors;
                             return true;
                         }
@@ -561,21 +598,36 @@ namespace GSCrm.Repository
                 // Разблокировка в случае блокировки из-за отсутствия подразделения или основной должности
                 case EmployeeLockReason.DivisionAbsent:
                 case EmployeeLockReason.PrimaryPositionAbsent:
-                default:
-                    /* Если валидация проходит успешно, происходят действия по разблокировке и
-                       данные из бд преобразуются в данные для отображения с прикреплением контактов и должностей */
                     if (TryUnlockValidateOnPositionAbsent(employeeViewModel))
                     {
                         // Маппинг
-                        new EmployeeMap(serviceProvider, context).UnlockEmployeeOnPositionAbsent();
+                        new EmployeeMap(serviceProvider, context).UnlockOnPositionAbsent();
 
                         // Попытка сделать коммит
                         if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                         {
                             viewModelsTransactionFactory.Close(transaction);
-                            employeeViewModel = map.DataToViewModel(employee);
-                            AttachPositions(employeeViewModel);
-                            AttachContacts(employeeViewModel);
+                            OnUnlockSuccess(ref employeeViewModel, employee);
+                            errors = this.errors;
+                            return true;
+                        }
+                    }
+                    break;
+
+                // Разблокировка в случае, если уже заблокированный сотрудник покинул организацию
+                case EmployeeLockReason.LockedEmployeeLeftOrg:
+                    if (TryUnlockValidateOnLockedEmployeeLeftOrg(employeeViewModel) && TryPrepareEmployeeAccount(employeeViewModel))
+                    {
+                        // Маппинг
+                        new EmployeeMap(serviceProvider, context).UnlockOnLockedEmployeeLeftOrg(employeeViewModel.UserAccountExists);
+
+                        // Попытка сделать коммит
+                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                        {
+                            viewModelsTransactionFactory.Close(transaction);
+                            if (employeeViewModel.UserAccountExists)
+                                SendOrgInvite();
+                            OnUnlockSuccess(ref employeeViewModel, employee);
                             errors = this.errors;
                             return true;
                         }
@@ -591,6 +643,18 @@ namespace GSCrm.Repository
         }
 
         /// <summary>
+        /// Метод выполняет необходимые действия в случае упсешной разблокировки 
+        /// </summary>
+        /// <param name="employeeViewModel"></param>
+        /// <param name="employee"></param>
+        private void OnUnlockSuccess(ref EmployeeViewModel employeeViewModel, Employee employee)
+        {
+            employeeViewModel = map.DataToViewModel(employee);
+            AttachPositions(employeeViewModel);
+            AttachContacts(employeeViewModel);
+        }
+
+        /// <summary>
         /// Метод выполняет подготовительные действия, необходимые при создании аккаунта сотрудника
         /// </summary>
         /// <param name="employeeViewModel"></param>
@@ -600,10 +664,8 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    // В случае, если такой аккаунт существует, а не был создан организацией, пользователю высылается инвайт
-                    if (employeeViewModel.UserAccountExists)
-                        SendOrgInvite();
-                    else TryCreateUserAccount(employeeViewModel);
+                    if (!employeeViewModel.UserAccountExists)
+                        TryCreateUserAccount(employeeViewModel);
                 },
                 () => {
                     // Если аккаунт существует, то добавляется организация в список организаций пользователя с признаком, что приглашение в организацию не было принято

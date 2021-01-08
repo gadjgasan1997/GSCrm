@@ -189,36 +189,11 @@
             // Сотрудник вышел из организации или отказался от инвайта
             case "RejectInvite":
             case "EmployeeLeftOrganization":
-                // Получение выбранного варианта(выбора существующего пользователя или создание новой учетной записи)
-                let firstTab = $("#lockEmployeeForm").find(".radio-tabs").find(".form-check")[0]
-                let userAccountExists = $(firstTab).hasClass("active");
-
-                // Выбор существующего пользователя
-                if (userAccountExists) {
-                    unlockData = {
-                        Id: $("#employeeId").val(),
-                        OrganizationId: $("#OrganizationId").val(),
-                        UserName: $("#existsUserName").val(),
-                        UserAccountExists: userAccountExists
-                    }
-                }
-
-                // Создание новой учетной записи 
-                else {
-                    unlockData = {
-                        Id: $("#employeeId").val(),
-                        OrganizationId: $("#OrganizationId").val(),
-                        UserName: $("#newUserName").val(),
-                        Email: $("#newUserEmail").val(),
-                        Password: $("#newUserPassword").val(),
-                        ConfirmPassword: $("#newUserConfirmPassword").val(),
-                        UserAccountExists: userAccountExists
-                    }
-                }
+                unlockData = this.UnlockGetUserAccountData();
                 break;
 
-            // Отсутствует основная должность
-            default:
+            // Отсутствует основная должность или подразделение
+            case "DivisionAbsent":
             case "PrimaryPositionAbsent":
                 unlockData = {
                     Id: $("#employeeId").val(),
@@ -227,7 +202,51 @@
                     PrimaryPositionName: $("#PrimaryPositionName").val()
                 }
                 break;
+
+            // Сотрудник, будучи заблокированным покинул организацию
+            case "LockedEmployeeLeftOrg":
+                // Получение данных аккаунта
+                unlockData = this.UnlockGetUserAccountData();
+
+                // Добавление данных о подразделении и должности
+                unlockData["DivisionName"] = $("#DivisionName").val();
+                unlockData["PrimaryPositionName"] = $("#PrimaryPositionName").val();
+                break;
         }
+        return unlockData;
+    }
+
+    /** Метод возвращает данные, необходимые при разблокировке сотрудника в случае создания или привязки аккаунта */
+    UnlockGetUserAccountData() {
+        let unlockData = {};
+
+        // Получение выбранного варианта(выбора существующего пользователя или создание новой учетной записи)
+        let firstTab = $("#lockEmployeeForm").find(".radio-tabs").find(".form-check")[0]
+        let userAccountExists = $(firstTab).hasClass("active");
+
+        // Выбор существующего пользователя
+        if (userAccountExists) {
+            unlockData = {
+                Id: $("#employeeId").val(),
+                OrganizationId: $("#OrganizationId").val(),
+                UserName: $("#existsUserName").val(),
+                UserAccountExists: userAccountExists
+            }
+        }
+
+        // Создание новой учетной записи 
+        else {
+            unlockData = {
+                Id: $("#employeeId").val(),
+                OrganizationId: $("#OrganizationId").val(),
+                UserName: $("#newUserName").val(),
+                Email: $("#newUserEmail").val(),
+                Password: $("#newUserPassword").val(),
+                ConfirmPassword: $("#newUserConfirmPassword").val(),
+                UserAccountExists: userAccountExists
+            }
+        }
+
         return unlockData;
     }
 

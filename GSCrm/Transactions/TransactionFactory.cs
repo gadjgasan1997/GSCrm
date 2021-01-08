@@ -116,13 +116,13 @@ namespace GSCrm.Transactions
             {
                 // В случае, если не был подан никакой статус, то транзакция закрывается с текущим
                 transactionStatus = transactionStatus == TransactionStatus.None ? transaction.TransactionStatus : transactionStatus;
-                CloseHandler(transactionStatus);
+                CloseHandler(transactionStatus, transation.OperationType);
                 _transactions.GetValueOrDefault(transaction.UserId).Remove(transation);
                 return;
             }
         }
 
-        protected virtual void CloseHandler(TransactionStatus transactionStatus) { }
+        protected virtual void CloseHandler(TransactionStatus transactionStatus, OperationType operationType) { }
         #endregion
 
         #region Other

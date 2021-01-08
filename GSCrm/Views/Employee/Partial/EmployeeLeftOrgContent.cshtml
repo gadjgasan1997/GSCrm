@@ -1,0 +1,68 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@model EmployeeViewModel
+
+<div class="row radio-tabs justify-content-around">
+    <div class="col-md m-0 form-check form-check-inline active">
+        <div class="form-check-wrap">
+            <input class="form-check-input" type="radio" name="tab" value="selectUserOption" checked>
+            <label class="form-check-label label-non-select" for="selectUserOption">
+                @resManager.GetString("FindUser")
+            </label>
+        </div>
+    </div>
+
+    <div class="col-md m-0 mt-3 mt-md-0 form-check form-check-inline">
+        <div class="form-check-wrap">
+            <input class="form-check-input" type="radio" name="tab" value="createUserOption">
+            <label class="form-check-label label-non-select" for="createUserOption">
+                @resManager.GetString("CreateNewUser")
+            </label>
+        </div>
+    </div>
+</div>
+
+<div class="tabs-content">
+    <div id="selectUserOption" class="tabs-content-item mb-3 mt-4">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="dog-symbol">@@</span>
+            </div>
+            <input id="existsUserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")" aria-label="@resManager.GetString("Username")" aria-describedby="dog-symbol">
+        </div>
+        <ul id="existsUserNameError" data-connect-el="existsUserName" class="d-none under-field-error label-sm mt-2"></ul>
+    </div>
+
+    <div id="createUserOption" class="tabs-content-item mb-3" style="display: none">
+        <div class="form-group m-0 mt-md-4">
+            <div class="row">
+                <div class="col-md">
+                    <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("Username")</p>
+                    <input id="newUserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")">
+                    <ul id="newUserNameError" data-connect-el="newUserName" class="d-none under-field-error label-sm"></ul>
+                </div>
+                <div class="col-md">
+                    <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("Email")</p>
+                    <input id="newUserEmail" type="email" class="form-control" placeholder="name@example.com">
+                    <ul id="newUserEmailError" data-connect-el="newUserEmail" class="d-none under-field-error label-sm"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="form-group m-0">
+            <div class="row mt-0 mt-md-4">
+                <div class="col-md">
+                    <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("Password")</p>
+                    <input id="newUserPassword" type="password" class="form-control" placeholder="@resManager.GetString("Password")">
+                    <ul id="newUserPasswordError" data-connect-el="newUserPassword" class="d-none under-field-error label-sm"></ul>
+                </div>
+                <div class="col-md">
+                    <p class="label-md label-non-select text-center mb-3 mt-3 mt-md-0">@resManager.GetString("ConfirmPassword")</p>
+                    <input id="newUserConfirmPassword" type="password" class="form-control" placeholder="@resManager.GetString("ConfirmPassword")">
+                    <ul id="newUserConfirmPasswordError" data-connect-el="newUserConfirmPassword" class="d-none under-field-error label-sm"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

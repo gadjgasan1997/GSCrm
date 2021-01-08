@@ -99,7 +99,7 @@ namespace GSCrm.Helpers
         public static bool NeedCheckResps(this User user, Organization currentOrganization) => currentOrganization.OwnerId != user.Id;
 
         /// <summary>
-        /// Метод определяет, что поданный на вход тип операции "operationType" содердится в списке "types"
+        /// Метод определяет, что поданный на вход тип операции "operationType" содерджится в списке "types"
         /// </summary>
         /// <param name="operationType"></param>
         /// <param name="types"></param>

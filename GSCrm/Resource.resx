@@ -399,6 +399,12 @@
   <data name="BICWrong" xml:space="preserve">
     <value>Неверный БИК</value>
   </data>
+  <data name="BindAccount" xml:space="preserve">
+    <value>Привяжите аккаунт к сотруднику</value>
+  </data>
+  <data name="BindDivisionAndPosition" xml:space="preserve">
+    <value>Назначьте его в какое-либо подразделение и выдайте должность</value>
+  </data>
   <data name="CancelChanges" xml:space="preserve">
     <value>Отменить изменения</value>
   </data>
@@ -902,6 +908,9 @@
   </data>
   <data name="LENameLength" xml:space="preserve">
     <value>Название юридического лица не может быть короче 5 и длинее</value>
+  </data>
+  <data name="LockedEmployeeLeftOrg" xml:space="preserve">
+    <value>Уже будучи заблокированным, данный сотрудник покинул организацию. Для его разблокировки заполните все необходимые поля</value>
   </data>
   <data name="Login" xml:space="preserve">
     <value>Логин</value>

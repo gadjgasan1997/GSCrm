@@ -22,23 +22,15 @@ namespace GSCrm.Transactions.Factories
         protected override void CreateHandler(OperationType operationType, EmployeeViewModel employeeViewModel)
         {
             Organization currentOrganization = default;
-            if (operationType.IsInList(baseOperationTypes.With(OperationType.ChangeEmployeeDivision, OperationType.UnlockEmployee)))
+            if (operationType.IsInList(baseOperationTypes.With(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision)))
             {
                 currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
                 transaction.AddParameter("CurrentOrganization", currentOrganization);
             }
-            if (operationType.IsInList(OperationType.ChangeEmployeeDivision, OperationType.UnlockEmployee))
+            if (operationType.IsInList(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision))
             {
                 List<Division> allDivisions = currentOrganization.GetDivisions(context);
                 transaction.AddParameter("AllDivisions", allDivisions);
-            }
-            if (operationType == OperationType.ChangeEmployeeDivision)
-            {
-                Employee employee = context.Employees.AsNoTracking().Include(pos => pos.EmployeePositions).FirstOrDefault(i => i.Id == employeeViewModel.Id);
-                transaction.AddParameter("Employee", employee);
-            }
-            if (operationType == OperationType.UnlockEmployee)
-            {
                 Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == employeeViewModel.Id);
                 transaction.AddParameter("Employee", employee);
             }
@@ -50,7 +42,7 @@ namespace GSCrm.Transactions.Factories
             transaction.AddParameter("CurrentOrganization", currentOrganization);
         }
 
-        protected override void CloseHandler(TransactionStatus transactionStatus)
+        protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
             if (transactionStatus == TransactionStatus.Error)
             {

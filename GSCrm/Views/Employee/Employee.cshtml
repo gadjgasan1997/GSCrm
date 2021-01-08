@@ -59,7 +59,7 @@
 
                     // Сотрудник, будучи заблокированным покинул организацию
                     case EmployeeLockReason.LockedEmployeeLeftOrg:
-                        <p class="label-lg">Тест</p>
+                        await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/LockedEmployeeLeftOrg.cshtml");
                         break;
                 }
                 break;
