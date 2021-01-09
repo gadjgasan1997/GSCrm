@@ -101,9 +101,9 @@
      * Обновление должности
      * @param {*} event 
      */
-    Update(event) {
+    Update() {
         return new Promise((resolve, reject) => {
-            let updatePosUrl = $(event.currentTarget).closest("#positionForm").find("form").attr("action");
+            let updatePosUrl = $("#positionUpdateForm").attr("action");
             let updatePosData = this.UpdateGetData();
             let request = new AjaxRequests();
             request.JsonPostRequest(updatePosUrl, updatePosData)
@@ -203,7 +203,7 @@ $("#positionForm")
     .off("click", "#updatePosBtn").on("click", "#updatePosBtn", event => {
         event.preventDefault();
         let position = new Position();
-        position.Update(event);
+        position.Update();
     })
     .off("click", "#posTabs .nav-item").on("click", "#posTabs .nav-item", event => {
         let navTab = new NavTab();
