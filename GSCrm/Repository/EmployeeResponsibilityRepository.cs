@@ -169,7 +169,9 @@ namespace GSCrm.Repository
                 .Include(empResp => empResp.EmployeeResponsibilities)
                     .ThenInclude(resp => resp.Responsibility)
                 .FirstOrDefault(i => i.Id == syncViewModel.EmployeeId);
+            syncRespsTransaction.AddParameter("Employee", employee);
 
+            // Проверки
             InvokeIntermittinActions(this.errors, new List<Action>()
             {
                 () => {
@@ -183,16 +185,22 @@ namespace GSCrm.Repository
                     FormRemoveRespsList(syncViewModel.ResponsibilitiesToRemove, employee);
                 }
             });
+
+            // Если не было ошибок, выполняется обновление списка полномочий
             if (!this.errors.Any())
             {
                 respsToAdd.ForEach(respToAdd => syncRespsTransaction.AddChange(respToAdd, EntityState.Added));
                 respsToRemove.ForEach(respToRemove => syncRespsTransaction.AddChange(respToRemove, EntityState.Deleted));
+
+                // Попытка сделать коммит
                 if (syncRespsTransactionFactory.TryCommit(syncRespsTransaction, this.errors))
                 {
                     syncRespsTransactionFactory.Close(syncRespsTransaction);
                     return true;
                 }
             }
+
+            // Добавление ошибок и выход
             errors = this.errors;
             syncRespsTransactionFactory.Close(syncRespsTransaction, TransactionStatus.Error);
             return false;

@@ -10,8 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GSCrm.CommonConsts;
-using Microsoft.AspNetCore.Mvc;
+using GSCrm.Notifications.Auxiliary;
+using GSCrm.Notifications.Factories.OrgNotFactories.EmpUpdate;
+using GSCrm.Notifications.Params.EmpUpdate;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -25,12 +26,9 @@ namespace GSCrm.Transactions.Factories
 
         protected override void CreateHandler(OperationType operationType, EmployeeViewModel employeeViewModel)
         {
-            Organization currentOrganization = default;
+            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
             if (operationType.IsInList(baseOperationTypes.With(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision)))
-            {
-                currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
                 transaction.AddParameter("CurrentOrganization", currentOrganization);
-            }
             if (operationType.IsInList(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision))
             {
                 List<Division> allDivisions = currentOrganization.GetDivisions(context);
@@ -61,20 +59,66 @@ namespace GSCrm.Transactions.Factories
 
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
-            if (transactionStatus == TransactionStatus.Error)
+            switch (transactionStatus)
             {
-                User user = transaction.GetParameterValue("UserAccount") as User;
-                if (user != null) userManager.DeleteAsync(user);
+                case TransactionStatus.Error:
+                    {
+                        User user = transaction.GetParameterValue("UserAccount") as User;
+                        if (user != null) userManager.DeleteAsync(user);
+                    }
+                    break;
+                case TransactionStatus.Success:
+                    {
+                        switch (operationType)
+                        {
+                            case OperationType.Update:
+                                SendEmpUpdateNotifications((Employee)transaction.GetParameterValue("ChangedRecord"));
+                                break;
+                            case OperationType.ChangeEmployeeDivision:
+                                SendEmpChangeDivisionNotifications((Employee)transaction.GetParameterValue("Employee"));
+                                break;
+                            case OperationType.Delete:
+                                SendEmpDeleteNotifications();
+                                break;
+                        }
+                    }
+                    break;
             }
-            else if (transactionStatus == TransactionStatus.Success)
+        }
+
+        /// <summary>
+        /// Метод рассылает уведомления при изменении данных сотрудника
+        /// </summary>
+        /// <param name="employee"></param>
+        private void SendEmpUpdateNotifications(Employee employee)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            BaseUpdateParams baseUpdateParams = new BaseUpdateParams()
             {
-                switch (operationType)
-                {
-                    case OperationType.Delete:
-                        SendEmpDeleteNotifications();
-                        break;
-                }
-            }
+                Organization = currentOrganization,
+                ChangedEmployee = employee
+            };
+
+            BaseUpdateNotFactory baseUpdateNotFactory = new BaseUpdateNotFactory(serviceProvider, context, baseUpdateParams);
+            baseUpdateNotFactory.Send(currentOrganization.Id, new List<Employee>() { employee });
+        }
+
+        /// <summary>
+        /// Метод рассылает уведомления при переводе сотрудника в другое подразделение
+        /// </summary>
+        /// <param name="employee"></param>
+        private void SendEmpChangeDivisionNotifications(Employee employee)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            ChangeDivisionParams changeDivisionParams = new ChangeDivisionParams()
+            {
+                Organization = currentOrganization,
+                ChangedEmployee = employee,
+                NewEmployeePosition = (Position)transaction.GetParameterValue("PrimaryPosition")
+            };
+
+            ChangeDivisionNotFactory changeDivisionNotFactory = new ChangeDivisionNotFactory(serviceProvider, context, changeDivisionParams);
+            changeDivisionNotFactory.Send(currentOrganization.Id, new List<Employee>() { employee });
         }
 
         /// <summary>
@@ -88,7 +132,6 @@ namespace GSCrm.Transactions.Factories
             EmpDeleteParams empDeleteParams = new EmpDeleteParams()
             {
                 Organization = currentOrganization,
-                OrganizationUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme),
                 RemovedEmployee = employee
             };
             EmpDeleteNotFactory empDeleteNotFactory = new EmpDeleteNotFactory(serviceProvider, context, empDeleteParams);

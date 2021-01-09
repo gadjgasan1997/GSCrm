@@ -8,6 +8,7 @@
 @using static GSCrm.CommonConsts
 @using GSCrm.Helpers
 @using GSCrm.Notifications
+@using GSCrm.Notifications.Auxiliary
 @inject ApplicationDbContext context
 @inject ResManager resManager
 @inject IViewsInfo viewsInfo
@@ -44,25 +45,8 @@
                         if (userNotViewModel is OrgInviteNotViewModel inviteOrgNotViewModel && inviteOrgNotViewModel.InviteOrg != null)
                             await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/OrgInvite.cshtml", inviteOrgNotViewModel);
                         break;
-                    // Удаление подразделения
-                    case NotificationType.DivDelete:
-                        if (userNotViewModel is DivDeleteNotViewModel divDeleteNotViewModel && divDeleteNotViewModel.Organization != null)
-                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/DivDelete.cshtml", divDeleteNotViewModel);
-                        break;
-                    // Удаление должности
-                    case NotificationType.PosDelete:
-                        if (userNotViewModel is PosDeleteNotViewModel posDeleteNotViewModel && posDeleteNotViewModel.Organization != null)
-                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosDelete.cshtml", posDeleteNotViewModel);
-                        break;
-                    // Изменение должности
-                    case NotificationType.PosUpdate:
-                        if (userNotViewModel is PosUpdateNotViewModel posUpdateNotViewModel && posUpdateNotViewModel.Organization != null && posUpdateNotViewModel.ChangedPosition != null)
-                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosUpdate.cshtml", posUpdateNotViewModel);
-                        break;
-                    // Удаление сотрудника
-                    case NotificationType.EmpDelete:
-                        if (userNotViewModel is EmpDeleteNotViewModel empDeleteNotViewModel && empDeleteNotViewModel.Organization != null)
-                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpDelete.cshtml", empDeleteNotViewModel);
+                    default:
+                        await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/OrgNotTemplate.cshtml", userNotViewModel);
                         break;
                 }
             }

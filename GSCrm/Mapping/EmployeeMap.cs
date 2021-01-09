@@ -259,7 +259,7 @@ namespace GSCrm.Mapping
         /// <param name="employee"></param>
         private void RemoveOldEmployeePositions(Employee employee)
         {
-            employee.EmployeePositions.ForEach(employeePosition =>
+            employee.AddEmployeePositions(context).EmployeePositions.ForEach(employeePosition =>
             {
                 transaction.AddChange(employeePosition, EntityState.Deleted);
             });

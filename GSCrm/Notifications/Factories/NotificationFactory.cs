@@ -1,8 +1,10 @@
 ﻿using GSCrm.Data;
+using GSCrm.Factories;
 using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Notifications.Services;
-using GSCrm.Repository;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using Task = System.Threading.Tasks.Task;
@@ -18,6 +20,7 @@ namespace GSCrm.Notifications.Factories
         protected readonly IResManager resManager;
         protected readonly IServiceProvider serviceProvider;
         protected readonly ApplicationDbContext context;
+        protected readonly HttpContext httpContext;
         protected readonly IConfiguration configuration;
         /// <summary>
         /// Параметры для конкретного типа уведомлений
@@ -35,14 +38,21 @@ namespace GSCrm.Notifications.Factories
         /// Признак, является уведомление новым или оно уже создано
         /// </summary>
         private bool isNewNotification;
+        /// <summary>
+        /// Хелпер для работы с урлами
+        /// </summary>
+        protected readonly IUrlHelper urlHelper;
 
-        public NotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
+        protected NotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
         {
             this.serviceProvider = serviceProvider;
             this.context = context;
             resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
             this.notificationParams = notificationParams;
+            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
+            httpContext = userContextServices.HttpContext;
             configuration = serviceProvider.GetService(typeof(IConfiguration)) as IConfiguration;
+            urlHelper = serviceProvider.GetService(typeof(IUrlHelper)) as IUrlHelper;
         }
 
         /// <summary>

@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Repository;
 using static GSCrm.CommonConsts;
+using GSCrm.Notifications;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -70,7 +71,6 @@ namespace GSCrm.Transactions.Factories
                 PosDeleteParams posDeleteParams = new PosDeleteParams()
                 {
                     Organization = currentOrganization,
-                    OrganizationUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme),
                     RemovedPosition = position,
                     IsPrimary = employeePosition.Employee.PrimaryPositionId == position.Id
                 };
@@ -85,7 +85,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="position">Удаленная должность</param>
         private void RemovePosNotifications(Position position)
         {
-            Func<InboxNotification, bool> predicate = not => not.NotificationType == Notifications.NotificationType.PosUpdate && not.Attrib1 == position.Id.ToString();
+            Func<InboxNotification, bool> predicate = not => not.NotificationType == NotificationType.PosUpdate && not.Attrib1 == position.Id.ToString();
             InboxNotificationRepository inboxNotRepository = new InboxNotificationRepository(serviceProvider, context);
             context.InboxNotifications.AsNoTracking().Where(predicate).ToList().ForEach(inboxNot => inboxNotRepository.TryDelete(inboxNot));
         }
@@ -101,9 +101,7 @@ namespace GSCrm.Transactions.Factories
             {
                 ChangedPosition = position,
                 DivisionChanged = false,
-                Organization = currentOrganization,
-                OrganizationUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme),
-                PositionUrl = urlHelper.Action(POSITION, POSITION, new { id = position.Id }, httpContext.Request.Scheme),
+                Organization = currentOrganization
             };
             PosUpdateNotFactory posUpdateNotFactory = new PosUpdateNotFactory(serviceProvider, context, posUpdateParams);
             List<Employee> employees = context.EmployeePositions.AsNoTracking()
@@ -127,8 +125,6 @@ namespace GSCrm.Transactions.Factories
                     ChangedPosition = position,
                     DivisionChanged = true,
                     Organization = currentOrganization,
-                    OrganizationUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme),
-                    PositionUrl = urlHelper.Action(POSITION, POSITION, new { id = position.Id }, httpContext.Request.Scheme),
                     IsPrimary = employeePosition.Employee.PrimaryPositionId == position.Id
                 };
                 PosUpdateNotFactory posUpdateNotFactory = new PosUpdateNotFactory(serviceProvider, context, posUpdateParams);

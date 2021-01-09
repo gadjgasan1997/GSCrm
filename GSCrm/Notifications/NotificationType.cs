@@ -30,6 +30,10 @@
         /// <summary>
         /// Удаление сотрудника
         /// </summary>
-        EmpDelete = 7
+        EmpDelete = 7,
+        /// <summary>
+        /// Обновление данных сотрудника
+        /// </summary>
+        EmpUpdate = 8
     }
 }

@@ -129,6 +129,7 @@ namespace GSCrm.Repository
                     TDataModel dataModel = map.OnModelCreate(entityToCreate);
                     transaction.AddChange(dataModel, EntityState.Added);
                     NewRecord = dataModel;
+                    transaction.AddParameter("NewRecord", dataModel);
                     if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                     {
                         viewModelsTransactionFactory.Close(transaction);
@@ -142,7 +143,7 @@ namespace GSCrm.Repository
                 modelState.AddModelError(error.Key, error.Value);
 
             // Закрытие транзакции и выход
-            viewModelsTransactionFactory.Close(transaction);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
         /// <summary>

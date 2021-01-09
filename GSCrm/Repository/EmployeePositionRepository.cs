@@ -243,7 +243,9 @@ namespace GSCrm.Repository
                 .Include(empPos => empPos.EmployeePositions)
                     .ThenInclude(pos => pos.Position)
                 .FirstOrDefault(i => i.Id == syncViewModel.EmployeeId);
+            syncPossTransaction.AddParameter("Employee", employee);
 
+            // Проверки
             InvokeIntermittinActions(this.errors, new List<Action>()
             {
                 () => {
@@ -257,18 +259,24 @@ namespace GSCrm.Repository
                     FormRemovePositionsList(syncViewModel, employee);
                 }
             });
+
+            // Если не было ошибок, выполняется обновление списка должностей
             if (!this.errors.Any())
             {
                 AddPositions();
                 RemovePositions();
                 if (!string.IsNullOrEmpty(syncViewModel.PrimaryPositionName))
                     SetPrimaryPosition(syncViewModel.PrimaryPositionName, employee);
+
+                // Попытка сделать коммит
                 if (syncPossTransactionFactory.TryCommit(syncPossTransaction, this.errors))
                 {
                     syncPossTransactionFactory.Close(syncPossTransaction);
                     return true;
                 }
             }
+
+            // Добавление ошибок и выход
             errors = this.errors;
             syncPossTransactionFactory.Close(syncPossTransaction, TransactionStatus.Error);
             return false;

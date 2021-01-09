@@ -1,0 +1,112 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications
+@using GSCrm.Models.ViewModels.Notifications.EmpUpdate
+@using GSCrm.Notifications
+@using GSCrm.Notifications.Auxiliary
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model UserNotificationViewModel
+
+<div class="row org-invite-not notification-item mt-4">
+    <input class="notification-item-id" value="@Model.Id" hidden="hidden" />
+    <form class="col-md flex-grow-0" asp-controller="@USER_NOT" asp-action="">
+        <div class="@(!Model.HasRead ? "cbx-not" : "cbx-not-onload")">
+            <input type="checkbox" />
+            <label></label>
+        </div>
+    </form>
+    <div class="col-md mt-4 mt-md-0">
+        <div class="alert @(!Model.HasRead ? "alert-dark" : "alert-light alert-not-light") m-0" role="alert">
+            <div class="row">
+                <div class="col-lg">
+                    @switch (Model.NotificationType)
+                    {
+                        // Удаление подразделения
+                        case NotificationType.DivDelete:
+                            if (Model is DivDeleteNotViewModel divDeleteNotViewModel && divDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/DivDelete.cshtml", divDeleteNotViewModel);
+                            break;
+                        // Удаление должности
+                        case NotificationType.PosDelete:
+                            if (Model is PosDeleteNotViewModel posDeleteNotViewModel && posDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosDelete.cshtml", posDeleteNotViewModel);
+                            break;
+                        // Изменение должности
+                        case NotificationType.PosUpdate:
+                            if (Model is PosUpdateNotViewModel posUpdateNotViewModel && posUpdateNotViewModel.Organization != null && posUpdateNotViewModel.ChangedPosition != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosUpdate.cshtml", posUpdateNotViewModel);
+                            break;
+                        // Удаление сотрудника
+                        case NotificationType.EmpDelete:
+                            if (Model is EmpDeleteNotViewModel empDeleteNotViewModel && empDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpDelete.cshtml", empDeleteNotViewModel);
+                            break;
+                        // Изменение данных сотрудника
+                        case NotificationType.EmpUpdate:
+                            if (Model is EmpUpdateNotViewModel empUpdateNotViewModel)
+                            {
+                                // В зависимости от типа произошедших с сотрудником изменений
+                                switch (empUpdateNotViewModel.EmpUpdateType)
+                                {
+                                    // Обновление данных на карточке сотрудника
+                                    case EmpUpdateType.BaseUpdate:
+                                        if (empUpdateNotViewModel is BaseUpdateNotViewModel baseUpdateNotViewModel &&
+                                            baseUpdateNotViewModel.Organization != null && baseUpdateNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/BaseUpdate.cshtml", baseUpdateNotViewModel);
+                                        break;
+                                    // Изменение подразделения
+                                    case EmpUpdateType.ChangeDivision:
+                                        if (empUpdateNotViewModel is ChangeDivisionNotViewModel changeDivisionNotViewModel &&
+                                            changeDivisionNotViewModel.Organization != null && changeDivisionNotViewModel.ChangedEmployee != null && changeDivisionNotViewModel.NewEmployeePosition != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/ChangeDivision.cshtml", changeDivisionNotViewModel);
+                                        break;
+                                    // Добавление контакта
+                                    case EmpUpdateType.AddContact:
+                                        if (empUpdateNotViewModel is AddContactNotViewModel addContactNotViewModel &&
+                                            addContactNotViewModel.Organization != null && addContactNotViewModel.ChangedEmployee != null && addContactNotViewModel.NewEmployeeContact != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/AddContact.cshtml", addContactNotViewModel);
+                                        break;
+                                    // Изменение контакта
+                                    case EmpUpdateType.UpdateContact:
+                                        if (empUpdateNotViewModel is UpdateContactNotViewModel updateContactNotViewModel &&
+                                            updateContactNotViewModel.Organization != null && updateContactNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/UpdateContact.cshtml", updateContactNotViewModel);
+                                        break;
+                                    // Удаление контакта
+                                    case EmpUpdateType.DeleteContact:
+                                        if (empUpdateNotViewModel is DeleteContactNotViewModel deleteContactNotViewModel &&
+                                            deleteContactNotViewModel.Organization != null && deleteContactNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/DeleteContact.cshtml", deleteContactNotViewModel);
+                                        break;
+                                    // Изменения должностей сотрудника
+                                    case EmpUpdateType.SyncPoss:
+                                        if (empUpdateNotViewModel is SyncPossNotViewModel syncPossNotViewModel &&
+                                            syncPossNotViewModel.Organization != null && syncPossNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/SyncPoss.cshtml", syncPossNotViewModel);
+                                        break;
+                                    // Изменения полномочий сотрудника
+                                    case EmpUpdateType.SyncResps:
+                                        if (empUpdateNotViewModel is SyncRespsNotViewModel syncRespsNotViewModel &&
+                                            syncRespsNotViewModel.Organization != null && syncRespsNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/SyncResps.cshtml", syncRespsNotViewModel);
+                                        break;
+                                }
+                            }
+                            break;
+                    }
+                </div>
+            </div>
+            <div class="row mt-1 mb-2">
+                <form class="col-lg mt-3" asp-controller="@USER_NOT" asp-action="Delete" asp-route-id="@Model.Id">
+                    <div class="btn btn-block btn-outline-danger delete-not-btn">
+                        <p>@resManager.GetString("DeleteNot")</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

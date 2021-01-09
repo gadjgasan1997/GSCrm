@@ -4,6 +4,8 @@ using GSCrm.Notifications.Params;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Notifications.Factories.OrgNotFactories
 {
@@ -45,18 +47,24 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories
             {
                 if (notificationParams.IsPrimary)
                     return new StringBuilder()
-                        .Append($"<div><p>Должность, <a href='{notificationParams.PositionUrl}'>{notificationParams.ChangedPosition.Name}</a>, которую вы занимаете, была перенесена в другое подразделение.")
+                        .Append($"<div><p>Должность, <a href='{urlHelper.Action(POSITION, POSITION, new { id = notificationParams.ChangedPosition.Id }, httpContext.Request.Scheme)}'>" +
+                        $"{notificationParams.ChangedPosition.Name}</a>, которую вы занимаете, была перенесена в другое подразделение.")
                         .Append($"<p>Ваш профиль сотрудника был заблокирован. Для разблокировки необходимо, чтобы уполномоченный сотрудник назначил вам какую-либо должность.</p>")
-                        .Append($"<p>Организация: <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a></p></div>")
+                        .Append($"<p>Организация: <a href='{urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = notificationParams.Organization.Id }, httpContext.Request.Scheme)}'>" +
+                        $"{notificationParams.Organization.Name}</a></p></div>")
                         .ToString();
                 else return new StringBuilder()
-                    .Append($"<div><p>Должность, <a href='{notificationParams.PositionUrl}'>{notificationParams.ChangedPosition.Name}</a>, которую вы занимаете, была перенесена в другое подразделение.")
-                    .Append($"<p>Организация: <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a></p></div>")
+                    .Append($"<div><p>Должность, <a href='{urlHelper.Action(POSITION, POSITION, new { id = notificationParams.ChangedPosition.Id }, httpContext.Request.Scheme)}'>" +
+                    $"{notificationParams.ChangedPosition.Name}</a>, которую вы занимаете, была перенесена в другое подразделение.")
+                    .Append($"<p>Организация: <a href='{urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = notificationParams.Organization.Id }, httpContext.Request.Scheme)}'>" +
+                    $"{notificationParams.Organization.Name}</a></p></div>")
                     .ToString();
             }
             else return new StringBuilder()
-                .Append($"<div><p>Должность, <a href='{notificationParams.PositionUrl}'>{notificationParams.ChangedPosition.Name}</a>, которую вы занимаете, была изменена.")
-                .Append($"<p>Организация: <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a></p></div>")
+                .Append($"<div><p>Должность, <a href='{urlHelper.Action(POSITION, POSITION, new { id = notificationParams.ChangedPosition.Id }, httpContext.Request.Scheme)}'>" +
+                $"{notificationParams.ChangedPosition.Name}</a>, которую вы занимаете, была изменена.")
+                .Append($"<p>Организация: <a href='{urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = notificationParams.Organization.Id }, httpContext.Request.Scheme)}'>" +
+                $"{notificationParams.Organization.Name}</a></p></div>")
                 .ToString();
         }
 

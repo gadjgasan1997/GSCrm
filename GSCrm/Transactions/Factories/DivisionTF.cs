@@ -7,10 +7,8 @@ using GSCrm.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
-using GSCrm.Notifications.Factories.OrgNotFactories;
 using GSCrm.Notifications.Params;
-using Microsoft.AspNetCore.Mvc;
-using static GSCrm.CommonConsts;
+using GSCrm.Notifications.Factories.OrgNotFactories;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -103,7 +101,6 @@ namespace GSCrm.Transactions.Factories
             DivDeleteParams divDeleteParams = new DivDeleteParams()
             {
                 Organization = currentOrganization,
-                OrganizationUrl = urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = currentOrganization.Id }, httpContext.Request.Scheme),
                 RemovedDivision = division
             };
             DivDeleteNotFactory divDeleteNotFactory = new DivDeleteNotFactory(serviceProvider, context, divDeleteParams);

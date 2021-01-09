@@ -6,6 +6,8 @@ using GSCrm.Mapping.Notifications;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using GSCrm.Notifications.Auxiliary;
+using GSCrm.Mapping.Notifications.EmpUpdate;
 
 namespace GSCrm.Mapping
 {
@@ -17,17 +19,39 @@ namespace GSCrm.Mapping
         public override sealed UserNotificationViewModel DataToViewModel(UserNotification userNot)
         {
             InboxNotification inboxNot = context.InboxNotifications.AsNoTracking().FirstOrDefault(i => i.Id == userNot.NotificationId);
-
-            // В зависимости от типа уведомления
-            return inboxNot.NotificationType switch
+            switch (inboxNot.NotificationType)
             {
-                NotificationType.OrgInvite => new OrgInviteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
-                NotificationType.DivDelete => new DivDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
-                NotificationType.PosDelete => new PosDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
-                NotificationType.PosUpdate => new PosUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
-                NotificationType.EmpDelete => new EmpDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
-                _ => default
-            };
+                // Если тип уведомления - изменение данных сотрудника
+                case NotificationType.EmpUpdate:
+                    if (Enum.TryParse(inboxNot.Attrib1, out EmpUpdateType empUpdateType))
+                    {
+                        // В зависимости от типа обновления сотрудника
+                        return empUpdateType switch
+                        {
+                            EmpUpdateType.BaseUpdate => new BaseUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.ChangeDivision => new ChangeDivisionNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.AddContact => new AddContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.UpdateContact => new UpdateContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.DeleteContact => new DeleteContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.SyncPoss => new SyncPossNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.SyncResps => new SyncRespsNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            _ => default
+                        };
+                    }
+                    else return default;
+
+                // Иначе в зависимости от типа уведомления
+                default:
+                    return inboxNot.NotificationType switch
+                    {
+                        NotificationType.OrgInvite => new OrgInviteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                        NotificationType.DivDelete => new DivDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                        NotificationType.PosDelete => new PosDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                        NotificationType.PosUpdate => new PosUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                        NotificationType.EmpDelete => new EmpDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                        _ => default
+                    };
+            }
         }
 
         /// <summary>
@@ -45,7 +69,7 @@ namespace GSCrm.Mapping
                 HasRead = userNot.HasRead,
                 NotificationId = inboxNot.Id,
                 NotificationSource = inboxNot.NotificationSource,
-                NotificationType = inboxNot.NotificationType,
+                NotificationType = inboxNot.NotificationType
             };
             return userNotViewModel;
         }

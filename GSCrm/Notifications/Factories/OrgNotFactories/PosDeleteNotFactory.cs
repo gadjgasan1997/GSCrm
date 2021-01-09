@@ -4,6 +4,8 @@ using GSCrm.Notifications.Params;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Notifications.Factories.OrgNotFactories
 {
@@ -46,12 +48,14 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories
                     .Append($"<div><p>Должность {notificationParams.RemovedPosition.Name}, которую вы занимали, была удалена.</p>")
                     .Append($"<p>Ваш профиль сотрудника был заблокирован. Для разблокировки необходимо, " +
                         $"чтобы уполномоченный сотрудник назначил вам какую-либо должность.</p>")
-                    .Append($"<p>Организация: <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a></p></div>")
+                    .Append($"<p>Организация: <a href='{urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = notificationParams.Organization.Id }, httpContext.Request.Scheme)}'>" +
+                    $"{notificationParams.Organization.Name}</a></p></div>")
                     .ToString();
             }
             else return new StringBuilder()
                 .Append($"<div><p>Должность {notificationParams.RemovedPosition.Name}, которую вы занимали, была удалена.")
-                .Append($"<p>Организация: <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a></p></div>")
+                .Append($"<p>Организация: <a href='{urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = notificationParams.Organization.Id }, httpContext.Request.Scheme)}'>" +
+                $"{notificationParams.Organization.Name}</a></p></div>")
                 .ToString();
         }
 

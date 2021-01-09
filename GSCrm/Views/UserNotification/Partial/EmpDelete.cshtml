@@ -7,31 +7,7 @@
 @inject IViewsInfo viewsInfo
 @model EmpDeleteNotViewModel
 
-<div class="row org-invite-not notification-item mt-4">
-    <input class="notification-item-id" value="@Model.Id" hidden="hidden" />
-    <form class="col-md flex-grow-0" asp-controller="@USER_NOT" asp-action="">
-        <div class="@(!Model.HasRead ? "cbx-not" : "cbx-not-onload")">
-            <input type="checkbox" />
-            <label></label>
-        </div>
-    </form>
-    <div class="col-md mt-4 mt-md-0">
-        <div class="alert @(!Model.HasRead ? "alert-dark" : "alert-light alert-not-light") m-0" role="alert">
-            <div class="row">
-                <div class="col-lg">
-                    <p class="label-non-select label-md m-0 text-center">
-                        @Model.RemovedEmployeeName, Вы были уволены из организации
-                        <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a>
-                    </p>
-                </div>
-            </div>
-            <div class="row mt-1 mb-2">
-                <form class="col-lg mt-3" asp-controller="@USER_NOT" asp-action="Delete" asp-route-id="@Model.Id">
-                    <div class="btn btn-block btn-outline-danger delete-not-btn">
-                        <p>@resManager.GetString("DeleteNot")</p>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<p class="label-non-select label-md m-0 text-center">
+    @Model.RemovedEmployeeName, Вы были уволены из организации
+    <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a>
+</p>

@@ -2,9 +2,11 @@
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Notifications.Params;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Notifications.Factories.OrgNotFactories
 {
@@ -40,7 +42,9 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories
 
         protected override string GetEmailTemplate()
             => new StringBuilder()
-            .Append($"<div><p>{notificationParams.RemovedEmployee.GetFullName()}, Вы были уволены из организации <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a>.")
+            .Append($"<div><p>{notificationParams.RemovedEmployee.GetFullName()}, " +
+                $"Вы были уволены из организации <a href='{urlHelper.Action(ORGANIZATION, ORGANIZATION, new { id = notificationParams.Organization.Id })}'>" +
+                $"{notificationParams.Organization.Name}</a>.")
             .ToString();
 
         protected override List<NotificationTarget> GetNotificationTargets(OrgNotificationsSetting orgNotSetting)

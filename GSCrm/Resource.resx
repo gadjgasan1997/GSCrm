@@ -726,6 +726,9 @@
   <data name="EmpUpdateNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для изменения данных сотрудника</value>
   </data>
+  <data name="EmpUpdateNotSubject" xml:space="preserve">
+    <value>Ваши данные были изменены</value>
+  </data>
   <data name="ESAccount" xml:space="preserve">
     <value>Добавьте нового клиента</value>
   </data>
@@ -1045,7 +1048,7 @@
     <value>У вас недостаточно полномочий для удаления организации</value>
   </data>
   <data name="OrgEmailHeader" xml:space="preserve">
-    <value>Сообщение от организация {orgName} в GSCrm</value>
+    <value>GSCrm. Организация {orgName}.</value>
   </data>
   <data name="OrgInviteInboxContent" xml:space="preserve">
     <value>Вы получили приглашение вступить в организацию {orgName}</value>
