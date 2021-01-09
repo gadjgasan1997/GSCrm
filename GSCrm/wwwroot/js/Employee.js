@@ -138,9 +138,9 @@
      * Обновление сотрудника
      * @param {*} event 
      */
-    Update(event) {
+    Update() {
         return new Promise((resolve, reject) => {
-            let updateEmpUrl = $(event.currentTarget).closest("#employeeForm").find("form").attr("action");
+            let updateEmpUrl = $("#updateEmployeeForm").attr("action");
             let updateEmpData = this.UpdateGetData();
             let request = new AjaxRequests();
             request.JsonPostRequest(updateEmpUrl, updateEmpData)
@@ -289,7 +289,7 @@ $("#employeeForm")
     .off("click", "#updateEmpBtn").on("click", "#updateEmpBtn", event => {
         event.preventDefault();
         let employee = new Employee();
-        employee.Update(event);
+        employee.Update();
     })
     .off("click", "#initializeRespsBtn").on("click", "#initializeRespsBtn", event => {
         event.preventDefault();
