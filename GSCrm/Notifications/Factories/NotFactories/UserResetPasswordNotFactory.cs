@@ -16,7 +16,7 @@ namespace GSCrm.Notifications.Factories.NotFactories
         public async Task SendAsync(User user)
         {
             EmailNotificationService emailNotificationService = new EmailNotificationService(serviceProvider, context);
-            await emailNotificationService.SendAsync((EmailNotification)Create(NotificationTarget.Email), user);
+            await emailNotificationService.SendEmailAsync(emailNotification, user);
         }
 
         protected override Notification Create(NotificationTarget notificationTarget)

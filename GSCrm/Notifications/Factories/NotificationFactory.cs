@@ -2,6 +2,7 @@
 using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Notifications.Services;
+using GSCrm.Repository;
 using Microsoft.Extensions.Configuration;
 using System;
 using Task = System.Threading.Tasks.Task;
@@ -14,14 +15,26 @@ namespace GSCrm.Notifications.Factories
         /// <summary>
         /// Менеджер ресурсов для доступа к переводам
         /// </summary>
-        protected IResManager resManager;
-        protected IServiceProvider serviceProvider;
-        protected ApplicationDbContext context;
-        protected IConfiguration configuration;
+        protected readonly IResManager resManager;
+        protected readonly IServiceProvider serviceProvider;
+        protected readonly ApplicationDbContext context;
+        protected readonly IConfiguration configuration;
         /// <summary>
         /// Параметры для конкретного типа уведомлений
         /// </summary>
         protected readonly TNotificationParams notificationParams;
+        /// <summary>
+        /// Уведомление, высылаемое по почте
+        /// </summary>
+        protected EmailNotification emailNotification;
+        /// <summary>
+        /// Уведомление, высылаемое в личные сообщения
+        /// </summary>
+        protected InboxNotification inboxNotification;
+        /// <summary>
+        /// Признак, является уведомление новым или оно уже создано
+        /// </summary>
+        private bool isNewNotification;
 
         public NotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
         {
@@ -40,6 +53,29 @@ namespace GSCrm.Notifications.Factories
         protected abstract Notification Create(NotificationTarget notificationTarget);
 
         /// <summary>
+        /// Метод иниализирует уведомления по умолчанию
+        /// </summary>
+        /// <param name="notificationTarget"></param>
+        protected virtual void InitNotification(NotificationTarget notificationTarget)
+        {
+            switch (notificationTarget)
+            {
+                case NotificationTarget.Email:
+                    if (emailNotification == null)
+                        emailNotification = (EmailNotification)Create(notificationTarget);
+                    break;
+                case NotificationTarget.Inbox:
+                    if (inboxNotification == null)
+                    {
+                        isNewNotification = true;
+                        inboxNotification = (InboxNotification)Create(notificationTarget);
+                    }
+                    else isNewNotification = false;
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Метод создает и ассинхронно отсылает уведомление пользователю(вызывается из дочерних классов)
         /// </summary>
         /// <param name="targetUser"></param>
@@ -50,11 +86,15 @@ namespace GSCrm.Notifications.Factories
             switch (notificationTarget)
             {
                 case NotificationTarget.Email:
-                    await new EmailNotificationService(serviceProvider, context).SendAsync((EmailNotification)Create(notificationTarget), targetUser);
+                    InitNotification(notificationTarget);
+                    await new EmailNotificationService(serviceProvider, context).SendEmailAsync(emailNotification, targetUser);
                     break;
                 default:
                 case NotificationTarget.Inbox:
-                    new InboxNotificationService(serviceProvider, context).Send((InboxNotification)Create(notificationTarget), targetUser);
+                    InitNotification(notificationTarget);
+                    if (isNewNotification)
+                        new InboxNotificationService(serviceProvider, context).SendNewNotification(inboxNotification, targetUser);
+                    else new InboxNotificationService(serviceProvider, context).SendExistsNotification(inboxNotification, targetUser);
                     break;
             }
         }
@@ -69,11 +109,15 @@ namespace GSCrm.Notifications.Factories
             switch (notificationTarget)
             {
                 case NotificationTarget.Email:
-                    new EmailNotificationService(serviceProvider, context).Send((EmailNotification)Create(notificationTarget), targetUser);
+                    InitNotification(notificationTarget);
+                    new EmailNotificationService(serviceProvider, context).SendEmail(emailNotification, targetUser);
                     break;
                 default:
                 case NotificationTarget.Inbox:
-                    new InboxNotificationService(serviceProvider, context).Send((InboxNotification)Create(notificationTarget), targetUser);
+                    InitNotification(notificationTarget);
+                    if (isNewNotification)
+                        new InboxNotificationService(serviceProvider, context).SendNewNotification(inboxNotification, targetUser);
+                    else new InboxNotificationService(serviceProvider, context).SendExistsNotification(inboxNotification, targetUser);
                     break;
             }
         }

@@ -87,6 +87,20 @@ class Notification {
         })
     }
     //#endregion
+
+    //#region Other Methods
+    /**
+     * Удаление уведомления
+     * @param {*} event 
+     */
+    Remove(event) {
+        return new Promise((resolve, reject) => {
+            let removeNotUrl = $(event.currentTarget).closest("form").attr("action");
+            let request = new AjaxRequests();
+            request.CommonDeleteRequest(removeNotUrl).then(() => location.reload());
+        })
+    }
+    //#endregion
 }
 
 // Чекбоксы уведомлений
@@ -132,4 +146,11 @@ $("#notificationsList")
         event.stopPropagation();
         let notification = new Notification();
         notification.RejectInvite(event);
+    })
+    // Удаление уведомления
+    .off("click", ".delete-not-btn").on("click", ".delete-not-btn", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        let notification = new Notification();
+        notification.Remove(event);
     })

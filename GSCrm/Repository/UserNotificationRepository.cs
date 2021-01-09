@@ -29,7 +29,12 @@ namespace GSCrm.Repository
         #endregion
 
         #region Override
+        protected override bool RespsIsCorrectOnDelete(UserNotification entityToDelete) => true;
 
+        protected override bool TryDeletePrepare(UserNotification userNot)
+        {
+            return true;
+        }
         #endregion
 
         #region HasReedSign
@@ -56,22 +61,22 @@ namespace GSCrm.Repository
             if (userNot != null)
             {
                 // Создание транзакции и изменние признака прочитанного уведомления
-                transaction = dataModelsTransactionFactory.Create(currentUser.Id, OperationType.Update, userNot);
+                transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.Update);
                 userNot.HasRead = hasReed;
                 transaction.AddChange(userNot, EntityState.Modified);
 
                 // Попытка сделать коммит
-                if (dataModelsTransactionFactory.TryCommit(transaction, errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                 {
                     // Если успешно, закрытие транзакции и изменение счетчика уведомлений пользователя
-                    dataModelsTransactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     int.TryParse(cachService.GetCachedItem(currentUser.Id, "NotsCount"), out int notsCount);
                     if (hasReed) notsCount--;
                     else notsCount++;
                     cachService.CacheItem(currentUser.Id, "NotsCount", notsCount.ToString());
 
                 }
-                else dataModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+                else viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             }
         }
 

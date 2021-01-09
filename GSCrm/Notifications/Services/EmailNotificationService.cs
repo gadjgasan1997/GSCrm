@@ -31,7 +31,7 @@ namespace GSCrm.Notifications.Services
         /// </summary>
         /// <param name="notification">Сформированное уведомление</param>
         /// <param name="targetUser">Пользователь, которому его необходимо отправить</param>
-        public async Task SendAsync(EmailNotification notification, User targetUser)
+        public async Task SendEmailAsync(EmailNotification notification, User targetUser)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace GSCrm.Notifications.Services
         /// </summary>
         /// <param name="notification">Сформированное уведомление</param>
         /// <param name="targetUser">Пользователь, которому его необходимо отправить</param>
-        public void Send(EmailNotification notification, User targetUser)
+        public void SendEmail(EmailNotification notification, User targetUser)
         {
             try
             {

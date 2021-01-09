@@ -68,20 +68,15 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new OrganizationRepository(serviceProvider, context).TryAcceptInvite(id, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");
         }
 
         [HttpGet("RejectInvite/{notId}/{orgId}")]
-        public IActionResult RejectInvite(string inboxNotId, string orgId)
-        {
-            ModelStateDictionary modelState = ModelState;
-            new OrganizationRepository(serviceProvider, context).RejectInvite(orgId);
-            return Json("");
-        }
+        public void RejectInvite(string inboxNotId, string orgId)
+            => new OrganizationRepository(serviceProvider, context).RejectInvite(orgId);
         #endregion
     }
 }

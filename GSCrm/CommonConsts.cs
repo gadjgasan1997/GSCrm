@@ -13,6 +13,7 @@
         public const string ACC_VIEWS_REL_PATH = "~/Views/" + ACCOUNT + "/";
         public const string QT_VIEWS_REL_PATH = "~/Views/" + QUOTE + "/";
         public const string NOT_VIEWS_REL_PATH = "~/Views/" + NOTIFICATION + "/";
+        public const string USER_NOT_VIEWS_REL_PATH = "~/Views/" + USER_NOT + "/";
         public const string NOT_SETTING_VIEWS_REL_PATH = "~/Views/" + NOT_SETTING + "/";
         public const string AUTH = "Auth";
         public const string USER = "User";

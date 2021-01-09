@@ -42,6 +42,12 @@ namespace GSCrm.Transactions.Factories
             if (operationType == OperationType.Delete)
             {
                 Division division = (Division)transaction.GetParameterValue("RecordToRemove");
+                // Необходимо запомнить список сотрудников, находящихся в удаляемом подразделении до выполнения коммита
+                // Так как после коммита у всех сотрудников подразделения будет очищен DivisionId и их невозможно будет найти
+                List<Employee> divEmployees = context.Employees.AsNoTracking().Where(div => div.DivisionId == division.Id).ToList();
+                transaction.AddParameter("DivEmployees", divEmployees);
+
+                // блокировка должностей и сотрудников
                 LockPositions(division);
                 LockEmployees(division);
             }
@@ -75,11 +81,11 @@ namespace GSCrm.Transactions.Factories
             });
         }
 
-        protected override void CloseHandler(TransactionStatus transactionStatus)
+        protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
             if (transactionStatus == TransactionStatus.Success)
             {
-                switch (transaction.OperationType)
+                switch (operationType)
                 {
                     case OperationType.Delete:
                         SendNotifications();
@@ -95,7 +101,6 @@ namespace GSCrm.Transactions.Factories
         {
             Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             Division division = (Division)transaction.GetParameterValue("RecordToRemove");
-            List<Employee> divEmployees = context.Employees.AsNoTracking().Where(div => div.DivisionId == division.Id).ToList();
             DivDeleteParams divDeleteParams = new DivDeleteParams()
             {
                 Organization = currentOrganization,
@@ -103,7 +108,7 @@ namespace GSCrm.Transactions.Factories
                 RemovedDivision = division
             };
             DivDeleteNotFactory divDeleteNotFactory = new DivDeleteNotFactory(serviceProvider, context, divDeleteParams);
-            divDeleteNotFactory.Send(division.OrganizationId, divEmployees);
+            divDeleteNotFactory.Send(division.OrganizationId, (List<Employee>)transaction.GetParameterValue("DivEmployees"));
         }
     }
 }

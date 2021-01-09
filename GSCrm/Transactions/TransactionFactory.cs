@@ -213,6 +213,7 @@ namespace GSCrm.Transactions
                 ("OrgNotificationsSettingViewModel", OperationType.InitNotSetting) => "OrgNotificationsSettingUpdate",
                 ("Notification", OperationType.SendNotification) => "SendNotification",
                 ("UserNotification", OperationType.Update) => "UpdateUserNotification",
+                ("UserNotificationViewModel", OperationType.Delete) => "DeleteUserNotification",
                 ("UserViewModel", OperationType.Register) => "RegisterUser",
                 ("UserViewModel", OperationType.Login) => "LoginUser",
                 ("UserViewModel", OperationType.ResetPasswordSpecifyEmail) => "ResetUserPasswordSpecifyEmail",

@@ -4,8 +4,6 @@ namespace GSCrm.Models
 {
     public class InboxNotification : Notification
     {
-        public NotificationActionType ActionType { get; set; } = NotificationActionType.Hide;
-
-        public InboxNotification() : base() { }
+        public string Attrib1 { get; set; }
     }
 }

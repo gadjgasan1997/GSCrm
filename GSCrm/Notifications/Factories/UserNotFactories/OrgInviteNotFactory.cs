@@ -29,10 +29,9 @@ namespace GSCrm.Notifications.Factories.UserNotFactories0
                 NotificationTarget.Inbox => new InboxNotification()
                 {
                     Id = Guid.NewGuid(),
-                    ActionType = NotificationActionType.AllowDeniyHide,
-                    Content = resManager.GetString("OrgInviteInboxContent").Replace("{orgName}", notificationParams.Organization.Name),
                     SourceId = notificationParams.Organization.Id.ToString(),
-                    NotificationType = NotificationType.OrgInvite
+                    NotificationType = NotificationType.OrgInvite,
+                    NotificationSource = NotificationSource.Organization
                 },
                 _ => default
             };

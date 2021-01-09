@@ -30,7 +30,7 @@ namespace GSCrm.Factories
                 "AccountManagerViewModel" => (ITransactionFactory<TEntity>)new AccountManagerTF(serviceProvider, context),
                 "AccountQuoteViewModel" => (ITransactionFactory<TEntity>)new AccountQuoteTF(serviceProvider, context),
                 "Notification" => (ITransactionFactory<TEntity>)new NotificationTF(serviceProvider, context),
-                "UserNotification" => (ITransactionFactory<TEntity>)new UserNotificationTF(serviceProvider, context),
+                "UserNotificationViewModel" => (ITransactionFactory<TEntity>)new UserNotificationTF(serviceProvider, context),
                 "InboxNotification" => (ITransactionFactory<TEntity>)new InboxNotificationTF(serviceProvider, context),
                 "OrgNotificationsSettingViewModel" => (ITransactionFactory<TEntity>)new OrgNotificationsSettingTF(serviceProvider, context),
                 "UserNotificationsSettingViewModel" => (ITransactionFactory<TEntity>)new UserNotificationsSettingTF(serviceProvider, context),

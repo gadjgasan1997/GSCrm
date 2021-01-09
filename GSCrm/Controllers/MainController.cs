@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using static GSCrm.Helpers.MainHelpers;
 using GSCrm.Factories;
+using System.Collections.Generic;
 
 namespace GSCrm.Controllers
 {
@@ -109,6 +110,7 @@ namespace GSCrm.Controllers
         }
 
         [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public virtual IActionResult Delete(string id)
         {
             try
@@ -122,6 +124,17 @@ namespace GSCrm.Controllers
             {
                 return BadRequest();
             }
+        }
+
+        /// <summary>
+        /// Добавляет ошибки в модель
+        /// </summary>
+        /// <param name="modelState"></param>
+        /// <param name="errors"></param>
+        protected void AddErrorsToModel(ModelStateDictionary modelState, Dictionary<string, string> errors)
+        {
+            foreach (KeyValuePair<string, string> error in errors)
+                modelState.AddModelError(error.Key, error.Value);
         }
     }
 }

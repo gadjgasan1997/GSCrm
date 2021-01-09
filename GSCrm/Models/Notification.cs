@@ -8,7 +8,6 @@ namespace GSCrm.Models
         public NotificationSource NotificationSource { get; set; } = NotificationSource.Organization;
         public string SourceId { get; set; }
         public NotificationType NotificationType { get; set; } = NotificationType.None;
-        public string Content { get; set; }
 
         public List<UserNotification> UserNotifications { get; set; }
 

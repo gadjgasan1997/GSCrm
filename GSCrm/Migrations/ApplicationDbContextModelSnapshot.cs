@@ -347,9 +347,6 @@ namespace GSCrm.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -922,8 +919,8 @@ namespace GSCrm.Migrations
                 {
                     b.HasBaseType("GSCrm.Models.Notification");
 
-                    b.Property<int>("ActionType")
-                        .HasColumnType("int");
+                    b.Property<string>("Attrib1")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("InboxNotification");
                 });

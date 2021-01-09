@@ -2,6 +2,7 @@
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications;
+using GSCrm.Mapping.Notifications;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -13,23 +14,37 @@ namespace GSCrm.Mapping
         public UserNotificationMap(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context)
         { }
 
-        public override UserNotificationViewModel DataToViewModel(UserNotification userNot)
+        public override sealed UserNotificationViewModel DataToViewModel(UserNotification userNot)
         {
             InboxNotification inboxNot = context.InboxNotifications.AsNoTracking().FirstOrDefault(i => i.Id == userNot.NotificationId);
-            Organization inviteOrg = null;
-            if (inboxNot.NotificationType == NotificationType.OrgInvite)
-                inviteOrg = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == Guid.Parse(inboxNot.SourceId));
-            return new UserNotificationViewModel()
+
+            // В зависимости от типа уведомления
+            return inboxNot.NotificationType switch
+            {
+                NotificationType.OrgInvite => new OrgInviteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                NotificationType.DivDelete => new DivDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                _ => default
+            };
+        }
+
+        /// <summary>
+        /// Заполнение общих для всех уведомлений полей
+        /// </summary>
+        /// <param name="userNot"></param>
+        /// <param name="inboxNot"></param>
+        /// <returns></returns>
+        protected TNotViewModel GetNewNotViewModel<TNotViewModel>(UserNotification userNot, InboxNotification inboxNot)
+            where TNotViewModel : UserNotificationViewModel, new()
+        {
+            TNotViewModel userNotViewModel = new TNotViewModel()
             {
                 Id = userNot.Id,
+                HasRead = userNot.HasRead,
                 NotificationId = inboxNot.Id,
                 NotificationSource = inboxNot.NotificationSource,
-                ActionType = inboxNot.ActionType,
-                Content = inboxNot.Content,
-                HasRead = userNot.HasRead,
                 NotificationType = inboxNot.NotificationType,
-                InviteOrg = inviteOrg
             };
+            return userNotViewModel;
         }
     }
 }

@@ -29,7 +29,10 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories
                 NotificationTarget.Inbox => new InboxNotification()
                 {
                     Id = Guid.NewGuid(),
-                    
+                    NotificationSource = NotificationSource.Organization,
+                    SourceId = notificationParams.Organization.Id.ToString(),
+                    NotificationType = NotificationType.DivDelete,
+                    Attrib1 = notificationParams.RemovedDivision.Name
                 },
                 _ => default
             };

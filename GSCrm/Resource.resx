@@ -564,6 +564,9 @@
   <data name="CurrentAccountsFilter" xml:space="preserve">
     <value>Фильтр по клиентам организации </value>
   </data>
+  <data name="DeleteNot" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
   <data name="DivCreate" xml:space="preserve">
     <value>Создание подразделения</value>
   </data>
@@ -1042,7 +1045,7 @@
     <value>У вас недостаточно полномочий для удаления организации</value>
   </data>
   <data name="OrgEmailSubject" xml:space="preserve">
-    <value>Организация {orgName}</value>
+    <value>Сообщение от организация {orgName} в GSCrm</value>
   </data>
   <data name="OrgInviteInboxContent" xml:space="preserve">
     <value>Вы получили приглашение вступить в организацию {orgName}</value>
