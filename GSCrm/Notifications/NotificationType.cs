@@ -18,6 +18,10 @@
         /// <summary>
         /// Удаление подразделения
         /// </summary>
-        DivDelete = 4
+        DivDelete = 4,
+        /// <summary>
+        /// Удаление должности
+        /// </summary>
+        PosDelete = 5
     }
 }

@@ -128,6 +128,7 @@ namespace GSCrm.Transactions
         #region Other
         public virtual bool TryCommit(ITransaction transaction, Dictionary<string, string> errors)
         {
+            this.transaction = transaction;
             BeforeCommit(transaction.OperationType);
             using IDbContextTransaction efTransaction = context.Database.BeginTransaction();
             try

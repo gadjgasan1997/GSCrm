@@ -19,8 +19,8 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories
                 NotificationTarget.Email => new EmailNotification()
                 {
                     Id = Guid.NewGuid(),
-                    Subject = resManager.GetString("OrgEmailSubject").Replace("{orgName}", notificationParams.Organization.Name),
-                    Header = resManager.GetString("DivDeleteNotHeader"),
+                    Subject = resManager.GetString("DivDeleteNotSubject"),
+                    Header = resManager.GetString("OrgEmailHeader").Replace("{orgName}", notificationParams.Organization.Name),
                     Content = GetEmailTemplate(),
                     NotificationSource = NotificationSource.Organization,
                     SourceId = notificationParams.Organization.Id.ToString(),
@@ -39,16 +39,16 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories
 
         protected override string GetEmailTemplate()
             => new StringBuilder()
-            .Append($"<p>Подразделение {notificationParams.RemovedDivision.Name}, в котором вы состоите, было удалено.")
+            .Append($"<div><p>Подразделение {notificationParams.RemovedDivision.Name}, в котором вы состоите, было удалено.")
             .Append($"<p>Ваш профиль сотрудника был заблокирован. Для разблокировки необходимо, " +
                 $"чтобы уполномоченный сотрудник добавил вас в какое-либо подразделение и назначил должность.</p>")
-            .Append($"<p>Организация: <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a></p>")
+            .Append($"<p>Организация: <a href='{notificationParams.OrganizationUrl}'>{notificationParams.Organization.Name}</a></p></div>")
             .ToString();
 
-        protected override List<NotificationTarget> GetNotificationTargets(OrgNotificationsSetting notificationsSetting)
-            => new List<NotificationTarget> { notificationsSetting.TDivDeleteNot };
+        protected override List<NotificationTarget> GetNotificationTargets(OrgNotificationsSetting orgNotSetting)
+            => new List<NotificationTarget> { orgNotSetting.TDivDeleteNot };
 
-        protected override bool NeedNotification(OrgNotificationsSetting notificationsSetting)
-            => notificationsSetting.DivDeleteNot;
+        protected override bool NeedNotification(OrgNotificationsSetting orgNotSetting)
+            => orgNotSetting.DivDeleteNot;
     }
 }

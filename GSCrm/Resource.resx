@@ -582,11 +582,8 @@
   <data name="DivDeleteNotContent" xml:space="preserve">
     <value>Было удалено подразделение {divName}, в котором вы состоите.</value>
   </data>
-  <data name="DivDeleteNotHeader" xml:space="preserve">
-    <value>Подразделение, в котором вы состоите было удалено</value>
-  </data>
   <data name="DivDeleteNotSubject" xml:space="preserve">
-    <value>Удаление подразделения</value>
+    <value>Подразделение, в котором вы состоите было удалено</value>
   </data>
   <data name="Division" xml:space="preserve">
     <value>Подразделение</value>
@@ -1044,7 +1041,7 @@
   <data name="OrgDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления организации</value>
   </data>
-  <data name="OrgEmailSubject" xml:space="preserve">
+  <data name="OrgEmailHeader" xml:space="preserve">
     <value>Сообщение от организация {orgName} в GSCrm</value>
   </data>
   <data name="OrgInviteInboxContent" xml:space="preserve">
@@ -1121,6 +1118,9 @@
   </data>
   <data name="PosDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления должности</value>
+  </data>
+  <data name="PosDeleteNotSubject" xml:space="preserve">
+    <value>Должность, которую вы занимали, была удалена</value>
   </data>
   <data name="PosEmployeesFilter" xml:space="preserve">
     <value>Фильтр по сотрудникам</value>

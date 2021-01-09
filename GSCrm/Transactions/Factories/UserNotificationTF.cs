@@ -19,7 +19,7 @@ namespace GSCrm.Transactions.Factories
             {
                 // Необходимо удалить уведомление из "Notifications" в случае, если не осталось пользователей, которые его не удалили из "UserNotifications"
                 UserNotification userNot = (UserNotification)transaction.GetParameterValue("RecordToRemove");
-                Func<UserNotification, bool> predicate = not => not.NotificationId == userNot.NotificationId && userNot.Id != userNot.Id;
+                Func<UserNotification, bool> predicate = not => not.NotificationId == userNot.NotificationId && not.Id != userNot.Id;
                 List<UserNotification> userNotifications = context.UserNotifications.AsNoTracking().Where(predicate).ToList();
                 if (userNotifications.Count == 0)
                 {

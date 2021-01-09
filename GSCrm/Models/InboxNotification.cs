@@ -1,9 +1,8 @@
-﻿using GSCrm.Models.Enums;
-
-namespace GSCrm.Models
+﻿namespace GSCrm.Models
 {
     public class InboxNotification : Notification
     {
         public string Attrib1 { get; set; }
+        public string Attrib2 { get; set; }
     }
 }

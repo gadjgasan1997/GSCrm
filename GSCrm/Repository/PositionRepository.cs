@@ -523,21 +523,30 @@ namespace GSCrm.Repository
         /// Вызывается для корректного удаления должности
         /// Метод проверяет необходимость в блокировке сотрудников, находящихся на заданной должности
         /// И в случае необходимости лочит их, стирая PrimaryPositionId на сотруднике
-        /// После этого помечает должность на удаление
         /// </summary>
         /// <param name="position"></param>
-        /// <param name="transaction"></param>
         private void CheckEmployeePositions(Position position)
         {
-            position.AddEmployeePositions(context).EmployeePositions.ForEach(employeePosition =>
+            // TODO Сейчас бд кверится дважды, чтобы изменения, сделанные в этом методе не отразились на том, что будет записано в транзакцию в параметр
+            // Сделать клонирование списка "transactionEmpPositions"
+            // Запоминается список сотрудников, занимаемых должность, который будет необходим в дальнейшем для рассылки им уведомления об удалении должности
+            Func<EmployeePosition, bool> predicate = empPos => empPos.PositionId == position.Id;
+            List<EmployeePosition> transactionEmpPositions = context.EmployeePositions.AsNoTracking().Include(emp => emp.Employee).Where(predicate).ToList();
+            transaction.AddParameter("PosEmployees", transactionEmpPositions);
+
+            // Для каждого сотрудника, занимающего должность
+            List<EmployeePosition> empPositions = context.EmployeePositions.AsNoTracking().Include(emp => emp.Employee).Where(predicate).ToList();
+            empPositions.ForEach(employeePosition =>
             {
-                Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == employeePosition.EmployeeId);
-                if (employee.PrimaryPositionId == position.Id)
+                if (employeePosition.Employee.PrimaryPositionId == position.Id)
                 {
-                    employee.PrimaryPositionId = null;
-                    employee.Lock(EmployeeLockReason.PrimaryPositionAbsent);
-                    new AccountRepository(serviceProvider, context).CheckAccountsForLock(employee, transaction);
-                    transaction.AddChange(employee, EntityState.Modified);
+                    employeePosition.Employee.PrimaryPositionId = null;
+                    employeePosition.Employee.Lock(EmployeeLockReason.PrimaryPositionAbsent);
+
+                    // Если должность была заблокирована, проходится по всем сотрудникам, занимающих должность,
+                    // блокируя всех клиентов, у которых данный сотрудник является единственным в команде по клиенту
+                    new AccountRepository(serviceProvider, context).CheckAccountsForLock(employeePosition.Employee, transaction);
+                    transaction.AddChange(employeePosition.Employee, EntityState.Modified);
                 }
                 transaction.AddChange(employeePosition, EntityState.Deleted);
             });

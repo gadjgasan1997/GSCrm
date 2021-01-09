@@ -1,17 +1,16 @@
-﻿using GSCrm.Models.ViewModels;
-using System;
+﻿using System;
 using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Helpers;
 using GSCrm.Models.Enums;
+using GSCrm.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using GSCrm.Notifications;
 using System.Collections.Generic;
 using GSCrm.Notifications.Factories.OrgNotFactories;
 using GSCrm.Notifications.Params;
-using static GSCrm.CommonConsts;
 using Microsoft.AspNetCore.Mvc;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Transactions.Factories
 {
