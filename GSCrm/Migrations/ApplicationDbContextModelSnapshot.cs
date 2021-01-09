@@ -925,6 +925,9 @@ namespace GSCrm.Migrations
                     b.Property<string>("Attrib2")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Attrib3")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasDiscriminator().HasValue("InboxNotification");
                 });
 

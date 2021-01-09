@@ -192,6 +192,7 @@ namespace GSCrm.Repository
                         // Обновление записи
                         transaction.AddChange(dataModel, EntityState.Modified);
                         ChangedRecord = dataModel;
+                        transaction.AddParameter("ChangedRecord", dataModel);
                         if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                         {
                             // Закрытие транзакции
@@ -295,7 +296,7 @@ namespace GSCrm.Repository
 
         /// <summary>
         /// Метод удаляет уже найденную запись без проверки ее на существование и наличие полномочий у пользователя
-        /// Вызывается из внешних репозиториев
+        /// Вызывается из внешних источников
         /// </summary>
         /// <param name="entityToDelete"></param>
         /// <returns></returns>

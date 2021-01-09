@@ -22,6 +22,10 @@
         /// <summary>
         /// Удаление должности
         /// </summary>
-        PosDelete = 5
+        PosDelete = 5,
+        /// <summary>
+        /// Изменение должности
+        /// </summary>
+        PosUpdate = 6
     }
 }

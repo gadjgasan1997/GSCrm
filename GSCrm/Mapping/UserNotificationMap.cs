@@ -24,6 +24,7 @@ namespace GSCrm.Mapping
                 NotificationType.OrgInvite => new OrgInviteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
                 NotificationType.DivDelete => new DivDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
                 NotificationType.PosDelete => new PosDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                NotificationType.PosUpdate => new PosUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
                 _ => default
             };
         }

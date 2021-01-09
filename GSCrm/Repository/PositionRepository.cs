@@ -443,7 +443,7 @@ namespace GSCrm.Repository
         /// Метод выполняет проверку и в случае успеха изменяет подразделение должности
         /// </summary>
         /// <param name="positionViewModel"></param>
-        /// <param name="modelState"></param>
+        /// <param name="errors"></param>
         /// <returns></returns>
         public bool TryChangeDivision(PositionViewModel positionViewModel, out Dictionary<string, string> errors)
         {
@@ -451,14 +451,12 @@ namespace GSCrm.Repository
             if (TryChangeDivisionValidate(positionViewModel))
             {
                 Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionViewModel.Id);
+                transaction.AddParameter("ChangedPosition", position);
                 CheckEmployeePositions(position);
                 ResetParentPositionForChilds(position);
-
-                Division newDivision = context.GetOrgDivisions(positionViewModel.OrganizationId).FirstOrDefault(n => n.Name == positionViewModel.DivisionName);
-                position.DivisionId = newDivision.Id;
-                position.PrimaryEmployeeId = null;
-                position.ParentPositionId = null;
-                transaction.AddChange(position, EntityState.Modified);
+                
+                // Маппинг и попытка сделать коммит
+                new PositionMap(serviceProvider, context).ChangeDivision(position, positionViewModel);
                 if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
                     viewModelsTransactionFactory.Close(transaction);
@@ -520,7 +518,6 @@ namespace GSCrm.Repository
         }
 
         /// <summary>
-        /// Вызывается для корректного удаления должности
         /// Метод проверяет необходимость в блокировке сотрудников, находящихся на заданной должности
         /// И в случае необходимости лочит их, стирая PrimaryPositionId на сотруднике
         /// </summary>

@@ -14,9 +14,9 @@ namespace GSCrm.Mapping.Notifications
 
         public DivDeleteNotViewModel DataToViewModel(UserNotification userNot, InboxNotification inboxNot)
         {
-            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == Guid.Parse(inboxNot.SourceId));
             DivDeleteNotViewModel divDeleteNotViewModel = GetNewNotViewModel<DivDeleteNotViewModel>(userNot, inboxNot);
-            divDeleteNotViewModel.Organization = organization;
+            if (Guid.TryParse(inboxNot.SourceId, out Guid sourceId))
+                divDeleteNotViewModel.Organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == sourceId);
             divDeleteNotViewModel.RemovedDivisionName = inboxNot.Attrib1;
             return divDeleteNotViewModel;
         }

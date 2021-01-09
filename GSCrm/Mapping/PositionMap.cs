@@ -81,6 +81,25 @@ namespace GSCrm.Mapping
             return positionViewModel;
         }
 
+        /// <summary>
+        /// Метод меняет подразделение у долнжости
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="positionViewModel"></param>
+        public void ChangeDivision(Position position, PositionViewModel positionViewModel)
+        {
+            SetTransaction(OperationType.ChangePositionDivision);
+            Division newDivision = context.Divisions.FirstOrDefault(div => div.OrganizationId == position.OrganizationId && div.Name == positionViewModel.DivisionName);
+            position.DivisionId = newDivision.Id;
+            position.PrimaryEmployeeId = null;
+            position.ParentPositionId = null;
+            transaction.AddChange(position, EntityState.Modified);
+        }
+
+        /// <summary>
+        /// Разблокировка при отсутствии подразделения
+        /// </summary>
+        /// <param name="position"></param>
         public void UnlockOnDivisionAbsent(Position position)
         {
             SetTransaction(OperationType.UnlockPosition);
@@ -95,7 +114,7 @@ namespace GSCrm.Mapping
         /// Требуется, так как, если запускать метод "GetViewModelsFromData" на иерархии должностей, то он для каждой
         /// родительской должности будет заново получать ее иерархию, которая уже вычислена
         /// Например. Для иерархии Pos4 - Pos3 - Pos2 - Pos1, вначале для Pos4 вычислится Pos3 - Pos2 - Pos1.
-        /// Затем, для Pos3, Pos2 - Pos1. Затем, для Pos2 будет получена должность Pos1. 
+        /// Затем, для Pos3, Pos2 - Pos1. Затем, для Pos2 будет получена должность Pos1.
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>

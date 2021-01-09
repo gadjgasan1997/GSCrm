@@ -14,9 +14,9 @@ namespace GSCrm.Mapping.Notifications
 
         public OrgInviteNotViewModel DataToViewModel(UserNotification userNot, InboxNotification inboxNot)
         {
-            Organization inviteOrg = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == Guid.Parse(inboxNot.SourceId));
             OrgInviteNotViewModel orgInviteNotViewModel = GetNewNotViewModel<OrgInviteNotViewModel>(userNot, inboxNot);
-            orgInviteNotViewModel.InviteOrg = inviteOrg;
+            if (Guid.TryParse(inboxNot.SourceId, out Guid sourceId))
+                orgInviteNotViewModel.InviteOrg = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == sourceId);
             return orgInviteNotViewModel;
         }
     }

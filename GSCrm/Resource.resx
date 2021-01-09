@@ -1194,6 +1194,9 @@
   <data name="PosUpdateNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для изменения должности</value>
   </data>
+  <data name="PosUpdateNotSubject" xml:space="preserve">
+    <value>Должность, которую вы занимали, была изменена</value>
+  </data>
   <data name="Primary" xml:space="preserve">
     <value>Основной</value>
   </data>

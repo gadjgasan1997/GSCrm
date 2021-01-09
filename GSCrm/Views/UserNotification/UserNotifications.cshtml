@@ -54,6 +54,11 @@
                         if (userNotViewModel is PosDeleteNotViewModel posDeleteNotViewModel && posDeleteNotViewModel.Organization != null)
                             await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosDelete.cshtml", posDeleteNotViewModel);
                         break;
+                    // Изменение должности
+                    case NotificationType.PosUpdate:
+                        if (userNotViewModel is PosUpdateNotViewModel posUpdateNotViewModel && posUpdateNotViewModel.Organization != null && posUpdateNotViewModel.ChangedPosition != null)
+                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosUpdate.cshtml", posUpdateNotViewModel);
+                        break;
                 }
             }
         }

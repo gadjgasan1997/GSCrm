@@ -14,11 +14,12 @@ namespace GSCrm.Mapping.Notifications
 
         public PosDeleteNotViewModel DataToViewModel(UserNotification userNot, InboxNotification inboxNot)
         {
-            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == Guid.Parse(inboxNot.SourceId));
             PosDeleteNotViewModel posDeleteNotViewModel = GetNewNotViewModel<PosDeleteNotViewModel>(userNot, inboxNot);
-            posDeleteNotViewModel.Organization = organization;
+            if (Guid.TryParse(inboxNot.SourceId, out Guid sourceId))
+                posDeleteNotViewModel.Organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == sourceId);
             posDeleteNotViewModel.RemovedPositionName = inboxNot.Attrib1;
-            posDeleteNotViewModel.IsPrimary = bool.Parse(inboxNot.Attrib2);
+            if (bool.TryParse(inboxNot.Attrib2, out bool isPrimary))
+                posDeleteNotViewModel.IsPrimary = isPrimary;
             return posDeleteNotViewModel;
         }
     }
