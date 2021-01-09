@@ -26,6 +26,10 @@
         /// <summary>
         /// Изменение должности
         /// </summary>
-        PosUpdate = 6
+        PosUpdate = 6,
+        /// <summary>
+        /// Удаление сотрудника
+        /// </summary>
+        EmpDelete = 7
     }
 }

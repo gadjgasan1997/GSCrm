@@ -666,6 +666,9 @@
   <data name="EmpDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления сотрудника</value>
   </data>
+  <data name="EmpDeleteNotSubject" xml:space="preserve">
+    <value>Вы были уволены из организации</value>
+  </data>
   <data name="Employee" xml:space="preserve">
     <value>Работник</value>
   </data>
