@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Models;
@@ -7,8 +8,6 @@ using GSCrm.Models.ViewModels;
 using GSCrm.Notifications.Params.EmpUpdate;
 using GSCrm.Notifications.Factories.OrgNotFactories.EmpUpdate;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using GSCrm.Notifications.Auxiliary;
 using System.Collections.Generic;
 
 namespace GSCrm.Transactions.Factories
@@ -79,10 +78,14 @@ namespace GSCrm.Transactions.Factories
         private void SendContactUpdateNotifications(Organization currentOrganization)
         {
             Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            EmployeeContact contactBeforeChange = (EmployeeContact)transaction.GetParameterValue("RecordToChange");
+            EmployeeContact contactAfterChange = (EmployeeContact)transaction.GetParameterValue("ChangedRecord");
             UpdateContactParams updateContactParams = new UpdateContactParams()
             {
                 ChangedEmployee = employee,
-                Organization = currentOrganization
+                Organization = currentOrganization,
+                OldEmployeeContact = contactBeforeChange,
+                NewEmployeeContact = contactAfterChange
             };
             UpdateContactNotFactory updateContactNotFactory = new UpdateContactNotFactory(serviceProvider, context, updateContactParams);
             updateContactNotFactory.Send(currentOrganization.Id, new List<Employee>() { employee });

@@ -46,24 +46,15 @@ namespace GSCrm.Helpers
         private static void WriteObjectToAttr<TEntity>(this InboxNotification inboxNot, TEntity entity, string attrName)
             where TEntity : IMainEntity
         {
-            try
+            string @string = JsonConvert.SerializeObject(entity, Formatting.Indented, jsonSerializerSettings);
+            switch (attrName)
             {
-                string @string = JsonConvert.SerializeObject(entity, Formatting.Indented, jsonSerializerSettings);
-                switch (attrName)
-                {
-                    case "Attrib3":
-                        inboxNot.Attrib3 = @string;
-                        return;
-                    case "Attrib4":
-                        inboxNot.Attrib4 = @string;
-                        return;
-                }
-            }
-            catch(Exception ex)
-            {
-#if DEBUG
-                throw ex;
-#endif
+                case "Attrib3":
+                    inboxNot.Attrib3 = @string;
+                    return;
+                case "Attrib4":
+                    inboxNot.Attrib4 = @string;
+                    return;
             }
         }
     }

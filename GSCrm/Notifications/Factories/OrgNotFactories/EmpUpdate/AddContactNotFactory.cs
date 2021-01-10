@@ -1,8 +1,8 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Text;
+using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Helpers;
-using System;
-using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using GSCrm.Notifications.Params.EmpUpdate;
 using static GSCrm.CommonConsts;
@@ -27,6 +27,6 @@ namespace GSCrm.Notifications.Factories.OrgNotFactories.EmpUpdate
             .ToString();
 
         protected override void InitInboxNotParams(InboxNotification inboxNot)
-            => inboxNot.Attrib3 = notificationParams.NewEmployeeContact.Id.ToString();
+            => inboxNot.WriteObjectToAttr3(notificationParams.NewEmployeeContact);
     }
 }

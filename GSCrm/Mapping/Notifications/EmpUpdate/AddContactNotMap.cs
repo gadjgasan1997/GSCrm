@@ -1,10 +1,9 @@
-﻿using GSCrm.Data;
+﻿using System;
+using GSCrm.Data;
 using GSCrm.Models;
+using GSCrm.Helpers;
 using GSCrm.Models.ViewModels.Notifications.EmpUpdate;
 using GSCrm.Notifications.Auxiliary;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
 
 namespace GSCrm.Mapping.Notifications.EmpUpdate
 {
@@ -16,8 +15,8 @@ namespace GSCrm.Mapping.Notifications.EmpUpdate
         public override AddContactNotViewModel DataToViewModel(UserNotification userNot, InboxNotification inboxNot, EmpUpdateType parsedUpdateType)
         {
             AddContactNotViewModel addContactNotViewModel = base.DataToViewModel(userNot, inboxNot, parsedUpdateType);
-            if (Guid.TryParse(inboxNot.Attrib3, out Guid newEmployeeContactId))
-                addContactNotViewModel.NewEmployeeContact = context.EmployeeContacts.AsNoTracking().FirstOrDefault(i => i.Id == newEmployeeContactId);
+            if (!string.IsNullOrEmpty(inboxNot.Attrib3))
+                addContactNotViewModel.NewEmployeeContact = inboxNot.ReadObjectFromAttr3<EmployeeContact>();
             return addContactNotViewModel;
         }
     }

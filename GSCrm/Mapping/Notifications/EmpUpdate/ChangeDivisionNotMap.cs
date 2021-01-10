@@ -1,10 +1,9 @@
-﻿using GSCrm.Data;
+﻿using System;
+using GSCrm.Data;
 using GSCrm.Models;
+using GSCrm.Helpers;
 using GSCrm.Models.ViewModels.Notifications.EmpUpdate;
 using GSCrm.Notifications.Auxiliary;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
 
 namespace GSCrm.Mapping.Notifications.EmpUpdate
 {
@@ -16,8 +15,10 @@ namespace GSCrm.Mapping.Notifications.EmpUpdate
         public override ChangeDivisionNotViewModel DataToViewModel(UserNotification userNot, InboxNotification inboxNot, EmpUpdateType parsedUpdateType)
         {
             ChangeDivisionNotViewModel changeDivisionNotViewModel = base.DataToViewModel(userNot, inboxNot, parsedUpdateType);
-            if (Guid.TryParse(inboxNot.Attrib3, out Guid newEmployeePositionId))
-                changeDivisionNotViewModel.NewEmployeePosition = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == newEmployeePositionId);
+            if (!string.IsNullOrEmpty(inboxNot.Attrib3))
+                changeDivisionNotViewModel.NewEmployeeDivision = inboxNot.ReadObjectFromAttr3<Division>();
+            if (!string.IsNullOrEmpty(inboxNot.Attrib4))
+                changeDivisionNotViewModel.NewEmployeePosition = inboxNot.ReadObjectFromAttr4<Position>();
             return changeDivisionNotViewModel;
         }
     }

@@ -114,6 +114,7 @@ namespace GSCrm.Transactions.Factories
             {
                 Organization = currentOrganization,
                 ChangedEmployee = employee,
+                NewEmployeeDivision = (Division)transaction.GetParameterValue("Division"),
                 NewEmployeePosition = (Position)transaction.GetParameterValue("PrimaryPosition")
             };
 

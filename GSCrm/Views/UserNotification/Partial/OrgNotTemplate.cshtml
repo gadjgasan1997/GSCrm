@@ -101,7 +101,7 @@
                                     case EmpUpdateType.ChangeDivision:
                                         if (empUpdateNotViewModel is ChangeDivisionNotViewModel changeDivisionNotViewModel &&
                                             changeDivisionNotViewModel.Organization != null && changeDivisionNotViewModel.ChangedEmployee != null &&
-                                            changeDivisionNotViewModel.NewEmployeePosition != null)
+                                            changeDivisionNotViewModel.NewEmployeeDivision != null && changeDivisionNotViewModel.NewEmployeePosition != null)
                                             await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/ChangeDivision.cshtml", changeDivisionNotViewModel);
                                         else
                                         {
@@ -113,7 +113,8 @@
                                     // Добавление контакта
                                     case EmpUpdateType.AddContact:
                                         if (empUpdateNotViewModel is EmpAddContactNotViewModel addContactNotViewModel &&
-                                            addContactNotViewModel.Organization != null && addContactNotViewModel.ChangedEmployee != null && addContactNotViewModel.NewEmployeeContact != null)
+                                            addContactNotViewModel.Organization != null && addContactNotViewModel.ChangedEmployee != null &&
+                                            addContactNotViewModel.NewEmployeeContact != null)
                                             await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/AddContact.cshtml", addContactNotViewModel);
                                         else
                                         {
@@ -125,7 +126,8 @@
                                     // Изменение контакта
                                     case EmpUpdateType.UpdateContact:
                                         if (empUpdateNotViewModel is EmpUpdateContactNotViewModel updateContactNotViewModel &&
-                                            updateContactNotViewModel.Organization != null && updateContactNotViewModel.ChangedEmployee != null)
+                                            updateContactNotViewModel.Organization != null && updateContactNotViewModel.ChangedEmployee != null &&
+                                            updateContactNotViewModel.OldEmployeeContact != null && updateContactNotViewModel.NewEmployeeContact != null)
                                             await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/UpdateContact.cshtml", updateContactNotViewModel);
                                         else
                                         {
