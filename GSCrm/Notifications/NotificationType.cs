@@ -42,6 +42,10 @@
         /// <summary>
         /// Обновление данных клиента
         /// </summary>
-        AccUpdate = 10
+        AccUpdate = 10,
+        /// <summary>
+        /// Изменения в команде по клиенту
+        /// </summary>
+        AccTeamManagement = 11
     }
 }

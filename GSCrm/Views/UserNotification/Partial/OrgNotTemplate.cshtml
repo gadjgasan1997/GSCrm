@@ -1,9 +1,11 @@
 ﻿@using GSCrm.Data
-@using GSCrm.Helpers
 @using GSCrm.Data.ApplicationInfo
+@using GSCrm.Notifications
+@using GSCrm.Notifications.Auxiliary
 @using GSCrm.Models.ViewModels.Notifications
 @using GSCrm.Models.ViewModels.Notifications.EmpUpdate
 @using GSCrm.Models.ViewModels.Notifications.AccUpdate
+@using static GSCrm.CommonConsts
 @using EmpBaseUpdateNotViewModel = GSCrm.Models.ViewModels.Notifications.EmpUpdate.BaseUpdateNotViewModel;
 @using AccBaseUpdateNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.BaseUpdateNotViewModel;
 @using EmpAddContactNotViewModel = GSCrm.Models.ViewModels.Notifications.EmpUpdate.AddContactNotViewModel;
@@ -12,9 +14,6 @@
 @using AccUpdateContactNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.UpdateContactNotViewModel;
 @using EmpDeleteContactNotViewModel = GSCrm.Models.ViewModels.Notifications.EmpUpdate.DeleteContactNotViewModel;
 @using AccDeleteContactNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.DeleteContactNotViewModel;
-@using GSCrm.Notifications
-@using GSCrm.Notifications.Auxiliary
-@using static GSCrm.CommonConsts
 @inject ApplicationDbContext context
 @inject ResManager resManager
 @inject IViewsInfo viewsInfo
@@ -316,6 +315,18 @@
                                         }
                                         break;
                                 }
+                            }
+                            break;
+                        // Изменения в команде по клиенту
+                        case NotificationType.AccTeamManagement:
+                            if (Model is AccTeamManagementNotViewModel accTeamManagementNotViewModel &&
+                                accTeamManagementNotViewModel.OwnerOrg != null && accTeamManagementNotViewModel.Account != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccTeamManagement.cshtml", accTeamManagementNotViewModel);
+                            else
+                            {
+                                <p class="label-non-select label-md m-0 text-center">
+                                    Клиент не найден. Вы можете удалить уведомление
+                                </p>
                             }
                             break;
                     }

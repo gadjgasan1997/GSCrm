@@ -288,6 +288,9 @@
   <data name="AccTeamManagementNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для управления командой по клиенту</value>
   </data>
+  <data name="AccTeamManagementNotSubject" xml:space="preserve">
+    <value>Изменения в команде по клиенту</value>
+  </data>
   <data name="AccUnlock" xml:space="preserve">
     <value>Разблокировка клиента</value>
   </data>

@@ -191,6 +191,7 @@ namespace GSCrm.Transactions
                 ("AccountViewModel", OperationType.ChangeAccountType) => "ChangeAccountType",
                 ("AccountViewModel", OperationType.UnlockAccount) => "UnlockAccount",
                 ("AccountManagerViewModel", OperationType.AccountTeamManagement) => "AccountTeamManagement",
+                ("SyncAccountViewModel", OperationType.AccountTeamManagement) => "AccountTeamManagement",
                 ("AccountAddressViewModel", OperationType.Create) => "AccountAddressCreate",
                 ("AccountAddressViewModel", OperationType.Update) => "AccountAddressUpdate",
                 ("AccountAddressViewModel", OperationType.Delete) => "AccountAddressDelete",

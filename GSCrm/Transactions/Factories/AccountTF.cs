@@ -4,10 +4,13 @@ using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications.Params;
+using GSCrm.Notifications.Auxiliary;
 using GSCrm.Notifications.Params.AccUpdate;
 using GSCrm.Notifications.Factories.OrgNotFactories;
 using GSCrm.Notifications.Factories.OrgNotFactories.AccUpdate;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -42,6 +45,9 @@ namespace GSCrm.Transactions.Factories
                 Organization ownerOrg = (Organization)transaction.GetParameterValue("OwnerOrg");
                 switch (operationType)
                 {
+                    case OperationType.Create:
+                        SendAddToTeamNotifications();
+                        break;
                     case OperationType.Delete:
                         SendAccDeleteNotifications(ownerOrg);
                         break;
@@ -51,6 +57,28 @@ namespace GSCrm.Transactions.Factories
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Метод рассылает уведомления команде созданного клиента
+        /// </summary>
+        private void SendAddToTeamNotifications()
+        {
+            Account account = (Account)transaction.GetParameterValue("NewRecord");
+            Organization ownerOrg = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == account.OrganizationId);
+            List<Employee> managers = context.AccountManagers.AsNoTracking()
+                .Include(accMan => accMan.Manager)
+                .Where(accMan => accMan.AccountId == account.Id)
+                .Select(accMan => accMan.Manager).ToList();
+
+            AccTeamManagementParams accTeamManagementParams = new AccTeamManagementParams()
+            {
+                OwnerOrg = ownerOrg,
+                Account = account,
+                AccTeamManagementNotType = AccTeamManagementNotType.AddedToNew
+            };
+            AccTeamManagementNotFactory accTeamManagementNotFactory = new AccTeamManagementNotFactory(serviceProvider, context, accTeamManagementParams);
+            accTeamManagementNotFactory.Send(ownerOrg.Id, managers);
         }
 
         /// <summary>

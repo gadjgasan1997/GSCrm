@@ -81,6 +81,7 @@ namespace GSCrm.Mapping
                         NotificationType.PosUpdate => new PosUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
                         NotificationType.EmpDelete => new EmpDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
                         NotificationType.AccDelete => new AccDeleteNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
+                        NotificationType.AccTeamManagement => new AccTeamManagementNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot),
                         _ => default
                     };
             }

@@ -25,8 +25,17 @@ namespace GSCrm.Notifications.Factories
         /// <param name="targetEmployees">Список сотрудников, которым необходимо отправить уведомление</param>
         /// <returns></returns>
         public void Send(Guid organizationId, List<Employee> targetEmployees)
+            => Send(organizationId, targetEmployees.Select(emp => emp.UserId).ToList());
+
+        /// <summary>
+        /// Метод отправляет уведомление адресатам внутри опредлеленной организации
+        /// </summary>
+        /// <param name="organizationId">Id организации, внутри которой происходит рассылка</param>
+        /// <param name="targetUsersIdList">Список пользователей, которым необходимо отправить уведомление</param>
+        /// <returns></returns>
+        public void Send(Guid organizationId, List<Guid> targetUsersIdList)
         {
-            foreach (Guid targetuserId in targetEmployees.Select(emp => emp.UserId))
+            foreach (Guid targetuserId in targetUsersIdList)
             {
                 // Получение организации, в которой состоит пользователь
                 UserOrganization userOrganization = context.UserOrganizations.AsNoTracking()

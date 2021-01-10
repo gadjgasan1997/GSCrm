@@ -1590,6 +1590,7 @@ namespace GSCrm.Repository
         {
             Account currentAccount = (Account)transaction.GetParameterValue("CurrentAccount");
             Organization accountOwnerOrg = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == currentAccount.OrganizationId);
+            if (accountOwnerOrg == null) return false;
             if (!currentUser.NeedCheckResps(accountOwnerOrg)) return true;
             Employee currentEmployee = context.GetCurrentEmployee(accountOwnerOrg, Guid.Parse(currentUser.Id));
             return currentEmployee != null && currentEmployee.HasPermissionFor(actionName, context);
