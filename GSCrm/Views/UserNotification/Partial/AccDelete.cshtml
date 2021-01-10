@@ -1,0 +1,13 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AccDeleteNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    Клиент @Model.RemovedAccountName, с которым Вы работали, был удален
+    Организация: <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a>
+</p>

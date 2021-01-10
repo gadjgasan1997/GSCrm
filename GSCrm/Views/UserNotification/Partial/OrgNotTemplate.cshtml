@@ -97,6 +97,11 @@
                                 }
                             }
                             break;
+                        // Удаление клиента
+                        case NotificationType.AccDelete:
+                            if (Model is AccDeleteNotViewModel accDeleteNotViewModel && accDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccDelete.cshtml", accDeleteNotViewModel);
+                            break;
                     }
                 </div>
             </div>

@@ -177,6 +177,9 @@
   <data name="AccDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления клиента</value>
   </data>
+  <data name="AccDeleteNotSubject" xml:space="preserve">
+    <value>Удаление клиента</value>
+  </data>
   <data name="AcceptInvite" xml:space="preserve">
     <value>Принять приглашение</value>
   </data>

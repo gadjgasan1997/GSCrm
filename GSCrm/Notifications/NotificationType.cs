@@ -34,6 +34,10 @@
         /// <summary>
         /// Обновление данных сотрудника
         /// </summary>
-        EmpUpdate = 8
+        EmpUpdate = 8,
+        /// <summary>
+        /// Удаление клиента
+        /// </summary>
+        AccDelete = 9
     }
 }
