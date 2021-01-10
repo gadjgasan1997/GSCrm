@@ -15,20 +15,21 @@
     string currentUserId = currentUser.Id;
     ViewInfo notView = viewsInfo.Get(currentUser.Id, NOTIFICATIONS);
 }
-<div id="notSettingsForm">
-    @* // Хлебные крошки *@
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
-            <li class="breadcrumb-item">
-                <a asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="@notView.CurrentPageNumber">
-                    @resManager.GetString(NOTIFICATIONS)
-                </a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(NOT_SETTING)</li>
-        </ol>
-    </nav>
 
+@* // Хлебные крошки *@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="@notView.CurrentPageNumber">
+                @resManager.GetString(NOTIFICATIONS)
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(NOT_SETTING)</li>
+    </ol>
+</nav>
+
+<div id="notSettingsForm">
     <form class="text-center text-md-left" asp-controller="@NOT_SETTING" asp-action="">
         <button id="setNotSettingsToDefault" class="btn btn-outline-dark">@resManager.GetString("SetNotSettingsToDefault")</button>
     </form>

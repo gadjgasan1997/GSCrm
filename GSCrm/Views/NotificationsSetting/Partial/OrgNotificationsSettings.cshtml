@@ -38,10 +38,10 @@
                     <input class="user-org-id" value="@settingViewModel.UserOrganizationId" hidden="hidden" />
                     <input class="not-setting-id" value="@settingViewModel.Id" hidden="hidden" />
                     <div class="row">
-                        <div class="col-md">
+                        <div class="col-md text-center">
                             <p class="label-bold-lg">@settingViewModel.OrganizationName</p>
                         </div>
-                        <div class="col-auto">
+                        <div class="col-auto m-auto">
                             <div class="arrow-toggler">
                                 <span class="icon-chevron-thin-right"></span>
                             </div>
@@ -51,9 +51,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="DivisionDeleteNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("DivisionDeleteNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("DivisionDeleteNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TDivDeleteNot" hidden="hidden" />
                                     <div class="col @(settingViewModel.DivDeleteNot ? "" : "d-none")">
@@ -72,9 +72,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="PositionDeleteNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("PositionDeleteNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("PositionDeleteNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TPosDeleteNot" hidden="hidden" />
                                     <div class="col @(settingViewModel.PosDeleteNot ? "" : "d-none")">
@@ -93,9 +93,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="PositionUpdateNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("PositionUpdateNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("PositionUpdateNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TPosUpdateNot" hidden="hidden" />
                                     <div class="col @(settingViewModel.PosUpdateNot ? "" : "d-none")">
@@ -114,9 +114,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="EmployeeDeleteNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("EmployeeDeleteNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("EmployeeDeleteNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TEmpDelete" hidden="hidden" />
                                     <div class="col @(settingViewModel.EmpDelete ? "" : "d-none")">
@@ -135,9 +135,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="EmployeeUpdateNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("EmployeeUpdateNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("EmployeeUpdateNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TEmpUpdate" hidden="hidden" />
                                     <div class="col @(settingViewModel.EmpUpdate ? "" : "d-none")">
@@ -156,9 +156,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="AccountDeleteNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("AccountDeleteNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("AccountDeleteNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TAccDelete" hidden="hidden" />
                                     <div class="col @(settingViewModel.AccDelete ? "" : "d-none")">
@@ -177,9 +177,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="AccountUpdateNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("AccountUpdateNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("AccountUpdateNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TAccUpdate" hidden="hidden" />
                                     <div class="col @(settingViewModel.AccUpdate ? "" : "d-none")">
@@ -198,9 +198,9 @@
                         @{settingCounter++;}
                         <div id="notSetting_@settingCounter" data-nottype="AccountTeamManagementNot" class="row not-setting">
                             <div class="col-md">
-                                <p class="label-md">@resManager.GetString("AccountTeamManagementNot")</p>
+                                <p class="label-md text-center text-md-left">@resManager.GetString("AccountTeamManagementNot")</p>
                             </div>
-                            <div class="col-auto">
+                            <div class="col-auto m-auto">
                                 <div class="row not-setting-options">
                                     <input class="not-setting-target" value="@settingViewModel.TAccTeamManagement" hidden="hidden" />
                                     <div class="col @(settingViewModel.AccTeamManagement ? "" : "d-none")">
