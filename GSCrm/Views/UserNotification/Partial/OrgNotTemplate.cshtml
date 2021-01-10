@@ -1,0 +1,346 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Notifications
+@using GSCrm.Notifications.Auxiliary
+@using GSCrm.Models.ViewModels.Notifications
+@using GSCrm.Models.ViewModels.Notifications.EmpUpdate
+@using GSCrm.Models.ViewModels.Notifications.AccUpdate
+@using static GSCrm.CommonConsts
+@using EmpBaseUpdateNotViewModel = GSCrm.Models.ViewModels.Notifications.EmpUpdate.BaseUpdateNotViewModel;
+@using AccBaseUpdateNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.BaseUpdateNotViewModel;
+@using EmpAddContactNotViewModel = GSCrm.Models.ViewModels.Notifications.EmpUpdate.AddContactNotViewModel;
+@using AccAddContactNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.AddContactNotViewModel;
+@using EmpUpdateContactNotViewModel = GSCrm.Models.ViewModels.Notifications.EmpUpdate.UpdateContactNotViewModel;
+@using AccUpdateContactNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.UpdateContactNotViewModel;
+@using EmpDeleteContactNotViewModel = GSCrm.Models.ViewModels.Notifications.EmpUpdate.DeleteContactNotViewModel;
+@using AccDeleteContactNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.DeleteContactNotViewModel;
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model UserNotificationViewModel
+
+<div class="row org-invite-not notification-item mt-4">
+    <input class="notification-item-id" value="@Model.Id" hidden="hidden" />
+    <form class="col-md flex-grow-0" asp-controller="@USER_NOT" asp-action="">
+        <div class="@(!Model.HasRead ? "cbx-not" : "cbx-not-onload")">
+            <input type="checkbox" />
+            <label></label>
+        </div>
+    </form>
+    <div class="col-md mt-4 mt-md-0">
+        <div class="alert @(!Model.HasRead ? "alert-dark" : "alert-light alert-not-light") m-0" role="alert">
+            <div class="row">
+                <div class="col-lg">
+                    @switch (Model.NotificationType)
+                    {
+                        // Удаление подразделения
+                        case NotificationType.DivDelete:
+                            if (Model is DivDeleteNotViewModel divDeleteNotViewModel && divDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/DivDelete.cshtml", divDeleteNotViewModel);
+                            else
+                            {
+                                <p class="label-non-select label-md m-0 text-center">
+                                    Организация не найдена. Вы можете удалить уведомление
+                                </p>
+                            }
+                            break;
+                        // Удаление должности
+                        case NotificationType.PosDelete:
+                            if (Model is PosDeleteNotViewModel posDeleteNotViewModel && posDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosDelete.cshtml", posDeleteNotViewModel);
+                            else
+                            {
+                                <p class="label-non-select label-md m-0 text-center">
+                                    Организация не найдена. Вы можете удалить уведомление
+                                </p>
+                            }
+                            break;
+                        // Изменение должности
+                        case NotificationType.PosUpdate:
+                            if (Model is PosUpdateNotViewModel posUpdateNotViewModel && posUpdateNotViewModel.Organization != null &&
+                                posUpdateNotViewModel.ChangedPosition != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/PosUpdate.cshtml", posUpdateNotViewModel);
+                            else
+                            {
+                                <p class="label-non-select label-md m-0 text-center">
+                                    Должность не найдена. Вы можете удалить уведомление
+                                </p>
+                            }
+                            break;
+                        // Удаление сотрудника
+                        case NotificationType.EmpDelete:
+                            if (Model is EmpDeleteNotViewModel empDeleteNotViewModel && empDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpDelete.cshtml", empDeleteNotViewModel);
+                            else
+                            {
+                                <p class="label-non-select label-md m-0 text-center">
+                                    Организация не найдена. Вы можете удалить уведомление
+                                </p>
+                            }
+                            break;
+                        // Изменение данных сотрудника
+                        case NotificationType.EmpUpdate:
+                            if (Model is EmpUpdateNotViewModel empUpdateNotViewModel)
+                            {
+                                // В зависимости от типа произошедших с сотрудником изменений
+                                switch (empUpdateNotViewModel.EmpUpdateType)
+                                {
+                                    // Обновление данных на карточке сотрудника
+                                    case EmpUpdateType.BaseUpdate:
+                                        if (empUpdateNotViewModel is EmpBaseUpdateNotViewModel baseUpdateNotViewModel &&
+                                            baseUpdateNotViewModel.Organization != null && baseUpdateNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/BaseUpdate.cshtml", baseUpdateNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Сотрудник не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Изменение подразделения
+                                    case EmpUpdateType.ChangeDivision:
+                                        if (empUpdateNotViewModel is ChangeDivisionNotViewModel changeDivisionNotViewModel &&
+                                            changeDivisionNotViewModel.Organization != null && changeDivisionNotViewModel.ChangedEmployee != null &&
+                                            changeDivisionNotViewModel.NewEmployeeDivision != null && changeDivisionNotViewModel.NewEmployeePosition != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/ChangeDivision.cshtml", changeDivisionNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Должность не найдена. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Добавление контакта
+                                    case EmpUpdateType.AddContact:
+                                        if (empUpdateNotViewModel is EmpAddContactNotViewModel addContactNotViewModel &&
+                                            addContactNotViewModel.Organization != null && addContactNotViewModel.ChangedEmployee != null &&
+                                            addContactNotViewModel.NewEmployeeContact != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/AddContact.cshtml", addContactNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Контакт не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Изменение контакта
+                                    case EmpUpdateType.UpdateContact:
+                                        if (empUpdateNotViewModel is EmpUpdateContactNotViewModel updateContactNotViewModel &&
+                                            updateContactNotViewModel.Organization != null && updateContactNotViewModel.ChangedEmployee != null &&
+                                            updateContactNotViewModel.OldEmployeeContact != null && updateContactNotViewModel.NewEmployeeContact != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/UpdateContact.cshtml", updateContactNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Контакт не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Удаление контакта
+                                    case EmpUpdateType.DeleteContact:
+                                        if (empUpdateNotViewModel is EmpDeleteContactNotViewModel deleteContactNotViewModel &&
+                                            deleteContactNotViewModel.Organization != null && deleteContactNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/DeleteContact.cshtml", deleteContactNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Сотрудник не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Изменения должностей сотрудника
+                                    case EmpUpdateType.SyncPoss:
+                                        if (empUpdateNotViewModel is SyncPossNotViewModel syncPossNotViewModel &&
+                                            syncPossNotViewModel.Organization != null && syncPossNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/SyncPoss.cshtml", syncPossNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Сотрудник не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Изменения полномочий сотрудника
+                                    case EmpUpdateType.SyncResps:
+                                        if (empUpdateNotViewModel is SyncRespsNotViewModel syncRespsNotViewModel &&
+                                            syncRespsNotViewModel.Organization != null && syncRespsNotViewModel.ChangedEmployee != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/EmpUpdate/SyncResps.cshtml", syncRespsNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Сотрудник не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                }
+                            }
+                            break;
+                        // Удаление клиента
+                        case NotificationType.AccDelete:
+                            if (Model is AccDeleteNotViewModel accDeleteNotViewModel && accDeleteNotViewModel.Organization != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccDelete.cshtml", accDeleteNotViewModel);
+                            break;
+                        // Изменение данных клиента
+                        case NotificationType.AccUpdate:
+                            if (Model is AccUpdateNotViewModel accUpdateNotViewModel)
+                            {
+                                // В зависимости от типа произошедших с клиентом изменений
+                                switch (accUpdateNotViewModel.AccUpdateType)
+                                {
+                                    // Обновление данных на карточке сотрудника
+                                    case AccUpdateType.BaseUpdate:
+                                        if (accUpdateNotViewModel is AccBaseUpdateNotViewModel baseUpdateNotViewModel &&
+                                            baseUpdateNotViewModel.OwnerOrg != null && baseUpdateNotViewModel.ChangedAccount != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/BaseUpdate.cshtml", baseUpdateNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Клиент не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Добавление контакта
+                                    case AccUpdateType.AddContact:
+                                        if (accUpdateNotViewModel is AccAddContactNotViewModel addContactNotViewModel &&
+                                            addContactNotViewModel.OwnerOrg != null && addContactNotViewModel.ChangedAccount != null &&
+                                            addContactNotViewModel.NewAccountContact != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/AddContact.cshtml", addContactNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Контакт не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Изменение контакта
+                                    case AccUpdateType.UpdateContact:
+                                        if (accUpdateNotViewModel is AccUpdateContactNotViewModel updateContactNotViewModel &&
+                                            updateContactNotViewModel.OwnerOrg != null && updateContactNotViewModel.ChangedAccount != null &&
+                                            updateContactNotViewModel.OldAccountContact != null && updateContactNotViewModel.NewAccountContact != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/UpdateContact.cshtml", updateContactNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Контакт не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Удаление контакта
+                                    case AccUpdateType.DeleteContact:
+                                        if (accUpdateNotViewModel is AccDeleteContactNotViewModel deleteContactNotViewModel &&
+                                            deleteContactNotViewModel.OwnerOrg != null && deleteContactNotViewModel.ChangedAccount != null &&
+                                            deleteContactNotViewModel.RemovedContact != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/DeleteContact.cshtml", deleteContactNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Клиент не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Добавление адреса
+                                    case AccUpdateType.AddAddress:
+                                        if (accUpdateNotViewModel is AddAddressNotViewModel addAddressNotViewModel &&
+                                            addAddressNotViewModel.OwnerOrg != null && addAddressNotViewModel.ChangedAccount != null &&
+                                            addAddressNotViewModel.NewAccountAddress != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/AddAddress.cshtml", addAddressNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Адрес не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Изменение адреса
+                                    case AccUpdateType.UpdateAddress:
+                                        if (accUpdateNotViewModel is UpdateAddressNotViewModel updateAddressNotViewModel &&
+                                            updateAddressNotViewModel.OwnerOrg != null && updateAddressNotViewModel.ChangedAccount != null &&
+                                            updateAddressNotViewModel.OldAccountAddress != null && updateAddressNotViewModel.NewAccountAddress != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/UpdateAddress.cshtml", updateAddressNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Адрес не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Удаление адреса
+                                    case AccUpdateType.DeleteAddress:
+                                        if (accUpdateNotViewModel is DeleteAddressNotViewModel deleteAddressNotViewModel &&
+                                            deleteAddressNotViewModel.OwnerOrg != null && deleteAddressNotViewModel.ChangedAccount != null &&
+                                            deleteAddressNotViewModel.RemovedAddress != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/DeleteAddress.cshtml", deleteAddressNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Адрес не найден. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Добавление банковских реквизитов
+                                    case AccUpdateType.AddInvoice:
+                                        if (accUpdateNotViewModel is AddInvoiceNotViewModel addInvoiceNotViewModel &&
+                                            addInvoiceNotViewModel.OwnerOrg != null && addInvoiceNotViewModel.ChangedAccount != null &&
+                                            addInvoiceNotViewModel.NewAccountInvoice != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/AddInvoice.cshtml", addInvoiceNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Банковские реквизиты не найдены. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Изменение банковских реквизитов
+                                    case AccUpdateType.UpdateInvoice:
+                                        if (accUpdateNotViewModel is UpdateInvoiceNotViewModel updateInvoiceNotViewModel &&
+                                            updateInvoiceNotViewModel.OwnerOrg != null && updateInvoiceNotViewModel.ChangedAccount != null &&
+                                            updateInvoiceNotViewModel.OldAccountInvoice != null && updateInvoiceNotViewModel.NewAccountInvoice != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/UpdateInvoice.cshtml", updateInvoiceNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Банковские реквизиты не найдены. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                    // Удаление банковских реквизитов
+                                    case AccUpdateType.DeleteInvoice:
+                                        if (accUpdateNotViewModel is DeleteInvoiceNotViewModel deleteInvoiceNotViewModel &&
+                                            deleteInvoiceNotViewModel.OwnerOrg != null && deleteInvoiceNotViewModel.ChangedAccount != null &&
+                                            deleteInvoiceNotViewModel.RemovedInvoice != null)
+                                            await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccUpdate/DeleteInvoice.cshtml", deleteInvoiceNotViewModel);
+                                        else
+                                        {
+                                            <p class="label-non-select label-md m-0 text-center">
+                                                Банковские реквизиты не найдены. Вы можете удалить уведомление
+                                            </p>
+                                        }
+                                        break;
+                                }
+                            }
+                            break;
+                        // Изменения в команде по клиенту
+                        case NotificationType.AccTeamManagement:
+                            if (Model is AccTeamManagementNotViewModel accTeamManagementNotViewModel &&
+                                accTeamManagementNotViewModel.OwnerOrg != null && accTeamManagementNotViewModel.Account != null)
+                                await Html.RenderPartialAsync($"{USER_NOT_VIEWS_REL_PATH}Partial/AccTeamManagement.cshtml", accTeamManagementNotViewModel);
+                            else
+                            {
+                                <p class="label-non-select label-md m-0 text-center">
+                                    Клиент не найден. Вы можете удалить уведомление
+                                </p>
+                            }
+                            break;
+                    }
+                </div>
+            </div>
+            <div class="row mt-1 mb-2">
+                <form class="col-lg mt-3" asp-controller="@USER_NOT" asp-action="Delete" asp-route-id="@Model.Id">
+                    <div class="btn btn-block btn-outline-danger delete-not-btn">
+                        <p>@resManager.GetString("DeleteNot")</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

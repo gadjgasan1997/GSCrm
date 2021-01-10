@@ -101,9 +101,9 @@
      * Обновление должности
      * @param {*} event 
      */
-    Update(event) {
+    Update() {
         return new Promise((resolve, reject) => {
-            let updatePosUrl = $(event.currentTarget).closest("#positionForm").find("form").attr("action");
+            let updatePosUrl = $("#positionUpdateForm").attr("action");
             let updatePosData = this.UpdateGetData();
             let request = new AjaxRequests();
             request.JsonPostRequest(updatePosUrl, updatePosData)
@@ -124,6 +124,44 @@
             PrimaryEmployeeInitialName: $("#PrimaryEmployeeInitialName").val(),
             OrganizationId: $("#OrganizationId").val()
         }
+    }
+
+    /** Разблокировка должности */
+    Unlock() {
+        return new Promise((resolve, reject) => {
+            let unlockPosUrl = location.origin + $("#lockPositionForm").attr("action");
+            let unlockPosData =  this.UnlockGetData();
+            let request = new AjaxRequests();
+            let hasErrors = false;
+            request.JsonPostRequest(unlockPosUrl, unlockPosData)
+                .catch(response => {
+                    hasErrors = true;
+                    Utils.CommonErrosHandling(response["responseJSON"], ["UnlockPosition"]);
+                })
+                .then(() => {
+                    if (!hasErrors) {
+                        location.reload();
+                    }
+                })
+        })
+    }
+
+    UnlockGetData() {
+        // В зависимости от причины блокировки должности
+        let positionLockReason = $("#positionLockReason").val();
+        let unlockData = {};
+        switch(positionLockReason) {
+            // Отсутствует подразделение
+            default:
+            case "DivisionAbsent":
+                unlockData = {
+                    Id: $("#positionId").val(),
+                    OrganizationId: $("#OrganizationId").val(),
+                    DivisionName: $("#DivisionName").val()
+                }
+                break;
+        }
+        return unlockData;
     }
 
     static RedirectToPosition(event) {
@@ -165,9 +203,18 @@ $("#positionForm")
     .off("click", "#updatePosBtn").on("click", "#updatePosBtn", event => {
         event.preventDefault();
         let position = new Position();
-        position.Update(event);
+        position.Update();
     })
     .off("click", "#posTabs .nav-item").on("click", "#posTabs .nav-item", event => {
         let navTab = new NavTab();
         navTab.Remember(event, "currentPosTab");
     })
+
+// Карточка заблокированной должности
+$("#lockPositionForm")
+    .off("click", "#unlockPosBtn").on("click", "#unlockPosBtn", event => {
+        event.preventDefault();
+        let position = new Position();
+        position.Unlock();
+    })
+    .off("click", "#cancelUnlockPosBtn").on("click", "#cancelUnlockPosBtn", event => location.reload());

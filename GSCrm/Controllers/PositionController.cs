@@ -29,7 +29,7 @@ namespace GSCrm.Controllers
         {
             OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.SetViewInfo(currentUser.Id, POSITIONS, pageNumber);
+            organizationRepository.SetViewInfo(POSITIONS, pageNumber);
             organizationRepository.AttachPositions(orgViewModel);
             return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
         }
@@ -60,6 +60,19 @@ namespace GSCrm.Controllers
         {
             ModelStateDictionary modelState = ModelState;
             if (!new PositionRepository(serviceProvider, context).TryChangeDivision(positionViewModel, out Dictionary<string, string> errors))
+            {
+                foreach (KeyValuePair<string, string> error in errors)
+                    modelState.AddModelError(error.Key, error.Value);
+                return BadRequest(modelState);
+            }
+            return Json("");
+        }
+
+        [HttpPost("Unlock")]
+        public IActionResult Unlock(PositionViewModel positionViewModel)
+        {
+            ModelStateDictionary modelState = ModelState;
+            if (!new PositionRepository(serviceProvider, context).TryUnlock(ref positionViewModel, out Dictionary<string, string> errors))
             {
                 foreach (KeyValuePair<string, string> error in errors)
                     modelState.AddModelError(error.Key, error.Value);

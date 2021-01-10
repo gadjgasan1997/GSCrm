@@ -1,0 +1,41 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model OrgInviteNotViewModel
+
+<div class="row org-invite-not notification-item mt-4">
+    <input class="notification-item-id" value="@Model.Id" hidden="hidden" />
+    <form class="col-md flex-grow-0" asp-controller="@USER_NOT" asp-action="">
+        <div class="@(!Model.HasRead ? "cbx-not" : "cbx-not-onload")">
+            <input type="checkbox" />
+            <label></label>
+        </div>
+    </form>
+    <div class="col-md mt-4 mt-md-0">
+        <div class="alert @(!Model.HasRead ? "alert-dark" : "alert-light alert-not-light") m-0" role="alert">
+            <div class="row">
+                <div class="col-lg">
+                    <p class="label-non-select label-md m-0 text-center">
+                        Вы получили приглашение вступить в организацию
+                        <a href="/@ORGANIZATION/@Model.InviteOrg.Id">@Model.InviteOrg.Name</a>
+                    </p>
+                </div>
+                <form class="col-lg mt-3" asp-controller="@USER_NOT" asp-action="AcceptInvite" asp-route-id="@Model.InviteOrg.Id">
+                    <div class="btn btn-block btn-outline-dark accept-invite-btn">
+                        <p>@resManager.GetString("AcceptInvite")</p>
+                    </div>
+                </form>
+                <form class="col-lg mt-3" asp-controller="@USER_NOT" asp-action="RejectInvite"
+                      asp-route-notId="@Model.NotificationId" asp-route-orgId="@Model.InviteOrg.Id">
+                    <div class="btn btn-block btn-outline-danger reject-invite-btn">
+                        <p>@resManager.GetString("RejectInvite")</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

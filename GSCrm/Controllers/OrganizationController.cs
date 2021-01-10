@@ -30,7 +30,7 @@ namespace GSCrm.Controllers
         {
             OrganizationsViewModel orgsViewModel = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.SetViewInfo(currentUser.Id, ORGANIZATIONS, pageNumber);
+            organizationRepository.SetViewInfo(ORGANIZATIONS, pageNumber);
             organizationRepository.AttachOrganizations(ref orgsViewModel);
             return View(ORGANIZATIONS, orgsViewModel);
         }

@@ -177,6 +177,9 @@
   <data name="AccDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления клиента</value>
   </data>
+  <data name="AccDeleteNotSubject" xml:space="preserve">
+    <value>Удаление клиента</value>
+  </data>
   <data name="AcceptInvite" xml:space="preserve">
     <value>Принять приглашение</value>
   </data>
@@ -285,6 +288,9 @@
   <data name="AccTeamManagementNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для управления командой по клиенту</value>
   </data>
+  <data name="AccTeamManagementNotSubject" xml:space="preserve">
+    <value>Изменения в команде по клиенту</value>
+  </data>
   <data name="AccUnlock" xml:space="preserve">
     <value>Разблокировка клиента</value>
   </data>
@@ -296,6 +302,9 @@
   </data>
   <data name="AccUpdateNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для изменения данных клиента</value>
+  </data>
+  <data name="AccUpdateNotSubject" xml:space="preserve">
+    <value>Изменение клиента</value>
   </data>
   <data name="AddEmployeePosition" xml:space="preserve">
     <value>Добавить должность</value>
@@ -398,6 +407,12 @@
   </data>
   <data name="BICWrong" xml:space="preserve">
     <value>Неверный БИК</value>
+  </data>
+  <data name="BindAccount" xml:space="preserve">
+    <value>Привяжите аккаунт к сотруднику</value>
+  </data>
+  <data name="BindDivisionAndPosition" xml:space="preserve">
+    <value>Назначьте его в какое-либо подразделение и выдайте должность</value>
   </data>
   <data name="CancelChanges" xml:space="preserve">
     <value>Отменить изменения</value>
@@ -558,6 +573,9 @@
   <data name="CurrentAccountsFilter" xml:space="preserve">
     <value>Фильтр по клиентам организации </value>
   </data>
+  <data name="DeleteNot" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
   <data name="DivCreate" xml:space="preserve">
     <value>Создание подразделения</value>
   </data>
@@ -573,11 +591,8 @@
   <data name="DivDeleteNotContent" xml:space="preserve">
     <value>Было удалено подразделение {divName}, в котором вы состоите.</value>
   </data>
-  <data name="DivDeleteNotHeader" xml:space="preserve">
-    <value>Подразделение, в котором вы состоите было удалено</value>
-  </data>
   <data name="DivDeleteNotSubject" xml:space="preserve">
-    <value>Удаление подразделения</value>
+    <value>Подразделение, в котором вы состоите было удалено</value>
   </data>
   <data name="Division" xml:space="preserve">
     <value>Подразделение</value>
@@ -660,6 +675,9 @@
   <data name="EmpDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления сотрудника</value>
   </data>
+  <data name="EmpDeleteNotSubject" xml:space="preserve">
+    <value>Вы были уволены из организации</value>
+  </data>
   <data name="Employee" xml:space="preserve">
     <value>Работник</value>
   </data>
@@ -717,6 +735,9 @@
   <data name="EmpUpdateNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для изменения данных сотрудника</value>
   </data>
+  <data name="EmpUpdateNotSubject" xml:space="preserve">
+    <value>Ваши данные были изменены</value>
+  </data>
   <data name="ESAccount" xml:space="preserve">
     <value>Добавьте нового клиента</value>
   </data>
@@ -773,6 +794,9 @@
   </data>
   <data name="FullName" xml:space="preserve">
     <value>Полное имя</value>
+  </data>
+  <data name="GSCrmEmailSubject" xml:space="preserve">
+    <value>GSCrm</value>
   </data>
   <data name="HasNoPermissions" xml:space="preserve">
     <value>Недостаточно полномочий для совершения действия</value>
@@ -899,6 +923,9 @@
   </data>
   <data name="LENameLength" xml:space="preserve">
     <value>Название юридического лица не может быть короче 5 и длинее</value>
+  </data>
+  <data name="LockedEmployeeLeftOrg" xml:space="preserve">
+    <value>Уже будучи заблокированным, данный сотрудник покинул организацию. Для его разблокировки заполните все необходимые поля</value>
   </data>
   <data name="Login" xml:space="preserve">
     <value>Логин</value>
@@ -1029,6 +1056,9 @@
   <data name="OrgDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления организации</value>
   </data>
+  <data name="OrgEmailHeader" xml:space="preserve">
+    <value>GSCrm. Организация {orgName}.</value>
+  </data>
   <data name="OrgInviteInboxContent" xml:space="preserve">
     <value>Вы получили приглашение вступить в организацию {orgName}</value>
   </data>
@@ -1104,6 +1134,9 @@
   <data name="PosDeleteNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для удаления должности</value>
   </data>
+  <data name="PosDeleteNotSubject" xml:space="preserve">
+    <value>Должность, которую вы занимали, была удалена</value>
+  </data>
   <data name="PosEmployeesFilter" xml:space="preserve">
     <value>Фильтр по сотрудникам</value>
   </data>
@@ -1127,6 +1160,9 @@
   </data>
   <data name="PositionEmployees" xml:space="preserve">
     <value>Сотрудники, занимающие должность</value>
+  </data>
+  <data name="PositionIsLock" xml:space="preserve">
+    <value>Должность заблокирована. Для разблокировки внесите ее в какое-либо подразделение</value>
   </data>
   <data name="PositionNameLength" xml:space="preserve">
     <value>Название должности не может быть меньше трех сиволов</value>
@@ -1164,11 +1200,17 @@
   <data name="Postal" xml:space="preserve">
     <value>Почтовый</value>
   </data>
+  <data name="PosUnlock" xml:space="preserve">
+    <value>Разблокировка должности</value>
+  </data>
   <data name="PosUpdate" xml:space="preserve">
     <value>Обновление должности</value>
   </data>
   <data name="PosUpdateNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для изменения должности</value>
+  </data>
+  <data name="PosUpdateNotSubject" xml:space="preserve">
+    <value>Должность, которую вы занимали, была изменена</value>
   </data>
   <data name="Primary" xml:space="preserve">
     <value>Основной</value>
@@ -1220,6 +1262,9 @@
   </data>
   <data name="Quotes" xml:space="preserve">
     <value>Сделки</value>
+  </data>
+  <data name="ReadAllNots" xml:space="preserve">
+    <value>Прочесть все уведомления</value>
   </data>
   <data name="RecordNotFound" xml:space="preserve">
     <value>Запись не найдена</value>
@@ -1393,13 +1438,16 @@
     <value>Тип</value>
   </data>
   <data name="UnhandledException" xml:space="preserve">
-    <value>UnhandledException</value>
+    <value>Во время выполнения операции произошло необработанное исключение</value>
   </data>
   <data name="Unlock" xml:space="preserve">
     <value>Разблокировать</value>
   </data>
   <data name="UnlockEmployeeNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для разблокировки сотрудника</value>
+  </data>
+  <data name="UnlockPositionNoRes" xml:space="preserve">
+    <value>У вас недостаточно полномочий для разблокировки должности</value>
   </data>
   <data name="Update" xml:space="preserve">
     <value>Обновить</value>

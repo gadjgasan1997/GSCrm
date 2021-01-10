@@ -2,18 +2,50 @@
 {
     public enum NotificationType
     {
-        None,
+        None = 0,
         /// <summary>
         /// Приглашение в организацию
         /// </summary>
-        OrgInvite,
+        OrgInvite = 1,
         /// <summary>
         /// Регистрация
         /// </summary>
-        Register,
+        Register = 2,
         /// <summary>
         /// Сброс пароля
         /// </summary>
-        ResetPassword
+        ResetPassword = 3,
+        /// <summary>
+        /// Удаление подразделения
+        /// </summary>
+        DivDelete = 4,
+        /// <summary>
+        /// Удаление должности
+        /// </summary>
+        PosDelete = 5,
+        /// <summary>
+        /// Изменение должности
+        /// </summary>
+        PosUpdate = 6,
+        /// <summary>
+        /// Удаление сотрудника
+        /// </summary>
+        EmpDelete = 7,
+        /// <summary>
+        /// Обновление данных сотрудника
+        /// </summary>
+        EmpUpdate = 8,
+        /// <summary>
+        /// Удаление клиента
+        /// </summary>
+        AccDelete = 9,
+        /// <summary>
+        /// Обновление данных клиента
+        /// </summary>
+        AccUpdate = 10,
+        /// <summary>
+        /// Изменения в команде по клиенту
+        /// </summary>
+        AccTeamManagement = 11
     }
 }

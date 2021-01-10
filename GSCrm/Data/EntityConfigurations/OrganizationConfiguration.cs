@@ -12,6 +12,18 @@ namespace GSCrm.Data.EntityConfigurations
                 .HasMany(div => div.Divisions)
                 .WithOne(org => org.Organization)
                 .HasForeignKey(orgId => orgId.OrganizationId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder
+                .HasMany(pos => pos.Positions)
+                .WithOne(org => org.Organization)
+                .HasForeignKey(orgId => orgId.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder
+                .HasMany(emp => emp.Employees)
+                .WithOne(org => org.Organization)
+                .HasForeignKey(orgId => orgId.OrganizationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder

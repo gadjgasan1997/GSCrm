@@ -119,7 +119,7 @@ namespace GSCrm.Utils
 
         public static string GetLocationPrefix(string prefixName, LangType? langType)
         {
-            LangType lang = langType ?? LangType.enEN;
+            LangType lang = langType ?? LangType.ruRU;
             if (!locationsPrfxs[prefixName].ContainsKey(lang))
                 return string.Empty;
             return locationsPrfxs[prefixName][lang];

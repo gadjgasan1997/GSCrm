@@ -79,7 +79,7 @@
             "ru-RU": "Вы уверены, что хотите изменить подразделение должности? Все сотрудники, у которых она является основной, будут заблокированы. У всех подчиненных должностей будет очищена родительская."
         },
         "removeDivisionConfirmation": {
-            "ru-RU": "Вы уверены, что хотите удалить подразделение? Все сотрудники и должности, которые в нем находятся, будут удалены."
+            "ru-RU": "Вы уверены, что хотите удалить подразделение? Все сотрудники и должности, которые в нем находятся, будут заблокированы."
         },
         "divisionRemoving": {
             "ru-RU": "Удаление подразделения."
@@ -203,6 +203,9 @@
         },
         "inviteHasBeenRejected": {
             "ru-RU": "Приглашение на вступление в организацию было откланено"
+        },
+        "inviteHasBeenAccepted": {
+            "ru-RU": "Приглашение на вступление в организацию было принято"
         }
     },
     "uri": {
@@ -221,6 +224,9 @@
         "commitOrgSettingsPath": "/CommitOrgSettings/",
         "commitUserSettingsPath": "/CommitUserSettings/",
         "setOrgNotSettingsToDefaultPath": "/SetOrgNotSettingsToDefault/",
-        "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/"
+        "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/",
+        "makeNotHasReed": "/MakeHasReed/",
+        "makeNotHasNoReed": "/MakeHasNoReed/",
+        "initalizeAppDataUrl": "/AppData/InitalizeAppData/"
     }
 }

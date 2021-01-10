@@ -1,0 +1,28 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.AccUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AddAddressNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    У клиента <a href="/@ACCOUNT/@Model.ChangedAccount.Id">@Model.ChangedAccount.Name</a>, с которым вы работаете, был добавлен новый адрес со следующими данными:
+</p>
+<ul class="mt-2 mb-0">
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Тип: @Model.NewAccountAddress.AddressType.ToLocalString()
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Полный адрес: @Model.NewAccountAddress.GetFullAddress()
+        </p>
+    </li>
+</ul>
+<p class="label-non-select label-md m-0 text-center">
+    Организация: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+</p>

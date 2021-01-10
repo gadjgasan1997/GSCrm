@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GSCrm.Models.Enums;
+using System;
 using System.Collections.Generic;
 
 namespace GSCrm.Models.ViewModels
@@ -23,12 +24,12 @@ namespace GSCrm.Models.ViewModels
         public string FullInitialName { get; set; }
         public string SupervisorId { get; set; }
         public string SupervisorInitialName { get; set; }
-        public Guid DivisionId { get; set; }
+        public Guid? DivisionId { get; set; }
         public string DivisionName { get; set; }
         public Guid? PrimaryPositionId { get; set; }
         public string PrimaryPositionName { get; set; }
-        public string EmployeeStatus { get; set; } = "None";
-        public string EmployeeLockReason { get; set; } = "None";
+        public EmployeeStatus EmployeeStatus { get; set; }
+        public EmployeeLockReason EmployeeLockReason { get; set; }
 
         /// <summary>
         /// Поиск по должностям сотрудника

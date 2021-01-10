@@ -195,6 +195,7 @@
   .org-invite-not .row .col-lg > .btn {
     height: 35px;
     padding: 0;
+    overflow-y: hidden;
     cursor: pointer; }
     .org-invite-not .row .col-lg > .btn > p {
       margin: 0;
@@ -202,3 +203,12 @@
 
 .notification-item .alert-not-light {
   border-color: #c6c8ca; }
+
+@media all and (max-width: 800px) {
+  #lockPositionForm {
+    width: 100%; } }
+
+@media all and (min-width: 800px) {
+  #lockPositionForm {
+    width: 70%;
+    margin: auto; } }

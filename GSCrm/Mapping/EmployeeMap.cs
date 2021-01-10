@@ -32,6 +32,7 @@ namespace GSCrm.Mapping
                 MiddleName = employeeViewModel.MiddleName,
                 PrimaryPositionId = primaryPosition.Id,
                 DivisionId = division.Id,
+                OrganizationId = division.OrganizationId,
                 UserId = Guid.Parse(userAccount.Id)
             };
 
@@ -66,14 +67,14 @@ namespace GSCrm.Mapping
             Position primaryPosition = employee.GetPrimaryPosition(context);
             Employee supervisor = employee.GetSupervisor(context);
             Division division = employee.GetDivision(context);
-            Organization organization = division.GetOrganization(context);
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == employee.OrganizationId);
             return new EmployeeViewModel()
             {
                 Id = employee.Id,
                 OrganizationId = organization.Id,
                 OrganizationName = organization.Name,
-                DivisionId = division.Id,
-                DivisionName = division.Name,
+                DivisionId = division?.Id,
+                DivisionName = division?.Name,
                 FirstName = employee.FirstName,
                 LastName = employee.LastName,
                 MiddleName = employee.MiddleName,
@@ -81,8 +82,8 @@ namespace GSCrm.Mapping
                 FullInitialName = employee.GetIntialsFullName(),
                 PrimaryPositionId = primaryPosition?.Id,
                 PrimaryPositionName = primaryPosition?.Name,
-                EmployeeStatus = employee.EmployeeStatus.ToString(),
-                EmployeeLockReason = employee.EmployeeLockReason.ToString(),
+                EmployeeStatus = employee.EmployeeStatus,
+                EmployeeLockReason = employee.EmployeeLockReason,
                 SupervisorId = supervisor?.Id.ToString(),
                 SupervisorInitialName = supervisor?.GetIntialsFullName()
             };
@@ -156,37 +157,66 @@ namespace GSCrm.Mapping
         }
 
         /// <summary>
-        /// Разблокировка сотрудника в случае блокировки из-за выхода сотрудника из организации
+        /// Разблокировка сотрудника в случае блокировки из-за отсутствия должности
         /// </summary>
-        public void UnlockEmployeeOnUserAccountAbsent(bool userAccountExists)
+        public void UnlockOnPositionAbsent()
         {
-            // Проставление сотруднику нового подразделения и должности
             SetTransaction(OperationType.UnlockEmployee);
-            User user = (User)transaction.GetParameterValue("UserAccount");
             Employee employee = (Employee)transaction.GetParameterValue("Employee");
-            employee.UserId = Guid.Parse(user.Id);
-            if (userAccountExists)
-                employee.EmployeeStatus = EmployeeStatus.AwaitingInvitationAcceptance;
-            else employee.Unlock();
+            BindDivisionAndPosition(employee);
+            employee.Unlock();
             transaction.AddChange(employee, EntityState.Modified);
         }
 
         /// <summary>
-        /// Разблокировка сотрудника в случае блокировки из-за отсутствия должности
+        /// Разблокировка сотрудника в случае блокировки из-за выхода сотрудника из организации
         /// </summary>
-        public void UnlockEmployeeOnPositionAbsent()
+        public void UnlockOnUserAccountAbsent(bool userAccountExists)
         {
-            // Проставление сотруднику нового подразделения и должности
             SetTransaction(OperationType.UnlockEmployee);
-            Division newDivision = (Division)transaction.GetParameterValue("Division");
             Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            BindUserAccount(employee, userAccountExists);
+            transaction.AddChange(employee, EntityState.Modified);
+        }
+
+        /// <summary>
+        /// Разблокировка в случае, если уже заблокированный сотрудник покинул организацию
+        /// </summary>
+        public void UnlockOnLockedEmployeeLeftOrg(bool userAccountExists)
+        {
+            SetTransaction(OperationType.UnlockEmployee);
+            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            BindDivisionAndPosition(employee);
+            BindUserAccount(employee, userAccountExists);
+            transaction.AddChange(employee, EntityState.Modified);
+        }
+
+        /// <summary>
+        /// Проставление сотруднику нового подразделения и должности
+        /// </summary>
+        /// <param name="employee"></param>
+        private void BindDivisionAndPosition(Employee employee)
+        {
+            Division newDivision = (Division)transaction.GetParameterValue("Division");
             Position newPosition = (Position)transaction.GetParameterValue("PrimaryPosition");
             if (!employee.GetPositions(context).Select(posId => posId.PositionId).Contains(newPosition.Id))
                 AddEmployeePosition(employee, newPosition);
             employee.DivisionId = newDivision.Id;
             employee.PrimaryPositionId = newPosition.Id;
-            employee.Unlock();
-            transaction.AddChange(employee, EntityState.Modified);
+        }
+
+        /// <summary>
+        /// Привязка аккаунта пользователя к сотруднику
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="userAccountExists"></param>
+        private void BindUserAccount(Employee employee, bool userAccountExists)
+        {
+            User user = (User)transaction.GetParameterValue("UserAccount");
+            employee.UserId = Guid.Parse(user.Id);
+            if (userAccountExists)
+                employee.EmployeeStatus = EmployeeStatus.AwaitingInvitationAcceptance;
+            else employee.Unlock();
         }
 
         public void ChangeDivision(EmployeeViewModel employeeViewModel)
@@ -229,7 +259,7 @@ namespace GSCrm.Mapping
         /// <param name="employee"></param>
         private void RemoveOldEmployeePositions(Employee employee)
         {
-            employee.EmployeePositions.ForEach(employeePosition =>
+            employee.AddEmployeePositions(context).EmployeePositions.ForEach(employeePosition =>
             {
                 transaction.AddChange(employeePosition, EntityState.Deleted);
             });

@@ -89,7 +89,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<Responsibility> AttachAllResponsibilities(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, ALL_EMP_RESPS, pageNumber, ALL_EMP_RESPS_COUNT);
+            SetViewInfo(ALL_EMP_RESPS, pageNumber, ALL_EMP_RESPS_COUNT);
 
             // Получение списка всех полномочий организации за исключением тех, которые уже присутствуют у сотрудника
             Employee employee = context.Employees.FirstOrDefault(i => i.Id == employeeId);
@@ -109,7 +109,7 @@ namespace GSCrm.Repository
             // Ограничение по фильтрам и номеру страницы
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_RESPS);
             LimitAllRespsByName(employeeViewModelCash, ref allResponsibilities);
-            LimitListByPageNumber(ALL_EMP_RESPS, ref allResponsibilities, ALL_EMP_RESPS_COUNT);
+            LimitListByPageNumber(ALL_EMP_RESPS, ref allResponsibilities);
             return allResponsibilities;
         }
 
@@ -135,7 +135,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<Responsibility> AttachSelectedResponsibilities(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, SELECTED_EMP_RESPS, pageNumber, SELECTED_EMP_RESPS_COUNT);
+            SetViewInfo(SELECTED_EMP_RESPS, pageNumber, SELECTED_EMP_RESPS_COUNT);
 
             // Получение списка всех полномочий сотрудника и ограничение по фильтрам и номеру страницы
             List<EmployeeResponsibility> selectedResponsibilities = context.EmployeeResponsibilities
@@ -144,7 +144,7 @@ namespace GSCrm.Repository
                 .Where(emp => emp.EmployeeId == employeeId).ToList();
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_RESPS);
             LimitSelectedRespsByName(employeeViewModelCash, ref selectedResponsibilities);
-            LimitListByPageNumber(SELECTED_EMP_RESPS, ref selectedResponsibilities, SELECTED_EMP_RESPS_COUNT);
+            LimitListByPageNumber(SELECTED_EMP_RESPS, ref selectedResponsibilities);
             return selectedResponsibilities.Select(resp => resp.Responsibility).ToList();
         }
 
@@ -169,11 +169,13 @@ namespace GSCrm.Repository
                 .Include(empResp => empResp.EmployeeResponsibilities)
                     .ThenInclude(resp => resp.Responsibility)
                 .FirstOrDefault(i => i.Id == syncViewModel.EmployeeId);
+            syncRespsTransaction.AddParameter("Employee", employee);
 
+            // Проверки
             InvokeIntermittinActions(this.errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpRespsManagement", syncRespsTransaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpRespsManagement", syncRespsTransaction))
                          AddHasNoPermissionsError(OperationType.EmployeeResponsibilitiesManagement);
                 },
                 () => {
@@ -183,16 +185,22 @@ namespace GSCrm.Repository
                     FormRemoveRespsList(syncViewModel.ResponsibilitiesToRemove, employee);
                 }
             });
+
+            // Если не было ошибок, выполняется обновление списка полномочий
             if (!this.errors.Any())
             {
                 respsToAdd.ForEach(respToAdd => syncRespsTransaction.AddChange(respToAdd, EntityState.Added));
                 respsToRemove.ForEach(respToRemove => syncRespsTransaction.AddChange(respToRemove, EntityState.Deleted));
+
+                // Попытка сделать коммит
                 if (syncRespsTransactionFactory.TryCommit(syncRespsTransaction, this.errors))
                 {
                     syncRespsTransactionFactory.Close(syncRespsTransaction);
                     return true;
                 }
             }
+
+            // Добавление ошибок и выход
             errors = this.errors;
             syncRespsTransactionFactory.Close(syncRespsTransaction, TransactionStatus.Error);
             return false;

@@ -92,7 +92,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<Position> AttachAllPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, ALL_EMP_POSS, pageNumber, ALL_EMP_POSS_COUNT);
+            SetViewInfo(ALL_EMP_POSS, pageNumber, ALL_EMP_POSS_COUNT);
 
             // Получение списка всех должностей подразделения и исключение из него списка должностей сотрудника
             List<Position> allPositions = GetAllPositions(employeeId);
@@ -105,7 +105,7 @@ namespace GSCrm.Repository
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
             LimitAllPosByName(employeeViewModelCash, ref allPositions);
             LimitAllPosByParent(employeeViewModelCash, allPositionsExceptSelected, ref allPositions);
-            LimitListByPageNumber(ALL_EMP_POSS, ref allPositions, ALL_EMP_POSS_COUNT);
+            LimitListByPageNumber(ALL_EMP_POSS, ref allPositions);
             return allPositions;
         }
 
@@ -149,14 +149,14 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<EmployeePosition> AttachSelectedPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(currentUser.Id, SELECTED_EMP_POSS, pageNumber, SELECTED_EMP_POSS_COUNT);
+            SetViewInfo(SELECTED_EMP_POSS, pageNumber, SELECTED_EMP_POSS_COUNT);
 
             // Ограничение списка должностей по фильтрам и номеру страницы
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
             List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
             LimitSelectedPosByName(employeeViewModelCash, ref selectedPositions);
             LimitSelectedPosByParent(employeeViewModelCash, ref selectedPositions);
-            LimitListByPageNumber(SELECTED_EMP_POSS, ref selectedPositions, SELECTED_EMP_POSS_COUNT);
+            LimitListByPageNumber(SELECTED_EMP_POSS, ref selectedPositions);
             return selectedPositions;
         }
 
@@ -224,7 +224,7 @@ namespace GSCrm.Repository
             {
                 Division division = context.Divisions.FirstOrDefault(i => i.Id == employee.DivisionId);
                 Organization organization = division.GetOrganization(context);
-                organization.Divisions.ForEach(division => allPositions.AddRange(division.Positions));
+                organization.GetDivisions(context).ForEach(division => allPositions.AddRange(division.GetPositions(context)));
             }
             return allPositions;
         }
@@ -243,11 +243,13 @@ namespace GSCrm.Repository
                 .Include(empPos => empPos.EmployeePositions)
                     .ThenInclude(pos => pos.Position)
                 .FirstOrDefault(i => i.Id == syncViewModel.EmployeeId);
+            syncPossTransaction.AddParameter("Employee", employee);
 
+            // Проверки
             InvokeIntermittinActions(this.errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("EmpPossManagement", syncPossTransaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpPossManagement", syncPossTransaction))
                          AddHasNoPermissionsError(OperationType.EmployeePositionsManagement);
                 },
                 () => {
@@ -257,18 +259,24 @@ namespace GSCrm.Repository
                     FormRemovePositionsList(syncViewModel, employee);
                 }
             });
+
+            // Если не было ошибок, выполняется обновление списка должностей
             if (!this.errors.Any())
             {
                 AddPositions();
                 RemovePositions();
                 if (!string.IsNullOrEmpty(syncViewModel.PrimaryPositionName))
                     SetPrimaryPosition(syncViewModel.PrimaryPositionName, employee);
+
+                // Попытка сделать коммит
                 if (syncPossTransactionFactory.TryCommit(syncPossTransaction, this.errors))
                 {
                     syncPossTransactionFactory.Close(syncPossTransaction);
                     return true;
                 }
             }
+
+            // Добавление ошибок и выход
             errors = this.errors;
             syncPossTransactionFactory.Close(syncPossTransaction, TransactionStatus.Error);
             return false;

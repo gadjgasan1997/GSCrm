@@ -1,0 +1,31 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.EmpUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model UpdateContactNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    <a href="/@EMPLOYEE/@Model.ChangedEmployee.Id">@Model.ChangedEmployee.GetFullName()</a>, данные одного из Ваших контактов в организации
+    <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a> были изменены следующими образом
+</p>
+<ul class="mt-2 mb-0">
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Тип: <strong>с</strong> @Model.OldEmployeeContact.ContactType.ToLocalString() <strong>на</strong> @Model.NewEmployeeContact.ContactType.ToLocalString()
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Почта: <strong>с</strong> @Model.OldEmployeeContact.Email <strong>на</strong> @Model.NewEmployeeContact.Email
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Номер телефона: <strong>с</strong> @Model.OldEmployeeContact.PhoneNumber <strong>на</strong> @Model.NewEmployeeContact.PhoneNumber
+        </p>
+    </li>
+</ul>

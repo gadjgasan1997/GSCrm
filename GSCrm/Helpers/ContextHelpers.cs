@@ -24,7 +24,7 @@ namespace GSCrm.Helpers
         }
 
         public static List<Division> GetOrgDivisions(this ApplicationDbContext context, Guid organizationId)
-            => context.Divisions.AsNoTracking().Include(pos => pos.Positions).Where(orgId => orgId.OrganizationId == organizationId).ToList();
+            => context.Divisions.AsNoTracking().Where(orgId => orgId.OrganizationId == organizationId).ToList();
 
         public static List<Position> GetOrgPositions(this ApplicationDbContext context, Guid organizationId)
         {
@@ -101,6 +101,18 @@ namespace GSCrm.Helpers
         /// <param name="context"></param>
         /// <param name="currentUser"></param>
         /// <returns></returns>
+        public static List<UserNotification> GetUserNotifications(this ApplicationDbContext context, User currentUser)
+            => context.UserNotifications.AsNoTracking().Where(userNot => userNot.UserId == currentUser.Id).ToList();
+
+        /// <summary>
+        /// Метод возвращает список всех уведомлений, адресованных пользователю с притягиванием моделей "Notification"
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="currentUser"></param>
+        /// <returns></returns>
+        public static List<UserNotification> GetUserNotificationsExt(this ApplicationDbContext context, User currentUser)
+            => context.UserNotifications.Include(userNot => userNot.Notification).AsNoTracking().Where(userNot => userNot.UserId == currentUser.Id).ToList();
+
         public static List<InboxNotification> GetInboxNotifications(this ApplicationDbContext context, User currentUser)
         {
             Func<InboxNotification, bool> predicate = not => not.UserNotifications.Select(i => i.UserId).ToList().Contains(currentUser.Id);
@@ -146,14 +158,8 @@ namespace GSCrm.Helpers
 
         public static Employee GetCurrentEmployee(this ApplicationDbContext context, Organization organization, Guid currentUserId)
         {
-            // Получение всех сотрудников организации
             if (organization == null || currentUserId == null) return null;
-            List<Employee> divisionsEmployees = new List<Employee>();
-            List<Division> allDivisions = organization.GetDivisions(context);
-            allDivisions.ForEach(division => divisionsEmployees.AddRange(division.GetEmployees(context)));
-
-            // Получение нужного сотрудника
-            return divisionsEmployees.FirstOrDefault(i => i.UserId == currentUserId);
+            return context.Employees.AsNoTracking().FirstOrDefault(emp => emp.OrganizationId == organization.Id && emp.UserId == currentUserId);
         }
         #endregion
     }

@@ -32,7 +32,7 @@ namespace GSCrm.Controllers
             {
                 OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
                 OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.SetViewInfo(currentUser.Id, RESPONSIBILITIES, pageNumber);
+                organizationRepository.SetViewInfo(RESPONSIBILITIES, pageNumber);
                 organizationRepository.AttachResponsibilities(orgViewModel);
                 return Json(orgViewModel.Responsibilities);
             }
@@ -125,8 +125,7 @@ namespace GSCrm.Controllers
                 ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, RESPONSIBILITIES);
                 OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
                 OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.SetViewInfo(currentUser.Id, RESPONSIBILITIES, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                organizationRepository.AttachResponsibilities(orgViewModel);
+                organizationRepository.AttachResponsibilities(orgViewModel, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 return Json(orgViewModel.Responsibilities);
             }
             catch (Exception)
@@ -143,8 +142,7 @@ namespace GSCrm.Controllers
                 ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, RESPONSIBILITIES);
                 OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
                 OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.SetViewInfo(currentUser.Id, RESPONSIBILITIES, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                organizationRepository.AttachResponsibilities(orgViewModel);
+                organizationRepository.AttachResponsibilities(orgViewModel, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 return Json(orgViewModel.Responsibilities);
             }
             catch (Exception)

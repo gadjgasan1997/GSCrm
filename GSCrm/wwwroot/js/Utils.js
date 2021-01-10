@@ -1,86 +1,89 @@
 class Utils {
-    // Ïàòòåðí äëÿ îøèáîê ñ íåäîñòàòî÷íûìè ïîëíîìî÷èÿìè
+    // ÐŸÐ°Ñ‚Ñ‚ÐµÑ€Ð½ Ð´Ð»Ñ Ð¾ÑˆÐ¸Ð±Ð¾Ðº Ñ Ð½ÐµÐ´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ñ‹Ð¼Ð¸ Ð¿Ð¾Ð»Ð½Ð¾Ð¼Ð¾Ñ‡Ð¸ÑÐ¼Ð¸
     static NO_RES_PATTERN = "NoRes";
 
     /**
-     * Ìåòîä îáðàáàòûâàåò ñïèñîê îøèáîê
-     * @param {*} errorsArray Ìàññèâ ñ íàçâàíèÿìè îøèáîê îøèáêàìè
-     * @param {*} errorsTypeCodes Ìàññèâ ñ êîäàìè òèïîâ îøèáîê
+     * ÐœÐµÑ‚Ð¾Ð´ Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ ÑÐ¿Ð¸ÑÐ¾Ðº Ð¾ÑˆÐ¸Ð±Ð¾Ðº
+     * @param {*} errorsArray ÐœÐ°ÑÑÐ¸Ð² Ñ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸ÑÐ¼Ð¸ Ð¾ÑˆÐ¸Ð±Ð¾Ðº Ð¾ÑˆÐ¸Ð±ÐºÐ°Ð¼Ð¸
+     * @param {*} errorsTypeCodes ÐœÐ°ÑÑÐ¸Ð² Ñ ÐºÐ¾Ð´Ð°Ð¼Ð¸ Ñ‚Ð¸Ð¿Ð¾Ð² Ð¾ÑˆÐ¸Ð±Ð¾Ðº
      */
     static CommonErrosHandling(errorsArray, errorsTypeCodes) {
-        !Utils.IsNullOrEmpty(errorsTypeCodes) && errorsTypeCodes.map(errorsTypeCode => {
-            let typeErrors = ErrorsManager.GetError(errorsTypeCode);
-            let errorAlertsArray = [];
-            if (typeErrors != undefined) {
-                for(let errorName in errorsArray) {
-                    let errorText = Array.isArray(errorsArray[errorName]) ? errorsArray[errorName][0] : errorsArray[errorName];
-
-                    // Ïîëó÷åíèå ñïèñêà âñåõ ìàññèâîâ ñ îøèáêàìè, ñðåäè êëþ÷åé êîòîðûõ ñîäåðæèòñÿ íàçâàíèå òåêóùåé îøèáêè
-                    let errorHandlers = Utils.GetErrorHandlers(errorName, typeErrors);
-
-                    // Åñëè îáðàáîò÷èêè íå íàéäåíû, ïîïûòêà îáðàáîòàòü äåôîëòîâûå îøèáêè
-                    if (errorHandlers.length == 0) {
-                        let alertError = Utils.GetDefaultErrorMessage({
-                            messageName: errorName,
-                            errorText: errorText
-                        });
-                        alertError != undefined && errorAlertsArray.push(alertError);
-                    }
-        
-                    // Îáðàáîòêà îøèáîê
-                    errorHandlers.map(errorHandler => {
-                        let errorSettings = errorHandler[1];
-                        let errorType = errorSettings["type"];
-                        switch(errorType) {
-                            // Êîãäà îøèáêè äîëæíû äîáàâëÿòüñÿ â ýëåìåíò
-                            case "attach":
-                                Utils.ErrorTypeAttachHandler({
-                                    elements: errorSettings["elements"],
-                                    errorText: errorText
-                                });
-                                break;
-
-                            // Êîãäà äîëæåí ïðîèñõîäèòü àëåðò
-                            case "swal":
-                                errorAlertsArray.push(Utils.GetErrorMessage({
-                                    messageName: errorSettings["messageName"],
-                                    errorText: errorText
-                                }));
-                                break;
+        return new Promise((resolve, reject) => {
+            !Utils.IsNullOrEmpty(errorsTypeCodes) && errorsTypeCodes.map(errorsTypeCode => {
+                let typeErrors = ErrorsManager.GetError(errorsTypeCode);
+                let errorAlertsArray = [];
+                if (typeErrors != undefined) {
+                    for(let errorName in errorsArray) {
+                        let errorText = Array.isArray(errorsArray[errorName]) ? errorsArray[errorName][0] : errorsArray[errorName];
+    
+                        // ÐŸÐ¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ° Ð²ÑÐµÑ… Ð¼Ð°ÑÑÐ¸Ð²Ð¾Ð² Ñ Ð¾ÑˆÐ¸Ð±ÐºÐ°Ð¼Ð¸, ÑÑ€ÐµÐ´Ð¸ ÐºÐ»ÑŽÑ‡ÐµÐ¹ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ñ… ÑÐ¾Ð´ÐµÑ€Ð¶Ð¸Ñ‚ÑÑ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ðµ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ Ð¾ÑˆÐ¸Ð±ÐºÐ¸
+                        let errorHandlers = Utils.GetErrorHandlers(errorName, typeErrors);
+    
+                        // Ð•ÑÐ»Ð¸ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸ÐºÐ¸ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ñ‹, Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÐ° Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ñ‚ÑŒ Ð´ÐµÑ„Ð¾Ð»Ñ‚Ð¾Ð²Ñ‹Ðµ Ð¾ÑˆÐ¸Ð±ÐºÐ¸
+                        if (errorHandlers.length == 0) {
+                            let alertError = Utils.GetDefaultErrorMessage({
+                                messageName: errorName,
+                                errorText: errorText
+                            });
+                            alertError != undefined && errorAlertsArray.push(alertError);
                         }
-                    });
+            
+                        // ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ð¾ÑˆÐ¸Ð±Ð¾Ðº
+                        errorHandlers.map(errorHandler => {
+                            let errorSettings = errorHandler[1];
+                            let errorType = errorSettings["type"];
+                            switch(errorType) {
+                                // ÐšÐ¾Ð³Ð´Ð° Ð¾ÑˆÐ¸Ð±ÐºÐ¸ Ð´Ð¾Ð»Ð¶Ð½Ñ‹ Ð´Ð¾Ð±Ð°Ð²Ð»ÑÑ‚ÑŒÑÑ Ð² ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚
+                                case "attach":
+                                    Utils.ErrorTypeAttachHandler({
+                                        elements: errorSettings["elements"],
+                                        errorText: errorText
+                                    });
+                                    break;
+    
+                                // ÐšÐ¾Ð³Ð´Ð° Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð¿Ñ€Ð¾Ð¸ÑÑ…Ð¾Ð´Ð¸Ñ‚ÑŒ Ð°Ð»ÐµÑ€Ñ‚
+                                case "swal":
+                                    errorAlertsArray.push(Utils.GetErrorMessage({
+                                        messageName: errorSettings["messageName"],
+                                        errorText: errorText
+                                    }));
+                                    break;
+                            }
+                        });
+                    }
                 }
-            }
-
-            if (errorAlertsArray.length > 0) {
-                Swal.queue(errorAlertsArray);
-            }
-        });
+    
+                if (errorAlertsArray.length > 0) {
+                    Swal.queue(errorAlertsArray).then(() => resolve());
+                }
+                else resolve();
+            });
+        })
     }
 
     /**
-     * Îáðàáîòêà îøèáêè ïî óìîë÷àíèþ
+     * ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ð¾ÑˆÐ¸Ð±ÐºÐ¸ Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ
      * @param {*} errorsArray 
      */
     static DefaultErrorHandling(errorsArray) {
         let errorAlertsArray = [];
-        // Ôîðìèðîâàíèå ìàññèâà ñ àëåðòàìè
+        // Ð¤Ð¾Ñ€Ð¼Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¼Ð°ÑÑÐ¸Ð²Ð° Ñ Ð°Ð»ÐµÑ€Ñ‚Ð°Ð¼Ð¸
         for (let errorName in errorsArray) {
             errorAlertsArray.push(Utils.GetDefaultErrorMessage({
                 messageName: errorName,
                 errorText: errorsArray[errorName]
             }));
         }
-        // Âûâîä î÷åðåäüþ íà ýêðàí
+        // Ð’Ñ‹Ð²Ð¾Ð´ Ð¾Ñ‡ÐµÑ€ÐµÐ´ÑŒÑŽ Ð½Ð° ÑÐºÑ€Ð°Ð½
         if (errorAlertsArray.length > 0) {
             Swal.queue(errorAlertsArray);
         }
     }
 
     /**
-     * Ìåòîä âîçâðàùàåò ñïèñîê îáðàáîò÷èêîâ
+     * ÐœÐµÑ‚Ð¾Ð´ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ ÑÐ¿Ð¸ÑÐ¾Ðº Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸ÐºÐ¾Ð²
      * @param {*} errorCode
-     * @param {*} typeErrors Òèïû îøèáîê, äëÿ êîòîðûõ íàäî ïîëó÷èòü îáðàáîò÷èêè
+     * @param {*} typeErrors Ð¢Ð¸Ð¿Ñ‹ Ð¾ÑˆÐ¸Ð±Ð¾Ðº, Ð´Ð»Ñ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ñ… Ð½Ð°Ð´Ð¾ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸ÐºÐ¸
      */
     static GetErrorHandlers(errorCode, typeErrors) {
         return typeErrors.filter(typeError => {
@@ -92,7 +95,7 @@ class Utils {
     }
 
     /**
-     * Ìåòîä îáðàáàòûâàåò îøèáêè ñ òèïîì "Message"
+     * ÐœÐµÑ‚Ð¾Ð´ Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ Ð¾ÑˆÐ¸Ð±ÐºÐ¸ Ñ Ñ‚Ð¸Ð¿Ð¾Ð¼ "Message"
      * @param {*} errorSettings 
      */
     static GetErrorMessage(errorSettings) {
@@ -104,24 +107,24 @@ class Utils {
     }
 
     /**
-     * Ìåòîä âîçâðàùàåò ñîîáùåíèÿ äëÿ îøèáîê ïî óìîë÷àíèþ
+     * ÐœÐµÑ‚Ð¾Ð´ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ñ Ð´Ð»Ñ Ð¾ÑˆÐ¸Ð±Ð¾Ðº Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ
      * @param {*} errorSettings
      */
     static GetDefaultErrorMessage(errorSettings) {
         let messageName = errorSettings["messageName"];
         let errorText = errorSettings["errorText"];
         switch(messageName) {
-            // íåîáðàáîòàííîå èñêëþ÷åíèå
+            // Ð½ÐµÐ¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð½Ð½Ð¾Ðµ Ð¸ÑÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ
             case "UnhandledException":
-                return MessageManager.Invoke("CommonError", { "error": Localization.GetString("unhandledException") });
+                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : Localization.GetString("unhandledException") });
                 
-            // Çàïèñü íå íàéäåíà
+            // Ð—Ð°Ð¿Ð¸ÑÑŒ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð°
             case "RecordNotFound":
-                return MessageManager.Invoke("CommonError", { "error": Localization.GetString("recordNotFound") });
+                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : Localization.GetString("recordNotFound") });
             
-            // Îáðàáîòêà îøèáîê, êîäû êîòîðûõ óäîâëåòâîðÿþò îïðåäåëåííûì ïàòòåðíàì
+            // ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ð¾ÑˆÐ¸Ð±Ð¾Ðº, ÐºÐ¾Ð´Ñ‹ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ñ… ÑƒÐ´Ð¾Ð²Ð»ÐµÑ‚Ð²Ð¾Ñ€ÑÑŽÑ‚ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð½Ñ‹Ð¼ Ð¿Ð°Ñ‚Ñ‚ÐµÑ€Ð½Ð°Ð¼
             default:
-                // Îáðàáîòêà îøèáîê íåäîñòàòî÷íîñòè ïîëíîìî÷èé
+                // ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ð¾ÑˆÐ¸Ð±Ð¾Ðº Ð½ÐµÐ´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ð¾ÑÑ‚Ð¸ Ð¿Ð¾Ð»Ð½Ð¾Ð¼Ð¾Ñ‡Ð¸Ð¹
                 if (messageName.split(Utils.NO_RES_PATTERN).length > 1) {
                     return MessageManager.Invoke("HasNotPermissions", { "error": errorText });
                 }
@@ -129,7 +132,7 @@ class Utils {
     }
 
     /**
-     * Ìåòîä îáðàáàòûâàåò îøèáêè ñ òèïîì "Attach"
+     * ÐœÐµÑ‚Ð¾Ð´ Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ Ð¾ÑˆÐ¸Ð±ÐºÐ¸ Ñ Ñ‚Ð¸Ð¿Ð¾Ð¼ "Attach"
      * @param {*} errorSettings 
      */
     static ErrorTypeAttachHandler(errorSettings) {
@@ -137,7 +140,7 @@ class Utils {
         if (elementSelectors != undefined) {
             elementSelectors.map(elementSelector => {
                 $(elementSelector).each((index, item) => {
-                    // Ïîëó÷åíèå ñâÿçàííîãî ñ îøèáêîé ïîëÿ äëÿ åãî ïîäñâåòêè
+                    // ÐŸÐ¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ ÑÐ²ÑÐ·Ð°Ð½Ð½Ð¾Ð³Ð¾ Ñ Ð¾ÑˆÐ¸Ð±ÐºÐ¾Ð¹ Ð¿Ð¾Ð»Ñ Ð´Ð»Ñ ÐµÐ³Ð¾ Ð¿Ð¾Ð´ÑÐ²ÐµÑ‚ÐºÐ¸
                     let connectedFieldId = $(item).attr("data-connect-el");
                     if (!Utils.IsNullOrEmpty(connectedFieldId)) {
                         let connectedField = $("" + connectedFieldId);
@@ -151,14 +154,14 @@ class Utils {
         }
     }
 
-    /** Î÷èñòêà îøèáîê */
+    /** ÐžÑ‡Ð¸ÑÑ‚ÐºÐ° Ð¾ÑˆÐ¸Ð±Ð¾Ðº */
     static ClearErrors() {
         $('.under-field-error').empty();
         $(".is-invalid").each((index, item) => $(item).removeClass("is-invalid"));
     }
 
     /**
-     * Ìåòîä ïðîâåðÿåò, ÿâëÿåòñÿ ëè îáúåêò ïóñòûì
+     * ÐœÐµÑ‚Ð¾Ð´ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÑ‚, ÑÐ²Ð»ÑÐµÑ‚ÑÑ Ð»Ð¸ Ð¾Ð±ÑŠÐµÐºÑ‚ Ð¿ÑƒÑÑ‚Ñ‹Ð¼
      * @param {*} obj 
      */
     static IsNullOrEmpty(obj) {
@@ -169,19 +172,19 @@ class Utils {
     }
 
     /**
-     * Ìåòîä ñðàâíèâàåò äâà ìàññèâà, è, åñëè îíè ðàâíû, âîçâðàùàåò true
+     * ÐœÐµÑ‚Ð¾Ð´ ÑÑ€Ð°Ð²Ð½Ð¸Ð²Ð°ÐµÑ‚ Ð´Ð²Ð° Ð¼Ð°ÑÑÐ¸Ð²Ð°, Ð¸, ÐµÑÐ»Ð¸ Ð¾Ð½Ð¸ Ñ€Ð°Ð²Ð½Ñ‹, Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ true
      * @param {*} arrayOne 
      * @param {*} arrayTwo 
      */
     static CheckArraysSame(arrayOne, arrayTwo) {
         let isEqual = true;
-        // Ïðîâåðêà íà äëèíó
+        // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ð´Ð»Ð¸Ð½Ñƒ
         if (arrayOne.length != arrayTwo.length) {
             isEqual = false;
             return;
         }
 
-        // Ïðîâåðêà ýëåìåíòîâ íà ðàâåíñòâî
+        // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ð½Ð° Ñ€Ð°Ð²ÐµÐ½ÑÑ‚Ð²Ð¾
         arrayOne.map((item, index) => {
             if (isEqual && arrayTwo[index] != item) {
                 isEqual = false;

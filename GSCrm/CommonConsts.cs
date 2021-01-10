@@ -3,7 +3,7 @@
     public static class CommonConsts
     {
         // Пути
-        public const string APP_INFO = "AppInfo";
+        public const string APP_DATA = "AppData";
         public const string ORG_VIEWS_REL_PATH = "~/Views/" + ORGANIZATION + "/";
         public const string AUTH_VIEWS_REL_PATH = "~/Views/" + AUTH + "/";
         public const string DIV_VIEWS_REL_PATH = "~/Views/" + DIVISION + "/";
@@ -13,6 +13,7 @@
         public const string ACC_VIEWS_REL_PATH = "~/Views/" + ACCOUNT + "/";
         public const string QT_VIEWS_REL_PATH = "~/Views/" + QUOTE + "/";
         public const string NOT_VIEWS_REL_PATH = "~/Views/" + NOTIFICATION + "/";
+        public const string USER_NOT_VIEWS_REL_PATH = "~/Views/" + USER_NOT + "/";
         public const string NOT_SETTING_VIEWS_REL_PATH = "~/Views/" + NOT_SETTING + "/";
         public const string AUTH = "Auth";
         public const string USER = "User";
@@ -86,8 +87,8 @@
         public const string CURRENT_QUOTES = "CurrentQuotes";
 
         // Уведомление
-        public const string INBOX_NOT = "InboxNotification";
-        public const string INBOX_NOTS = "InboxNotifications";
+        public const string USER_NOT = "UserNotification";
+        public const string USER_NOTS = "UserNotifications";
         public const string NOTIFICATION = "Notification";
         public const string NOTIFICATIONS = "Notifications";
         public const string NOT_SETTING = "NotificationsSetting";

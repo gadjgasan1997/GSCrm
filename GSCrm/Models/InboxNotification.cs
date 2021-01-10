@@ -1,12 +1,10 @@
-﻿using GSCrm.Models.Enums;
-
-namespace GSCrm.Models
+﻿namespace GSCrm.Models
 {
     public class InboxNotification : Notification
     {
-        public NotificationActionType ActionType { get; set; } = NotificationActionType.Hide;
-        public bool HasRead { get; set; }
-
-        public InboxNotification() : base() { }
+        public string Attrib1 { get; set; }
+        public string Attrib2 { get; set; }
+        public string Attrib3 { get; set; }
+        public string Attrib4 { get; set; }
     }
 }

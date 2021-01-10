@@ -124,7 +124,7 @@ namespace GSCrm.Data.Cash
                 MainEntityType.EmployeeView => GetCachedItem<EmployeeViewModel>(currentUser.Id, "CurrentEmployeeView"),
                 MainEntityType.PositionView => GetCachedItem<PositionViewModel>(currentUser.Id, "CurrentPositionView"),
                 MainEntityType.ResponsibilityView => GetCachedItem<ResponsibilityViewModel>(currentUser.Id, "CurrentResponsibilityView"),
-                MainEntityType.NotificationView => GetCachedItem<InboxNotificationViewModel>(currentUser.Id, "CurrentNotificationView"),
+                MainEntityType.NotificationView => GetCachedItem<UserNotificationViewModel>(currentUser.Id, "CurrentNotificationView"),
                 _ => null
             };
 

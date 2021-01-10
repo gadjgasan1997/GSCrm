@@ -2,7 +2,10 @@
 using GSCrm.Data.Cash;
 using GSCrm.Factories;
 using GSCrm.Helpers;
+using GSCrm.Localization;
 using GSCrm.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -17,8 +20,10 @@ namespace GSCrm.Transactions
         protected readonly IServiceProvider serviceProvider;
         protected readonly ICachService cachService;
         protected ITransaction transaction;
-        protected readonly ApplicationDbContext context;
+        protected readonly IResManager resManager;
         protected readonly User currentUser;
+        protected readonly ApplicationDbContext context;
+        protected readonly HttpContext httpContext;
         /// <summary>
         /// Массив из базовых типов операций
         /// </summary>
@@ -26,21 +31,23 @@ namespace GSCrm.Transactions
         /// <summary>
         /// Словарь со всеми транзакциями, в качестве ключа выступает id пользователя
         /// </summary>
-        private static readonly Dictionary<string, List<ITransaction>> _authUsersTransactions = new Dictionary<string, List<ITransaction>>();
+        private static readonly Dictionary<string, List<ITransaction>> _transactions = new Dictionary<string, List<ITransaction>>();
         #endregion
 
         #region Constructs
         public TransactionFactory(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
             this.serviceProvider = serviceProvider;
+            resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             this.context = context;
             IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
-            currentUser = userContextServices.HttpContext.GetCurrentUser(context);
+            httpContext = userContextServices.HttpContext;
+            currentUser = httpContext.GetCurrentUser(context);
         }
         #endregion
 
-
+        #region Create
         public ITransaction Create(string userId, OperationType operationType, TEntity entity)
         {
             CreateTransaction(operationType, userId);
@@ -78,10 +85,10 @@ namespace GSCrm.Transactions
             transaction.Name = GetTransactionName(operationType);
             transaction.OperationType = operationType;
             transaction.TransactionStatus = TransactionStatus.Success;
-            if (!_authUsersTransactions.ContainsKey(userId))
-                _authUsersTransactions.Add(userId, new List<ITransaction>() { transaction });
-            else if (_authUsersTransactions[userId].FirstOrDefault(i => i.Name == transaction.Name) == null)
-                _authUsersTransactions[userId].Add(transaction);
+            if (!_transactions.ContainsKey(userId))
+                _transactions.Add(userId, new List<ITransaction>() { transaction });
+            else if (_transactions[userId].FirstOrDefault(i => i.Name == transaction.Name) == null)
+                _transactions[userId].Add(transaction);
         }
 
         protected virtual void CreateHandler(OperationType operationType, TEntity entity) { }
@@ -89,9 +96,31 @@ namespace GSCrm.Transactions
         protected virtual void CreateHandler(OperationType operationType, string recordId) { }
 
         protected virtual void CreateHandler(OperationType operationType) { }
+        #endregion
 
+        #region Close
+        public void Close(ITransaction transaction, TransactionStatus transactionStatus = TransactionStatus.None)
+        {
+            if (!_transactions.ContainsKey(transaction.UserId)) return;
+            ITransaction transation = _transactions[transaction.UserId].FirstOrDefault(i => i.Name == transaction.Name);
+            if (transation != null)
+            {
+                // В случае, если не был подан никакой статус, то транзакция закрывается с текущим
+                transactionStatus = transactionStatus == TransactionStatus.None ? transaction.TransactionStatus : transactionStatus;
+                CloseHandler(transactionStatus, transation.OperationType);
+                _transactions.GetValueOrDefault(transaction.UserId).Remove(transation);
+                return;
+            }
+        }
+
+        protected virtual void CloseHandler(TransactionStatus transactionStatus, OperationType operationType) { }
+        #endregion
+
+        #region Other
         public virtual bool TryCommit(ITransaction transaction, Dictionary<string, string> errors)
         {
+            this.transaction = transaction;
+            BeforeCommit(transaction.OperationType);
             using IDbContextTransaction efTransaction = context.Database.BeginTransaction();
             try
             {
@@ -104,33 +133,23 @@ namespace GSCrm.Transactions
             }
             catch (Exception ex)
             {
-                errors.Add(ex.Source, ex.Message);
+#if DEBUG
+                errors.Add("UnhandledException", ex.InnerException?.Message ?? ex.Message);
+#else
+                errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
+#endif
                 efTransaction.Rollback();
                 transaction.TransactionStatus = TransactionStatus.Error;
                 return false;
             }
         }
 
-        public void Close(ITransaction transaction, TransactionStatus transactionStatus = TransactionStatus.None)
-        {
-            if (!_authUsersTransactions.ContainsKey(transaction.UserId)) return;
-            ITransaction transation = _authUsersTransactions[transaction.UserId].FirstOrDefault(i => i.Name == transaction.Name);
-            if (transation != null)
-            {
-                // В случае, если не был подан никакой статус, то транзакция закрывается с текущим
-                transactionStatus = transactionStatus == TransactionStatus.None ? transaction.TransactionStatus : transactionStatus;
-                CloseHandler(transactionStatus);
-                _authUsersTransactions.GetValueOrDefault(transaction.UserId).Remove(transation);
-                return;
-            }
-        }
-
-        protected virtual void CloseHandler(TransactionStatus transactionStatus) { }
+        protected virtual void BeforeCommit(OperationType operationType) { }
 
         public ITransaction GetTransaction(string userId, OperationType operationType)
         {
-            if (!_authUsersTransactions.ContainsKey(userId)) return null;
-            return _authUsersTransactions[userId].FirstOrDefault(n => n.Name == GetTransactionName(operationType));
+            if (!_transactions.ContainsKey(userId)) return null;
+            return _transactions[userId].FirstOrDefault(n => n.Name == GetTransactionName(operationType));
         }
 
         /// <summary>
@@ -150,6 +169,7 @@ namespace GSCrm.Transactions
                 ("PositionViewModel", OperationType.Update) => "PositionUpdate",
                 ("PositionViewModel", OperationType.Delete) => "PositionDelete",
                 ("PositionViewModel", OperationType.ChangePositionDivision) => "ChangePositionDivision",
+                ("PositionViewModel", OperationType.UnlockPosition) => "UnlockPosition",
                 ("EmployeeViewModel", OperationType.Create) => "EmployeeCreate",
                 ("EmployeeViewModel", OperationType.Update) => "EmployeeUpdate",
                 ("EmployeeViewModel", OperationType.Delete) => "EmployeeDelete",
@@ -171,6 +191,7 @@ namespace GSCrm.Transactions
                 ("AccountViewModel", OperationType.ChangeAccountType) => "ChangeAccountType",
                 ("AccountViewModel", OperationType.UnlockAccount) => "UnlockAccount",
                 ("AccountManagerViewModel", OperationType.AccountTeamManagement) => "AccountTeamManagement",
+                ("SyncAccountViewModel", OperationType.AccountTeamManagement) => "AccountTeamManagement",
                 ("AccountAddressViewModel", OperationType.Create) => "AccountAddressCreate",
                 ("AccountAddressViewModel", OperationType.Update) => "AccountAddressUpdate",
                 ("AccountAddressViewModel", OperationType.Delete) => "AccountAddressDelete",
@@ -184,11 +205,14 @@ namespace GSCrm.Transactions
                 ("OrgNotificationsSettingViewModel", OperationType.Update) => "OrgNotificationsSettingUpdate",
                 ("OrgNotificationsSettingViewModel", OperationType.InitNotSetting) => "OrgNotificationsSettingUpdate",
                 ("Notification", OperationType.SendNotification) => "SendNotification",
+                ("UserNotification", OperationType.Update) => "UpdateUserNotification",
+                ("UserNotificationViewModel", OperationType.Delete) => "DeleteUserNotification",
                 ("UserViewModel", OperationType.Register) => "RegisterUser",
                 ("UserViewModel", OperationType.Login) => "LoginUser",
                 ("UserViewModel", OperationType.ResetPasswordSpecifyEmail) => "ResetUserPasswordSpecifyEmail",
                 ("UserViewModel", OperationType.ResetPassword) => "ResetUserPassword",
                 _ => string.Empty
             };
+        #endregion
     }
 }

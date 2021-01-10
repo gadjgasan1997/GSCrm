@@ -1,0 +1,14 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.EmpUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model BaseUpdateNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    <a href="/@EMPLOYEE/@Model.ChangedEmployee.Id">@Model.ChangedEmployee.GetFullName()</a>, Ваши данные в организации
+    <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a> были изменены
+</p>

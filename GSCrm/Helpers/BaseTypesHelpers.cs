@@ -134,6 +134,6 @@ namespace GSCrm.Helpers
         /// <param name="array">Исходный массив</param>
         /// <param name="parameters">Добавляемые параметры</param>
         /// <returns></returns>
-        public static T[] With<T>(this T[] array, params T[] parameters) => array.Concat(parameters.ToList()).ToArray();
+        public static T[] With<T>(this T[] array, params T[] parameters) => array.Concat(parameters).ToArray();
     }
 }

@@ -25,7 +25,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnCreate(ResponsibilityViewModel responsibilityViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("RespCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespCreate", transaction);
 
         protected override bool TryCreatePrepare(ResponsibilityViewModel responsibilityViewModel)
         {
@@ -42,7 +42,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(ResponsibilityViewModel responsibilityViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("RespUpdate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespUpdate", transaction);
 
         protected override bool TryUpdatePrepare(ResponsibilityViewModel responsibilityViewModel)
         {
@@ -59,7 +59,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(Responsibility responsibility)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("RespDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespDelete", transaction);
         #endregion
 
         #region Validations

@@ -84,6 +84,10 @@
         /// <summary>
         /// Отказ принять приглашение в организацию
         /// </summary>
-        RejectInvite = 22
+        RejectInvite = 22,
+        /// <summary>
+        /// Разблокировка должности
+        /// </summary>
+        UnlockPosition = 23
     }
 }

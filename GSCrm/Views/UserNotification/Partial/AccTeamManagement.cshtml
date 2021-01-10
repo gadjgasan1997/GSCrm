@@ -1,0 +1,46 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Notifications.Auxiliary
+@using GSCrm.Models.ViewModels.Notifications
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AccTeamManagementNotViewModel
+
+@switch (Model.AccTeamManagementNotType)
+{
+    case AccTeamManagementNotType.AddedToNew:
+        <p class="label-non-select label-md m-0 text-center">
+            От лица организации <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>, в которой Вы состоите, был создан клиент
+            <a href="/@ACCOUNT/@Model.Account.Id">@Model.Account.Name</a>
+        </p>
+        <p class="label-non-select label-md m-0 text-center">
+            Вы были добавлены в команду по клиенту
+        </p>
+        break;
+    case AccTeamManagementNotType.AddedToExists:
+        <p class="label-non-select label-md m-0 text-center">
+            Вас добавили в команду по клиенту <a href="/@ACCOUNT/@Model.Account.Id">@Model.Account.Name</a>
+        </p>
+        <p class="label-non-select label-md m-0 text-center">
+            Организация: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+        </p>
+        break;
+    case AccTeamManagementNotType.Removed:
+        <p class="label-non-select label-md m-0 text-center">
+            Вас удалили из команды по клиенту <a href="/@ACCOUNT/@Model.Account.Id">@Model.Account.Name</a>
+        </p>
+        <p class="label-non-select label-md m-0 text-center">
+            Организация: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+        </p>
+        break;
+    case AccTeamManagementNotType.SetToPrimary:
+        <p class="label-non-select label-md m-0 text-center">
+            Вас назначили основным менеджером в команде по клиенту <a href="/@ACCOUNT/@Model.Account.Id">@Model.Account.Name</a>
+        </p>
+        <p class="label-non-select label-md m-0 text-center">
+            Организация: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+        </p>
+        break;
+}

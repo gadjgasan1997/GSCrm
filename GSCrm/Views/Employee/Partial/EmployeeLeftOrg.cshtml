@@ -1,0 +1,24 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@model EmployeeViewModel
+
+<div class="mt-2 text-center">
+    <p class="label-md">@resManager.GetString("EmployeeIsLockByLeftFromOrg")</p>
+</div>
+<form id="lockEmployeeForm" class="mt-2" asp-controller="@EMPLOYEE" asp-action="Unlock">
+    <input id="employeeId" asp-for="Id" hidden="hidden" />
+    <input asp-for="OrganizationId" hidden="hidden" />
+
+    @{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeeLeftOrgContent.cshtml"); }
+
+    <div class="row justify-content-around mt-4">
+        <div class="col text-center">
+            <input id="unlockEmpBtn" type="submit" class="btn btn-primary" value="@resManager.GetString("Unlock")" />
+        </div>
+        <div class="col text-center">
+            <input id="cancelUnlockEmpBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+        </div>
+    </div>
+</form>

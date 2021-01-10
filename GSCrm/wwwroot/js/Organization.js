@@ -1,4 +1,6 @@
 ﻿class Organization {
+    //#region Organization
+    /** Создание */
     Create() {
         return new Promise((resolve, reject) => {
             $(".form-shadow").removeClass("d-none");
@@ -19,6 +21,20 @@
         })
     }
 
+    GetCreationData() {
+        return {
+            Name: $("#orgName").val()
+        }
+    }
+
+    /** Отмена создания */
+    Cancel() {
+        $("#orgName").val();
+        Utils.ClearErrors();
+        $("#organizationModal").modal("hide");
+    }
+
+    /** Удалить */
     Remove() {
         return new Promise((resolve, reject) => {
             Swal.fire(MessageManager.Invoke("RemoveOrgConfirmation")).then(dialogResult => {
@@ -61,18 +77,12 @@
         });
     }
 
-    Cancel() {
-        $("#orgName").val();
-        Utils.ClearErrors();
-        $("#organizationModal").modal("hide");
+    ClearSearch() {
+        $("#SearchName").val();
     }
-
-    GetCreationData() {
-        return {
-            Name: $("#orgName").val()
-        }
-    }
-
+    //#endregion
+    
+    //#region Responsibilities
     /**
      * Создание полномочия
      * @param {*} event 
@@ -191,7 +201,9 @@
                 });
         })
     }
+    //#endregion
 
+    //#region Primary Organization
     /**
      * Метод проставляет организацию основной
      * @param {*} event 
@@ -283,8 +295,10 @@
             PrimaryOrgId: primaryOrgId
         }
     }
+    //#endregion
 
-    /** Согласия на вступление в организацию */
+    //#region Invite
+    /** Согласие на вступление в организацию */
     AcceptInvite() {
         return new Promise((resolve, reject) => {
             let acceptInviteUrl = $("#acceptInvite").closest("form").attr("action");
@@ -297,7 +311,7 @@
                 })
                 .then(() => {
                     if (!hasErrors) {
-
+                        location.reload();
                     }
                 });
         })
@@ -313,6 +327,7 @@
             });
         })
     }
+    //#endregion
 
     static SetDefaultTab() {
         let tabs = $("#employeeModal .form-group .radio-tabs");
@@ -327,10 +342,6 @@
         $(firstTab).addClass("active");
         let firstTabCheckInput = $(firstTab).find(".form-check-input");
         $(firstTabCheckInput).attr("checked", "checked");
-    }
-
-    ClearSearch() {
-        $("#SearchName").val();
     }
 }
 

@@ -36,10 +36,17 @@ namespace GSCrm.Helpers
         #endregion
 
         #region Managers
-        public static List<AccountManager> GetManagers(this AccountViewModel accountViewModel, ApplicationDbContext context)
+        public static List<AccountManager> GetAccTeam(this AccountViewModel accountViewModel, ApplicationDbContext context)
             => context.AccountManagers.AsNoTracking().Where(acId => acId.AccountId == accountViewModel.Id).ToList();
-        public static List<AccountManager> GetManagers(this Account account, ApplicationDbContext context)
+        public static List<AccountManager> GetAccTeam(this Account account, ApplicationDbContext context)
             => context.AccountManagers.AsNoTracking().Where(acId => acId.AccountId == account.Id).ToList();
+        public static List<Employee> GetManagers(this Account account, ApplicationDbContext context)
+        {
+            return context.AccountManagers.AsNoTracking()
+                .Include(accMan => accMan.Manager)
+                .Where(accMan => accMan.AccountId == account.Id)
+                .Select(accMan => accMan.Manager).ToList();
+        }
         #endregion
 
         /// <summary>

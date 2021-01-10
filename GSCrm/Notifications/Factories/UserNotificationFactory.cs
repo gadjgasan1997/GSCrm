@@ -13,7 +13,7 @@ namespace GSCrm.Notifications.Factories
     public abstract class UserNotificationFactory<TNotificationParams> :  NotificationFactory<TNotificationParams>
         where TNotificationParams : INotificationParams
     {
-        public UserNotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
+        protected UserNotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
             : base(serviceProvider, context, notificationParams)
         { }
 

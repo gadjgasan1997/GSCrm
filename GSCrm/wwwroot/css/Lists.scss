@@ -192,7 +192,7 @@
     }
 }
 
-@media all and (max-width: 800px) {
+@media all and (max-width: 720px) {
     .notifications-empty-list {
         .col:first-child {
             display: none
@@ -200,9 +200,15 @@
     }
 }
 
-@media all and (min-width: 800px) {
+@media screen and (max-width: 720px) {
+    #notificationsList {
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: 720px) {
     #notificationsList {
         width: 70%;
-        margin: auto;
+        margin: auto
     }
 }

@@ -27,7 +27,7 @@ namespace GSCrm.Controllers
         {
             EmployeeViewModel employeeViewModel = (EmployeeViewModel)cachService.GetMainEntity(currentUser, MainEntityType.EmployeeView);
             EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
-            employeeRepository.SetViewInfo(currentUser.Id, EMP_CONTACTS, pageNumber);
+            employeeRepository.SetViewInfo(EMP_CONTACTS, pageNumber);
             employeeRepository.AttachContacts(employeeViewModel);
             return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
         }

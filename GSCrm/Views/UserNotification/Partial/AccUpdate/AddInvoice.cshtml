@@ -1,0 +1,43 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.AccUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AddInvoiceNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    У клиента <a href="/@ACCOUNT/@Model.ChangedAccount.Id">@Model.ChangedAccount.Name</a>, с которым вы работаете, были добавлены следующие банковские реквизиты:
+</p>
+<ul class="mt-2 mb-0">
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Банк: @Model.NewAccountInvoice.BankName
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Город: @Model.NewAccountInvoice.City
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            БИК: @Model.NewAccountInvoice.BIC
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Расчетный счет: @Model.NewAccountInvoice.CheckingAccount
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Корреспонденский счет: @Model.NewAccountInvoice.CorrespondentAccount
+        </p>
+    </li>
+</ul>
+<p class="label-non-select label-md m-0 text-center">
+    Организация: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+</p>

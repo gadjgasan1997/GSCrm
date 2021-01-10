@@ -1,0 +1,96 @@
+﻿@using static GSCrm.CommonConsts
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@model EmployeeViewModel
+
+@* // Модальное окно управления полномочиями *@
+@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeeResponsibilityModal.cshtml"); }
+@* // Модальное окно управления должностями *@
+@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeePosisionModal.cshtml"); }
+@* // Модальное окно изменения подразделения *@
+@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmpContactUpdateModal.cshtml"); }
+@* // Модальное окно создания контакта сотрудника *@
+@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmpContactCreateModal.cshtml"); }
+@* // Модальное окно изменения подразделения сотрудника *@
+@{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/ChangeDivisionModal.cshtml"); }
+
+<form id="updateEmployeeForm" class="mt-2" asp-controller="@EMPLOYEE" asp-action="Update">
+    <div asp-validation-summary="All"></div>
+    <div class="form-group">
+        <input id="employeeId" asp-for="Id" hidden="hidden" />
+        <input asp-for="OrganizationId" hidden="hidden" />
+        <div class="row">
+            <div class="col-md flex-grow-1">
+                <div class="mb-3">
+                    <input class="form-control" asp-for="LastName" placeholder="@resManager.GetString("LastNameLabel")" />
+                    <span asp-validation-for="LastName"></span>
+                </div>
+                <div class="mb-3">
+                    <input class="form-control" asp-for="FirstName" placeholder="@resManager.GetString("FirstNameLabel")" />
+                    <span asp-validation-for="FirstName"></span>
+                </div>
+                <div class="mb-3">
+                    <input class="form-control" asp-for="MiddleName" placeholder="@resManager.GetString("MidNameLabel")" />
+                    <span asp-validation-for="MiddleName"></span>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">@resManager.GetString("Supervisor")</span>
+                    </div>
+                    <div class="form-control form-control-url wide-form-control">
+                        <a href="@Url.Content($"~/{EMPLOYEE}/{Model.SupervisorId}/")">@Model.SupervisorInitialName</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md flex-grow-0">
+                <div class="row justify-content-center">
+                    <div class="col-sm mb-3 text-center">
+                        <input id="updateEmpBtn" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SaveChanges")" />
+                    </div>
+                    <div class="col-sm mb-3 text-center">
+                        <a id="cancelUpdateEmpBtn" class="btn btn-outline-danger" href="@Url.Content($"~/{EMPLOYEE}/{Model.Id}/")">@resManager.GetString("CancelChanges")</a>
+                    </div>
+                    <div class="col-sm text-center">
+                        <input id="openChangeDivisionModal" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#changeEmployeeDivisionModal" value="@resManager.GetString("ChangeDivision")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="col nav-connected-tabs text-center text-md-left mb-3 mb-md-0" nav-tabs="empTabs">
+    <div class="row justify-content-start">
+        <div class="col col-sm-auto text-center text-sm-left mt-3">
+            <input id="initializeRespsBtn" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#empRespManagement" value="@resManager.GetString("EmpRespsManagement")" />
+            <a id="initializeRespsUrl" asp-controller="@EMP_RESPONSIBILITY" asp-action="GetResponsibilities" asp-route-employeeId="@Model.Id" hidden="hidden"></a>
+        </div>
+        <div class="col col-sm-auto text-center text-sm-left mt-3">
+            <input id="initializePositionsBtn" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#employeePosisionModal" value="@resManager.GetString("PositionsManagement")" />
+            <a id="initializePositionsUrl" asp-controller="@EMP_POSITION" asp-action="GetPositions" asp-route-employeeId="@Model.Id" hidden="hidden"></a>
+        </div>
+        <div class="col mt-3">
+            <div class="fade nav-connected-tab text-center text-sm-left" nav-tab="#contacts">
+                <input type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#empContactCreateModal" value="@resManager.GetString("CreateEmployeeContact")" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@* // Вкладки *@
+<ul id="empTabs" class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contacts" role="tab" aria-controls="contacts" aria-selected="false">@resManager.GetString(CONTACTS)</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="subordinates-tab" data-toggle="tab" href="#subordinates" role="tab" aria-controls="subordinates" aria-selected="false">@resManager.GetString("Subordinates")</a>
+    </li>
+</ul>
+<div class="tab-content">
+    @* // Контакты *@
+    @{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeeContactsList.cshtml"); }
+
+    @* // Подчиненные *@
+    @{ await Html.RenderPartialAsync($"{EMP_VIEWS_REL_PATH}Partial/EmployeeSubordinatesList.cshtml"); }
+</div>

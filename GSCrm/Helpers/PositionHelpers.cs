@@ -1,5 +1,6 @@
 ﻿using GSCrm.Data;
 using GSCrm.Models;
+using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -12,23 +13,11 @@ namespace GSCrm.Helpers
     public static class PositionHelpers
     {
         #region Organizaqtions
-        public static Organization GetOrganization(this PositionViewModel positionViewModel, ApplicationDbContext context)
-            => GetOrganization(positionViewModel.OrganizationId, context);
         public static Organization GetOrganization(this Position position, ApplicationDbContext context)
-        {
-            Division positionDiv = context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == position.DivisionId);
-            return GetOrganization(positionDiv.OrganizationId, context);
-        }
-        private static Organization GetOrganization(Guid organizationId, ApplicationDbContext context)
-            => context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
+            => context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == position.OrganizationId);
         #endregion
 
         #region Divisions
-        public static Division GetDivision(this PositionViewModel positionViewModel, ApplicationDbContext context)
-        {
-            Organization organization = positionViewModel.GetOrganization(context);
-            return organization.GetDivisions(context).FirstOrDefault(n => n.Name == positionViewModel.DivisionName);
-        }
         public static Division GetDivision(this Position position, ApplicationDbContext context)
             => context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == position.DivisionId);
         #endregion
@@ -52,7 +41,7 @@ namespace GSCrm.Helpers
 
         #region Positions
         public static Position GetParentPosition(this Position position, ApplicationDbContext context)
-            => context.Positions.AsNoTracking().Include(div => div.Division).FirstOrDefault(i => i.Id == position.ParentPositionId);
+            => context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == position.ParentPositionId);
         public static Position GetParentPosition(this PositionViewModel positionViewModel, Division division, ApplicationDbContext context)
             => division.GetPositions(context).FirstOrDefault(n => n.Name == positionViewModel.ParentPositionName);
         public static List<Position> GetSubPositions(this Position position, ApplicationDbContext context)
@@ -60,5 +49,17 @@ namespace GSCrm.Helpers
         public static List<Position> GetSubPositions(this PositionViewModel positionViewModel, ApplicationDbContext context)
             => context.Positions.AsNoTracking().Where(pos => pos.ParentPositionId == positionViewModel.Id).ToList();
         #endregion
+
+        public static void Lock(this Position position, PositionLockReason lockReason = PositionLockReason.None)
+        {
+            position.PositionStatus = PositionStatus.Lock;
+            position.PositionLockReason = lockReason;
+        }
+
+        public static void Unlock(this Position position)
+        {
+            position.PositionStatus = PositionStatus.Active;
+            position.PositionLockReason = PositionLockReason.None;
+        }
     }
 }

@@ -935,5 +935,13 @@
                 "type": "swal"
             }
         ]
+    ],
+    "UnlockPosition": [
+        [
+            ["DivisionNameLength", "DivisionNotExists"],
+            {
+                "type": "swal"
+            }
+        ]
     ]
 }

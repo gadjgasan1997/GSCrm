@@ -27,7 +27,7 @@ namespace GSCrm.Factories
                 ("Organization", "OrganizationViewModel") => (IMap<TDataModel, TViewModel>)new OrganizationMap(serviceProvider, context),
                 ("Position", "PositionViewModel") => (IMap<TDataModel, TViewModel>)new PositionMap(serviceProvider, context),
                 ("Responsibility", "ResponsibilityViewModel") => (IMap<TDataModel, TViewModel>)new ResponsibilityMap(serviceProvider, context),
-                ("InboxNotification", "InboxNotificationViewModel") => (IMap<TDataModel, TViewModel>)new InboxNotificationMap(serviceProvider, context),
+                ("UserNotification", "UserNotificationViewModel") => (IMap<TDataModel, TViewModel>)new UserNotificationMap(serviceProvider, context),
                 ("OrgNotificationsSetting", "OrgNotificationsSettingViewModel") => (IMap<TDataModel, TViewModel>)new OrgNotificationsSettingMap(serviceProvider, context),
                 ("UserNotificationsSetting", "UserNotificationsSettingViewModel") => (IMap<TDataModel, TViewModel>)new UserNotificationsSettingMap(serviceProvider, context),
                 _ => default

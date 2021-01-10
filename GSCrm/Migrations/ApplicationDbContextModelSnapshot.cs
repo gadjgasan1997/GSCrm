@@ -240,7 +240,7 @@ namespace GSCrm.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DivisionId")
+                    b.Property<Guid?>("DivisionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("EmployeeLockReason")
@@ -258,6 +258,9 @@ namespace GSCrm.Migrations
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("PrimaryPositionId")
                         .HasColumnType("uniqueidentifier");
 
@@ -265,6 +268,8 @@ namespace GSCrm.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("Employees");
                 });
@@ -341,9 +346,6 @@ namespace GSCrm.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
@@ -453,21 +455,30 @@ namespace GSCrm.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DivisionId")
+                    b.Property<Guid?>("DivisionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ParentPositionId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PositionLockReason")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PositionStatus")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("PrimaryEmployeeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DivisionId");
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("Positions");
                 });
@@ -606,6 +617,9 @@ namespace GSCrm.Migrations
                     b.Property<bool>("PosDelete")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("PosUnlock")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("PosUpdate")
                         .HasColumnType("bit");
 
@@ -703,6 +717,9 @@ namespace GSCrm.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("HasRead")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("NotificationId")
                         .HasColumnType("uniqueidentifier");
@@ -902,11 +919,17 @@ namespace GSCrm.Migrations
                 {
                     b.HasBaseType("GSCrm.Models.Notification");
 
-                    b.Property<int>("ActionType")
-                        .HasColumnType("int");
+                    b.Property<string>("Attrib1")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("HasRead")
-                        .HasColumnType("bit");
+                    b.Property<string>("Attrib2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Attrib3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Attrib4")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("InboxNotification");
                 });
@@ -973,6 +996,15 @@ namespace GSCrm.Migrations
                     b.HasOne("GSCrm.Models.Organization", "Organization")
                         .WithMany("Divisions")
                         .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GSCrm.Models.Employee", b =>
+                {
+                    b.HasOne("GSCrm.Models.Organization", "Organization")
+                        .WithMany("Employees")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -991,12 +1023,12 @@ namespace GSCrm.Migrations
                     b.HasOne("GSCrm.Models.Employee", "Employee")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("GSCrm.Models.Position", "Position")
                         .WithMany("EmployeePositions")
                         .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("GSCrm.Models.EmployeeResponsibility", b =>
@@ -1025,9 +1057,9 @@ namespace GSCrm.Migrations
 
             modelBuilder.Entity("GSCrm.Models.Position", b =>
                 {
-                    b.HasOne("GSCrm.Models.Division", "Division")
+                    b.HasOne("GSCrm.Models.Organization", "Organization")
                         .WithMany("Positions")
-                        .HasForeignKey("DivisionId")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

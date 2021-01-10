@@ -12,7 +12,7 @@ namespace GSCrm.Data.EntityConfigurations
                 .HasMany(empPos => empPos.EmployeePositions)
                 .WithOne(pos => pos.Position)
                 .HasForeignKey(posId => posId.PositionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

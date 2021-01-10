@@ -11,6 +11,7 @@ using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Data;
 using GSCrm.Transactions;
 using GSCrm.Models.Enums;
+using GSCrm.Notifications.Auxiliary;
 
 namespace GSCrm.Repository
 {
@@ -30,6 +31,10 @@ namespace GSCrm.Repository
         /// Транзакция для синхронизации команды по клиенту
         /// </summary>
         private ITransaction syncRespsTransaction;
+        /// <summary>
+        /// Словарь с менеджерами и с типами уведомлений, адресованными им
+        /// </summary>
+        private Dictionary<Guid, AccTeamManagementNotType> managersNotTypes = new Dictionary<Guid, AccTeamManagementNotType>();
         private readonly ITransactionFactory<SyncAccountViewModel> syncRespsTransactionFactory;
         #endregion
 
@@ -77,7 +82,7 @@ namespace GSCrm.Repository
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, pageNumber, ALL_EMPLOYEES_COUNT);
+                SetViewInfo(ACC_TEAM_ALL_EMPLOYEES, pageNumber, ALL_EMPLOYEES_COUNT);
 
                 List<Employee> teamAllEmployees = context.GetOrgEmployees(account.OrganizationId);
                 AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
@@ -85,7 +90,7 @@ namespace GSCrm.Repository
                 LimitAllEmployeesByName(ref teamAllEmployees, accountViewModelCash);
                 LimitAllEmployeesByDivision(ref teamAllEmployees, accountViewModelCash);
                 LimitAllEmployeesByPosition(ref teamAllEmployees, accountViewModelCash);
-                LimitListByPageNumber(ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees, ALL_EMPLOYEES_COUNT);
+                LimitListByPageNumber(ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees);
                 return teamAllEmployees;
             }
             return new List<Employee>();
@@ -98,6 +103,7 @@ namespace GSCrm.Repository
         private void ExcludeSelectedEmployees(ref List<Employee> teamAllEmployees, Guid accountId)
         {
             List<AccountManager> teamSelectedManagers = context.AccountManagers
+                    .AsNoTracking()
                     .Include(man => man.Manager)
                     .Where(accId => accId.AccountId == accountId).ToList();
             List<Employee> teamSelectedEmployees = teamSelectedManagers.Select(man => man.Manager).ToList();
@@ -130,7 +136,7 @@ namespace GSCrm.Repository
                     limitingCollection: context.GetOrgDivisions(accountViewModelCash.OrganizationId),
                     limitCondition: n => n.Name.ToLower().Contains(accountViewModelCash.SearchAllManagersDivision),
                     selectCondition: i => i.Id,
-                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains(employee.DivisionId));
+                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains((Guid)employee.DivisionId));
             }
         }
 
@@ -161,10 +167,11 @@ namespace GSCrm.Repository
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, pageNumber, SELECTED_EMPLOYEES_COUNT);
+                SetViewInfo(ACC_TEAM_SELECTED_EMPLOYEES, pageNumber, SELECTED_EMPLOYEES_COUNT);
 
                 AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
                 List<AccountManager> teamSelectedEmployees = context.AccountManagers
+                    .AsNoTracking()
                     .Include(man => man.Manager)
                     .Where(accId => accId.AccountId == account.Id).ToList();
                 LimitSelectedEmployeesByName(ref teamSelectedEmployees, accountViewModelCash);
@@ -216,7 +223,7 @@ namespace GSCrm.Repository
             {
                 List<Employee> employees = managersToLimit.Select(man => man.Manager).ToList();
                 List<EmployeeContact> employeeContacts = new List<EmployeeContact>();
-                employees.ForEach(emp => employeeContacts.AddRange(context.EmployeeContacts.Where(e => e.EmployeeId == emp.Id && e.ContactType == ContactType.Work)));
+                employees.ForEach(emp => employeeContacts.AddRange(context.EmployeeContacts.AsNoTracking().Where(e => e.EmployeeId == emp.Id && e.ContactType == ContactType.Work)));
                 TransformCollection(
                     collectionToLimit: ref managersToLimit,
                     limitingCollection: employeeContacts,
@@ -228,6 +235,11 @@ namespace GSCrm.Repository
         #endregion
 
         #region Validations
+        /// <summary>
+        /// Общие проверки, выполняемые при синхронизации команды по клиенту
+        /// </summary>
+        /// <param name="syncViewModel"></param>
+        /// <returns></returns>
         private bool TrySyncAccTeamValidate(SyncAccountViewModel syncViewModel)
         {
             InvokeIntermittinActions(errors, new List<Action>()
@@ -266,8 +278,12 @@ namespace GSCrm.Repository
             {
                 // Простановка основного менеджера
                 Account account = (Account)syncRespsTransaction.GetParameterValue("Account");
-                Guid primaryManagerId = (Guid)syncRespsTransaction.GetParameterValue("PrimaryManagerId");
-                account.PrimaryManagerId = primaryManagerId;
+                account.PrimaryManagerId = (Guid)syncRespsTransaction.GetParameterValue("PrimaryManagerId");
+
+                // Добавление менеджера на рассылку уведомлений
+                AccountManager primaryManager = context.AccountManagers.AsNoTracking().Include(accMan => accMan.Manager).FirstOrDefault(accMan => accMan.Id == account.PrimaryManagerId);
+                if (primaryManager?.Manager != null)
+                    managersNotTypes.Add(primaryManager.Manager.UserId, AccTeamManagementNotType.SetToPrimary);
 
                 // Добавление и удаление сотруднкиов из команды по клиенту
                 if (syncViewModel.ManagersToAdd.Count > 0 || syncViewModel.ManagersToRemove.Count > 0)
@@ -282,9 +298,10 @@ namespace GSCrm.Repository
                 }
 
                 // Закрытие транзакции, если не было ошибок и коммит прошел успешно
-                if (!this.errors.Any() && transactionFactory.TryCommit(syncRespsTransaction, this.errors))
+                if (!this.errors.Any() && syncRespsTransactionFactory.TryCommit(syncRespsTransaction, this.errors))
                 {
-                    transactionFactory.Close(syncRespsTransaction);
+                    syncRespsTransaction.AddParameter("ManagersNotTypes", managersNotTypes);
+                    syncRespsTransactionFactory.Close(syncRespsTransaction);
                     return true;
                 }
             }
@@ -300,30 +317,26 @@ namespace GSCrm.Repository
         /// <param name="accountId">Клиент</param>
         private bool TryAddManagerToTeam(string managerId, Guid accountId)
         {
-            if (string.IsNullOrEmpty(managerId) || !Guid.TryParse(managerId, out Guid guid))
+            Guid employeeId = Guid.Empty;
+            Employee employee = null;
+            InvokeIntermittinActions(errors, new List<Action>()
             {
-                errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
-                return false;
-            }
+                () => {
+                    if (string.IsNullOrEmpty(managerId) || !Guid.TryParse(managerId, out Guid guid))
+                        errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
+                    else employeeId = guid;
+                },
+                () => {
+                    employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == employeeId);
+                    if (employee == null)
+                        errors.Add("EmployeeNotExists", resManager.GetString("EmployeeNotExists"));
+                },
+                () => CheckEmployeeStatus(employee)
+            });
+            if (errors.Any()) return false;
 
-            Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == guid);
-            if (employee == null)
-            {
-                errors.Add("EmployeeNotExists", resManager.GetString("EmployeeNotExists"));
-                return false;
-            }
-
-            switch (employee.EmployeeStatus)
-            {
-                case EmployeeStatus.Lock:
-                    errors.Add("AccountManagerIsLocked", resManager.GetString("AccountManagerIsLocked"));
-                    return false;
-                case EmployeeStatus.None:
-                case EmployeeStatus.AwaitingInvitationAcceptance:
-                    errors.Add("AccountManagerIsNonActive", resManager.GetString("AccountManagerIsNonActive"));
-                    return false;
-            }
-
+            // Сохранение информации о типе уведомления, которое надо будет отправить пользователю и добавление изменения в транзакцию
+            managersNotTypes.Add(employee.UserId, AccTeamManagementNotType.AddedToExists);
             syncRespsTransaction.AddChange(new AccountManager()
             {
                 ManagerId = employee.Id,
@@ -333,23 +346,50 @@ namespace GSCrm.Repository
         }
 
         /// <summary>
+        /// Метод проверяет статус сотрудника при синхронизации команды по клиенту
+        /// </summary>
+        /// <param name="employee"></param>
+        private void CheckEmployeeStatus(Employee employee)
+        {
+            switch (employee.EmployeeStatus)
+            {
+                case EmployeeStatus.Lock:
+                    errors.Add("AccountManagerIsLocked", resManager.GetString("AccountManagerIsLocked"));
+                    break;
+                case EmployeeStatus.None:
+                case EmployeeStatus.AwaitingInvitationAcceptance:
+                    errors.Add("AccountManagerIsNonActive", resManager.GetString("AccountManagerIsNonActive"));
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Метод удаляет сотрудника из команды по клиенту
         /// </summary>
         /// <param name="managerId">Id менеджера для удаления</param>
         private bool TryRemoveManagerFromTeam(string managerId)
         {
-            if (string.IsNullOrEmpty(managerId) || !Guid.TryParse(managerId, out Guid guid))
+            Guid accountManagerId = Guid.Empty;
+            AccountManager accountManager = null;
+            InvokeIntermittinActions(errors, new List<Action>()
             {
-                errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
-                return false;
-            }
+                () => {
+                    if (string.IsNullOrEmpty(managerId) || !Guid.TryParse(managerId, out Guid guid))
+                        errors.Add("UnhandledException", resManager.GetString("UnhandledException"));
+                    else accountManagerId = guid;
+                },
+                () => {
+                    accountManager = context.AccountManagers.AsNoTracking()
+                        .Include(accMan => accMan.Manager)
+                        .FirstOrDefault(man => man.Id == accountManagerId);
+                    if (accountManager == null)
+                        errors.Add("AccountManagerNotFound", resManager.GetString("AccountManagerNotFound"));
+                }
+            });
+            if (errors.Any()) return false;
 
-            AccountManager accountManager = context.AccountManagers.AsNoTracking().FirstOrDefault(man => man.Id == guid);
-            if (accountManager == null)
-            {
-                errors.Add("AccountManagerNotFound", resManager.GetString("AccountManagerNotFound"));
-                return false;
-            }
+            // Сохранение информации о типе уведомления, которое надо будет отправить пользователю и добавление изменения в транзакцию
+            managersNotTypes.Add(accountManager.Manager.UserId, AccTeamManagementNotType.Removed);
             syncRespsTransaction.AddChange(accountManager, EntityState.Deleted);
             return true;
         }

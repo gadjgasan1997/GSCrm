@@ -32,7 +32,7 @@ namespace GSCrm.Controllers
             User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
             EmployeeViewModel employeeViewModel = (EmployeeViewModel)cachService.GetMainEntity(currentUser, MainEntityType.EmployeeView);
             EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
-            employeeRepository.SetViewInfo(currentUser.Id, EMP_POSITIONS, pageNumber);
+            employeeRepository.SetViewInfo(EMP_POSITIONS, pageNumber);
             employeeRepository.AttachPositions(employeeViewModel);
             return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
         }

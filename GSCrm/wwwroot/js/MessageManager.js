@@ -11,7 +11,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением закрытия окна управления должностями без синхронизации */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј Р·Р°РєСЂС‹С‚РёСЏ РѕРєРЅР° СѓРїСЂР°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅРѕСЃС‚СЏРјРё Р±РµР· СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё */
             PositionModalClosedConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -27,7 +27,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением смены подразделения */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СЃРјРµРЅС‹ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ */
             ChangeEmpDivisionConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -43,7 +43,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления сотрудника */
+            /** РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ СЃРѕС‚СЂСѓРґРЅРёРєР° */
             RemoveEmployeeError: class {
                 Initialize(inputProperties) {
                     return {
@@ -54,7 +54,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления контакта сотрудника */
+            /** РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ РєРѕРЅС‚Р°РєС‚Р° СЃРѕС‚СЂСѓРґРЅРёРєР° */
             RemoveEmployeeContactError: class {
                 Initialize(inputProperties) {
                     return {
@@ -65,7 +65,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением удаления организации */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓРґР°Р»РµРЅРёСЏ РѕСЂРіР°РЅРёР·Р°С†РёРё */
             RemoveOrgConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -81,7 +81,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением выхода из организации */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј РІС‹С…РѕРґР° РёР· РѕСЂРіР°РЅРёР·Р°С†РёРё */
             LeaveOrgConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -97,7 +97,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением удаления должности */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓРґР°Р»РµРЅРёСЏ РґРѕР»Р¶РЅРѕСЃС‚Рё */
             RemovePositionConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -113,7 +113,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления должности */
+            /** РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ РґРѕР»Р¶РЅРѕСЃС‚Рё */
             RemovePositionError: class {
                 Initialize(inputProperties) {
                     return {
@@ -124,7 +124,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением изменения подразделения */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј РёР·РјРµРЅРµРЅРёСЏ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ */
             ChangePosDivisionConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -140,7 +140,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением удаления подразделения */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓРґР°Р»РµРЅРёСЏ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ */
             RemoveDivConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -156,7 +156,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления подразделения */
+            /** РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ РїРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ */
             RemoveDivisionError: class {
                 Initialize(inputProperties) {
                     return {
@@ -167,7 +167,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с предложением ввести название нового сайта */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїСЂРµРґР»РѕР¶РµРЅРёРµРј РІРІРµСЃС‚Рё РЅР°Р·РІР°РЅРёРµ РЅРѕРІРѕРіРѕ СЃР°Р№С‚Р° */
             NewSiteMessage: class {
                 Initialize(inputProperties) {
                     let siteInput = inputProperties["siteInput"];
@@ -205,7 +205,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение об успешном изменении сайта */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ РѕР± СѓСЃРїРµС€РЅРѕРј РёР·РјРµРЅРµРЅРёРё СЃР°Р№С‚Р° */
             SiteHasBeenChanged: class {
                 Initialize(inputProperties) {
                     return {
@@ -218,7 +218,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение о неуспешном изменении сайта */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ Рѕ РЅРµСѓСЃРїРµС€РЅРѕРј РёР·РјРµРЅРµРЅРёРё СЃР°Р№С‚Р° */
             SiteHasNotBeenChanged: class {
                 Initialize(inputProperties) {
                     return {
@@ -229,7 +229,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления контакта клиента */
+            /** РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ РєРѕРЅС‚Р°РєС‚Р° РєР»РёРµРЅС‚Р° */
             RemoveAccountContactError: class {
                 Initialize(inputProperties) {
                     return {
@@ -240,7 +240,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка смены основного контакта клиента */
+            /** РћС€РёР±РєР° СЃРјРµРЅС‹ РѕСЃРЅРѕРІРЅРѕРіРѕ РєРѕРЅС‚Р°РєС‚Р° РєР»РёРµРЅС‚Р° */
             ChangePrimaryAccountContactError: class {
                 Initialize(inputProperties) {
                     return {
@@ -251,7 +251,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение об успешном изменении основного контакта на клиенте */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ РѕР± СѓСЃРїРµС€РЅРѕРј РёР·РјРµРЅРµРЅРёРё РѕСЃРЅРѕРІРЅРѕРіРѕ РєРѕРЅС‚Р°РєС‚Р° РЅР° РєР»РёРµРЅС‚Рµ */
             PrimaryContactHasBeenChanged: class {
                 Initialize(inputProperties) {
                     return {
@@ -264,7 +264,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение об успешном изменении основной организации */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ РѕР± СѓСЃРїРµС€РЅРѕРј РёР·РјРµРЅРµРЅРёРё РѕСЃРЅРѕРІРЅРѕР№ РѕСЂРіР°РЅРёР·Р°С†РёРё */
             PrimaryOrgHasBeenChanged: class {
                 Initialize(inputProperties) {
                     return {
@@ -277,7 +277,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с информацией, возникающее при смене типа на юридическом адресе */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№, РІРѕР·РЅРёРєР°СЋС‰РµРµ РїСЂРё СЃРјРµРЅРµ С‚РёРїР° РЅР° СЋСЂРёРґРёС‡РµСЃРєРѕРј Р°РґСЂРµСЃРµ */
             ChangeLegalAddressInfo: class {
                 Initialize(inputProperties) {
                     return {
@@ -293,7 +293,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение о том, что у клиента нет свободных адресов */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ Рѕ С‚РѕРј, С‡С‚Рѕ Сѓ РєР»РёРµРЅС‚Р° РЅРµС‚ СЃРІРѕР±РѕРґРЅС‹С… Р°РґСЂРµСЃРѕРІ */
             AddressListIsEmpty: class {
                 Initialize(inputProperties) {
                     return {
@@ -304,7 +304,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение об успешном изменении юридического адреса */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ РѕР± СѓСЃРїРµС€РЅРѕРј РёР·РјРµРЅРµРЅРёРё СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р°РґСЂРµСЃР° */
             LegalAddressHasBeenChanged: class {
                 Initialize(inputProperties) {
                     return {
@@ -317,7 +317,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением удаления клиента */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓРґР°Р»РµРЅРёСЏ РєР»РёРµРЅС‚Р° */
             RemoveAccountConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -333,7 +333,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка удаления клиента */
+            /** РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ РєР»РёРµРЅС‚Р° */
             RemoveAccountError: class {
                 Initialize(inputProperties) {
                     return {
@@ -344,7 +344,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением удаления сотрудника */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓРґР°Р»РµРЅРёСЏ СЃРѕС‚СЂСѓРґРЅРёРєР° */
             RemoveEmployeeConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -360,7 +360,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с предложением измениния названия полномочия */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїСЂРµРґР»РѕР¶РµРЅРёРµРј РёР·РјРµРЅРёРЅРёСЏ РЅР°Р·РІР°РЅРёСЏ РїРѕР»РЅРѕРјРѕС‡РёСЏ */
             ChangingReponsibilityName: class {
                 Initialize(inputProperties) {
                     let currentReponsibilityName = inputProperties["currentReponsibilityName"];
@@ -380,7 +380,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением закрытия окна без коммита */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј Р·Р°РєСЂС‹С‚РёСЏ РѕРєРЅР° Р±РµР· РєРѕРјРјРёС‚Р° */
             NotCommitModalClosedConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -396,7 +396,7 @@ class MessageManager {
                 }
             },
 
-            /** Ошибка синхронизации должностей */
+            /** РћС€РёР±РєР° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РґРѕР»Р¶РЅРѕСЃС‚РµР№ */
             SyncPositionsError: class {
                 Initialize(inputProperties) {
                     return {
@@ -407,7 +407,7 @@ class MessageManager {
                 }
             },
 
-            /** Недостаточно полномочий */
+            /** РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїРѕР»РЅРѕРјРѕС‡РёР№ */
             HasNotPermissions: class {
                 Initialize(inputProperties) {
                     return {
@@ -418,7 +418,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение, что настройки уведомлений были успешно изменены */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ, С‡С‚Рѕ РЅР°СЃС‚СЂРѕР№РєРё СѓРІРµРґРѕРјР»РµРЅРёР№ Р±С‹Р»Рё СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅС‹ */
             NotSettingsCommitSuccess: class {
                 Initialize(inputProperties) {
                     return {
@@ -431,7 +431,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение, что настройки уведомлений были успешно установлены по умолчанию */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ, С‡С‚Рѕ РЅР°СЃС‚СЂРѕР№РєРё СѓРІРµРґРѕРјР»РµРЅРёР№ Р±С‹Р»Рё СѓСЃРїРµС€РЅРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ */
             SetNotSettingsToDefaultSuccess: class {
                 Initialize(inputProperties) {
                     return {
@@ -444,7 +444,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением установки настроек уведомлений в организациях по умолчанию */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓСЃС‚Р°РЅРѕРІРєРё РЅР°СЃС‚СЂРѕРµРє СѓРІРµРґРѕРјР»РµРЅРёР№ РІ РѕСЂРіР°РЅРёР·Р°С†РёСЏС… РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ */
             ResetOrgNotSettingsConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -460,7 +460,7 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с подтверждением установки настроек личных уведомлений по умолчанию */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј СѓСЃС‚Р°РЅРѕРІРєРё РЅР°СЃС‚СЂРѕРµРє Р»РёС‡РЅС‹С… СѓРІРµРґРѕРјР»РµРЅРёР№ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ */
             ResetUserNotSettingsConfirmation: class {
                 Initialize(inputProperties) {
                     return {
@@ -476,13 +476,26 @@ class MessageManager {
                 }
             },
 
-            /** Сообщение с информацией, что приглашение было откланено */
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№, С‡С‚Рѕ РїСЂРёРіР»Р°С€РµРЅРёРµ Р±С‹Р»Рѕ РѕС‚РєР»Р°РЅРµРЅРѕ */
             InviteHasBeenRejected : class {
                 Initialize(inputProperties) {
                     return {
                         position: 'top-end',
                         icon: 'success',
                         title: Localization.GetString("inviteHasBeenRejected"),
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                }
+            },
+
+            /** РЎРѕРѕР±С‰РµРЅРёРµ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№, С‡С‚Рѕ РїСЂРёРіР»Р°С€РµРЅРёРµ Р±С‹Р»Рѕ РїСЂРёРЅСЏС‚Рѕ */
+            InviteHasBeenAccepted : class {
+                Initialize(inputProperties) {
+                    return {
+                        position: 'top-end',
+                        icon: 'success',
+                        title: Localization.GetString("inviteHasBeenAccepted"),
                         showConfirmButton: false,
                         timer: 1500
                     }

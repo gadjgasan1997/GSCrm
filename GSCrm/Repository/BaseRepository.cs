@@ -37,10 +37,6 @@ namespace GSCrm.Repository
         /// Текущий пользователь
         /// </summary>
         protected User currentUser;
-        /// <summary>
-        /// Текущий сотрудник
-        /// </summary>
-        protected Employee currentEmployee;
         protected DbSet<TDataModel> dbSet;
         protected IServiceProvider serviceProvider;
         protected readonly ITFFactory TFFactory;
@@ -59,7 +55,11 @@ namespace GSCrm.Repository
         /// <summary>
         /// Сервис транзакций
         /// </summary>
-        protected readonly ITransactionFactory<TViewModel> transactionFactory;
+        protected readonly ITransactionFactory<TViewModel> viewModelsTransactionFactory;
+        /// <summary>
+        /// Сервис транзакций
+        /// </summary>
+        protected readonly ITransactionFactory<TDataModel> dataModelsTransactionFactory;
         protected ITransaction transaction;
         /// <summary>
         /// Менеджер ресурсов для доступа к переводам
@@ -90,7 +90,8 @@ namespace GSCrm.Repository
             IMapFactory mapFactory = serviceProvider.GetService(typeof(IMapFactory)) as IMapFactory;
             TFFactory = serviceProvider.GetService(typeof(ITFFactory)) as ITFFactory;
             map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
-            transactionFactory = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
+            viewModelsTransactionFactory = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
+            dataModelsTransactionFactory = TFFactory.GetTransactionFactory<TDataModel>(serviceProvider, context);
             viewsInfo = serviceProvider.GetService(typeof(IViewsInfo)) as IViewsInfo;
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
@@ -114,7 +115,7 @@ namespace GSCrm.Repository
             this.currentUser = currentUser ?? this.currentUser;
 
             // Создание и открытие транзакции
-            transaction = transactionFactory.Create(this.currentUser.Id, OperationType.Create, entityToCreate);
+            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Create, entityToCreate);
 
             // Проверка прав пользователя на совершение действия
             if (!RespsIsCorrectOnCreate(entityToCreate))
@@ -128,9 +129,10 @@ namespace GSCrm.Repository
                     TDataModel dataModel = map.OnModelCreate(entityToCreate);
                     transaction.AddChange(dataModel, EntityState.Added);
                     NewRecord = dataModel;
-                    if (transactionFactory.TryCommit(transaction, errors))
+                    transaction.AddParameter("NewRecord", dataModel);
+                    if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                     {
-                        transactionFactory.Close(transaction);
+                        viewModelsTransactionFactory.Close(transaction);
                         return true;
                     }
                 }
@@ -141,7 +143,7 @@ namespace GSCrm.Repository
                 modelState.AddModelError(error.Key, error.Value);
 
             // Закрытие транзакции и выход
-            transactionFactory.Close(transaction);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
         /// <summary>
@@ -171,49 +173,53 @@ namespace GSCrm.Repository
             this.currentUser = currentUser ?? this.currentUser;
 
             // Создание и открытие транзакции
-            transaction = transactionFactory.Create(this.currentUser.Id, OperationType.Update, entityToUpdate);
+            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Update, entityToUpdate);
 
             // Поиск записи
             Guid entityToUpdateId = entityToUpdate.Id;
-            if (dbSet.AsNoTracking().FirstOrDefault(i => i.Id == entityToUpdateId) == null)
+            TDataModel recordToChange = dbSet.AsNoTracking().FirstOrDefault(i => i.Id == entityToUpdateId);
+            if (recordToChange == null)
                 OnRecordNotFound(entityToUpdate);
-
-            // Проверка прав пользователя на совершение действия
-            else if (RespsIsCorrectOnUpdate(entityToUpdate))
+            else
             {
-                // Попытка обновления записи
-                if (TryUpdatePrepare(entityToUpdate))
+                // Проверка прав пользователя на совершение действия
+                transaction.AddParameter("RecordToChange", recordToChange);
+                if (RespsIsCorrectOnUpdate(entityToUpdate))
                 {
-                    // Преобразование записи при обновлении(получение ее из бд и изменение значений полей)
-                    TDataModel dataModel = map.OnModelUpdate(entityToUpdate);
-                    try
+                    // Попытка обновления записи
+                    if (TryUpdatePrepare(entityToUpdate))
                     {
-                        // Обновление записи
-                        transaction.AddChange(dataModel, EntityState.Modified);
-                        ChangedRecord = dataModel;
-                        if (transactionFactory.TryCommit(transaction, errors))
+                        // Преобразование записи при обновлении(получение ее из бд и изменение значений полей)
+                        TDataModel dataModel = map.OnModelUpdate(entityToUpdate);
+                        try
                         {
-                            // Закрытие транзакции
-                            transactionFactory.Close(transaction);
-                            // Получение из бд обновленной записи, преобразование ее в модель отображения
-                            entityToUpdate = map.DataToViewModel(dataModel);
-                            return true;
+                            // Обновление записи
+                            transaction.AddChange(dataModel, EntityState.Modified);
+                            ChangedRecord = dataModel;
+                            transaction.AddParameter("ChangedRecord", dataModel);
+                            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+                            {
+                                // Закрытие транзакции
+                                viewModelsTransactionFactory.Close(transaction);
+                                // Получение из бд обновленной записи, преобразование ее в модель отображения
+                                entityToUpdate = map.DataToViewModel(dataModel);
+                                return true;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            errors.Add(resManager.GetString("UnhandledException"), ex.Message);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        errors.Add(resManager.GetString("UnhandledException"), ex.Message);
-                    }
                 }
+                else HasNotPermissionsForUpdate();
             }
-
-            else HasNotPermissionsForUpdate();
 
             // Добавление ошибок
             UpdateAddErrors(modelState);
 
             // Закрытие транзакции
-            transactionFactory.Close(transaction);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             FailureUpdateHandler(entityToUpdate);
             return false;
         }
@@ -255,7 +261,7 @@ namespace GSCrm.Repository
         public bool TryDelete(string id, ModelStateDictionary modelState, User currentUser = null)
         {
             this.currentUser = currentUser ?? this.currentUser;
-            transaction = transactionFactory.Create(this.currentUser.Id, OperationType.Delete, id);
+            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Delete, id);
             if (TryParseId(id, out Guid guid))
             {
                 TDataModel entityToDelete = dbSet.FirstOrDefault(i => i.Id == guid);
@@ -268,12 +274,13 @@ namespace GSCrm.Repository
                     transaction.AddParameter("RecordToRemove", recordToRemove);
                     if (RespsIsCorrectOnDelete(entityToDelete))
                     {
+                        // Выполнение подготовительных действий
                         if (TryDeletePrepare(entityToDelete))
                         {
                             transaction.AddChange(entityToDelete, EntityState.Deleted);
-                            if (transactionFactory.TryCommit(transaction, errors))
+                            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
                             {
-                                transactionFactory.Close(transaction);
+                                viewModelsTransactionFactory.Close(transaction);
                                 return true;
                             }
                         }
@@ -287,7 +294,33 @@ namespace GSCrm.Repository
                 modelState.AddModelError(error.Key, error.Value);
 
             // Закрытие транзакции
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            return false;
+        }
+
+        /// <summary>
+        /// Метод удаляет уже найденную запись без проверки ее на существование и наличие полномочий у пользователя
+        /// Вызывается из внешних источников
+        /// </summary>
+        /// <param name="entityToDelete"></param>
+        /// <returns></returns>
+        public bool TryDelete(TDataModel entityToDelete)
+        {
+            transaction = dataModelsTransactionFactory.Create(currentUser.Id, OperationType.Delete, entityToDelete);
+
+            // Выполнение подготовительных действий
+            if (TryDeletePrepare(entityToDelete))
+            {
+                transaction.AddChange(entityToDelete, EntityState.Deleted);
+                if (dataModelsTransactionFactory.TryCommit(transaction, errors))
+                {
+                    dataModelsTransactionFactory.Close(transaction);
+                    return true;
+                }
+            }
+
+            // Закрытие транзакции
+            dataModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -313,12 +346,13 @@ namespace GSCrm.Repository
         #endregion
 
         #region Other Methods
-        public virtual void SetViewInfo(string userId, string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT, int pageStep = DEFAULT_PAGE_STEP)
+        public virtual void SetViewInfo(string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT)
         {
-            ViewInfo viewInfo = viewsInfo.Get(userId, viewName);
+            ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, viewName);
             viewInfo.CurrentPageNumber = pageNumber <= DEFAULT_MIN_PAGE_NUMBER ? DEFAULT_MIN_PAGE_NUMBER : pageNumber;
-            viewInfo.SkipSteps = viewInfo.CurrentPageNumber - pageStep;
-            viewsInfo.Set(userId, viewName, viewInfo);
+            viewInfo.SkipSteps = viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP;
+            viewInfo.ItemsCount = itemsCount;
+            viewsInfo.Set(currentUser.Id, viewName, viewInfo);
         }
 
         /// <summary>
@@ -327,21 +361,20 @@ namespace GSCrm.Repository
         /// <typeparam name="TItemsListType"></typeparam>
         /// <param name="viewName"></param>
         /// <param name="itemsToLimit"></param>
-        /// <param name="itemsCount"></param>
         /// <returns></returns>
-        protected void LimitListByPageNumber<TItemsListType>(string viewName, ref List<TItemsListType> itemsToLimit, int itemsCount = DEFAULT_ITEMS_COUNT, int pageStep = DEFAULT_PAGE_STEP)
+        protected void LimitListByPageNumber<TItemsListType>(string viewName, ref List<TItemsListType> itemsToLimit)
             where TItemsListType : class
         {
             ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, viewName);
             if (viewInfo != null)
             {
-                List<TItemsListType> limitedItems = itemsToLimit.Skip(viewInfo.SkipSteps * itemsCount).Take(itemsCount).ToList();
+                List<TItemsListType> limitedItems = itemsToLimit.Skip(viewInfo.SkipSteps * viewInfo.ItemsCount).Take(viewInfo.ItemsCount).ToList();
                 if (limitedItems.Count == 0)
                 {
-                    int newSkipItemsCount = (viewInfo.SkipSteps - pageStep) * itemsCount;
+                    int newSkipItemsCount = (viewInfo.SkipSteps - DEFAULT_PAGE_STEP) * viewInfo.ItemsCount;
                     limitedItems = itemsToLimit.Skip(newSkipItemsCount).ToList();
                     viewInfo.CurrentPageNumber--;
-                    viewInfo.SkipSteps -= pageStep;
+                    viewInfo.SkipSteps -= DEFAULT_PAGE_STEP;
                 }
                 itemsToLimit = limitedItems;
             }
@@ -443,6 +476,7 @@ namespace GSCrm.Repository
                 ("PositionViewModel", OperationType.Update) => ("PosUpdateNoRes", resManager.GetString("PosUpdateNoRes")),
                 ("PositionViewModel", OperationType.Delete) => ("PosDeleteNoRes", resManager.GetString("PosDeleteNoRes")),
                 ("PositionViewModel", OperationType.ChangePositionDivision) => ("ChangePositionDivisionNoRes", resManager.GetString("ChangePositionDivisionNoRes")),
+                ("PositionViewModel", OperationType.UnlockPosition) => ("UnlockPositionNoRes", resManager.GetString("UnlockPositionNoRes")),
                 ("EmployeeViewModel", OperationType.Create) => ("EmpCreateNoRes", resManager.GetString("EmpCreateNoRes")),
                 ("EmployeeViewModel", OperationType.Update) => ("EmpUpdateNoRes", resManager.GetString("EmpUpdateNoRes")),
                 ("EmployeeViewModel", OperationType.Delete) => ("EmpDeleteNoRes", resManager.GetString("EmpDeleteNoRes")),

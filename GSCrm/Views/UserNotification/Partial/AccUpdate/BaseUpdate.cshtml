@@ -1,0 +1,16 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.AccUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model BaseUpdateNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    Данные вашего клиента <a href="/@ACCOUNT/@Model.ChangedAccount.Id">@Model.ChangedAccount.Name</a> были изменены
+</p>
+<p class="label-non-select label-md m-0 text-center">
+    Организация: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+</p>

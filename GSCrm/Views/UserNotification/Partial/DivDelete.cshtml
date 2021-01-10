@@ -1,0 +1,19 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model DivDeleteNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    Подразделение @Model.RemovedDivisionName, в котором вы состояли, было удалено.
+</p>
+<p class="label-non-select label-md m-0 text-center">
+    Ваш профиль сотрудника был заблокирован. Для разблокировки необходимо, чтобы уполномоченный сотрудник добавил вас в какое-либо подразделение и назначил должность.
+</p>
+<p class="label-non-select label-md m-0 text-center">
+    Организация:
+    <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a>
+</p>

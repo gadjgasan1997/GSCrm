@@ -1,0 +1,17 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.EmpUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model ChangeDivisionNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    <a href="/@EMPLOYEE/@Model.ChangedEmployee.Id">@Model.ChangedEmployee.GetFullName()</a>, Вас перевели в подразделение @Model.NewEmployeeDivision.Name и выдали новую должность -
+    <a href="/@POSITION/@Model.NewEmployeePosition.Id">@Model.NewEmployeePosition.Name</a>
+</p>
+<p class="label-non-select label-md m-0 text-center">
+    Организация: <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a>
+</p>

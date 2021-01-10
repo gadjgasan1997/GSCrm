@@ -95,7 +95,7 @@ namespace GSCrm.Repository
                 transaction.AddParameter("CurrentOrganization", currentOrganization);
 
                 // Проверка полномочий
-                if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("AccCreate", transaction))
+                if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("AccCreate", transaction))
                     AddHasNoPermissionsError(OperationType.Create);
 
                 // Остальные проверки
@@ -111,35 +111,35 @@ namespace GSCrm.Repository
                     {
                         case AccountType.Individual:
                             InvokeIntermittinActions(errors, new List<Action>()
-                        {
-                            () => {
-                                new PersonValidator(resManager).CheckPersonName(
-                                    accountViewModel.FirstName,
-                                    accountViewModel.LastName,
-                                    accountViewModel.MiddleName,
-                                    ref errors);
-                            },
-                            () => CheckINNOnCreate(accountViewModel)
-                        }.Concat(commonHandlers));
+                            {
+                                () => {
+                                    new PersonValidator(resManager).CheckPersonName(
+                                        accountViewModel.FirstName,
+                                        accountViewModel.LastName,
+                                        accountViewModel.MiddleName,
+                                        ref errors);
+                                },
+                                () => CheckINNOnCreate(accountViewModel)
+                            }.Concat(commonHandlers));
                             break;
 
                         case AccountType.IndividualEntrepreneur:
                             InvokeIntermittinActions(errors, new List<Action>()
-                        {
-                            () => CheckIENameOnCreate(accountViewModel),
-                            () => CheckINNOnCreate(accountViewModel)
-                        }.Concat(commonHandlers));
+                            {
+                                () => CheckIENameOnCreate(accountViewModel),
+                                () => CheckINNOnCreate(accountViewModel)
+                            }.Concat(commonHandlers));
                             break;
 
                         case AccountType.LegalEntity:
                             InvokeIntermittinActions(errors, new List<Action>()
-                        {
-                            () => CheckLENameOnCreate(accountViewModel),
-                            () => CheckINNOnCreate(accountViewModel),
-                            () => CheckKPPOnCreate(accountViewModel),
-                            () => CheckOKPOOnCreate(accountViewModel),
-                            () => CheckOGRNOnCreate(accountViewModel)
-                        }.Concat(commonHandlers));
+                            {
+                                () => CheckLENameOnCreate(accountViewModel),
+                                () => CheckINNOnCreate(accountViewModel),
+                                () => CheckKPPOnCreate(accountViewModel),
+                                () => CheckOKPOOnCreate(accountViewModel),
+                                () => CheckOGRNOnCreate(accountViewModel)
+                            }.Concat(commonHandlers));
                             break;
                     }
                 }
@@ -695,7 +695,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         public void AttachManagers(AccountViewModel accountViewModel)
         {
-            accountViewModel.AccountManagers = accountViewModel.GetManagers(context).GetViewModelsFromData
+            accountViewModel.AccountManagers = accountViewModel.GetAccTeam(context).GetViewModelsFromData
                 <AccountManager, AccountManagerViewModel>(new AccountManagerMap(serviceProvider, context));
         }
 
@@ -1449,7 +1449,7 @@ namespace GSCrm.Repository
         public bool TryChangePrimaryContact(AccountViewModel accountViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangeAccountPrimaryContact, accountViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangeAccountPrimaryContact, accountViewModel);
             if (TryChangePrimaryContactValidate(accountViewModel))
             {
                 // В зависимости от типа клиента
@@ -1472,16 +1472,16 @@ namespace GSCrm.Repository
                 transaction.AddChange(account, EntityState.Modified);
                 
                 // Попытка закоммитить
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Добавление ошибок, закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -1494,20 +1494,21 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryChangeSite(string accountId, out Dictionary<string, string> errors, string newSite = null)
         {
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.Update, accountId);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.Update, accountId);
             if (TryChangeSiteValidate(accountId))
             {
                 Account account = (Account)transaction.GetParameterValue("Account");
                 account.Site = newSite;
+                transaction.AddParameter("ChangedRecord", account);
                 transaction.AddChange(account, EntityState.Modified);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     errors = this.errors;
                     return true;
                 }
             }
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -1521,7 +1522,7 @@ namespace GSCrm.Repository
         public bool TryUnlockAccount(AccountViewModel accountViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.UnlockAccount, accountViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockAccount, accountViewModel);
             Employee employee = default;
             InvokeIntermittinActions(errors, new List<Action>()
             {
@@ -1541,16 +1542,16 @@ namespace GSCrm.Repository
             if (!this.errors.Any())
             {
                 new AccountMap(serviceProvider, context).UnlockAccount(employee);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Запись ошибок, закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -1589,6 +1590,7 @@ namespace GSCrm.Repository
         {
             Account currentAccount = (Account)transaction.GetParameterValue("CurrentAccount");
             Organization accountOwnerOrg = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == currentAccount.OrganizationId);
+            if (accountOwnerOrg == null) return false;
             if (!currentUser.NeedCheckResps(accountOwnerOrg)) return true;
             Employee currentEmployee = context.GetCurrentEmployee(accountOwnerOrg, Guid.Parse(currentUser.Id));
             return currentEmployee != null && currentEmployee.HasPermissionFor(actionName, context);

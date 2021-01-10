@@ -22,6 +22,10 @@
         /// <summary>
         /// Пользователь не принял приглашение в организацию
         /// </summary>
-        RejectInvite = 5
+        RejectInvite = 5,
+        /// <summary>
+        /// Уже заблокированный сотрудник покинул организацию
+        /// </summary>
+        LockedEmployeeLeftOrg = 6
     }
 }

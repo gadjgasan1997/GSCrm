@@ -45,10 +45,7 @@ namespace GSCrm.Helpers
         }
 
         public static Organization GetOrganization(this Employee employee, ApplicationDbContext context)
-        {
-            Division employeeDivision = employee.GetDivision(context);
-            return context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == employeeDivision.OrganizationId);
-        }
+            => context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == employee.OrganizationId);
 
         public static Division GetDivision(this Employee employee, ApplicationDbContext context)
             => context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == employee.DivisionId);
@@ -56,13 +53,26 @@ namespace GSCrm.Helpers
         public static Division GetDivision(this EmployeeViewModel employeeViewModel, ApplicationDbContext context)
             => context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == employeeViewModel.DivisionId);
 
+        #region Positions
         public static Position GetPrimaryPosition(this Employee employee, ApplicationDbContext context)
             => context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == employee.PrimaryPositionId);
-
         public static List<EmployeePosition> GetPositions(this EmployeeViewModel employeeViewModel, ApplicationDbContext context)
             => context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeViewModel.Id).ToList();
         public static List<EmployeePosition> GetPositions(this Employee employee, ApplicationDbContext context)
             => context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employee.Id).ToList();
+        /// <summary>
+        /// Метод добавляет к сотруднику список должностей, которые он занимает
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static Employee AddEmployeePositions(this Employee employee, ApplicationDbContext context)
+        {
+            List<EmployeePosition> employeePositions = context.EmployeePositions.AsNoTracking().Where(empPos => empPos.EmployeeId == employee.Id).ToList();
+            employee.EmployeePositions.AddRange(employeePositions);
+            return employee;
+        }
+        #endregion
 
         public static List<EmployeeResponsibility> GetResponsibilities(this Employee employee, ApplicationDbContext context)
             => context.EmployeeResponsibilities.AsNoTracking().Where(empId => empId.EmployeeId == employee.Id).ToList();
@@ -71,13 +81,14 @@ namespace GSCrm.Helpers
             => context.EmployeeContacts.AsNoTracking().Where(empId => empId.EmployeeId == employeeViewModel.Id).ToList();
 
         public static List<Employee> GetSubordinates(this Employee employee, ApplicationDbContext context)
-            => GetSubordinates(context, employee.Id, employee.DivisionId, employee.PrimaryPositionId);
+            => GetSubordinates(context, employee.Id, (Guid)employee.DivisionId, employee.PrimaryPositionId);
 
         public static List<Employee> GetSubordinates(this EmployeeViewModel employeeViewModel, ApplicationDbContext context)
             => GetSubordinates(context, employeeViewModel.Id, employeeViewModel.DivisionId, employeeViewModel.PrimaryPositionId);
 
-        private static List<Employee> GetSubordinates(ApplicationDbContext context, Guid employeeId, Guid divisionId, Guid? primaryPositionId)
+        private static List<Employee> GetSubordinates(ApplicationDbContext context, Guid employeeId, Guid? divisionId, Guid? primaryPositionId)
         {
+            if (divisionId == null) return new List<Employee>();
             List<Employee> subordinates = new List<Employee>();
             Division division = context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == divisionId);
             List<Position> childPositions = division.GetPositions(context).Where(pos => pos.ParentPositionId == primaryPositionId).ToList();

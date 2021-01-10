@@ -9,6 +9,7 @@ using System.Linq;
 using static GSCrm.CommonConsts;
 using GSCrm.Data;
 using Microsoft.EntityFrameworkCore;
+using GSCrm.Transactions;
 
 namespace GSCrm.Mapping
 {
@@ -23,7 +24,7 @@ namespace GSCrm.Mapping
             Division division = (Division)transaction.GetParameterValue("Division");
             Position position = new Position()
             {
-                Division = division,
+                OrganizationId = division.OrganizationId,
                 DivisionId = division.Id,
                 Name = positionViewModel.Name
             };
@@ -81,32 +82,62 @@ namespace GSCrm.Mapping
         }
 
         /// <summary>
+        /// Метод меняет подразделение у долнжости
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="positionViewModel"></param>
+        public void ChangeDivision(Position position, PositionViewModel positionViewModel)
+        {
+            SetTransaction(OperationType.ChangePositionDivision);
+            Division newDivision = context.Divisions.FirstOrDefault(div => div.OrganizationId == position.OrganizationId && div.Name == positionViewModel.DivisionName);
+            position.DivisionId = newDivision.Id;
+            position.PrimaryEmployeeId = null;
+            position.ParentPositionId = null;
+            transaction.AddChange(position, EntityState.Modified);
+        }
+
+        /// <summary>
+        /// Разблокировка при отсутствии подразделения
+        /// </summary>
+        /// <param name="position"></param>
+        public void UnlockOnDivisionAbsent(Position position)
+        {
+            SetTransaction(OperationType.UnlockPosition);
+            position.Unlock();
+            Division newDivision = (Division)transaction.GetParameterValue("Division");
+            position.DivisionId = newDivision.Id;
+            transaction.AddChange(position, EntityState.Modified);
+        }
+
+        /// <summary>
         /// Преобразует модель уровня данных в модель уровня отображения, НЕ выполняя расчет иерархии родительских должностей
         /// Требуется, так как, если запускать метод "GetViewModelsFromData" на иерархии должностей, то он для каждой
         /// родительской должности будет заново получать ее иерархию, которая уже вычислена
         /// Например. Для иерархии Pos4 - Pos3 - Pos2 - Pos1, вначале для Pos4 вычислится Pos3 - Pos2 - Pos1.
-        /// Затем, для Pos3, Pos2 - Pos1. Затем, для Pos2 будет получена должность Pos1. 
+        /// Затем, для Pos3, Pos2 - Pos1. Затем, для Pos2 будет получена должность Pos1.
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>
         private PositionViewModel DataToViewModelExceptHierarchy(Position position)
         {
             Division division = position.GetDivision(context);
-            Organization organization = division.GetOrganization(context);
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == position.OrganizationId);
             Position parentPosition = position.GetParentPosition(context);
             Employee primaryEmployee = position.GetPrimaryEmployee(context);
             PositionViewModel positionViewModel = new PositionViewModel()
             {
                 Id = position.Id,
                 Name = position.Name,
-                DivisionId = division.Id,
-                DivisionName = division.Name,
+                DivisionId = division?.Id,
+                DivisionName = division?.Name,
                 ParentPositionId = parentPosition?.Id,
                 ParentPositionName = parentPosition?.Name,
                 OrganizationId = organization.Id,
                 OrganizationName = organization.Name,
                 PrimaryEmployeeId = primaryEmployee?.Id,
-                PrimaryEmployeeInitialName = primaryEmployee?.GetIntialsFullName()
+                PrimaryEmployeeInitialName = primaryEmployee?.GetIntialsFullName(),
+                PositionStatus = position.PositionStatus,
+                PositionLockReason = position.PositionLockReason
             };
             return positionViewModel;
         }

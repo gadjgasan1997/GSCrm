@@ -13,6 +13,7 @@ using GSCrm.Transactions;
 using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
+using GSCrm.Notifications;
 
 namespace GSCrm.Repository
 {
@@ -216,8 +217,15 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void AttachPositions(OrganizationViewModel orgViewModel)
         {
-            orgViewModel.Positions = orgViewModel.GetPositions(context)
-                .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedPositionsList);
+            try
+            {
+                orgViewModel.Positions = orgViewModel.GetAllPositions(context)
+                    .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedPositionsList);
+            }
+            catch(Exception ex)
+            {
+                var test = ex;
+            }
         }
 
         private List<Position> GetLimitedPositionsList(List<Position> positions)
@@ -257,7 +265,7 @@ namespace GSCrm.Repository
                     limitingCollection: context.GetOrgDivisions(orgViewModelCash.Id),
                     limitCondition: n => n.Name.ToLower().Contains(orgViewModelCash.SeacrhPositionDivName),
                     selectCondition: i => i.Id,
-                    removeCondition: (divisionIdList, position) => !divisionIdList.Contains(position.DivisionId));
+                    removeCondition: (divisionIdList, position) => !divisionIdList.Contains((Guid)position.DivisionId));
             }
         }
 
@@ -305,7 +313,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void AttachEmployees(OrganizationViewModel orgViewModel)
         {
-            orgViewModel.Employees = orgViewModel.GetEmployees(context)
+            orgViewModel.Employees = orgViewModel.GetAllEmployees(context)
                 .MapToViewModels(new EmployeeMap(serviceProvider, context), GetLimitedEmployeesList);
         }
 
@@ -363,7 +371,7 @@ namespace GSCrm.Repository
                     limitingCollection: context.GetOrgDivisions(orgViewModelCash.Id),
                     limitCondition: n => n.Name.ToLower().Contains(orgViewModelCash.SeacrhEmployeeDivName),
                     selectCondition: i => i.Id,
-                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains(employee.DivisionId));
+                    removeCondition: (divisionIdList, employee) => !divisionIdList.Contains((Guid)employee.DivisionId));
             }
         }
         #endregion
@@ -373,8 +381,9 @@ namespace GSCrm.Repository
         /// Добавляет полномочия к организации, преобразую данные в отображение для выбранной страницы
         /// </summary>
         /// <returns></returns>
-        public void AttachResponsibilities(OrganizationViewModel orgViewModel)
+        public void AttachResponsibilities(OrganizationViewModel orgViewModel, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
+            SetViewInfo(RESPONSIBILITIES, pageNumber, RESPONSIBILITIES_COUNT);
             orgViewModel.Responsibilities = orgViewModel.GetResponsibilities(context)
                 .MapToViewModels(new ResponsibilityMap(serviceProvider, context), GetLimitedResponsibilitiesList);
         }
@@ -384,7 +393,7 @@ namespace GSCrm.Repository
             OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, RESPONSIBILITIES);
             List<Responsibility> limitedResponsibilities = responsibilities;
             LimitRespByName(orgViewModelCash, ref limitedResponsibilities);
-            LimitListByPageNumber(RESPONSIBILITIES, ref limitedResponsibilities, RESPONSIBILITIES_COUNT);
+            LimitListByPageNumber(RESPONSIBILITIES, ref limitedResponsibilities);
             return limitedResponsibilities;
         }
 
@@ -505,7 +514,7 @@ namespace GSCrm.Repository
         /// <param name="actionName"></param>
         /// <param name="transaction"></param>
         /// <returns></returns>
-        public bool CheckPermissionForEmployeeGroup(string actionName, ITransaction transaction)
+        public bool CheckPermissionForOrgGroup(string actionName, ITransaction transaction)
         {
             Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             if (!currentUser.NeedCheckResps(currentOrganization)) return true;
@@ -521,7 +530,7 @@ namespace GSCrm.Repository
         public bool TryChangePrimaryOrg(string newPrimaryOrgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangePrimaryOrganization);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangePrimaryOrganization);
 
             // Проверки
             CheckOrganizationExists(newPrimaryOrgId);
@@ -529,15 +538,15 @@ namespace GSCrm.Repository
             {
                 currentUser.PrimaryOrganizationId = (Guid)transaction.GetParameterValue("Organiztionid");
                 transaction.AddChange(currentUser, EntityState.Modified);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакрции и выход
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -551,7 +560,7 @@ namespace GSCrm.Repository
         public bool TryLeaveOrg(string orgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.LeaveOrganization);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.LeaveOrganization);
 
             // Вызов всех проверок
             if (TryLeaveOrgValidate(orgId))
@@ -565,26 +574,39 @@ namespace GSCrm.Repository
                     transaction.AddChange(currentUser, EntityState.Modified);
                 }
 
-                // Блокировка сотрудника
-                currentEmployee = (Employee)transaction.GetParameterValue("CurrentEmployee");
-                currentEmployee.UserId = Guid.Empty;
-                currentEmployee.Lock(EmployeeLockReason.EmployeeLeftOrganization);
+                // Если сотрудник в статусе активного, необходимо его заблокировать
+                Employee currentEmployee = (Employee)transaction.GetParameterValue("CurrentEmployee");
+                if (currentEmployee.EmployeeStatus == EmployeeStatus.Active)
+                {
+                    // Блокировка сотрудника
+                    currentEmployee.UserId = Guid.Empty;
+                    currentEmployee.Lock(EmployeeLockReason.EmployeeLeftOrganization);
 
-                // Удаление всех клиентов, где заблокированный сотрудник является единственным менеджером
-                new AccountRepository(serviceProvider, context).CheckAccountsForLock(currentEmployee, transaction);
-                transaction.AddChange(currentEmployee, EntityState.Modified);
+                    // Удаление всех клиентов, где заблокированный сотрудник является единственным менеджером
+                    new AccountRepository(serviceProvider, context).CheckAccountsForLock(currentEmployee, transaction);
+                    transaction.AddChange(currentEmployee, EntityState.Modified);
+                }
+                // Иначе, если он уже был заблокирован, то в причину блокировки устанавливается значение "LockedEmployeeLeftOrg"
+                else if (currentEmployee.EmployeeStatus == EmployeeStatus.Lock)
+                {
+                    // Блокировка сотрудника
+                    currentEmployee = (Employee)transaction.GetParameterValue("CurrentEmployee");
+                    currentEmployee.UserId = Guid.Empty;
+                    currentEmployee.Lock(EmployeeLockReason.LockedEmployeeLeftOrg);
+                    transaction.AddChange(currentEmployee, EntityState.Modified);
+                }
 
                 // Попытка коммита
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -597,7 +619,7 @@ namespace GSCrm.Repository
         public bool TryAcceptInvite(string orgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
 
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
@@ -609,7 +631,7 @@ namespace GSCrm.Repository
                 transaction.AddChange(userOrganization, EntityState.Modified);
 
                 // Проставление статуса сотрудника в "Active"
-                currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
+                Employee currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
                 currentEmployee.EmployeeStatus = EmployeeStatus.Active;
                 transaction.AddChange(currentEmployee, EntityState.Modified);
 
@@ -617,16 +639,18 @@ namespace GSCrm.Repository
                 CreateOrgNotificationsSetting(transaction);
 
                 // Попытка коммита
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    // Удаление уведомления в случае успеха
+                    RemoveOrgIniteNot();
+                    viewModelsTransactionFactory.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
             errors = this.errors;
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -637,23 +661,43 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void RejectInvite(string orgId)
         {
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
 
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
             if (!errors.Any())
             {
                 UserOrganization userOrganization = (UserOrganization)transaction.GetParameterValue("UserOrganization");
-                currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
+                Employee currentEmployee = context.GetCurrentEmployee(userOrganization.OrganizationId, Guid.Parse(currentUser.Id));
                 currentEmployee.UserId = Guid.Empty;
                 currentEmployee.Lock(EmployeeLockReason.RejectInvite);
                 transaction.AddChange(currentEmployee, EntityState.Modified);
                 transaction.AddChange(userOrganization, EntityState.Deleted);
-                transactionFactory.TryCommit(transaction, errors);
             }
 
-            // Закрытие транзакции
-            transactionFactory.Close(transaction, TransactionStatus.Success);
+            // Удаление уведомления
+            RemoveOrgIniteNot();
+
+            // Попытка сделать коммит и закрытие транзакции
+            viewModelsTransactionFactory.TryCommit(transaction, errors);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Success);
+        }
+
+        /// <summary>
+        /// Метод удаляет уведомление о приглашении в организацию 
+        /// </summary>
+        private void RemoveOrgIniteNot()
+        {
+            // Удаление уведомления, если оно было присланов в Инбоксы
+            Func<UserNotification, bool> predicate = userNot => userNot.Notification.NotificationType == NotificationType.OrgInvite;
+            context.GetUserNotificationsExt(currentUser).Where(predicate).ToList().ForEach(userNot =>
+            {
+                if (userNot.Notification is InboxNotification inboxNotification)
+                {
+                    if (new InboxNotificationRepository(serviceProvider, context).TryDelete(inboxNotification))
+                        new UserNotificationRepository(serviceProvider, context).OnUserNotRemoved(userNot);
+                }
+            });
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using GSCrm.Data;
 using GSCrm.Models;
+using GSCrm.Transactions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace GSCrm.Notifications.Factories
     public abstract class OrgNotificationFactory<TNotificationParams> : NotificationFactory<TNotificationParams>
         where TNotificationParams : INotificationParams
     {
-        public OrgNotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
+        protected OrgNotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
             : base(serviceProvider, context, notificationParams)
         { }
 
@@ -21,10 +22,20 @@ namespace GSCrm.Notifications.Factories
         /// Метод отправляет уведомление адресатам внутри опредлеленной организации
         /// </summary>
         /// <param name="organizationId">Id организации, внутри которой происходит рассылка</param>
-        /// <param name="targetUserIdList">Список пользователей, которым необходимо отправить уведомление</param>
-        public void Send(Guid organizationId, IEnumerable<Guid> targetUserIdList)
+        /// <param name="targetEmployees">Список сотрудников, которым необходимо отправить уведомление</param>
+        /// <returns></returns>
+        public void Send(Guid organizationId, List<Employee> targetEmployees)
+            => Send(organizationId, targetEmployees.Select(emp => emp.UserId).ToList());
+
+        /// <summary>
+        /// Метод отправляет уведомление адресатам внутри опредлеленной организации
+        /// </summary>
+        /// <param name="organizationId">Id организации, внутри которой происходит рассылка</param>
+        /// <param name="targetUsersIdList">Список пользователей, которым необходимо отправить уведомление</param>
+        /// <returns></returns>
+        public void Send(Guid organizationId, List<Guid> targetUsersIdList)
         {
-            foreach (Guid targetuserId in targetUserIdList)
+            foreach (Guid targetuserId in targetUsersIdList)
             {
                 // Получение организации, в которой состоит пользователь
                 UserOrganization userOrganization = context.UserOrganizations.AsNoTracking()
@@ -32,8 +43,8 @@ namespace GSCrm.Notifications.Factories
                     .Include(not => not.OrgNotificationsSetting)
                     .FirstOrDefault(i => i.UserId == targetuserId.ToString() && i.OrganizationId == organizationId);
 
-                // Если требуется раассылка
-                if (NeedNotification(userOrganization?.OrgNotificationsSetting))
+                // Если требуется рассылка
+                if (userOrganization?.OrgNotificationsSetting != null && NeedNotification(userOrganization.OrgNotificationsSetting))
                 {
                     // Для всех способов рассыкли, доступных для этого типа уведомления
                     GetNotificationTargets(userOrganization.OrgNotificationsSetting).ForEach(async notificationTarget =>
@@ -43,15 +54,19 @@ namespace GSCrm.Notifications.Factories
         }
 
         /// <summary>
-        /// Метод отправляет уведомление адресатам внутри опредлеленной организации
+        /// Метод отсылает уведомление пользователю, беря настройки уведомлений из кеша транзакции
         /// </summary>
-        /// <param name="organizationId">Id организации, внутри которой происходит рассылка</param>
-        /// <param name="targetEmployees">Список сотрудников, которым необходимо отправить уведомление</param>
-        /// <returns></returns>
-        public void Send(Guid organizationId, List<Employee> targetEmployees)
+        /// <param name="transaction"></param>
+        /// <param name="userId"></param>
+        public void Send(ITransaction transaction, Guid userId)
         {
-            foreach (Employee employee in targetEmployees)
-                Send(organizationId, new List<Guid>() { employee.UserId });
+            User targetUser = context.Users.AsNoTracking().FirstOrDefault(u => u.Id == userId.ToString());
+            OrgNotificationsSetting orgNotSetting = (OrgNotificationsSetting)transaction.GetParameterValue("OrgNotificationsSetting");
+            if (orgNotSetting != null && NeedNotification(orgNotSetting))
+            {
+                GetNotificationTargets(orgNotSetting).ForEach(async notificationTarget =>
+                    await SendAsync(targetUser, notificationTarget));
+            }
         }
 
         /// <summary>

@@ -27,6 +27,7 @@ namespace GSCrm.Factories
                 "AccountInvoice" => (IRepository<TDataModel, TViewModel>)new AccountInvoiceRepository(serviceProvider, context),
                 "AccountManager" => (IRepository<TDataModel, TViewModel>)new AccountManagerRepository(serviceProvider, context),
                 "AccountQuote" => (IRepository<TDataModel, TViewModel>)new AccountQuoteRepository(serviceProvider, context),
+                "UserNotification" => (IRepository<TDataModel, TViewModel>)new UserNotificationRepository(serviceProvider, context),
                 "InboxNotification" => (IRepository<TDataModel, TViewModel>)new InboxNotificationRepository(serviceProvider, context),
                 "OrgNotificationsSetting" => (IRepository<TDataModel, TViewModel>)new OrgNotificationsSettingRepository(serviceProvider, context),
                 "UserNotificationsSetting" => (IRepository<TDataModel, TViewModel>)new UserNotificationsSettingRepository(serviceProvider, context),

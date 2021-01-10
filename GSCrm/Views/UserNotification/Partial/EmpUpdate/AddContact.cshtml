@@ -1,0 +1,31 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.EmpUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model AddContactNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    <a href="/@EMPLOYEE/@Model.ChangedEmployee.Id">@Model.ChangedEmployee.GetFullName()</a>, Вам был добавлен новый контакт в организации
+    <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a> со следующими данными:
+</p>
+<ul class="mt-2 mb-0">
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Тип: @Model.NewEmployeeContact.ContactType.ToLocalString()
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Почта: @Model.NewEmployeeContact.Email
+        </p>
+    </li>
+    <li>
+        <p class="label-non-select label-sm m-0">
+            Номер телефона: @Model.NewEmployeeContact.PhoneNumber
+        </p>
+    </li>
+</ul>

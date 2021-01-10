@@ -124,7 +124,7 @@ namespace GSCrm.Mapping
             // Проставление списка всех организаций, в которых состоит пользователь
             List<Organization> organizations = context.UserOrganizations
                 .AsNoTracking().Include(org => org.Organization)
-                .Where(userOrg => userOrg.UserId == currentUser.Id)
+                .Where(userOrg => userOrg.UserId == currentUser.Id && userOrg.Accepted)
                 .Select(org => org.Organization).ToList();
             accountsViewModel.UserOrganizations = organizations.GetViewModelsFromData(new OrganizationMap(serviceProvider, context));
 
@@ -249,7 +249,7 @@ namespace GSCrm.Mapping
         {
             SetTransaction(OperationType.UnlockAccount);
             Account account = (Account)transaction.GetParameterValue("CurrentAccount");
-            AccountManager accountManager = account.GetManagers(context).FirstOrDefault(i => i.ManagerId == newManager.Id);
+            AccountManager accountManager = account.GetAccTeam(context).FirstOrDefault(i => i.ManagerId == newManager.Id);
 
             // Если произошло так, что у клиента был в списке этот менеджер, но не был основным, то его не надо добавлять.
             // В противном случае он добавляется в команду

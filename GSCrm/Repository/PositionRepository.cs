@@ -44,7 +44,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnCreate(PositionViewModel positionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
 
         protected override bool TryCreatePrepare(PositionViewModel positionViewModel)
         {
@@ -69,7 +69,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(PositionViewModel positionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
 
         protected override bool TryUpdatePrepare(PositionViewModel positionViewModel)
         {
@@ -111,7 +111,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(Position position)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
 
         protected override void FailureUpdateHandler(PositionViewModel positionViewModel)
         {
@@ -127,12 +127,8 @@ namespace GSCrm.Repository
         protected override bool TryDeletePrepare(Position position)
         {
             if (!base.TryDeletePrepare(position)) return false;
-            position = context.Positions
-                .AsNoTracking()
-                .Include(empPos => empPos.EmployeePositions)
-                    .ThenInclude(emp => emp.Employee)
-                .FirstOrDefault(i => i.Id == position.Id);
-            position.EmployeePositions.ForEach(employeePosition => CheckEmployeeForLock(employeePosition, position));
+            position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == position.Id);
+            CheckEmployeePositions(position);
             return true;
         }
         #endregion
@@ -398,7 +394,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForEmployeeGroup("PosChangeDiv", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosChangeDiv", transaction))
                          AddHasNoPermissionsError(OperationType.ChangePositionDivision);
                 },
                 () => CheckDivisionLength(positionViewModel),
@@ -421,6 +417,25 @@ namespace GSCrm.Repository
             if (position.DivisionId == newDivision.Id)
                 errors.Add("ThisPositionDivisionIsAlreadySelect", resManager.GetString("ThisPositionDivisionIsAlreadySelect"));
         }
+
+        /// <summary>
+        /// Метод выполняет проверки, необходимые при разблокировке должности
+        /// </summary>
+        /// <param name="positionViewModel"></param>
+        /// <returns></returns>
+        private bool TryUnlockValidate(PositionViewModel positionViewModel)
+        {
+            InvokeIntermittinActions(errors, new List<Action>()
+            {   
+                () => {
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosUnlock", transaction))
+                         AddHasNoPermissionsError(OperationType.UnlockPosition);
+                },
+                () => CheckDivisionLength(positionViewModel),
+                () => DivisionExists(positionViewModel)
+            });
+            return !errors.Any();
+        }
         #endregion
 
         #region Other Methods
@@ -428,35 +443,28 @@ namespace GSCrm.Repository
         /// Метод выполняет проверку и в случае успеха изменяет подразделение должности
         /// </summary>
         /// <param name="positionViewModel"></param>
-        /// <param name="modelState"></param>
+        /// <param name="errors"></param>
         /// <returns></returns>
         public bool TryChangeDivision(PositionViewModel positionViewModel, out Dictionary<string, string> errors)
         {
-            transaction = transactionFactory.Create(currentUser.Id, OperationType.ChangePositionDivision, positionViewModel);
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangePositionDivision, positionViewModel);
             if (TryChangeDivisionValidate(positionViewModel))
             {
-                Position position = context.Positions
-                    .AsNoTracking()
-                    .Include(empPos => empPos.EmployeePositions)
-                        .ThenInclude(emp => emp.Employee)
-                    .FirstOrDefault(i => i.Id == positionViewModel.Id);
-                DeletePositionFromEmployees(position);
+                Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionViewModel.Id);
+                transaction.AddParameter("ChangedPosition", position);
+                CheckEmployeePositions(position);
                 ResetParentPositionForChilds(position);
-
-                Division newDivision = context.GetOrgDivisions(positionViewModel.OrganizationId).FirstOrDefault(n => n.Name == positionViewModel.DivisionName);
-                position.Division = newDivision;
-                position.DivisionId = newDivision.Id;
-                position.PrimaryEmployeeId = null;
-                position.ParentPositionId = null;
-                transaction.AddChange(position, EntityState.Modified);
-                if (transactionFactory.TryCommit(transaction, this.errors))
+                
+                // Маппинг и попытка сделать коммит
+                new PositionMap(serviceProvider, context).ChangeDivision(position, positionViewModel);
+                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {
-                    transactionFactory.Close(transaction);
+                    viewModelsTransactionFactory.Close(transaction);
                     errors = this.errors;
                     return true;
                 }
             }
-            transactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -510,32 +518,73 @@ namespace GSCrm.Repository
         }
 
         /// <summary>
-        /// Метод удаляет текущую должность у всех сотрудников подразделения
+        /// Метод проверяет необходимость в блокировке сотрудников, находящихся на заданной должности
+        /// И в случае необходимости лочит их, стирая PrimaryPositionId на сотруднике
         /// </summary>
         /// <param name="position"></param>
-        private void DeletePositionFromEmployees(Position position)
+        private void CheckEmployeePositions(Position position)
         {
-            position.EmployeePositions.ForEach(employeePosition =>
+            // TODO Сейчас бд кверится дважды, чтобы изменения, сделанные в этом методе не отразились на том, что будет записано в транзакцию в параметр
+            // Сделать клонирование списка "transactionEmpPositions"
+            // Запоминается список сотрудников, занимаемых должность, который будет необходим в дальнейшем для рассылки им уведомления об удалении должности
+            Func<EmployeePosition, bool> predicate = empPos => empPos.PositionId == position.Id;
+            List<EmployeePosition> transactionEmpPositions = context.EmployeePositions.AsNoTracking().Include(emp => emp.Employee).Where(predicate).ToList();
+            transaction.AddParameter("PosEmployees", transactionEmpPositions);
+
+            // Для каждого сотрудника, занимающего должность
+            List<EmployeePosition> empPositions = context.EmployeePositions.AsNoTracking().Include(emp => emp.Employee).Where(predicate).ToList();
+            empPositions.ForEach(employeePosition =>
             {
-                CheckEmployeeForLock(employeePosition, position);
+                if (employeePosition.Employee.PrimaryPositionId == position.Id)
+                {
+                    employeePosition.Employee.PrimaryPositionId = null;
+                    employeePosition.Employee.Lock(EmployeeLockReason.PrimaryPositionAbsent);
+
+                    // Если должность была заблокирована, проходится по всем сотрудникам, занимающих должность,
+                    // блокируя всех клиентов, у которых данный сотрудник является единственным в команде по клиенту
+                    new AccountRepository(serviceProvider, context).CheckAccountsForLock(employeePosition.Employee, transaction);
+                    transaction.AddChange(employeePosition.Employee, EntityState.Modified);
+                }
                 transaction.AddChange(employeePosition, EntityState.Deleted);
             });
         }
 
         /// <summary>
-        /// Метод проверяет необходимость в блокировке сотрудника, находящихся на заданной должности(требуется при удалении или смене подразделения)
-        /// И в случае необходимости лочит его, стирая PrimaryPositionId на сотруднике
+        /// Метод пытается разблокировать должность
         /// </summary>
-        /// <param name="position"></param>
-        private void CheckEmployeeForLock(EmployeePosition employeePosition, Position position)
+        /// <param name="positionViewModel"></param>
+        /// <param name="errors"></param>
+        /// <returns></returns>
+        public bool TryUnlock(ref PositionViewModel positionViewModel, out Dictionary<string, string> errors)
         {
-            if (employeePosition.Employee.PrimaryPositionId == position.Id)
+            // Получение сотрудника из бд
+            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockPosition, positionViewModel);
+            Guid positionId = positionViewModel.Id;
+            Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionId);
+
+            // В зависимости от причины, по которой была заблокирована должность
+            switch (position.PositionLockReason)
             {
-                employeePosition.Employee.PrimaryPositionId = null;
-                employeePosition.Employee.Lock(EmployeeLockReason.PrimaryPositionAbsent);
-                new AccountRepository(serviceProvider, context).CheckAccountsForLock(employeePosition.Employee, transaction);
-                transaction.AddChange(employeePosition.Employee, EntityState.Modified);
+                default:
+                case PositionLockReason.DivisionAbsent:
+                    if (TryUnlockValidate(positionViewModel))
+                    {
+                        new PositionMap(serviceProvider, context).UnlockOnDivisionAbsent(position);
+                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                        {
+                            viewModelsTransactionFactory.Close(transaction);
+                            errors = this.errors;
+                            return true;
+                        }
+                    }
+                    break;
             }
+
+            // Иначе данные из бд преобразуются в данные для отображения без прикрепления контактов и должностей
+            errors = this.errors;
+            positionViewModel = map.DataToViewModel(position);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            return false;
         }
         #endregion
     }

@@ -509,7 +509,7 @@ class AccountManagement {
                     this.ResetLists();
                     this.Render(response);
                     this.InitializePrimaryManager();
-                    ReInitScrools();
+                    Initializer.ReInitScrools();
                     resolve();
                 });
         })

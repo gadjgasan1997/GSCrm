@@ -29,7 +29,7 @@ namespace GSCrm.Controllers
         {
             AccountViewModel accountViewModel = (AccountViewModel)cachService.GetMainEntity(currentUser, MainEntityType.AccountView);
             AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            accountRepository.SetViewInfo(currentUser.Id, ACC_ADDRESSES, pageNumber);
+            accountRepository.SetViewInfo(ACC_ADDRESSES, pageNumber);
             accountRepository.AttachAddresses(accountViewModel);
             return View($"{ACC_VIEWS_REL_PATH}{ACCOUNT}.cshtml", accountViewModel);
         }

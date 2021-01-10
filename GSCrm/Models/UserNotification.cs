@@ -12,5 +12,6 @@ namespace GSCrm.Models
         [ForeignKey("Notification")]
         public Guid NotificationId { get; set; }
         public Notification Notification { get; set; }
+        public bool HasRead { get; set; }
     }
 }

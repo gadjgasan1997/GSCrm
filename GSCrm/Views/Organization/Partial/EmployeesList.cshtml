@@ -56,7 +56,7 @@
                                     @Html.ActionLink(employee.PrimaryPositionName, POSITION, POSITION, new { id = employee.PrimaryPositionId })
                                 }
                             </td>
-                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">@Html.ActionLink(employee.DivisionName, DIVISION, DIVISION, new { id = employee.DivisionId })</td>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">@employee.DivisionName</td>
                             <td class="remove-item-btn">
                                 <div class="remove-item-url" hidden="hidden">@Html.ActionLink(employee.FullInitialName, "Delete", EMPLOYEE, new { id = employee.Id })"</div>
                                 <span class="icon-bin"></span>

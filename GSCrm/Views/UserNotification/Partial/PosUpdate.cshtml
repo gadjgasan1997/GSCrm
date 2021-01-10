@@ -1,0 +1,31 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model PosUpdateNotViewModel
+
+@if (Model.DivisionChanged)
+{
+    <p class="label-non-select label-md m-0 text-center">
+        Должность, <a href="/@POSITION/@Model.ChangedPosition.Id">@Model.ChangedPosition.Name</a>, которую вы занимаете, была перенесена в другое подразделение.
+    </p>
+    if (Model.IsPrimary)
+    {
+        <p class="label-non-select label-md m-0 text-center">
+            Ваш профиль сотрудника был заблокирован. Для разблокировки необходимо, чтобы уполномоченный сотрудник назначил вам какую-либо должность.
+        </p>
+    }
+}
+else
+{
+    <p class="label-non-select label-md m-0 text-center">
+        Должность, <a href="/@POSITION/@Model.ChangedPosition.Id">@Model.ChangedPosition.Name</a>, которую вы занимаете, была изменена.
+    </p>
+}
+<p class="label-non-select label-md m-0 text-center">
+    Организация:
+    <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a>
+</p>

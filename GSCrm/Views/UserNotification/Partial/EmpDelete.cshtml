@@ -1,0 +1,13 @@
+﻿@using GSCrm.Data
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model EmpDeleteNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    @Model.RemovedEmployeeName, Вы были уволены из организации
+    <a href="/@ORGANIZATION/@Model.Organization.Id">@Model.Organization.Name</a>
+</p>
