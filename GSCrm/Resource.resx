@@ -300,6 +300,9 @@
   <data name="AccUpdateNoRes" xml:space="preserve">
     <value>У вас недостаточно полномочий для изменения данных клиента</value>
   </data>
+  <data name="AccUpdateNotSubject" xml:space="preserve">
+    <value>Изменение клиента</value>
+  </data>
   <data name="AddEmployeePosition" xml:space="preserve">
     <value>Добавить должность</value>
   </data>

@@ -111,35 +111,35 @@ namespace GSCrm.Repository
                     {
                         case AccountType.Individual:
                             InvokeIntermittinActions(errors, new List<Action>()
-                        {
-                            () => {
-                                new PersonValidator(resManager).CheckPersonName(
-                                    accountViewModel.FirstName,
-                                    accountViewModel.LastName,
-                                    accountViewModel.MiddleName,
-                                    ref errors);
-                            },
-                            () => CheckINNOnCreate(accountViewModel)
-                        }.Concat(commonHandlers));
+                            {
+                                () => {
+                                    new PersonValidator(resManager).CheckPersonName(
+                                        accountViewModel.FirstName,
+                                        accountViewModel.LastName,
+                                        accountViewModel.MiddleName,
+                                        ref errors);
+                                },
+                                () => CheckINNOnCreate(accountViewModel)
+                            }.Concat(commonHandlers));
                             break;
 
                         case AccountType.IndividualEntrepreneur:
                             InvokeIntermittinActions(errors, new List<Action>()
-                        {
-                            () => CheckIENameOnCreate(accountViewModel),
-                            () => CheckINNOnCreate(accountViewModel)
-                        }.Concat(commonHandlers));
+                            {
+                                () => CheckIENameOnCreate(accountViewModel),
+                                () => CheckINNOnCreate(accountViewModel)
+                            }.Concat(commonHandlers));
                             break;
 
                         case AccountType.LegalEntity:
                             InvokeIntermittinActions(errors, new List<Action>()
-                        {
-                            () => CheckLENameOnCreate(accountViewModel),
-                            () => CheckINNOnCreate(accountViewModel),
-                            () => CheckKPPOnCreate(accountViewModel),
-                            () => CheckOKPOOnCreate(accountViewModel),
-                            () => CheckOGRNOnCreate(accountViewModel)
-                        }.Concat(commonHandlers));
+                            {
+                                () => CheckLENameOnCreate(accountViewModel),
+                                () => CheckINNOnCreate(accountViewModel),
+                                () => CheckKPPOnCreate(accountViewModel),
+                                () => CheckOKPOOnCreate(accountViewModel),
+                                () => CheckOGRNOnCreate(accountViewModel)
+                            }.Concat(commonHandlers));
                             break;
                     }
                 }
@@ -695,7 +695,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         public void AttachManagers(AccountViewModel accountViewModel)
         {
-            accountViewModel.AccountManagers = accountViewModel.GetManagers(context).GetViewModelsFromData
+            accountViewModel.AccountManagers = accountViewModel.GetAccTeam(context).GetViewModelsFromData
                 <AccountManager, AccountManagerViewModel>(new AccountManagerMap(serviceProvider, context));
         }
 
@@ -1499,6 +1499,7 @@ namespace GSCrm.Repository
             {
                 Account account = (Account)transaction.GetParameterValue("Account");
                 account.Site = newSite;
+                transaction.AddParameter("ChangedRecord", account);
                 transaction.AddChange(account, EntityState.Modified);
                 if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
                 {

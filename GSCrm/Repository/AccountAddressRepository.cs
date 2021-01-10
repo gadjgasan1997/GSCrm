@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using static GSCrm.Utils.AppUtils;
-using static GSCrm.Utils.CollectionsUtils;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Data;
 using GSCrm.Transactions;
 using GSCrm.Models.Enums;
+using static GSCrm.Utils.AppUtils;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
@@ -82,10 +82,22 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckCountry(addressViewModel),
-                () => CheckRegion(addressViewModel),
-                () => CheckCity(addressViewModel),
-                () => CheckStreet(addressViewModel),
-                () => CheckHouse(addressViewModel),
+                () => {
+                    if (!string.IsNullOrEmpty(addressViewModel.Region) && addressViewModel.Region.Length > MAX_REGION_LENGTH)
+                        errors.Add("RegionLength", resManager.GetString("RegionLength"));
+                },
+                () => {
+                    if (!string.IsNullOrEmpty(addressViewModel.City) && addressViewModel.City.Length > MAX_CITY_LENGTH)
+                        errors.Add("CityLength", resManager.GetString("CityLength"));
+                },
+                () => {
+                    if (!string.IsNullOrEmpty(addressViewModel.Street) && addressViewModel.Street.Length > MAX_STREET_LENGTH)
+                        errors.Add("StreetLength", resManager.GetString("StreetLength"));
+                },
+                () => {
+                    if (!string.IsNullOrEmpty(addressViewModel.House) && addressViewModel.House.Length > MAX_HOUSE_LENGTH)
+                        errors.Add("HouseLength", resManager.GetString("HouseLength"));
+                }
             });
             return errors;
         }
@@ -109,62 +121,18 @@ namespace GSCrm.Repository
         }
 
         /// <summary>
-        /// Метод проверяет регион
-        /// </summary>
-        /// <param name="addressViewModel"></param>
-        private void CheckRegion(AccountAddressViewModel addressViewModel)
-        {
-            if (!string.IsNullOrEmpty(addressViewModel.Region) && addressViewModel.Region.Length > MAX_REGION_LENGTH)
-                errors.Add("RegionLength", resManager.GetString("RegionLength"));
-        }
-
-        /// <summary>
-        /// Метод проверяет город
-        /// </summary>
-        /// <param name="addressViewModel"></param>
-        private void CheckCity(AccountAddressViewModel addressViewModel)
-        {
-            if (!string.IsNullOrEmpty(addressViewModel.City) && addressViewModel.City.Length > MAX_CITY_LENGTH)
-                errors.Add("CityLength", resManager.GetString("CityLength"));
-        }
-
-        /// <summary>
-        /// Метод проверяет улицу
-        /// </summary>
-        /// <param name="addressViewModel"></param>
-        private void CheckStreet(AccountAddressViewModel addressViewModel)
-        {
-            if (!string.IsNullOrEmpty(addressViewModel.Street) && addressViewModel.Street.Length > MAX_STREET_LENGTH)
-                errors.Add("StreetLength", resManager.GetString("StreetLength"));
-        }
-
-        /// <summary>
-        /// Метод проверяет дом
-        /// </summary>
-        /// <param name="addressViewModel"></param>
-        private void CheckHouse(AccountAddressViewModel addressViewModel)
-        {
-            if (!string.IsNullOrEmpty(addressViewModel.House) && addressViewModel.House.Length > MAX_HOUSE_LENGTH)
-                errors.Add("HouseLength", resManager.GetString("HouseLength"));
-        }
-
-        /// <summary>
         /// Метод проверяет тип адреса при создании
         /// </summary>
         /// <param name="addressViewModel"></param>
         private void CheckTypeOnCreate(AccountAddressViewModel addressViewModel)
         {
-            if (!TryCheckType(addressViewModel, out Account account, out AddressType? addressType)) return;
-            if (addressType == AddressType.Legal && !TryCheckLegalAddressUnique(account))
+            if (!TryCheckType(addressViewModel)) return;
+            AccountAddress accountAddress = (AccountAddress)transaction.GetParameterValue("AccountAddress");
+            if (accountAddress.AddressType == AddressType.Legal && !TryCheckLegalAddressUnique(accountAddress.Account))
             {
                 errors.Add("LegalAddressNotUnique", resManager.GetString("LegalAddressNotUnique"));
                 return;
             }
-            transaction.AddParameter("AccountAddress", new AccountAddress()
-            {
-                Account = account,
-                AddressType = (AddressType)addressType
-            });
         }
 
         /// <summary>
@@ -173,49 +141,51 @@ namespace GSCrm.Repository
         /// <param name="addressViewModel"></param>
         private void CheckTypeOnUpdate(AccountAddressViewModel addressViewModel)
         {
-            if (!TryCheckType(addressViewModel, out Account account, out AddressType? addressType)) return;
+            if (!TryCheckType(addressViewModel)) return;
 
             // В случае, если тип изменяемого адреса является юридическим, и под клиентом уже есть юридический адрес, выводится ошибка уникальности
-            if (addressType == AddressType.Legal && !TryCheckLegalAddressUnique(account, addressViewModel.Id))
+            AccountAddress accountAddress = (AccountAddress)transaction.GetParameterValue("AccountAddress");
+            if (accountAddress.AddressType == AddressType.Legal && !TryCheckLegalAddressUnique(accountAddress.Account, addressViewModel.Id))
             {
                 errors.Add("LegalAddressNotUnique", resManager.GetString("LegalAddressNotUnique"));
                 return;
             }
+            transaction.AddParameter("NewAddressType", accountAddress.AddressType);
+        }
+
+        /// <summary>
+        /// Метод проверяет тип адреса
+        /// </summary>
+        /// <param name="addressViewModel"></param>
+        private bool TryCheckType(AccountAddressViewModel addressViewModel)
+        {
+            Guid accountId = Guid.Empty;
+            Account account = null;
+            AddressType? addressType = null;
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => {
+                    if (string.IsNullOrEmpty(addressViewModel.AccountId) || !Guid.TryParse(addressViewModel.AccountId, out Guid guid))
+                        errors.Add("AccountNotFound", resManager.GetString("AccountNotFound"));
+                    else accountId = guid;
+                },
+                () => {
+                    account = context.Accounts.AsNoTracking().Include(addr => addr.AccountAddresses).FirstOrDefault(i => i.Id == accountId);
+                    if (account == null)
+                        errors.Add("AccountNotFound", resManager.GetString("AccountNotFound"));
+                },
+                () => {
+                    if (!TryGetAddressType(addressViewModel.AddressType, ref addressType))
+                        errors.Add("AddressTypeWrong", resManager.GetString("AddressTypeWrong"));
+                }
+            });
+            if (errors.Any())
+                return false;
             transaction.AddParameter("AccountAddress", new AccountAddress()
             {
                 Account = account,
                 AddressType = (AddressType)addressType
             });
-        }
-
-        /// <summary>
-        /// Метод проверяет тип адреса, и, в случае успеха, возвращает клиента, к которому относится адрес и сам тип адреса, преобразуя его из типа "string" в тип "AddressType"
-        /// </summary>
-        /// <param name="addressViewModel"></param>
-        /// <param name="account"></param>
-        /// <param name="addressType"></param>
-        private bool TryCheckType(AccountAddressViewModel addressViewModel, out Account account, out AddressType? addressType)
-        {
-            account = null;
-            addressType = null;
-            if (string.IsNullOrEmpty(addressViewModel.AccountId) || !Guid.TryParse(addressViewModel.AccountId, out Guid accountId))
-            {
-                errors.Add("AccountNotFound", resManager.GetString("AccountNotFound"));
-                return false;
-            }
-
-            account = context.Accounts.Include(addr => addr.AccountAddresses).FirstOrDefault(i => i.Id == accountId);
-            if (account == null)
-            {
-                errors.Add("AccountNotFound", resManager.GetString("AccountNotFound"));
-                return false;
-            }
-
-            if (!TryGetAddressType(addressViewModel.AddressType, ref addressType))
-            {
-                errors.Add("AddressTypeWrong", resManager.GetString("AddressTypeWrong"));
-                return false;
-            }
             return true;
         }
 
@@ -336,7 +306,7 @@ namespace GSCrm.Repository
             else if (TryChangeLegalAddressValidate(addressViewModel))
             {
                 // Изменение типа текущего юридического адреса
-                Account account = (Account)transaction.GetParameterValue("Account");
+                Account account = (Account)transaction.GetParameterValue("CurrentAccount");
                 AccountAddress oldLegalAddress = account.GetAddresses(context).FirstOrDefault(add => add.AddressType == AddressType.Legal);
                 oldLegalAddress.AddressType = (AddressType)transaction.GetParameterValue("NewAddressType");
                 transaction.AddChange(oldLegalAddress, EntityState.Modified);

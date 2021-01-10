@@ -6,7 +6,7 @@ namespace GSCrm.Helpers
     public static class ContactHelpers
     {
         public static string GetFullName(this AccountContact accountContact)
-            => $"{accountContact.LastName} {accountContact.FirstName} {accountContact.MiddleName}";
+            => $"{accountContact.LastName} {accountContact.FirstName}{(string.IsNullOrEmpty(accountContact.MiddleName) ? string.Empty : $" {accountContact.MiddleName}")}";
 
         public static string ToLocalString(this ContactType contactType)
             => contactType switch

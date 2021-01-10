@@ -1,13 +1,22 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Linq;
+using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications;
 using GSCrm.Mapping.Notifications;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
 using GSCrm.Notifications.Auxiliary;
 using GSCrm.Mapping.Notifications.EmpUpdate;
+using GSCrm.Mapping.Notifications.AccUpdate;
+using Microsoft.EntityFrameworkCore;
+using EmpBaseUpdateNotMap = GSCrm.Mapping.Notifications.EmpUpdate.BaseUpdateNotMap;
+using AccBaseUpdateNotMap = GSCrm.Mapping.Notifications.AccUpdate.BaseUpdateNotMap;
+using EmpAddContactNotMap = GSCrm.Mapping.Notifications.EmpUpdate.AddContactNotMap;
+using AccAddContactNotMap = GSCrm.Mapping.Notifications.AccUpdate.AddContactNotMap;
+using EmpUpdateContactNotMap = GSCrm.Mapping.Notifications.EmpUpdate.UpdateContactNotMap;
+using AccUpdateContactNotMap = GSCrm.Mapping.Notifications.AccUpdate.UpdateContactNotMap;
+using EmpDeleteContactNotMap = GSCrm.Mapping.Notifications.EmpUpdate.DeleteContactNotMap;
+using AccDeleteContactNotMap = GSCrm.Mapping.Notifications.AccUpdate.DeleteContactNotMap;
 
 namespace GSCrm.Mapping
 {
@@ -28,13 +37,35 @@ namespace GSCrm.Mapping
                         // В зависимости от типа обновления сотрудника
                         return empUpdateType switch
                         {
-                            EmpUpdateType.BaseUpdate => new BaseUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.BaseUpdate => new EmpBaseUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
                             EmpUpdateType.ChangeDivision => new ChangeDivisionNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
-                            EmpUpdateType.AddContact => new AddContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
-                            EmpUpdateType.UpdateContact => new UpdateContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
-                            EmpUpdateType.DeleteContact => new DeleteContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.AddContact => new EmpAddContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.UpdateContact => new EmpUpdateContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            EmpUpdateType.DeleteContact => new EmpDeleteContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
                             EmpUpdateType.SyncPoss => new SyncPossNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
                             EmpUpdateType.SyncResps => new SyncRespsNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, empUpdateType),
+                            _ => default
+                        };
+                    }
+                    else return default;
+
+                // Изменение данных сотрудника
+                case NotificationType.AccUpdate:
+                    if (Enum.TryParse(inboxNot.Attrib1, out AccUpdateType accUpdateType))
+                    {
+                        // В зависимости от типа обновления клиента
+                        return accUpdateType switch
+                        {
+                            AccUpdateType.BaseUpdate => new AccBaseUpdateNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.AddContact => new AccAddContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.UpdateContact => new AccUpdateContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.DeleteContact => new AccDeleteContactNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.AddAddress => new AddAddressNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.UpdateAddress => new UpdateAddressNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.DeleteAddress => new DeleteAddressNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.AddInvoice => new AddInvoiceNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.UpdateInvoice => new UpdateInvoiceNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
+                            AccUpdateType.DeleteInvoice => new DeleteInvoiceNotMap(serviceProvider, context).DataToViewModel(userNot, inboxNot, accUpdateType),
                             _ => default
                         };
                     }
@@ -63,8 +94,7 @@ namespace GSCrm.Mapping
         /// <returns></returns>
         protected TNotViewModel GetNewNotViewModel<TNotViewModel>(UserNotification userNot, InboxNotification inboxNot)
             where TNotViewModel : UserNotificationViewModel, new()
-        {
-            TNotViewModel userNotViewModel = new TNotViewModel()
+            => new TNotViewModel()
             {
                 Id = userNot.Id,
                 HasRead = userNot.HasRead,
@@ -72,7 +102,5 @@ namespace GSCrm.Mapping
                 NotificationSource = inboxNot.NotificationSource,
                 NotificationType = inboxNot.NotificationType
             };
-            return userNotViewModel;
-        }
     }
 }

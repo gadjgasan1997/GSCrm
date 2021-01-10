@@ -1,0 +1,22 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.AccUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model UpdateContactNotViewModel
+
+<p class="label-non-select label-md m-0 text-center">
+    У клиента <a href="/@ACCOUNT/@Model.ChangedAccount.Id">@Model.ChangedAccount.Name</a> были изменены данные контакта с именем "@Model.OldAccountContact.GetFullName()"
+</p>
+@if (Model.OldAccountContact.GetFullName() != Model.NewAccountContact.GetFullName())
+{
+    <p class="label-non-select label-md m-0 text-center">
+        Имя было изменено на: @Model.NewAccountContact.GetFullName()
+    </p>
+}
+<p class="label-non-select label-md m-0 text-center">
+    Организацию: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+</p>

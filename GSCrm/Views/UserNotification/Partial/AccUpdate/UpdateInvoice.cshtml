@@ -1,0 +1,29 @@
+﻿@using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Models.ViewModels.Notifications.AccUpdate
+@using static GSCrm.CommonConsts
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model UpdateInvoiceNotViewModel
+
+@if (Model.OldAccountInvoice.CheckingAccount != Model.NewAccountInvoice.CheckingAccount)
+{
+    <p class="label-non-select label-md m-0 text-center">
+        У клиента <a href="/@ACCOUNT/@Model.ChangedAccount.Id">@Model.ChangedAccount.Name</a>, с которым вы работаете, были изменены банковские реквизиты
+    </p>
+    <p class="label-non-select label-md m-0 text-center">
+        Счет @Model.OldAccountInvoice.CheckingAccount изменился на @Model.NewAccountInvoice.CheckingAccount
+    </p>
+}
+else
+{
+    <p class="label-non-select label-md m-0 text-center">
+        У клиента <a href="/@ACCOUNT/@Model.ChangedAccount.Id">@Model.ChangedAccount.Name</a>, с которым вы работаете, были изменены банковские реквизиты по счету @Model.OldAccountInvoice.CheckingAccount
+    </p>
+}
+
+<p class="label-non-select label-md m-0 text-center">
+    Организацию: <a href="/@ORGANIZATION/@Model.OwnerOrg.Id">@Model.OwnerOrg.Name</a>
+</p>

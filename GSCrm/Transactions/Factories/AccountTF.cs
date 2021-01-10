@@ -3,11 +3,10 @@ using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using GSCrm.Models.Enums;
 using GSCrm.Notifications.Params;
+using GSCrm.Notifications.Params.AccUpdate;
 using GSCrm.Notifications.Factories.OrgNotFactories;
+using GSCrm.Notifications.Factories.OrgNotFactories.AccUpdate;
 using System.Collections.Generic;
 
 namespace GSCrm.Transactions.Factories
@@ -19,22 +18,11 @@ namespace GSCrm.Transactions.Factories
         protected override void CreateHandler(OperationType operationType, AccountViewModel accountViewModel)
         {
             if (operationType.IsInList(OperationType.Update, OperationType.ChangeAccountPrimaryContact, OperationType.UnlockAccount))
-            {
-                Account currentAccount = cachService.GetMainEntity(currentUser, MainEntityType.AccountData) as Account;
-                transaction.AddParameter("CurrentAccount", currentAccount);
-            }
+                transaction.RememberAccountCommonParams(cachService, context, currentUser);
         }
 
         protected override void CreateHandler(OperationType operationType, string recordId)
-        {
-            if (operationType == OperationType.Delete)
-            {
-                Account currentAccount = cachService.GetMainEntity(currentUser, MainEntityType.AccountData) as Account;
-                transaction.AddParameter("CurrentAccount", currentAccount);
-                Organization ownerOrg = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == currentAccount.OrganizationId);
-                transaction.AddParameter("OwnerOrg", ownerOrg);
-            }
-        }
+            => transaction.RememberAccountCommonParams(cachService, context, currentUser);
 
         protected override void BeforeCommit(OperationType operationType)
         {
@@ -42,10 +30,7 @@ namespace GSCrm.Transactions.Factories
             {
                 // Перед удалением клиента необходимо запомнить всю команду по клиенту, чтобы после успешного удаления разослать им уведомления
                 Account account = (Account)transaction.GetParameterValue("RecordToRemove");
-                List<Employee> managers = context.AccountManagers.AsNoTracking()
-                    .Include(accMan => accMan.Manager)
-                    .Where(accMan => accMan.AccountId == account.Id)
-                    .Select(accMan => accMan.Manager).ToList();
+                List<Employee> managers = account.GetManagers(context);
                 transaction.AddParameter("Managers", managers);
             }
         }
@@ -58,7 +43,11 @@ namespace GSCrm.Transactions.Factories
                 switch (operationType)
                 {
                     case OperationType.Delete:
-                        SendAccDeletenotifications(ownerOrg);
+                        SendAccDeleteNotifications(ownerOrg);
+                        break;
+                    case OperationType.ChangeAccountPrimaryContact:
+                    case OperationType.Update:
+                        SendAccUpdateNotifications(ownerOrg);
                         break;
                 }
             }
@@ -68,7 +57,7 @@ namespace GSCrm.Transactions.Factories
         /// Метод рассылает уведомления при удалении клиента
         /// </summary>
         /// <param name="ownerOrg"></param>
-        private void SendAccDeletenotifications(Organization ownerOrg)
+        private void SendAccDeleteNotifications(Organization ownerOrg)
         {
             List<Employee> managers = (List<Employee>)transaction.GetParameterValue("Managers");
             if (managers.Count > 0)
@@ -81,6 +70,26 @@ namespace GSCrm.Transactions.Factories
                 };
                 AccDeleteNotFactory accDeleteNotFactory = new AccDeleteNotFactory(serviceProvider, context, accDeleteParams);
                 accDeleteNotFactory.Send(ownerOrg.Id, managers);
+            }
+        }
+
+        /// <summary>
+        /// Метод рассылает уведомления при изменении данных клиента
+        /// </summary>
+        /// <param name="ownerOrg"></param>
+        private void SendAccUpdateNotifications(Organization ownerOrg)
+        {
+            Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+            List<Employee> managers = account.GetManagers(context);
+            if (managers.Count > 0)
+            {
+                BaseUpdateParams baseUpdateParams = new BaseUpdateParams()
+                {
+                    OwnerOrg = ownerOrg,
+                    ChangedAccount = account
+                };
+                BaseUpdateNotFactory baseUpdateNotFactory = new BaseUpdateNotFactory(serviceProvider, context, baseUpdateParams);
+                baseUpdateNotFactory.Send(ownerOrg.Id, managers);
             }
         }
     }

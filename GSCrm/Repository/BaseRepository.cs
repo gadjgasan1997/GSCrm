@@ -177,46 +177,49 @@ namespace GSCrm.Repository
 
             // Поиск записи
             Guid entityToUpdateId = entityToUpdate.Id;
-            if (dbSet.AsNoTracking().FirstOrDefault(i => i.Id == entityToUpdateId) == null)
+            TDataModel recordToChange = dbSet.AsNoTracking().FirstOrDefault(i => i.Id == entityToUpdateId);
+            if (recordToChange == null)
                 OnRecordNotFound(entityToUpdate);
-
-            // Проверка прав пользователя на совершение действия
-            else if (RespsIsCorrectOnUpdate(entityToUpdate))
+            else
             {
-                // Попытка обновления записи
-                if (TryUpdatePrepare(entityToUpdate))
+                // Проверка прав пользователя на совершение действия
+                transaction.AddParameter("RecordToChange", recordToChange);
+                if (RespsIsCorrectOnUpdate(entityToUpdate))
                 {
-                    // Преобразование записи при обновлении(получение ее из бд и изменение значений полей)
-                    TDataModel dataModel = map.OnModelUpdate(entityToUpdate);
-                    try
+                    // Попытка обновления записи
+                    if (TryUpdatePrepare(entityToUpdate))
                     {
-                        // Обновление записи
-                        transaction.AddChange(dataModel, EntityState.Modified);
-                        ChangedRecord = dataModel;
-                        transaction.AddParameter("ChangedRecord", dataModel);
-                        if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+                        // Преобразование записи при обновлении(получение ее из бд и изменение значений полей)
+                        TDataModel dataModel = map.OnModelUpdate(entityToUpdate);
+                        try
                         {
-                            // Закрытие транзакции
-                            viewModelsTransactionFactory.Close(transaction);
-                            // Получение из бд обновленной записи, преобразование ее в модель отображения
-                            entityToUpdate = map.DataToViewModel(dataModel);
-                            return true;
+                            // Обновление записи
+                            transaction.AddChange(dataModel, EntityState.Modified);
+                            ChangedRecord = dataModel;
+                            transaction.AddParameter("ChangedRecord", dataModel);
+                            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+                            {
+                                // Закрытие транзакции
+                                viewModelsTransactionFactory.Close(transaction);
+                                // Получение из бд обновленной записи, преобразование ее в модель отображения
+                                entityToUpdate = map.DataToViewModel(dataModel);
+                                return true;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            errors.Add(resManager.GetString("UnhandledException"), ex.Message);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        errors.Add(resManager.GetString("UnhandledException"), ex.Message);
-                    }
                 }
+                else HasNotPermissionsForUpdate();
             }
-
-            else HasNotPermissionsForUpdate();
 
             // Добавление ошибок
             UpdateAddErrors(modelState);
 
             // Закрытие транзакции
-            viewModelsTransactionFactory.Close(transaction);
+            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             FailureUpdateHandler(entityToUpdate);
             return false;
         }

@@ -249,7 +249,7 @@ namespace GSCrm.Mapping
         {
             SetTransaction(OperationType.UnlockAccount);
             Account account = (Account)transaction.GetParameterValue("CurrentAccount");
-            AccountManager accountManager = account.GetManagers(context).FirstOrDefault(i => i.ManagerId == newManager.Id);
+            AccountManager accountManager = account.GetAccTeam(context).FirstOrDefault(i => i.ManagerId == newManager.Id);
 
             // Если произошло так, что у клиента был в списке этот менеджер, но не был основным, то его не надо добавлять.
             // В противном случае он добавляется в команду

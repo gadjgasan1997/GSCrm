@@ -38,6 +38,10 @@
         /// <summary>
         /// Удаление клиента
         /// </summary>
-        AccDelete = 9
+        AccDelete = 9,
+        /// <summary>
+        /// Обновление данных клиента
+        /// </summary>
+        AccUpdate = 10
     }
 }
