@@ -140,21 +140,9 @@
 }
 
 @media (min-width: 800px) {
-    .not-settings-list {
-        width: 60%
-    }
-    #userNotSettingsList {
-        width: 60%
-    }
     .update-not-setting,
     .cancel-update-not-setting {
         width: 50%
-    }
-}
-
-@media (min-width: 1200px) {
-    #userNotSettingsList {
-        width: 40%
     }
 }
 
@@ -194,7 +182,7 @@
 
 @media all and (max-width: 720px) {
     .notifications-empty-list {
-        .col:first-child {
+        > div:first-child {
             display: none
         }
     }

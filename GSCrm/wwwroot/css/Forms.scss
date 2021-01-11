@@ -327,11 +327,21 @@
     #lockPositionForm {
         width: 100%
     }
+
+    #notSettingsForm {
+        width: 90%;
+        margin: auto
+    }
 }
 
 @media all and (min-width: 800px) {
     #lockPositionForm {
         width: 70%;
         margin: auto
+    }
+
+    #notSettingsForm {
+        width: 70%;
+        margin: auto;
     }
 }
