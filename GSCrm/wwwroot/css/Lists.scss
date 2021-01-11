@@ -182,7 +182,7 @@
 
 @media all and (max-width: 720px) {
     .notifications-empty-list {
-        .col:first-child {
+        > div:first-child {
             display: none
         }
     }

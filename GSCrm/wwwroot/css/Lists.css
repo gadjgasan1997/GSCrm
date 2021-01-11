@@ -326,7 +326,7 @@
     color: #007bff; }
 
 @media all and (max-width: 720px) {
-  .notifications-empty-list .col:first-child {
+  .notifications-empty-list > div:first-child {
     display: none; } }
 
 @media screen and (max-width: 720px) {
