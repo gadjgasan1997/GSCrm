@@ -44,14 +44,27 @@ namespace GSCrm.Mapping
         }
 
         public override PositionViewModel DataToViewModel(Position position)
+            => DataToViewModelExceptHierarchy(position);
+
+        /// <summary>
+        /// Необходим для получения более подробной информации о должности, чем дает метод "DataToViewModel"
+        /// Вызывается при проваливании в должность
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public PositionViewModel DataToViewModelExt(Position position)
         {
-            List<PositionViewModel> parentPositionsHieararchy = new List<PositionViewModel>();
-            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            positionRepository.GetParentPositionsHierarchy(position).ForEach(parentPosition => parentPositionsHieararchy.Add(DataToViewModelExceptHierarchy(parentPosition)));
             PositionViewModel positionViewModel = DataToViewModelExceptHierarchy(position);
-            positionViewModel.PositionsHierarchy = parentPositionsHieararchy;
-            positionViewModel.PositionsHierarchy.Insert(0, positionViewModel);
-            positionViewModel.PositionsHierarchy.Reverse();
+            if (position.ParentPositionId != null)
+            {
+                List<PositionViewModel> parentPositionsHieararchy = new List<PositionViewModel>();
+                PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
+                positionRepository.GetParentPositionsHierarchy(position).ForEach(parentPosition =>
+                    parentPositionsHieararchy.Add(DataToViewModelExceptHierarchy(parentPosition)));
+                positionViewModel.PositionsHierarchy = parentPositionsHieararchy;
+                positionViewModel.PositionsHierarchy.Insert(0, positionViewModel);
+                positionViewModel.PositionsHierarchy.Reverse();
+            }
             return positionViewModel;
         }
 

@@ -46,7 +46,7 @@ namespace GSCrm.Controllers
             if (!positionRepository.HasPermissionsForSeeItem(position))
                 return View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel());
 
-            PositionViewModel posViewModel = map.DataToViewModel(position);
+            PositionViewModel posViewModel = new PositionMap(serviceProvider, context).DataToViewModelExt(position);
             posViewModel = new PositionMap(serviceProvider, context).Refresh(posViewModel, currentUser, PosAllViewTypes);
             positionRepository.AttachEmployees(posViewModel);
             positionRepository.AttachSubPositions(posViewModel);

@@ -88,21 +88,29 @@ namespace GSCrm.Helpers
 
         private static List<Employee> GetSubordinates(ApplicationDbContext context, Guid employeeId, Guid? divisionId, Guid? primaryPositionId)
         {
-            if (divisionId == null) return new List<Employee>();
+            if (divisionId == null || primaryPositionId == null)
+                return new List<Employee>();
+
+            // Проверка, что этот сотрудник установлен на должности как основной
+            Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == primaryPositionId);
+            if (position == null || position.PrimaryEmployeeId != employeeId)
+                return new List<Employee>();
+
+            // Получение подчиненных
             List<Employee> subordinates = new List<Employee>();
             Division division = context.Divisions.AsNoTracking().FirstOrDefault(i => i.Id == divisionId);
             List<Position> childPositions = division.GetPositions(context).Where(pos => pos.ParentPositionId == primaryPositionId).ToList();
             childPositions.ForEach(childPosition =>
             {
-                // Для каждой должности находится список сотрудников, которые ее занимают
-                // Из списка исключается сам сотрудник, для которого ищутся подчиненные и дубликаты
-                // Также необходимо брать только сотрудников, у которых основной должностью является текущая дочерняя
-                childPosition.GetEmployees(context)
-                    .Where(sub => sub != null &&
-                        sub.Id != employeeId &&
-                        sub.PrimaryPositionId == childPosition.Id &&
-                        !subordinates.Contains(sub, new EmployeeComparer()))
-                    .ToList().ForEach(subordinate => subordinates.Add(subordinate));
+                // Для каждой дочерней должности находится список сотрудников, которые ее занимают
+                // Из списка исключается сам сотрудник, для которого ищутся подчиненные
+                // Необходимо брать только сотрудников, у которых основной должностью является текущая дочерняя
+                // Также надо исключить дубликаты
+                Func<Employee, bool> predicate = subordinate => subordinate != null &&
+                    subordinate.Id != employeeId &&
+                    subordinate.PrimaryPositionId == childPosition.Id &&
+                    !subordinates.Contains(subordinate, new EmployeeComparer());
+                subordinates.AddRange(childPosition.GetEmployees(context).Where(predicate));
             });
             return subordinates;
         }
