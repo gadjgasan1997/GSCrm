@@ -4,7 +4,7 @@
 @using static GSCrm.CommonConsts
 @using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
-@using GSCrm.Data 
+@using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
 @inject IViewsInfo viewsInfo
@@ -43,8 +43,8 @@
         await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/ResponsibilitiesManagmentModal.cshtml");
 
         @* // Удаление организации *@
-        <div class="row justify-content-around">
-            <div class="col flex-grow-0 nav-connected-tabs text-center text-md-left mb-3 mb-md-0" nav-tabs="orgTabs">
+        <div id="orgFormActions" class="row justify-content-around">
+            <div class="col nav-connected-tabs text-center mb-3 mb-md-0" nav-tabs="orgTabs">
                 <div class="fade show nav-connected-tab" nav-tab="#divisions">
                     <input type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#divisionModal" value="@resManager.GetString("CreateDivisionLabel")" />
                 </div>
@@ -55,12 +55,12 @@
                     <input id="openEmployeeModalBtn" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#employeeModal" value="@resManager.GetString("CreateEmployeeLabel")" />
                 </div>
             </div>
-            <div class="col text-center text-md-left mb-3 mb-md-0">
-                <button class="btn btn-link" data-toggle="modal" data-target="#responsibilitiesManagmentModal">@resManager.GetString("ResponsibilitiesManagment")</button>
+            <div id="respsOrgForm" class="col text-center mb-3 mb-md-0">
+                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#responsibilitiesManagmentModal">@resManager.GetString("ResponsibilitiesManagment")</button>
             </div>
             @if (currentUser.Id == Model.OwnerId)
             {
-                <div id="removeOrgForm" class="col text-center text-md-right mb-3 mb-md-0">
+                <div id="removeOrgForm" class="col text-center mb-3 mb-md-0">
                     <input id="orgId" hidden="hidden" asp-for="Id" />
                     <div id="orgUrl" hidden="hidden">@Html.ActionLink(Model.Id.ToString(), "Delete", ORGANIZATION, new { id = Model.Id })"</div>
                     <input id="removeOrgBtn" type="button" class="btn btn-outline-danger" value="@resManager.GetString("RemoveOrganizationLabel")" />
@@ -68,15 +68,27 @@
             }
             else
             {
-                <div id="leaveOrgForm" class="col text-center text-md-right mb-3 mb-md-0">
+                <div id="leaveOrgForm" class="col text-center mb-3 mb-md-0">
                     <input id="orgId" hidden="hidden" asp-for="Id" />
                     <div id="orgUrl" hidden="hidden">@Html.ActionLink(Model.Id.ToString(), "Leave", ORGANIZATION, new { id = Model.Id })"</div>
                     <input id="leaveOrgBtn" type="button" class="btn btn-outline-danger" value="@resManager.GetString("LeaveOrganizationLabel")" />
                 </div>
             }
         </div>
-        <div class="row justify-content-center mt-3">
-            <h3 class="label-non-select text-center m-0">@Model.Name</h3>
+        <div id="orgFormHeader" class="row justify-content-center mt-3">
+            <div class="col-auto">
+                <div class="block-center">
+                    <span class="icon-dots-three-vertical"></span>
+                </div>
+            </div>
+            <div class="col">
+                <h3 class="label-non-select text-center m-0">@Model.Name</h3>
+            </div>
+            <div id="orgSettingsBtn" class="col-auto">
+                <div class="block-center">
+                    <span class="icon-dots-three-vertical"></span>
+                </div>
+            </div>
         </div>
         <div class="mt-4">
             @* // Вкладки *@
@@ -123,4 +135,13 @@
             </div>
         </div>
     }
+</div>
+<div id="orgSettingsMenu" class="d-none">
+    <ul>
+        <li>
+            <form method="get" asp-controller="@ORGANIZATION" asp-action="@PROD_CATS" asp-route-orgId="@Model.Id" asp-route-pageNumber="0">
+                <input type="submit" class="label-md" value="@resManager.GetString("ProductModel")" />
+            </form>
+        </li>
+    </ul>
 </div>

@@ -22,6 +22,7 @@ namespace GSCrm.Factories
                 "EmployeeResponsibilityViewModel" => (ITransactionFactory<TEntity>)new EmployeeResponsibilityTF(serviceProvider, context),
                 "SyncRespsViewModel" => (ITransactionFactory<TEntity>)new SyncRespsTF(serviceProvider, context),
                 "ResponsibilityViewModel" => (ITransactionFactory<TEntity>)new ResponsibilityTF(serviceProvider, context),
+                "ProductCategoryViewModel" => (ITransactionFactory<TEntity>)new ProductCategoryTF(serviceProvider, context),
                 "AccountViewModel" => (ITransactionFactory<TEntity>)new AccountTF(serviceProvider, context),
                 "SyncAccountViewModel" => (ITransactionFactory<TEntity>)new SyncAccountsTF(serviceProvider, context),
                 "AccountAddressViewModel" => (ITransactionFactory<TEntity>)new AccountAddressTF(serviceProvider, context),

@@ -26,6 +26,8 @@ namespace GSCrm.Data
         public DbSet<UserNotification> UserNotifications { get; set; }
         public DbSet<Position> Positions { get; set; }
         public DbSet<Responsibility> Responsibilities { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<InboxNotification> InboxNotifications { get; set; }
 
@@ -46,6 +48,7 @@ namespace GSCrm.Data
             modelBuilder.ApplyConfiguration(new PositionConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductCategoryConfiguration());
         }
     }
 }

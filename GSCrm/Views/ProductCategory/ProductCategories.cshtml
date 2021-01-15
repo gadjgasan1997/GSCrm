@@ -1,0 +1,15 @@
+﻿@{
+    Layout = "_Layout";
+}
+@using static GSCrm.CommonConsts
+@using GSCrm.Data.ApplicationInfo
+@using GSCrm.Helpers
+@using GSCrm.Data
+@inject ApplicationDbContext context
+@inject ResManager resManager
+@inject IViewsInfo viewsInfo
+@model ProductCategoriesViewModel
+@{
+    User currentUser = User.GetUserModel(context);
+    ViewInfo prodCatsView = viewsInfo.Get(currentUser.Id, PROD_CATS);
+}

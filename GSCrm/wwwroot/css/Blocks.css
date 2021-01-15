@@ -25,7 +25,7 @@
   display: table;
   height: 100%;
   width: 100%; }
-  .block-center > p, .block-center a {
+  .block-center > p, .block-center a, .block-center span {
     display: table-cell;
     vertical-align: middle;
     text-align: center; }

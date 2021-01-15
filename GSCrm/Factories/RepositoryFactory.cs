@@ -21,6 +21,7 @@ namespace GSCrm.Factories
                 "EmployeeContact" => (IRepository<TDataModel, TViewModel>)new EmployeeContactRepository(serviceProvider, context),
                 "EmployeeResponsibility" => (IRepository<TDataModel, TViewModel>)new EmployeeResponsibilityRepository(serviceProvider, context),
                 "Responsibility" => (IRepository<TDataModel, TViewModel>)new ResponsibilityRepository(serviceProvider, context),
+                "ProductCategory" => (IRepository<TDataModel, TViewModel>)new ProductCategoryRepository(serviceProvider, context),
                 "Account" => (IRepository<TDataModel, TViewModel>)new AccountRepository(serviceProvider, context),
                 "AccountAddress" => (IRepository<TDataModel, TViewModel>)new AccountAddressRepository(serviceProvider, context),
                 "AccountContact" => (IRepository<TDataModel, TViewModel>)new AccountContactRepository(serviceProvider, context),

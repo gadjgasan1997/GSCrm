@@ -38,28 +38,21 @@ namespace GSCrm.Controllers
         [HttpGet("{id}")]
         public ViewResult Organization(string id)
         {
-            try
-            {
-                OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                if (!organizationRepository.TryGetItemById(id, out Organization organization))
-                    return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-                if (!organizationRepository.HasPermissionsForSeeItem(organization))
-                    return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            if (!organizationRepository.TryGetItemById(id, out Organization organization))
+                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
+            if (!organizationRepository.HasPermissionsForSeeItem(organization))
+                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
 
-                OrganizationViewModel orgViewModel = map.DataToViewModel(organization);
-                orgViewModel = new OrganizationMap(serviceProvider, context).Refresh(orgViewModel, currentUser, OrgAllViewTypes);
-                organizationRepository.AttachDivisions(orgViewModel);
-                organizationRepository.AttachPositions(orgViewModel);
-                organizationRepository.AttachEmployees(orgViewModel);
-                organizationRepository.AttachResponsibilities(orgViewModel);
-                cachService.CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
-                cachService.CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
-                return View(ORGANIZATION, orgViewModel);
-            }
-            catch (Exception)
-            {
-                return View("Error");
-            }
+            OrganizationViewModel orgViewModel = map.DataToViewModel(organization);
+            orgViewModel = new OrganizationMap(serviceProvider, context).Refresh(orgViewModel, currentUser, OrgAllViewTypes);
+            organizationRepository.AttachDivisions(orgViewModel);
+            organizationRepository.AttachPositions(orgViewModel);
+            organizationRepository.AttachEmployees(orgViewModel);
+            organizationRepository.AttachResponsibilities(orgViewModel);
+            cachService.CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
+            cachService.CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
+            return View(ORGANIZATION, orgViewModel);
         }
 
         [HttpGet("BackToOrganization/{orgId}")]
@@ -71,6 +64,25 @@ namespace GSCrm.Controllers
             if (!organizationRepository.HasPermissionsForSeeItem(organization))
                 return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
             return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = organization.Id });
+        }
+
+        [HttpGet("{orgId}/ProductCategories/{pageNumber}")]
+        public ViewResult ProductCategories(string orgId, int pageNumber)
+        {
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            if (!organizationRepository.TryGetItemById(orgId, out Organization organization))
+                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
+            if (!organizationRepository.HasPermissionsForSeeItem(organization))
+                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
+
+            ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
+            ProductCategoriesViewModel prodCatsViewModel = new ProductCategoriesViewModel()
+            {
+                OrganizationViewModel = new OrganizationMap(serviceProvider, context).DataToViewModel(organization)
+            };
+            productCategoryRepository.SetViewInfo(PROD_CATS, pageNumber);
+            productCategoryRepository.AttachProductCategories(ref prodCatsViewModel);
+            return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", prodCatsViewModel);
         }
 
         [HttpGet("ChangePrimaryOrg/{newPrimaryOrgId}")]

@@ -10,6 +10,7 @@
         public const string EMP_VIEWS_REL_PATH = "~/Views/" + EMPLOYEE + "/";
         public const string POS_VIEWS_REL_PATH = "~/Views/" + POSITION + "/";
         public const string RESP_VIEWS_REL_PATH = "~/Views/" + RESPONSIBILITY + "/";
+        public const string PROD_CAT_VIEWS_REL_PATH = "~/Views/" + PROD_CAT + "/";
         public const string ACC_VIEWS_REL_PATH = "~/Views/" + ACCOUNT + "/";
         public const string QT_VIEWS_REL_PATH = "~/Views/" + QUOTE + "/";
         public const string NOT_VIEWS_REL_PATH = "~/Views/" + NOTIFICATION + "/";
@@ -31,6 +32,12 @@
         public const string RESPONSIBILITIES = "Responsibilities";
         public const string OWNER = "Owner";
 
+        // Должность
+        public const string POS_EMPLOYEE = "PositionEmployee";
+        public const string POS_EMPLOYEES = "PositionEmployees";
+        public const string POS_SUB_POS = "PositionSubPosition";
+        public const string POS_SUB_POSS = "PositionSubPositions";
+
         // Сотрудник
         public const string EMP_POSITION = "EmployeePosition";
         public const string EMP_POSITIONS = "EmployeePositions";
@@ -49,11 +56,11 @@
         public const string ALL_EMP_RESPS = "AllEmployeeResponsibility";
         public const string SELECTED_EMP_RESPS = "SelectedEmployeeResponsibilities";
 
-        // Должность
-        public const string POS_EMPLOYEE = "PositionEmployee";
-        public const string POS_EMPLOYEES = "PositionEmployees";
-        public const string POS_SUB_POS = "PositionSubPosition";
-        public const string POS_SUB_POSS = "PositionSubPositions";
+        // Продукт
+        public const string PROD_CAT = "ProductCategory";
+        public const string PROD_CATS = "ProductCategories";
+        public const string PRODUCT = "Product";
+        public const string PRODUCTS = "Product";
 
         // Клиент
         public const string ACCOUNT = "Account";

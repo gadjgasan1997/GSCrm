@@ -11,12 +11,6 @@ namespace GSCrm.Helpers
     public static class ContextHelpers
     {
         #region Organization
-        /// <summary>
-        /// Метод возвращает список всех организаций, в которых состоит текущий пользователь
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="currentUser"></param>
-        /// <returns></returns>
         public static List<Organization> GetOrganizations(this ApplicationDbContext context, User currentUser)
         {
             Func<Organization, bool> predicate = org => org.UserOrganizations.Where(userOrg => userOrg.Accepted).Select(userOrg => userOrg.UserId).ToList().Contains(currentUser.Id);
@@ -36,6 +30,12 @@ namespace GSCrm.Helpers
         {
             Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
             return organization.GetEmployees(context);
+        }
+
+        public static List<ProductCategory> GetOrgProdCats(this ApplicationDbContext context, Guid organizationId)
+        {
+            Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
+            return organization.GetProductCategories(context);
         }
         #endregion
 

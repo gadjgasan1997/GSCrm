@@ -127,11 +127,13 @@ $(document)
     })
 
 // Всплывающие подсказки
-$(document).off("click", "body").on("click", "body", event => {
-    $('.popover').popover("hide");
-})
-
 $(document).off("click", ".popover-source").on("click", ".popover-source", event => {
     event.stopPropagation();
     event.preventDefault();
+})
+
+// Скрытие всех всплывающих окон
+$(document).off("click", "body").on("click", "body", event => {
+    $('.popover').popover("hide");
+    $("#orgSettingsMenu").addClass("d-none");
 })

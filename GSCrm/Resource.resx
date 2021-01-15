@@ -813,6 +813,9 @@
   <data name="HasPermissionsForSeePosition" xml:space="preserve">
     <value>Должность не найдена или у вас нет прав на ее просмотр</value>
   </data>
+  <data name="HasPermissionsForSeeProdCat" xml:space="preserve">
+    <value>Продуктовая модель не найдена или у вас нет прав на ее просмотр</value>
+  </data>
   <data name="HasPermissionsForSeeResponsibility" xml:space="preserve">
     <value>Полномочие не найдено или у вас нет прав на его просмотр</value>
   </data>
@@ -1250,6 +1253,9 @@
   </data>
   <data name="PrivateNotSettings" xml:space="preserve">
     <value>Личные</value>
+  </data>
+  <data name="ProductModel" xml:space="preserve">
+    <value>Продуктовая модель</value>
   </data>
   <data name="Quote" xml:space="preserve">
     <value>Сделка</value>

@@ -8,6 +8,7 @@ namespace GSCrm.Data.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<Organization> modelBuilder)
         {
+            // TODO Почему NoAction?
             modelBuilder
                 .HasMany(div => div.Divisions)
                 .WithOne(org => org.Organization)
@@ -28,6 +29,12 @@ namespace GSCrm.Data.EntityConfigurations
 
             modelBuilder
                 .HasMany(userOrgs => userOrgs.UserOrganizations)
+                .WithOne(org => org.Organization)
+                .HasForeignKey(orgId => orgId.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder
+                .HasMany(prodCat => prodCat.ProductCategories)
                 .WithOne(org => org.Organization)
                 .HasForeignKey(orgId => orgId.OrganizationId)
                 .OnDelete(DeleteBehavior.Cascade);
