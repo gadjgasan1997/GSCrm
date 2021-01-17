@@ -5,7 +5,8 @@
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model AccountViewModel
 @{
     int invoicesCount = Model.AccountInvoices.Count;
@@ -84,7 +85,7 @@
         await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
         {
             ItemsCount = invoicesCount,
-            ViewInfo = viewsInfo.Get(currentUserId, ACC_INVOICES),
+            ViewInfo = cachService.GetViewInfo(currentUserId, ACC_INVOICES),
             ControllerName = ACC_INVOICE,
             ActionName = INVOICES
         });

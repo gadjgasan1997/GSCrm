@@ -18,8 +18,7 @@ namespace GSCrm.Controllers
 {
     [Authorize]
     [Route(ACCOUNT)]
-    public class AccountController
-        : MainController<Account, AccountViewModel>
+    public class AccountController : MainController<Account, AccountViewModel>
     {
         public AccountController(IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(context, serviceProvider)
@@ -53,22 +52,24 @@ namespace GSCrm.Controllers
             => cachService.GetCachedItem(currentUser.Id, "SelectedAccountsTab") switch
                 {
                     // Проваливание со списка всех клиентов
-                    ALL_ACCS => RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = viewsInfo.Get(currentUser.Id, ALL_ACCS)?.CurrentPageNumber }),
+                    ALL_ACCS => RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = cachService.GetViewInfo(currentUser.Id, ALL_ACCS)?.CurrentPageNumber }),
 
                     // Проваливание со списка клиентов основной организации текущего пользователя
-                    _ => RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = viewsInfo.Get(currentUser.Id, CURRENT_ACCS)?.CurrentPageNumber }),
+                    _ => RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = cachService.GetViewInfo(currentUser.Id, CURRENT_ACCS)?.CurrentPageNumber }),
                 };
         
 
         [HttpGet("{id}")]
         public ViewResult Account(string id)
         {
+            // Проверки на наличие клиента и доступа к нему у пользователя
             AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
             if (!accountRepository.TryGetItemById(id, out Account account))
                 return View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel());
             if (!accountRepository.HasPermissionsForSeeItem(account))
                 return View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel());
 
+            // Если клиент и доступ имеются
             AccountMap map = new AccountMap(serviceProvider, context);
             AccountViewModel accountViewModel = map.DataToViewModel(account);
             accountViewModel = map.Refresh(accountViewModel, currentUser, AccAllViewTypes);
@@ -77,8 +78,8 @@ namespace GSCrm.Controllers
             accountRepository.AttachInvoices(accountViewModel);
             accountRepository.AttachQuotes(accountViewModel);
             accountRepository.AttachManagers(accountViewModel);
-            cachService.CacheItem(currentUser.Id, "CurrentAccountData", account);
-            cachService.CacheItem(currentUser.Id, "CurrentAccountView", accountViewModel);
+            cachService.SetCurrentViewName(currentUser.Id, ACCOUNT);
+            cachService.CacheAccount(currentUser, account, accountViewModel);
             return View(ACCOUNT, accountViewModel);
         }
 
@@ -103,8 +104,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new AccountRepository(serviceProvider, context).TryChangeSite(accountId, out Dictionary<string, string> errors, newSite))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");
@@ -116,8 +116,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new AccountRepository(serviceProvider, context).TryChangePrimaryContact(accountViewModel, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");
@@ -129,8 +128,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new AccountRepository(serviceProvider, context).TryUnlockAccount(accountViewModel, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");

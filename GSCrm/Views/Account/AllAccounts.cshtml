@@ -5,7 +5,9 @@
 @inject ApplicationDbContext context
 @using static GSCrm.CommonConsts
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
+@inject ICachService cachService
 @model AccountsViewModel
 @{
     int allAccountsCount = Model.AllAccounts.Count();
@@ -71,7 +73,7 @@
         await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
         {
             ItemsCount = allAccountsCount,
-            ViewInfo = viewsInfo.Get(currentUserId, ALL_ACCS),
+            ViewInfo = cachService.GetViewInfo(currentUserId, ALL_ACCS),
             ControllerName = ACCOUNT,
             ActionName = ALL_ACCS
         });

@@ -37,6 +37,7 @@ namespace GSCrm.Controllers
         [HttpGet("{id}")]
         public ViewResult Position(string id)
         {
+            // Проверки на наличие должности и доступа к ней у пользователя
             PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
             if (!positionRepository.TryGetItemById(id, out Position position))
@@ -46,12 +47,14 @@ namespace GSCrm.Controllers
             if (!positionRepository.HasPermissionsForSeeItem(position))
                 return View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel());
 
-            PositionViewModel posViewModel = new PositionMap(serviceProvider, context).DataToViewModelExt(position);
-            posViewModel = new PositionMap(serviceProvider, context).Refresh(posViewModel, currentUser, PosAllViewTypes);
+            // Если должность и доступ имеются
+            PositionMap positionMap = new PositionMap(serviceProvider, context);
+            PositionViewModel posViewModel = positionMap.DataToViewModelExt(position);
+            posViewModel = positionMap.Refresh(posViewModel, currentUser, PosAllViewTypes);
             positionRepository.AttachEmployees(posViewModel);
             positionRepository.AttachSubPositions(posViewModel);
-            cachService.CacheItem(currentUser.Id, "CurrentPositionData", position);
-            cachService.CacheItem(currentUser.Id, "CurrentPositionView", posViewModel);
+            cachService.SetCurrentViewName(currentUser.Id, POSITION);
+            cachService.CachePosition(currentUser, position, posViewModel);
             return View(POSITION, posViewModel);
         }
 
@@ -61,8 +64,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new PositionRepository(serviceProvider, context).TryChangeDivision(positionViewModel, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");
@@ -74,8 +76,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new PositionRepository(serviceProvider, context).TryUnlock(ref positionViewModel, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");
@@ -105,8 +106,7 @@ namespace GSCrm.Controllers
         [HttpGet("ClearSearchSubPosition")]
         public IActionResult ClearSearchSubPosition()
         {
-            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            positionRepository.ClearSearchSubPosition();
+            new PositionRepository(serviceProvider, context).ClearSearchSubPosition();
             return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
         }
     }

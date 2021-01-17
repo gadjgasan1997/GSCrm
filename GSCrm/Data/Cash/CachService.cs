@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using GSCrm.Data.ApplicationInfo;
+using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
@@ -110,6 +112,53 @@ namespace GSCrm.Data.Cash
                 CachEntitiesData<TEntity>._cashListedItems[userId].Add(entityName, entity);
         }
 
+        public void SetViewInfo(string userId, string viewName, ViewInfo viewInfo)
+        {
+            if (new[] { userId, viewName }.IsNullOrEmpty()) return;
+
+            // Добавление информации о представлении в список представлений пользователя
+            if (!CashViewData._cashItems.ContainsKey(userId))
+            {
+                CashViewData._cashItems.Add(userId, new Dictionary<string, ViewInfo>()
+                {
+                    { viewName, viewInfo }
+                });
+            }
+            else if (!CashViewData._cashItems[userId].ContainsKey(viewName))
+                CashViewData._cashItems[userId].Add(viewName, viewInfo);
+            else CashViewData._cashItems[userId][viewName] = viewInfo;
+
+            // Прсотавление назвакния текущего представления, на котором находится пользователь
+            if (!CashViewData._currentViewNames.ContainsKey(userId))
+                CashViewData._currentViewNames.Add(userId, viewName);
+            else CashViewData._currentViewNames[userId] = viewName;
+        }
+
+        public ViewInfo GetViewInfo(string userId, string viewName)
+        {
+            if (new[] { userId, viewName }.IsNullOrEmpty()) return new ViewInfo(viewName);
+            if (!CashViewData._cashItems.ContainsKey(userId)) return new ViewInfo(viewName);
+            if (!CashViewData._cashItems[userId].ContainsKey(viewName)) return new ViewInfo(viewName);
+            return CashViewData._cashItems[userId][viewName];
+        }
+
+        public void SetCurrentViewName(string userId, string currentViewName)
+        {
+            if (!string.IsNullOrEmpty(userId))
+            {
+                if (!CashViewData._currentViewNames.ContainsKey(userId))
+                    CashViewData._currentViewNames.Add(userId, currentViewName);
+                else CashViewData._currentViewNames[userId] = currentViewName;
+            }
+        }
+
+        public string GetCurrentViewName(string userId)
+        {
+            if (string.IsNullOrEmpty(userId) || !CashViewData._currentViewNames.ContainsKey(userId))
+                return null;
+            return CashViewData._currentViewNames[userId];
+        }
+
         public IMainEntity GetMainEntity(User currentUser, MainEntityType mainEntityType)
             => mainEntityType switch
             {
@@ -130,9 +179,51 @@ namespace GSCrm.Data.Cash
 
         public Guid GetMainEntityId(User currentUser, MainEntityType mainEntityType) => GetMainEntity(currentUser, mainEntityType).Id;
 
+        public void CacheOrganization(User currentUser, Organization organization, OrganizationViewModel orgViewModel)
+        {
+            CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
+            CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
+        }
+
+        public void GetCachedOrganization(User currentUser, out Organization organization, out OrganizationViewModel orgViewModel)
+        {
+            organization = GetCachedItem<Organization>(currentUser.Id, "CurrentOrganizationData");
+            orgViewModel = GetCachedItem<OrganizationViewModel>(currentUser.Id, "CurrentOrganizationView");
+        }
+
+        public void CachePosition(User currentUser, Position position, PositionViewModel posViewModel)
+        {
+            CacheItem(currentUser.Id, "CurrentPositionData", position);
+            CacheItem(currentUser.Id, "CurrentPositionView", posViewModel);
+        }
+
+        public void CacheEmployee(User currentUser, Employee employee, EmployeeViewModel empViewModel)
+        {
+            CacheItem(currentUser.Id, "CurrentEmployeeData", employee);
+            CacheItem(currentUser.Id, "CurrentEmployeeView", empViewModel);
+        }
+
+        public void CacheResponsibility(User currentUser, Responsibility responsibility, ResponsibilityViewModel respViewModel)
+        {
+            CacheItem(currentUser.Id, "CurrentResponsibilityData", responsibility);
+            CacheItem(currentUser.Id, "CurrentResponsibilityView", respViewModel);
+        }
+
+        public void CacheAccount(User currentUser, Account account, AccountViewModel accViewModel)
+        {
+            CacheItem(currentUser.Id, "CurrentAccountData", account);
+            CacheItem(currentUser.Id, "CurrentAccountView", accViewModel);
+        }
+
         class CachMainData
         {
             public static readonly Dictionary<string, Dictionary<string, string>> _cashItems = new Dictionary<string, Dictionary<string, string>>();
+        }
+
+        class CashViewData
+        {
+            public static Dictionary<string, string> _currentViewNames { get; set; } = new Dictionary<string, string>();
+            public static Dictionary<string, Dictionary<string, ViewInfo>> _cashItems { get; set; } = new Dictionary<string, Dictionary<string, ViewInfo>>();
         }
 
         class CachEntitiesData<TEntity>

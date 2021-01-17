@@ -3,7 +3,8 @@
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model OrganizationViewModel
 @using static GSCrm.CommonConsts
 @{

@@ -44,7 +44,6 @@ namespace GSCrm
             services.AddScoped<IMapFactory, MapFactory>();
             services.AddScoped<ITFFactory, TFFactory>();
             services.AddScoped<IRepositoryFactory, RepositoryFactory>();
-            services.AddSingleton<IViewsInfo, ViewsInfo>();
             services.AddSingleton<ICachService, CachService>();
             services.AddScoped<ITransaction, Transaction>();
             services.AddTransient<IPasswordValidator<User>, PasswordValidator>();

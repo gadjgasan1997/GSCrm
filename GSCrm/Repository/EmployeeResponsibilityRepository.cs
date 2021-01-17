@@ -89,7 +89,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<Responsibility> AttachAllResponsibilities(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(ALL_EMP_RESPS, pageNumber, ALL_EMP_RESPS_COUNT);
+            SetViewInfo(ALL_EMP_RESPS, pageNumber);
 
             // Получение списка всех полномочий организации за исключением тех, которые уже присутствуют у сотрудника
             Employee employee = context.Employees.FirstOrDefault(i => i.Id == employeeId);
@@ -135,7 +135,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<Responsibility> AttachSelectedResponsibilities(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(SELECTED_EMP_RESPS, pageNumber, SELECTED_EMP_RESPS_COUNT);
+            SetViewInfo(SELECTED_EMP_RESPS, pageNumber);
 
             // Получение списка всех полномочий сотрудника и ограничение по фильтрам и номеру страницы
             List<EmployeeResponsibility> selectedResponsibilities = context.EmployeeResponsibilities

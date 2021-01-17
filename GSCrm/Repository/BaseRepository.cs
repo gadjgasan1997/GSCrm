@@ -45,10 +45,6 @@ namespace GSCrm.Repository
         /// </summary>
         protected readonly IUrlHelper urlHelper;
         /// <summary>
-        /// Информация о представлениях
-        /// </summary>
-        protected IViewsInfo viewsInfo;
-        /// <summary>
         /// Кеш сервис
         /// </summary>
         protected readonly ICachService cachService;
@@ -92,7 +88,6 @@ namespace GSCrm.Repository
             map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
             viewModelsTransactionFactory = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
             dataModelsTransactionFactory = TFFactory.GetTransactionFactory<TDataModel>(serviceProvider, context);
-            viewsInfo = serviceProvider.GetService(typeof(IViewsInfo)) as IViewsInfo;
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
 
@@ -346,13 +341,12 @@ namespace GSCrm.Repository
         #endregion
 
         #region Other Methods
-        public virtual void SetViewInfo(string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT)
+        public void SetViewInfo(string viewName, int pageNumber)
         {
-            ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, viewName);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, viewName);
             viewInfo.CurrentPageNumber = pageNumber <= DEFAULT_MIN_PAGE_NUMBER ? DEFAULT_MIN_PAGE_NUMBER : pageNumber;
             viewInfo.SkipSteps = viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP;
-            viewInfo.ItemsCount = itemsCount;
-            viewsInfo.Set(currentUser.Id, viewName, viewInfo);
+            cachService.SetViewInfo(currentUser.Id, viewName, viewInfo);
         }
 
         /// <summary>
@@ -365,19 +359,16 @@ namespace GSCrm.Repository
         protected void LimitListByPageNumber<TItemsListType>(string viewName, ref List<TItemsListType> itemsToLimit)
             where TItemsListType : class
         {
-            ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, viewName);
-            if (viewInfo != null)
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, viewName);
+            List<TItemsListType> limitedItems = itemsToLimit.Skip(viewInfo.SkipSteps * viewInfo.ItemsCount).Take(viewInfo.ItemsCount).ToList();
+            if (limitedItems.Count == 0)
             {
-                List<TItemsListType> limitedItems = itemsToLimit.Skip(viewInfo.SkipSteps * viewInfo.ItemsCount).Take(viewInfo.ItemsCount).ToList();
-                if (limitedItems.Count == 0)
-                {
-                    int newSkipItemsCount = (viewInfo.SkipSteps - DEFAULT_PAGE_STEP) * viewInfo.ItemsCount;
-                    limitedItems = itemsToLimit.Skip(newSkipItemsCount).ToList();
-                    viewInfo.CurrentPageNumber--;
-                    viewInfo.SkipSteps -= DEFAULT_PAGE_STEP;
-                }
-                itemsToLimit = limitedItems;
+                int newSkipItemsCount = (viewInfo.SkipSteps - DEFAULT_PAGE_STEP) * viewInfo.ItemsCount;
+                limitedItems = itemsToLimit.Skip(newSkipItemsCount).ToList();
+                viewInfo.CurrentPageNumber--;
+                viewInfo.SkipSteps -= DEFAULT_PAGE_STEP;
             }
+            itemsToLimit = limitedItems;
         }
 
         /// <summary>

@@ -29,7 +29,6 @@ namespace GSCrm.Controllers
         [HttpGet("ListOfPositions/{pageNumber}")]
         public IActionResult Positions(int pageNumber)
         {
-            User currentUser = context.Users.FirstOrDefault(n => n.UserName == User.Identity.Name);
             EmployeeViewModel employeeViewModel = (EmployeeViewModel)cachService.GetMainEntity(currentUser, MainEntityType.EmployeeView);
             EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
             employeeRepository.SetViewInfo(EMP_POSITIONS, pageNumber);
@@ -73,7 +72,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, ALL_EMP_POSS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_POSS);
                 EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
                 List<Position> allPositions = employeeRepository.AttachAllPositions(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
@@ -87,7 +86,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, ALL_EMP_POSS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_POSS);
                 EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
                 List<Position> allPositions = employeeRepository.AttachAllPositions(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
@@ -101,7 +100,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, SELECTED_EMP_POSS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_POSS);
                 EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
                 List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData(map);
@@ -115,7 +114,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, SELECTED_EMP_POSS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_POSS);
                 EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
                 List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData(map);

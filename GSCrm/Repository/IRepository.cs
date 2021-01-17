@@ -51,8 +51,7 @@ namespace GSCrm.Repository
         /// и количество шагов для пропуска элементов(skipSteps)
         /// <param name="viewName"></param>
         /// <param name="pageNumber"></param>
-        /// <param name="itemsCount"></param>
-        void SetViewInfo(string viewName, int pageNumber, int itemsCount = DEFAULT_ITEMS_COUNT);
+        void SetViewInfo(string viewName, int pageNumber);
         /// <summary>
         /// Методы пытаются найти сущность и, в случае успеха, возвращают ее
         /// </summary>

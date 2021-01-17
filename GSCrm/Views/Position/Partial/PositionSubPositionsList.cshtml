@@ -5,7 +5,8 @@
 @inject ApplicationDbContext context
 @inject ResManager resManager
 @model PositionViewModel
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @{
     int subPositionsCount = Model.SubPositions.Count;
     bool showES = subPositionsCount == 0 && new[] { Model.SearchSubPositionName, Model.SearchSubPositionPrimaryEmployee }.AllIsNullOrEmpty();
@@ -60,7 +61,7 @@
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
                 ItemsCount = subPositionsCount,
-                ViewInfo = viewsInfo.Get(currentUserId, POS_SUB_POSS),
+                ViewInfo = cachService.GetViewInfo(currentUserId, POS_SUB_POSS),
                 ControllerName = EMP_POSITION,
                 ActionName = POS_SUB_POSS
             });

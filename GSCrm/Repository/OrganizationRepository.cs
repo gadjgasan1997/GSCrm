@@ -26,11 +26,6 @@ namespace GSCrm.Repository
         /// </summary>
         public static OrganizationViewType[] OrgAllViewTypes => new OrganizationViewType[] {
             OrganizationViewType.DIVISIONS, OrganizationViewType.POSITIONS, OrganizationViewType.EMPLOYEES, OrganizationViewType.RESPONSIBILITIES };
-        /// <summary>
-        /// Количество одновременно отоброжаемых полномочий организации
-        /// Уровень доступа public, чтобы можно бьыло обратиться из представления
-        /// </summary>
-        public const int RESPONSIBILITIES_COUNT = 5;
         #endregion
 
         #region Constructs
@@ -381,9 +376,8 @@ namespace GSCrm.Repository
         /// Добавляет полномочия к организации, преобразую данные в отображение для выбранной страницы
         /// </summary>
         /// <returns></returns>
-        public void AttachResponsibilities(OrganizationViewModel orgViewModel, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public void AttachResponsibilities(OrganizationViewModel orgViewModel)
         {
-            SetViewInfo(RESPONSIBILITIES, pageNumber, RESPONSIBILITIES_COUNT);
             orgViewModel.Responsibilities = orgViewModel.GetResponsibilities(context)
                 .MapToViewModels(new ResponsibilityMap(serviceProvider, context), GetLimitedResponsibilitiesList);
         }

@@ -1,0 +1,12 @@
+{
+    "RenderData": [
+        {
+            "Url": "test",
+            "RenderName": "rendertest"
+        },
+        {
+            "Url": "test2",
+            "RenderName": "rendertest2"
+        }
+    ]
+}

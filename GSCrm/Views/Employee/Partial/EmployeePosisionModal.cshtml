@@ -4,12 +4,13 @@
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model EmployeeViewModel
 @{
     string currentUserId = User.GetUserModel(context).Id;
-    ViewInfo allPositionsView = viewsInfo.Get(currentUserId, ALL_EMP_POSS);
-    ViewInfo selectedPositionsView = viewsInfo.Get(currentUserId, SELECTED_EMP_POSS);
+    ViewInfo allPositionsView = cachService.GetViewInfo(currentUserId, ALL_EMP_POSS);
+    ViewInfo selectedPositionsView = cachService.GetViewInfo(currentUserId, SELECTED_EMP_POSS);
 }
 
 <div id="employeePosisionModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">

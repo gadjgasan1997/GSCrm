@@ -116,3 +116,91 @@ class Button {
         }
     }
 }
+
+// Checkmark
+$(document).off("click", ".checkmark").on("click", ".checkmark", event => {
+    $(event.currentTarget).trigger("checkmark-check", [{
+        Event: event
+    }])
+})
+
+$(document).off("click", ".hide-checkmark").on("click", ".hide-checkmark", event => {
+    $(event.currentTarget).trigger("hide-checkmark-click", [{
+        Event: event
+    }])
+})
+
+// Cross
+$(document).off("click", ".cross").on("click", ".cross", event => {
+    $(event.currentTarget).trigger("cross-click", [{
+        Event: event
+    }])
+})
+
+// Radio-tabs
+$(document)
+    .off("click", ".form-check").on("click", ".form-check", event => {
+        $(event.currentTarget).closest(".radio-tabs").find(".form-check").each((index, radio) => {
+            $(radio).removeClass("active");
+            $(radio).find(".form-check-input").removeAttr("checked");
+        });
+        $(event.currentTarget).addClass("active");
+        $(event.currentTarget).find(".form-check-input").prop("checked", "checked");
+    })
+    .off("click", ".form-check-wrap").on("click", ".form-check-wrap", event => {
+        let disabledAttr = $(event.currentTarget).find(".form-check-input").attr("disabled");
+
+        // Если была нажата таже радио кнопка или радио кнопка ридонли
+        if ($(event.currentTarget).closest(".form-check").hasClass("active") || disabledAttr != undefined || disabledAttr == true) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+
+// Switch
+$(document).off("click", ".switch").on("click", ".switch", event => {
+    if ($(event.currentTarget).hasClass("switch-active")) {
+        $(event.currentTarget).removeClass("switch-active");
+        $(event.currentTarget).addClass("switch-disable");
+    }
+    else {
+        $(event.currentTarget).addClass("switch-active");
+        $(event.currentTarget).removeClass("switch-disable");
+    }
+})
+
+// Всплывающие подсказки
+$(document).off("click", ".popover-source").on("click", ".popover-source", event => {
+    event.stopPropagation();
+    event.preventDefault();
+})
+
+// Главный навбар
+$(document).off("click", ".vertical-nav .nav-link").on("click", ".vertical-nav .nav-link", event => {
+    let tab = new Tab();
+    tab.ClearAll();
+});
+
+// Navnext
+$(document).off("click", ".nav-next .nav-url").on("click", ".nav-next .nav-url", event => {
+    event.preventDefault();
+    $(event.currentTarget).trigger("nav-next-click", [{
+        Event: event
+    }]);
+    let href = $(event.currentTarget).attr("href");
+    if (href != undefined) {
+        window.location.replace($(event.currentTarget).attr("href"));
+    }
+})
+
+// Navprevious
+$(document).off("click", ".nav-previous .nav-url").on("click", ".nav-previous .nav-url", event => {
+    event.preventDefault();
+    $(event.currentTarget).trigger("nav-previous-click", [{
+        Event: event
+    }])
+    let href = $(event.currentTarget).attr("href");
+    if (href != undefined) {
+        window.location.replace($(event.currentTarget).attr("href"));
+    }
+})

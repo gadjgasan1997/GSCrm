@@ -20,14 +20,6 @@ namespace GSCrm.Repository
         #region Declarations
         private readonly AccountRepository accountRepository;
         /// <summary>
-        /// Количество одновременно отоброжаемых сотрудников организации, создавшей клиента
-        /// </summary>
-        private const int ALL_EMPLOYEES_COUNT = 5;
-        /// <summary>
-        /// Количество одновременно отоброжаемых 
-        /// </summary>
-        private const int SELECTED_EMPLOYEES_COUNT = 5;
-        /// <summary>
         /// Транзакция для синхронизации команды по клиенту
         /// </summary>
         private ITransaction syncRespsTransaction;
@@ -82,8 +74,7 @@ namespace GSCrm.Repository
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(ACC_TEAM_ALL_EMPLOYEES, pageNumber, ALL_EMPLOYEES_COUNT);
-
+                SetViewInfo(ACC_TEAM_ALL_EMPLOYEES, pageNumber);
                 List<Employee> teamAllEmployees = context.GetOrgEmployees(account.OrganizationId);
                 AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
                 ExcludeSelectedEmployees(ref teamAllEmployees, account.Id);
@@ -167,8 +158,7 @@ namespace GSCrm.Repository
         {
             if (accountRepository.TryGetItemById(accountId, out Account account))
             {
-                SetViewInfo(ACC_TEAM_SELECTED_EMPLOYEES, pageNumber, SELECTED_EMPLOYEES_COUNT);
-
+                SetViewInfo(ACC_TEAM_SELECTED_EMPLOYEES, pageNumber);
                 AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
                 List<AccountManager> teamSelectedEmployees = context.AccountManagers
                     .AsNoTracking()

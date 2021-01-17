@@ -30,7 +30,7 @@ class Initializer {
         
                 $.getJSON(location.origin + "/js/AutocomplitesData.json", data => {
                     BaseAutocomplete.SetData(data);
-                }),
+                })
             ]).then(() => resolve())
         })
     }

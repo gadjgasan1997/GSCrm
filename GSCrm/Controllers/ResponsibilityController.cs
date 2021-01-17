@@ -21,6 +21,12 @@ namespace GSCrm.Controllers
     public class ResponsibilityController
         : MainController<Responsibility, ResponsibilityViewModel>
     {
+        /// <summary>
+        /// Количество одновременно отоброжаемых полномочий организации
+        /// Уровень доступа public, чтобы можно бьыло обратиться из представления
+        /// </summary>
+        public const int RESPONSIBILITIES_COUNT = 5;
+
         public ResponsibilityController(IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(context, serviceProvider)
         { }
@@ -28,23 +34,17 @@ namespace GSCrm.Controllers
         [HttpGet("Responsibilities/{pageNumber}")]
         public IActionResult Responsibilities(int pageNumber)
         {
-            try
-            {
-                OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
-                OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.SetViewInfo(RESPONSIBILITIES, pageNumber);
-                organizationRepository.AttachResponsibilities(orgViewModel);
-                return Json(orgViewModel.Responsibilities);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            organizationRepository.SetViewInfo(RESPONSIBILITIES, pageNumber);
+            organizationRepository.AttachResponsibilities(orgViewModel);
+            return Json(orgViewModel.Responsibilities);
         }
 
         [HttpGet("{id}")]
         public ViewResult Responsibility(string id)
         {
+            // Проверки на наличие полномочия и доступа к нему у пользователя
             ResponsibilityRepository responsibilityRepository = new ResponsibilityRepository(serviceProvider, context);
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
             if (!responsibilityRepository.TryGetItemById(id, out Responsibility responsibility))
@@ -54,11 +54,11 @@ namespace GSCrm.Controllers
             if (!responsibilityRepository.HasPermissionsForSeeItem(responsibility))
                 return View($"{RESP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new ResponsibilityViewModel());
 
-            ResponsibilityMap responsibilitMap = new ResponsibilityMap(serviceProvider, context);
-            ResponsibilityViewModel responsibilityViewModel = responsibilitMap.DataToViewModel(responsibility);
-            cachService.CacheItem(currentUser.Id, "CurrentResponsibilityData", responsibility);
-            cachService.CacheItem(currentUser.Id, "CurrentResponsibilityView", responsibilityViewModel);
-            return View(RESPONSIBILITY, responsibilityViewModel);
+            // Если полномочие и доступ имеются
+            ResponsibilityViewModel respViewModel = new ResponsibilityMap(serviceProvider, context).DataToViewModel(responsibility);
+            cachService.SetCurrentViewName(currentUser.Id, RESPONSIBILITY);
+            cachService.CacheResponsibility(currentUser, responsibility, respViewModel);
+            return View(RESPONSIBILITY, respViewModel);
         }
 
         [HttpPost("Create")]
@@ -120,35 +120,31 @@ namespace GSCrm.Controllers
         [HttpGet("NextResponsibilities")]
         public IActionResult NextResponsibilities()
         {
-            try
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
+            if (orgViewModel != null)
             {
-                ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, RESPONSIBILITIES);
-                OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
                 OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.AttachResponsibilities(orgViewModel, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
+                organizationRepository.SetViewInfo(RESPONSIBILITIES, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
+                organizationRepository.AttachResponsibilities(orgViewModel);
                 return Json(orgViewModel.Responsibilities);
             }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            return BadRequest();
         }
 
         [HttpGet("PreviousResponsibilities")]
         public IActionResult PreviousResponsibilities()
         {
-            try
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
+            if (orgViewModel != null)
             {
-                ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, RESPONSIBILITIES);
-                OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
                 OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.AttachResponsibilities(orgViewModel, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
+                organizationRepository.SetViewInfo(RESPONSIBILITIES, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
+                organizationRepository.AttachResponsibilities(orgViewModel);
                 return Json(orgViewModel.Responsibilities);
             }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
+            return BadRequest();
         }
     }
 }

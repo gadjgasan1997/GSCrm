@@ -7,9 +7,10 @@
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model ProductCategoriesViewModel
 @{
     User currentUser = User.GetUserModel(context);
-    ViewInfo prodCatsView = viewsInfo.Get(currentUser.Id, PROD_CATS);
+    ViewInfo prodCatsView = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
 }

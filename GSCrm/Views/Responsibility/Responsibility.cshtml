@@ -7,11 +7,12 @@
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model ResponsibilityViewModel
 @{
     string currentUserId = User.GetUserModel(context).Id;
-    ViewInfo orgView = viewsInfo.Get(currentUserId, ORGANIZATIONS);
+    ViewInfo orgView = cachService.GetViewInfo(currentUserId, ORGANIZATIONS);
 }
 
 @* // Хлебные крошки *@

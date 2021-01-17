@@ -61,7 +61,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, ALL_EMP_RESPS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
                 List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
@@ -75,7 +75,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, ALL_EMP_RESPS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
                 List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
@@ -89,7 +89,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, SELECTED_EMP_RESPS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
                 List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
@@ -103,7 +103,7 @@ namespace GSCrm.Controllers
         {
             if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
             {
-                ViewInfo viewInfo = viewsInfo.Get(context, HttpContext, SELECTED_EMP_RESPS);
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
                 List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));

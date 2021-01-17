@@ -4,7 +4,8 @@
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model OrganizationViewModel
 @{
     int positionsCount = Model.Positions.Count();
@@ -79,7 +80,7 @@
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
                 ItemsCount = positionsCount,
-                ViewInfo = viewsInfo.Get(currentUserId, POSITIONS),
+                ViewInfo = cachService.GetViewInfo(currentUserId, POSITIONS),
                 ControllerName = POSITION,
                 ActionName = POSITIONS
             });

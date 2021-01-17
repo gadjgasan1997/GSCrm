@@ -92,7 +92,7 @@ namespace GSCrm.Controllers
         [HttpGet("NextAllRecords/{accountId}")]
         public IActionResult NextAllRecords(string accountId)
         {
-            ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
             List<Employee> teamAllEmployees = new AccountManagerRepository(serviceProvider, context).AttachTeamAllEmployees(accountId, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
             List<EmployeeViewModel> teamAllEmployeesVMs = teamAllEmployees.GetViewModelsFromData(new EmployeeMap(serviceProvider, context));
             return Json(teamAllEmployeesVMs);
@@ -101,7 +101,7 @@ namespace GSCrm.Controllers
         [HttpGet("PreviousAllRecords/{accountId}")]
         public IActionResult PreviousAllRecords(string accountId)
         {
-            ViewInfo viewInfo = viewsInfo.Get(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
             List<Employee> teamAllEmployees = new AccountManagerRepository(serviceProvider, context).AttachTeamAllEmployees(accountId, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
             List<EmployeeViewModel> teamAllEmployeesVMs = teamAllEmployees.GetViewModelsFromData(new EmployeeMap(serviceProvider, context));
             return Json(teamAllEmployeesVMs);

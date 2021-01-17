@@ -1,6 +1,5 @@
 ﻿using GSCrm.Data;
 using GSCrm.Data.Cash;
-using GSCrm.Data.ApplicationInfo;
 using GSCrm.Mapping;
 using GSCrm.Helpers;
 using GSCrm.Localization;
@@ -13,6 +12,7 @@ using System;
 using static GSCrm.Helpers.MainHelpers;
 using GSCrm.Factories;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace GSCrm.Controllers
 {
@@ -26,10 +26,6 @@ namespace GSCrm.Controllers
         /// </summary>
         protected readonly ApplicationDbContext context;
         protected readonly IServiceProvider serviceProvider;
-        /// <summary>
-        /// Информация о представлении
-        /// </summary>
-        protected readonly IViewsInfo viewsInfo;
         /// <summary>
         /// Кеш сервис
         /// </summary>
@@ -50,6 +46,8 @@ namespace GSCrm.Controllers
         /// Текущий пользователь
         /// </summary>
         protected readonly User currentUser;
+        protected readonly JsonSerializerSettings serializerSettings =
+            new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         #endregion
 
         #region Constructs
@@ -62,7 +60,6 @@ namespace GSCrm.Controllers
             IRepositoryFactory repositoryFactory = serviceProvider.GetService(typeof(IRepositoryFactory)) as IRepositoryFactory;
             map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
             repository = repositoryFactory.GetRepository<TDataModel, TViewModel>(serviceProvider, context);
-            viewsInfo = serviceProvider.GetService(typeof(IViewsInfo)) as IViewsInfo;
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
 
@@ -131,7 +128,7 @@ namespace GSCrm.Controllers
         /// </summary>
         /// <param name="modelState"></param>
         /// <param name="errors"></param>
-        protected void AddErrorsToModel(ModelStateDictionary modelState, Dictionary<string, string> errors)
+        protected virtual void AddErrorsToModel(ModelStateDictionary modelState, Dictionary<string, string> errors)
         {
             foreach (KeyValuePair<string, string> error in errors)
                 modelState.AddModelError(error.Key, error.Value);

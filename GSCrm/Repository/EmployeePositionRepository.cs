@@ -28,14 +28,6 @@ namespace GSCrm.Repository
         /// </summary>
         private readonly List<EmployeePosition> positionsToRemove = new List<EmployeePosition>();
         /// <summary>
-        /// Количество одновременно отоброжаемых должностей из списка всех должностей организации
-        /// </summary>
-        private const int ALL_EMP_POSS_COUNT = 5;
-        /// <summary>
-        /// Количество одновременно отоброжаемых должностей из списка всех должностей сотрудника
-        /// </summary>
-        private const int SELECTED_EMP_POSS_COUNT = 5;
-        /// <summary>
         /// Транзакция для синхронизации должностей
         /// </summary>
         private ITransaction syncPossTransaction;
@@ -92,7 +84,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<Position> AttachAllPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(ALL_EMP_POSS, pageNumber, ALL_EMP_POSS_COUNT);
+            SetViewInfo(ALL_EMP_POSS, pageNumber);
 
             // Получение списка всех должностей подразделения и исключение из него списка должностей сотрудника
             List<Position> allPositions = GetAllPositions(employeeId);
@@ -149,9 +141,8 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public List<EmployeePosition> AttachSelectedPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(SELECTED_EMP_POSS, pageNumber, SELECTED_EMP_POSS_COUNT);
-
             // Ограничение списка должностей по фильтрам и номеру страницы
+            SetViewInfo(SELECTED_EMP_POSS, pageNumber);
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
             List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
             LimitSelectedPosByName(employeeViewModelCash, ref selectedPositions);

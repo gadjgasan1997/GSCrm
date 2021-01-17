@@ -50,8 +50,8 @@ namespace GSCrm.Controllers
             organizationRepository.AttachPositions(orgViewModel);
             organizationRepository.AttachEmployees(orgViewModel);
             organizationRepository.AttachResponsibilities(orgViewModel);
-            cachService.CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
-            cachService.CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
+            cachService.SetCurrentViewName(currentUser.Id, ORGANIZATION);
+            cachService.CacheOrganization(currentUser, organization, orgViewModel);
             return View(ORGANIZATION, orgViewModel);
         }
 
@@ -66,23 +66,24 @@ namespace GSCrm.Controllers
             return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = organization.Id });
         }
 
-        [HttpGet("{orgId}/ProductCategories/{pageNumber}")]
-        public ViewResult ProductCategories(string orgId, int pageNumber)
+        [HttpGet("{orgId}/ProductCategories/")]
+        public ViewResult ProductCategories(string orgId)
         {
+            // Поптыка получить организацию, на которую перешел пользователь
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
             if (!organizationRepository.TryGetItemById(orgId, out Organization organization))
                 return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
             if (!organizationRepository.HasPermissionsForSeeItem(organization))
                 return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-
-            ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
-            ProductCategoriesViewModel prodCatsViewModel = new ProductCategoriesViewModel()
+            else
             {
-                OrganizationViewModel = new OrganizationMap(serviceProvider, context).DataToViewModel(organization)
-            };
-            productCategoryRepository.SetViewInfo(PROD_CATS, pageNumber);
-            productCategoryRepository.AttachProductCategories(ref prodCatsViewModel);
-            return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", prodCatsViewModel);
+                // Если к ней есть доступ, то установка ее как текущей, на которой находится пользователь
+                OrganizationViewModel orgViewModel = map.DataToViewModel(organization);
+                orgViewModel = new OrganizationMap(serviceProvider, context).Refresh(orgViewModel, currentUser, OrgAllViewTypes);
+                cachService.CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
+                cachService.CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
+                return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", new ProductCategoriesViewModel());
+            }
         }
 
         [HttpGet("ChangePrimaryOrg/{newPrimaryOrgId}")]
@@ -91,8 +92,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new OrganizationRepository(serviceProvider, context).TryChangePrimaryOrg(newPrimaryOrgId, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");
@@ -104,8 +104,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new OrganizationRepository(serviceProvider, context).TryLeaveOrg(id, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json(typeof(OrganizationViewModel).Name.GetReturnUrl(Url));
@@ -117,8 +116,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new OrganizationRepository(serviceProvider, context).TryAcceptInvite(id, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");

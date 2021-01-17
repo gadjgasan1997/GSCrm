@@ -58,7 +58,8 @@ namespace GSCrm.Controllers
             }
             AppData appData = new AppData()
             {
-                NotsCount = Convert.ToInt32(notsCount)
+                NotsCount = Convert.ToInt32(notsCount),
+                ViewName = cachService.GetCurrentViewName(currentUser.Id)
             };
             return Json(appData);
         }

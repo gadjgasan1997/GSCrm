@@ -11,7 +11,8 @@
 @using GSCrm.Notifications.Auxiliary
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model UserNotificationsViewModel
 @{
     IEnumerable<UserNotificationViewModel> userNotViewModels = Model.UserNotificationViewModels;
@@ -70,7 +71,7 @@
                 await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
                 {
                     ItemsCount = userNotViewModels.Count(),
-                    ViewInfo = viewsInfo.Get(currentUserId, USER_NOTS),
+                    ViewInfo = cachService.GetViewInfo(currentUserId, USER_NOTS),
                     ControllerName = USER_NOT,
                     ActionName = USER_NOTS
                 });

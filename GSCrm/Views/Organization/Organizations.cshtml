@@ -8,7 +8,8 @@
 @using GSCrm.Helpers
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model OrganizationsViewModel
 @{
     IEnumerable<OrganizationViewModel> organizations = Model.OrganizationViewModels;
@@ -129,7 +130,7 @@
         await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
         {
             ItemsCount = organizations.Count(),
-            ViewInfo = viewsInfo.Get(currentUserId, ORGANIZATIONS),
+            ViewInfo = cachService.GetViewInfo(currentUserId, ORGANIZATIONS),
             ControllerName = ORGANIZATION,
             ActionName = ORGANIZATIONS
         });

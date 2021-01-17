@@ -18,11 +18,6 @@ namespace GSCrm.Controllers
     [Route(USER_NOT)]
     public class UserNotificationController : MainController<UserNotification, UserNotificationViewModel>
     {
-        /// <summary>
-        /// Количество уведомлений для отображения
-        /// </summary>
-        private readonly int USER_NOTS_COUNT = 8;
-
         public UserNotificationController(ApplicationDbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
         { }
 
@@ -31,7 +26,7 @@ namespace GSCrm.Controllers
         {
             UserNotificationsViewModel userNotsViewModel = cachService.GetCachedItem<UserNotificationsViewModel>(currentUser.Id, USER_NOTS);
             UserNotificationRepository userNotRepository = new UserNotificationRepository(serviceProvider, context);
-            userNotRepository.SetViewInfo(USER_NOTS, pageNumber, USER_NOTS_COUNT);
+            userNotRepository.SetViewInfo(USER_NOTS, pageNumber);
             userNotRepository.AttachNotifications(ref userNotsViewModel);
             UserNotificationsSetting userNotSetting = context.UserNotificationsSettings.AsNoTracking().FirstOrDefault(u => u.UserId == currentUser.Id);
             userNotsViewModel.UserNotificationsSettingId = userNotSetting.Id.ToString();

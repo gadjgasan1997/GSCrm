@@ -5,7 +5,8 @@
 @using GSCrm.Helpers
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model AllNotificationsSettingsViewModel
 @{
     List<OrgNotificationsSettingViewModel> orgSettingViewModels = Model.OrgNotificationsSettingViewModels;
@@ -227,7 +228,7 @@
                     await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
                     {
                         ItemsCount = orgSettingViewModels.Count(),
-                        ViewInfo = viewsInfo.Get(currentUserId, NOT_SETTINGS),
+                        ViewInfo = cachService.GetViewInfo(currentUserId, NOT_SETTINGS),
                         ControllerName = NOT_SETTING,
                         ActionName = "OrgNotificationsSettings"
                     });

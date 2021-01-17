@@ -5,7 +5,8 @@
 @using GSCrm.Models.ViewModels
 @using static GSCrm.CommonConsts
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model AccountViewModel
 @* // Хлебные крошки *@
 @{

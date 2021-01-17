@@ -7,11 +7,12 @@
 @using GSCrm.Data
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model OrganizationViewModel
 @{
     User currentUser = User.GetUserModel(context);
-    ViewInfo orgView = viewsInfo.Get(currentUser.Id, ORGANIZATIONS);
+    ViewInfo orgView = cachService.GetViewInfo(currentUser.Id, ORGANIZATIONS);
 }
 
 @* // Хлебные крошки *@
@@ -139,8 +140,8 @@
 <div id="orgSettingsMenu" class="d-none">
     <ul>
         <li>
-            <form method="get" asp-controller="@ORGANIZATION" asp-action="@PROD_CATS" asp-route-orgId="@Model.Id" asp-route-pageNumber="0">
-                <input type="submit" class="label-md" value="@resManager.GetString("ProductModel")" />
+            <form method="get" asp-controller="@ORGANIZATION" asp-action="@PROD_CATS" asp-route-orgId="@Model.Id">
+                <input id="goToProductModel" type="submit" class="label-md" value="@resManager.GetString("ProductModel")" />
             </form>
         </li>
     </ul>

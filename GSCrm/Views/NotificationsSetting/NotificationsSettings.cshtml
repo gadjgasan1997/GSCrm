@@ -8,12 +8,13 @@
 @using GSCrm.Helpers
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model AllNotificationsSettingsViewModel
 @{
     User currentUser = User.GetUserModel(context);
     string currentUserId = currentUser.Id;
-    ViewInfo notView = viewsInfo.Get(currentUser.Id, NOTIFICATIONS);
+    ViewInfo notView = cachService.GetViewInfo(currentUser.Id, NOTIFICATIONS);
 }
 
 @* // Хлебные крошки *@

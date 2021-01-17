@@ -16,7 +16,8 @@
 @using AccDeleteContactNotViewModel = GSCrm.Models.ViewModels.Notifications.AccUpdate.DeleteContactNotViewModel;
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model UserNotificationViewModel
 
 <div class="row org-invite-not notification-item mt-4">

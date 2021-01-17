@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static GSCrm.CommonConsts;
 using static GSCrm.Repository.EmployeeRepository;
 using GSCrm.Data;
@@ -19,15 +18,11 @@ namespace GSCrm.Controllers
 {
     [Authorize]
     [Route(EMPLOYEE)]
-    public class EmployeeController 
-        : MainController<Employee, EmployeeViewModel>
+    public class EmployeeController : MainController<Employee, EmployeeViewModel>
     {
-        private readonly UserManager<User> userManager;
         public EmployeeController(UserManager<User> userManager, IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(context, serviceProvider)
-        {
-            this.userManager = userManager;
-        }
+        { }
 
         [HttpGet("ListOfEmployees/{pageNumber}")]
         public IActionResult Employees(int pageNumber)
@@ -42,6 +37,7 @@ namespace GSCrm.Controllers
         [HttpGet("{id}")]
         public ViewResult Employee(string id)
         {
+            // Проверки на наличие сотрудника и доступа к нему у пользователя
             EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
             if (!employeeRepository.TryGetItemById(id, out Employee employee))
@@ -51,18 +47,18 @@ namespace GSCrm.Controllers
             if (!employeeRepository.HasPermissionsForSeeItem(employee))
                 return View($"{EMP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new EmployeeViewModel());
 
+            // Если сотрудник и доступ имеются
             EmployeeMap employeeMap = new EmployeeMap(serviceProvider, context);
             EmployeeViewModel empViewModel = employeeMap.DataToViewModel(employee);
-            EmployeeMap map = new EmployeeMap(serviceProvider, context);
-            empViewModel = map.Refresh(empViewModel, currentUser, EmpBaseViewTypes);
+            empViewModel = new EmployeeMap(serviceProvider, context).Refresh(empViewModel, currentUser, EmpBaseViewTypes);
             if (employee.EmployeeStatus == EmployeeStatus.Active)
             {
                 employeeRepository.AttachPositions(empViewModel);
                 employeeRepository.AttachContacts(empViewModel);
                 employeeRepository.AttachSubordinates(empViewModel);
             }
-            cachService.CacheItem(currentUser.Id, "CurrentEmployeeData", employee);
-            cachService.CacheItem(currentUser.Id, "CurrentEmployeeView", empViewModel);
+            cachService.SetCurrentViewName(currentUser.Id, EMPLOYEE);
+            cachService.CacheEmployee(currentUser, employee, empViewModel);
             return View(EMPLOYEE, empViewModel);
         }
 
@@ -72,8 +68,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new EmployeeRepository(serviceProvider, context).TryChangeDivision(employeeViewModel, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");
@@ -85,8 +80,7 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             if (!new EmployeeRepository(serviceProvider, context).TryUnlock(ref employeeViewModel, out Dictionary<string, string> errors))
             {
-                foreach (KeyValuePair<string, string> error in errors)
-                    modelState.AddModelError(error.Key, error.Value);
+                AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
             }
             return Json("");

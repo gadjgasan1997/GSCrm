@@ -238,3 +238,31 @@ class VertNavConnectedTab {
         }
     }
 }
+
+// Tabs
+$(document).off("click", ".radio-tabs .form-check").on("click", ".radio-tabs .form-check", event => {
+    let navTab = new NavTab();
+    navTab.Click(event);
+})
+
+$(document).off("click", ".nav-tabs .nav-item").on("click", ".nav-tabs .nav-item", event => {
+    let navConnectedTab = new NavConnectedTab();
+    navConnectedTab.SelectNavTab(event);
+})
+
+// Vertical nav tabs
+$(document).off("click", ".naccs .menu div").on("click", ".naccs .menu div", event => {
+    var numberIndex = $(event.currentTarget).index();
+
+    // Остановка текущей анимации
+    $(".naccs ul li").stop(true, true).stop();
+
+    // Скрытие открытых вкладок и отбражение выбранной
+    if (!$(event.currentTarget).hasClass("active")) {
+        $(".naccs .menu div").removeClass("active");
+        $(".naccs ul li").fadeOut(500);
+
+        $(event.currentTarget).addClass("active");
+        $(".naccs ul").find("li:eq(" + numberIndex + ")").delay(500).fadeIn(500);
+    }
+});

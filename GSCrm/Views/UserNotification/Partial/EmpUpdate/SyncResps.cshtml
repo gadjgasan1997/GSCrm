@@ -5,7 +5,8 @@
 @using static GSCrm.CommonConsts
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@inject IViewsInfo viewsInfo
+@using GSCrm.Data.Cash
+@inject ICachService cachService
 @model SyncRespsNotViewModel
 
 <p class="label-non-select label-md m-0 text-center">

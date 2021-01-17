@@ -21,5 +21,24 @@ namespace GSCrm.Controllers
     {
         public ProductCategoryController(IServiceProvider serviceProvider, ApplicationDbContext context) : base(context, serviceProvider)
         { }
+
+        [HttpGet("ProductCategories/{pageNumber}")]
+        public IActionResult ProductCategories(int pageNumber)
+        {
+            // Запрос сюда возможен после получения представления продуктовых категорий, а значит, организация в этот момент уже инициализирована
+            cachService.GetCachedOrganization(currentUser, out Organization organization, out OrganizationViewModel orgViewModel);
+            if (organization == null)
+            {
+                ProductCategoriesViewModel prodCatsViewModel = new ProductCategoriesViewModel()
+                {
+                    OrganizationViewModel = orgViewModel
+                };
+                ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
+                productCategoryRepository.SetViewInfo(PROD_CATS, pageNumber);
+                productCategoryRepository.AttachProductCategories(ref prodCatsViewModel);
+                return Json(prodCatsViewModel, serializerSettings);
+            }
+            return Json("");
+        }
     }
 }

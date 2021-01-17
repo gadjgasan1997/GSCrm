@@ -329,6 +329,37 @@
     }
     //#endregion
 
+    //#region Addition Actions
+    /**
+     * Метод отображает меню с дополнительными действиями по организации
+     * @param {*} event 
+     */
+    ShowOrgSettingMenu(event) {
+        let top = $(event.currentTarget).offset().top;
+        let left = $(event.currentTarget).offset().left;
+        let documentWidth = $("body")[0].offsetWidth;
+
+        if (documentWidth < 576) {
+            $("#orgSettingsMenu").css({
+                "top": top
+            })
+        }
+        else {
+            let menuPXWidth = $("#orgSettingsMenu").css("width");
+            let menuWidth = Number.parseInt(menuPXWidth.split("px")[0]);
+            if (documentWidth < left + menuWidth)
+                left = left - menuWidth;
+            $("#orgSettingsMenu").css({
+                "top": top,
+                "left": left,
+                "width": menuWidth
+            })
+        }
+        
+        $("#orgSettingsMenu").removeClass("d-none");
+    }
+    //#endregion
+
     static SetDefaultTab() {
         let tabs = $("#employeeModal .form-group .radio-tabs");
 
@@ -410,28 +441,8 @@ $("#organizationForm")
     })
     .off("click", "#orgSettingsBtn").on("click", "#orgSettingsBtn", event => {
         event.stopPropagation();
-        let top = $(event.currentTarget).offset().top;
-        let left = $(event.currentTarget).offset().left;
-        let documentWidth = $("body")[0].offsetWidth;
-        
-        if (documentWidth < 576) {
-            $("#orgSettingsMenu").css({
-                "top": top
-            })
-        }
-        else {
-            let menuPXWidth = $("#orgSettingsMenu").css("width");
-            let menuWidth = Number.parseInt(menuPXWidth.split("px")[0]);
-            if (documentWidth < left + menuWidth)
-                left = left - menuWidth;
-            $("#orgSettingsMenu").css({
-                "top": top,
-                "left": left,
-                "width": menuWidth
-            })
-        }
-        
-        $("#orgSettingsMenu").removeClass("d-none");
+        let organization = new Organization();
+        organization.ShowOrgSettingMenu(event);
     });
 
 $("#changePrimaryOrg")
