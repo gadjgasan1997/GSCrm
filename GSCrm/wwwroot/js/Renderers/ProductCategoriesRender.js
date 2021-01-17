@@ -2,19 +2,19 @@ class ProductCategoriesRender {
     static DepthConst = 46;
 
     Render() {
-        // Получение списка категория продуктов
+        // РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РєР°С‚РµРіРѕСЂРёСЏ РїСЂРѕРґСѓРєС‚РѕРІ
         let productCategoriesUrl = Localization.GetUri("productCategories");
         let request = new AjaxRequests();
         request.CommonGetRequest(productCategoriesUrl).then(categories => {
             if (!Utils.IsNullOrEmpty(categories)) {
-                // Рендеринг категорий
+                // Р РµРЅРґРµСЂРёРЅРі РєР°С‚РµРіРѕСЂРёР№
                 this.RenderCategories(categories["ProductCategoryViewModels"]);
             }
         })
     }
 
     RenderCategories(categories) {
-        // Рендер корневых директорий 
+        // Р РµРЅРґРµСЂ РєРѕСЂРЅРµРІС‹С… РґРёСЂРµРєС‚РѕСЂРёР№ 
         categories.filter(category => {
             return category["ParentProductCategoryId"] == null;
         }).map(category => {
@@ -25,13 +25,13 @@ class ProductCategoriesRender {
             else $("#productCategoriesTree").append(this.GetEmptyRootCategoryHTML(category));
             categories = categories.filter(item => item["Id"] != category["Id"]);
 
-            // Рендер дочерних категорий
+            // Р РµРЅРґРµСЂ РґРѕС‡РµСЂРЅРёС… РєР°С‚РµРіРѕСЂРёР№
             this.RenderChildCategories(categories, category["Id"]);
         });
     }
 
     /**
-     * Метод возвращает корневую категорию
+     * РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕСЂРЅРµРІСѓСЋ РєР°С‚РµРіРѕСЂРёСЋ
      * @param {*} category 
      */
     GetRootCategoryHTML(category) {
@@ -43,7 +43,7 @@ class ProductCategoriesRender {
     }
 
     /**
-     * Метод возвращает корневую пустую категорию
+     * РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕСЂРЅРµРІСѓСЋ РїСѓСЃС‚СѓСЋ РєР°С‚РµРіРѕСЂРёСЋ
      * @param {*} category 
      */
     GetEmptyRootCategoryHTML(category) {
@@ -54,7 +54,7 @@ class ProductCategoriesRender {
     }
 
     /**
-     * Метод возвращает дочернюю категорию
+     * РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ РґРѕС‡РµСЂРЅСЋСЋ РєР°С‚РµРіРѕСЂРёСЋ
      * @param {*} category 
      */
     GetChildCategoryHTML(category) {
@@ -66,7 +66,7 @@ class ProductCategoriesRender {
     }
 
     /**
-     * Метод возвращает дочернюю пустую категорию
+     * РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ РґРѕС‡РµСЂРЅСЋСЋ РїСѓСЃС‚СѓСЋ РєР°С‚РµРіРѕСЂРёСЋ
      * @param {*} category 
      */
     GetEmptyChildCategoryHTML(category) {
@@ -77,22 +77,22 @@ class ProductCategoriesRender {
     }
 
     /**
-     * Метод рекурсивно рендерит дочерние категории
-     * @param {*} categories Список неотрендеренных категорий
-     * @param {*} rootCategoryId Id родительской категории
+     * РњРµС‚РѕРґ СЂРµРєСѓСЂСЃРёРІРЅРѕ СЂРµРЅРґРµСЂРёС‚ РґРѕС‡РµСЂРЅРёРµ РєР°С‚РµРіРѕСЂРёРё
+     * @param {*} categories РЎРїРёСЃРѕРє РЅРµРѕС‚СЂРµРЅРґРµСЂРµРЅРЅС‹С… РєР°С‚РµРіРѕСЂРёР№
+     * @param {*} rootCategoryId Id СЂРѕРґРёС‚РµР»СЊСЃРєРѕР№ РєР°С‚РµРіРѕСЂРёРё
      */
     RenderChildCategories(categories, rootCategoryId) {
         categories.filter(category => {
             return category["ParentProductCategoryId"] == rootCategoryId;
         }).map(childCategory => {
-            // Есть ли у этой категории дочерние
+            // Р•СЃС‚СЊ Р»Рё Сѓ СЌС‚РѕР№ РєР°С‚РµРіРѕСЂРёРё РґРѕС‡РµСЂРЅРёРµ
             let hasChildrens = categories.filter(item => item["ParentProductCategoryId"] == childCategory["Id"]).length > 0;
             let childCategoryEl = hasChildrens ? this.GetChildCategoryHTML(childCategory) : this.GetEmptyChildCategoryHTML(childCategory);
             let rootCategoryEl = document.querySelectorAll("[data-category-id='" + rootCategoryId + "']")[0];
             $(rootCategoryEl).children(".child-category").append(childCategoryEl);
             categories = categories.filter(item => item["Id"] != childCategory["Id"]);
             
-            // Рендер дочерних
+            // Р РµРЅРґРµСЂ РґРѕС‡РµСЂРЅРёС…
             if (hasChildrens) {
                 this.RenderChildCategories(categories, childCategory["Id"]);
             }
@@ -100,7 +100,7 @@ class ProductCategoriesRender {
     }
 
     /**
-     * Развернуть категорию
+     * Р Р°Р·РІРµСЂРЅСѓС‚СЊ РєР°С‚РµРіРѕСЂРёСЋ
      * @param {*} event 
      */
     ExpandCategory(event) {
@@ -118,7 +118,7 @@ class ProductCategoriesRender {
     }
 
     /**
-     * Свернуть категорию
+     * РЎРІРµСЂРЅСѓС‚СЊ РєР°С‚РµРіРѕСЂРёСЋ
      * @param {*} event 
      */
     CollapseCategory(event) {

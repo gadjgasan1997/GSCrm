@@ -11,7 +11,7 @@ class Renderer {
     }
 
     /**
-     * Метод создает рендер по его названию
+     * РњРµС‚РѕРґ СЃРѕР·РґР°РµС‚ СЂРµРЅРґРµСЂ РїРѕ РµРіРѕ РЅР°Р·РІР°РЅРёСЋ
      * @param {*} renderName 
      */
     static CreateRenderInstanse(renderName) {
