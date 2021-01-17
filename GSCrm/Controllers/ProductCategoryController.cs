@@ -26,19 +26,30 @@ namespace GSCrm.Controllers
         public IActionResult ProductCategories(int pageNumber)
         {
             // Запрос сюда возможен после получения представления продуктовых категорий, а значит, организация в этот момент уже инициализирована
-            cachService.GetCachedOrganization(currentUser, out Organization organization, out OrganizationViewModel orgViewModel);
+            Organization organization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
             if (organization != null)
             {
-                ProductCategoriesViewModel prodCatsViewModel = new ProductCategoriesViewModel()
-                {
-                    OrganizationViewModel = orgViewModel
-                };
+                ProductCategoriesViewModel prodCatsViewModel = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
                 ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
                 productCategoryRepository.SetViewInfo(PROD_CATS, pageNumber);
                 productCategoryRepository.InitProductCategoriesViewModel(ref prodCatsViewModel);
                 return Json(prodCatsViewModel, serializerSettings);
             }
             return Json("");
+        }
+
+        [HttpPost("Search")]
+        public IActionResult SearchByCategoryName(ProductCategoriesViewModel productCategoriesViewModel)
+        {
+            cachService.CacheItem(currentUser.Id, PROD_CATS, productCategoriesViewModel);
+            return RedirectToAction(PROD_CATS, PROD_CAT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+        }
+
+        [HttpGet("ClearSearch")]
+        public IActionResult ClearSearchByCategoryName()
+        {
+            new ProductCategoryRepository(serviceProvider, context).ClearSearch();
+            return RedirectToAction(PROD_CATS, PROD_CAT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
     }
 }

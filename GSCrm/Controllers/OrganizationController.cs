@@ -88,6 +88,7 @@ namespace GSCrm.Controllers
             ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
             productCategoryRepository.SetViewInfo(PROD_CATS, DEFAULT_MIN_PAGE_NUMBER);
             ProductCategoriesViewModel productCategoriesViewModel = new ProductCategoriesViewModel() { OrganizationViewModel = orgViewModel };
+            cachService.CacheItem(currentUser.Id, PROD_CATS, productCategoriesViewModel);
             return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", productCategoriesViewModel);
         }
 

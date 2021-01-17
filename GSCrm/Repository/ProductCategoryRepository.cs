@@ -35,12 +35,29 @@ namespace GSCrm.Repository
 
             // Для каждой дочерней категории необходимо получить список проудктов
             ProductMap productMap = new ProductMap(serviceProvider, context);
+            ProductRepository productRepository = new ProductRepository(serviceProvider, context);
             limitedProdCats.ForEach(productCategory =>
             {
                 productCategoriesViewModel.CategoriesProducts.Add(productCategory.Id.ToString(),
-                    productCategory.GetProducts(context).GetViewModelsFromData(productMap));
+                    productCategory.GetProducts(context).MapToViewModels(productMap, products =>
+                        productRepository.GetLimitedProductList(products, productCategoriesViewModel)));
             });
             return limitedProdCats.OrderBy(n => n.Name).ToList();
         }
+
+        #region Searching
+        /// <summary>
+        /// Метод очищает поиск по продуктам и категориям
+        /// </summary>
+        public void ClearSearch()
+        {
+            ProductCategoriesViewModel productCategoriesViewModel = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
+            productCategoriesViewModel.SearchProductCategoryName = default;
+            productCategoriesViewModel.SearchProductName = default;
+            productCategoriesViewModel.MinConst = string.Empty;
+            productCategoriesViewModel.MaxConst = string.Empty;
+            cachService.CacheItem(currentUser.Id, PROD_CATS, productCategoriesViewModel);
+        }
+        #endregion
     }
 }
