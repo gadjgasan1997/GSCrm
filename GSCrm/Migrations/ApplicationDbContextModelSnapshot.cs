@@ -526,6 +526,9 @@ namespace GSCrm.Migrations
                     b.Property<Guid?>("ParentProductCategoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("RootCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrganizationId");

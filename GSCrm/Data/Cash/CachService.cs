@@ -129,9 +129,9 @@ namespace GSCrm.Data.Cash
             else CashViewData._cashItems[userId][viewName] = viewInfo;
 
             // Прсотавление назвакния текущего представления, на котором находится пользователь
-            if (!CashViewData._currentViewNames.ContainsKey(userId))
-                CashViewData._currentViewNames.Add(userId, viewName);
-            else CashViewData._currentViewNames[userId] = viewName;
+            if (!CashViewData._currentViews.ContainsKey(userId))
+                CashViewData._currentViews.Add(userId, viewInfo);
+            else CashViewData._currentViews[userId] = viewInfo;
         }
 
         public ViewInfo GetViewInfo(string userId, string viewName)
@@ -142,21 +142,21 @@ namespace GSCrm.Data.Cash
             return CashViewData._cashItems[userId][viewName];
         }
 
-        public void SetCurrentViewName(string userId, string currentViewName)
+        public void SetCurrentView(string userId, string currentViewName)
         {
             if (!string.IsNullOrEmpty(userId))
             {
-                if (!CashViewData._currentViewNames.ContainsKey(userId))
-                    CashViewData._currentViewNames.Add(userId, currentViewName);
-                else CashViewData._currentViewNames[userId] = currentViewName;
+                if (!CashViewData._currentViews.ContainsKey(userId))
+                    CashViewData._currentViews.Add(userId, new ViewInfo(currentViewName));
+                else CashViewData._currentViews[userId] = new ViewInfo(currentViewName);
             }
         }
 
-        public string GetCurrentViewName(string userId)
+        public ViewInfo GetCurrentViewInfo(string userId)
         {
-            if (string.IsNullOrEmpty(userId) || !CashViewData._currentViewNames.ContainsKey(userId))
+            if (string.IsNullOrEmpty(userId) || !CashViewData._currentViews.ContainsKey(userId))
                 return null;
-            return CashViewData._currentViewNames[userId];
+            return CashViewData._currentViews[userId];
         }
 
         public IMainEntity GetMainEntity(User currentUser, MainEntityType mainEntityType)
@@ -222,7 +222,7 @@ namespace GSCrm.Data.Cash
 
         class CashViewData
         {
-            public static Dictionary<string, string> _currentViewNames { get; set; } = new Dictionary<string, string>();
+            public static Dictionary<string, ViewInfo> _currentViews { get; set; } = new Dictionary<string, ViewInfo>();
             public static Dictionary<string, Dictionary<string, ViewInfo>> _cashItems { get; set; } = new Dictionary<string, Dictionary<string, ViewInfo>>();
         }
 

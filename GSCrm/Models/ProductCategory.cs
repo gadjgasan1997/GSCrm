@@ -9,6 +9,7 @@ namespace GSCrm.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public Guid? ParentProductCategoryId { get; set; }
+        public Guid? RootCategoryId { get; set; }
 
         [ForeignKey("Organization")]
         public Guid OrganizationId { get; set; }

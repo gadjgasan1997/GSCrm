@@ -30,12 +30,10 @@ html {
   font-size: 14px;
 }
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-  body {
-      overflow-y: scroll
-  }
+    html {
+        font-size: 16px;
+        overflow-y: scroll
+    }
 }
 
 .border-top {
@@ -57,8 +55,9 @@ button.accept-policy {
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
+    overflow-x: hidden;
 }
 
 body {

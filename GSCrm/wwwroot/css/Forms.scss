@@ -446,3 +446,35 @@
         margin: auto;
     }
 }
+
+#productCategoriesForm {
+    overflow-x: auto;
+
+    #productCategoriesTree {
+        min-width: 400px;
+
+        .category-row {
+            width: 100%;
+
+            .row {
+                width: 100%;
+
+                .category-expand,
+                .category-collapse {
+                    cursor: pointer;
+                }
+
+                .category-name {
+                    p {
+                        margin: 0;
+                        user-select: none
+                    }
+                }
+            }
+        }
+
+        .category-row:last-child {
+            margin-bottom: 10px
+        }
+    }
+}

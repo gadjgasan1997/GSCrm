@@ -227,6 +227,7 @@
         "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/",
         "makeNotHasReed": "/MakeHasReed/",
         "makeNotHasNoReed": "/MakeHasNoReed/",
-        "initalizeAppDataUrl": "/AppData/InitalizeAppData/"
+        "initalizeAppDataUrl": "/AppData/InitalizeAppData/",
+        "productCategories": "/ProductCategory/ProductCategories/0/"
     }
 }

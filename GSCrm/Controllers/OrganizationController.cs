@@ -38,19 +38,21 @@ namespace GSCrm.Controllers
         [HttpGet("{id}")]
         public ViewResult Organization(string id)
         {
+            // Поптыка получить организацию, на которую перешел пользователь
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
             if (!organizationRepository.TryGetItemById(id, out Organization organization))
                 return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
             if (!organizationRepository.HasPermissionsForSeeItem(organization))
                 return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
 
+            // Если к ней есть доступ, то установка ее как текущей
             OrganizationViewModel orgViewModel = map.DataToViewModel(organization);
             orgViewModel = new OrganizationMap(serviceProvider, context).Refresh(orgViewModel, currentUser, OrgAllViewTypes);
             organizationRepository.AttachDivisions(orgViewModel);
             organizationRepository.AttachPositions(orgViewModel);
             organizationRepository.AttachEmployees(orgViewModel);
             organizationRepository.AttachResponsibilities(orgViewModel);
-            cachService.SetCurrentViewName(currentUser.Id, ORGANIZATION);
+            cachService.SetCurrentView(currentUser.Id, ORGANIZATION);
             cachService.CacheOrganization(currentUser, organization, orgViewModel);
             return View(ORGANIZATION, orgViewModel);
         }
@@ -75,15 +77,18 @@ namespace GSCrm.Controllers
                 return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
             if (!organizationRepository.HasPermissionsForSeeItem(organization))
                 return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            else
-            {
-                // Если к ней есть доступ, то установка ее как текущей, на которой находится пользователь
-                OrganizationViewModel orgViewModel = map.DataToViewModel(organization);
-                orgViewModel = new OrganizationMap(serviceProvider, context).Refresh(orgViewModel, currentUser, OrgAllViewTypes);
-                cachService.CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
-                cachService.CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
-                return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", new ProductCategoriesViewModel());
-            }
+            
+            // Если к организации есть доступ, то установка ее как текущей, на которой находится пользователь
+            OrganizationMap organizationMap = new OrganizationMap(serviceProvider, context);
+            OrganizationViewModel orgViewModel = organizationMap.DataToViewModel(organization);
+            orgViewModel = organizationMap.Refresh(orgViewModel, currentUser, OrgAllViewTypes);
+            cachService.CacheOrganization(currentUser, organization, orgViewModel);
+
+            // Простановка текущего представления
+            ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
+            productCategoryRepository.SetViewInfo(PROD_CATS, DEFAULT_MIN_PAGE_NUMBER);
+            ProductCategoriesViewModel productCategoriesViewModel = new ProductCategoriesViewModel() { OrganizationViewModel = orgViewModel };
+            return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", productCategoriesViewModel);
         }
 
         [HttpGet("ChangePrimaryOrg/{newPrimaryOrgId}")]

@@ -1044,6 +1044,9 @@
   <data name="OrganizationNameLength" xml:space="preserve">
     <value>Название организации не может быть меньше трех сиволов</value>
   </data>
+  <data name="OrganizationProducts" xml:space="preserve">
+    <value>Продукты организации</value>
+  </data>
   <data name="OrganizationQuotes" xml:space="preserve">
     <value>Сделки организации</value>
   </data>

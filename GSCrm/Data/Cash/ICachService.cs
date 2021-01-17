@@ -30,17 +30,17 @@ namespace GSCrm.Data.Cash
         /// <returns></returns>
         ViewInfo GetViewInfo(string userId, string viewName);
         /// <summary>
-        /// Метод устанавливает название текущего представлления, на котором находится пользователь
+        /// Метод устанавливает текущее представление, на котором находится пользователь
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="currentViewName"></param>
-        void SetCurrentViewName(string userId, string currentViewName);
+        void SetCurrentView(string userId, string currentViewName);
         /// <summary>
-        /// Метод возвращает название текущего представления, на котором находится пользователь
+        /// Метод возвращает текущее представление, на котором находится пользователь
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        string GetCurrentViewName(string userId);
+        ViewInfo GetCurrentViewInfo(string userId);
         /// <summary>
         /// Метод возвращает основную сущность, на который находится пользователь по ее типу
         /// </summary>

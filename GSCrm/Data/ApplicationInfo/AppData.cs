@@ -3,6 +3,7 @@
     public class AppData
     {
         public int NotsCount { get; set; }
-        public string ViewName { get; set; }
+
+        public ViewInfo ViewInfo { get; set; }
     }
 }

@@ -9,7 +9,7 @@ namespace GSCrm.Data.ApplicationInfo
         {
             Name = viewName;
             ItemsCount = !ViewItemsCount.ContainsKey(viewName) ? 10 : ViewItemsCount[viewName];
-            RenderName = !ViewRenderers.ContainsKey(viewName) ? string.Empty : ViewRenderers[viewName];
+            RenderName = !NeedJSRender() || !ViewRenderers.ContainsKey(viewName) ? string.Empty : ViewRenderers[viewName];
         }
 
         public string Name { get; private set; }
@@ -17,15 +17,6 @@ namespace GSCrm.Data.ApplicationInfo
         public int SkipSteps { get; set; }
         public int ItemsCount { get; }
         public string RenderName { get; private set; }
-
-        /// <summary>
-        /// Словарь с названиями представлений и рендерами для них
-        /// </summary>
-        private static Dictionary<string, string> ViewRenderers
-            => new Dictionary<string, string>()
-            {
-                { PROD_CATS, $"{PROD_CATS}Render" }
-            };
 
         /// <summary>
         /// Словарь с колиечством элементов в представлениях
@@ -41,6 +32,25 @@ namespace GSCrm.Data.ApplicationInfo
                 { ALL_EMP_RESPS, 5 },
                 { ACC_TEAM_SELECTED_EMPLOYEES, 5 },
                 { ACC_TEAM_ALL_EMPLOYEES, 5 }
+            };
+
+        /// <summary>
+        /// Словарь с названиями представлений и рендерами для них
+        /// </summary>
+        private static Dictionary<string, string> ViewRenderers
+            => new Dictionary<string, string>()
+            {
+                { PROD_CATS, $"{PROD_CATS}Render" }
+            };
+
+        /// <summary>
+        /// Метод определяет, надо ли рендереить представление с помощью JS
+        /// </summary>
+        private bool NeedJSRender()
+            => Name switch
+            {
+                PROD_CATS => true,
+                _ => false
             };
     }
 }

@@ -53,7 +53,7 @@ namespace GSCrm.Controllers
             posViewModel = positionMap.Refresh(posViewModel, currentUser, PosAllViewTypes);
             positionRepository.AttachEmployees(posViewModel);
             positionRepository.AttachSubPositions(posViewModel);
-            cachService.SetCurrentViewName(currentUser.Id, POSITION);
+            cachService.SetCurrentView(currentUser.Id, POSITION);
             cachService.CachePosition(currentUser, position, posViewModel);
             return View(POSITION, posViewModel);
         }

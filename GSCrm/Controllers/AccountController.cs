@@ -78,7 +78,7 @@ namespace GSCrm.Controllers
             accountRepository.AttachInvoices(accountViewModel);
             accountRepository.AttachQuotes(accountViewModel);
             accountRepository.AttachManagers(accountViewModel);
-            cachService.SetCurrentViewName(currentUser.Id, ACCOUNT);
+            cachService.SetCurrentView(currentUser.Id, ACCOUNT);
             cachService.CacheAccount(currentUser, account, accountViewModel);
             return View(ACCOUNT, accountViewModel);
         }

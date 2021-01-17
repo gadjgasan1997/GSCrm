@@ -57,7 +57,7 @@ namespace GSCrm.Controllers
                 employeeRepository.AttachContacts(empViewModel);
                 employeeRepository.AttachSubordinates(empViewModel);
             }
-            cachService.SetCurrentViewName(currentUser.Id, EMPLOYEE);
+            cachService.SetCurrentView(currentUser.Id, EMPLOYEE);
             cachService.CacheEmployee(currentUser, employee, empViewModel);
             return View(EMPLOYEE, empViewModel);
         }

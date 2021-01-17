@@ -56,7 +56,7 @@ namespace GSCrm.Controllers
 
             // Если полномочие и доступ имеются
             ResponsibilityViewModel respViewModel = new ResponsibilityMap(serviceProvider, context).DataToViewModel(responsibility);
-            cachService.SetCurrentViewName(currentUser.Id, RESPONSIBILITY);
+            cachService.SetCurrentView(currentUser.Id, RESPONSIBILITY);
             cachService.CacheResponsibility(currentUser, responsibility, respViewModel);
             return View(RESPONSIBILITY, respViewModel);
         }

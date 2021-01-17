@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?mkmsf5');
-  src:  url('fonts/icomoon.eot?mkmsf5#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?mkmsf5') format('truetype'),
-    url('fonts/icomoon.woff?mkmsf5') format('woff'),
-    url('fonts/icomoon.svg?mkmsf5#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?1x2ibd');
+  src:  url('fonts/icomoon.eot?1x2ibd#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?1x2ibd') format('truetype'),
+    url('fonts/icomoon.woff?1x2ibd') format('woff'),
+    url('fonts/icomoon.svg?1x2ibd#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -36,6 +36,12 @@
 }
 .icon-drive_folder_upload:before {
   content: "\e907";
+}
+.icon-minus:before {
+  content: "\e90a";
+}
+.icon-plus-square:before {
+  content: "\e909";
 }
 .icon-user-circle-o:before {
   content: "\e900";

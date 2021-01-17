@@ -280,3 +280,20 @@
   #notSettingsForm {
     width: 70%;
     margin: auto; } }
+
+#productCategoriesForm {
+  overflow-x: auto; }
+  #productCategoriesForm #productCategoriesTree {
+    min-width: 400px; }
+    #productCategoriesForm #productCategoriesTree .category-row {
+      width: 100%; }
+      #productCategoriesForm #productCategoriesTree .category-row .row {
+        width: 100%; }
+        #productCategoriesForm #productCategoriesTree .category-row .row .category-expand,
+        #productCategoriesForm #productCategoriesTree .category-row .row .category-collapse {
+          cursor: pointer; }
+        #productCategoriesForm #productCategoriesTree .category-row .row .category-name p {
+          margin: 0;
+          user-select: none; }
+    #productCategoriesForm #productCategoriesTree .category-row:last-child {
+      margin-bottom: 10px; }

@@ -1,19 +1,22 @@
 class Initializer {
     /** Метод инициализирует данные при перезагрузке страницы */
     static Execute() {
-        Initializer.InitializeConfigs().then(() => {
-            Initializer.InitalizeAppData().then(() => {
-                Initializer.RestoreTabs();
-                Initializer.RestoreDropdowns();
-                Initializer.RestoreCheckMarks();
-                Initializer.AttachAutocomplite();
-                Initializer.AttachMasks();
-                Initializer.InitializeScrools();
-                Initializer.InitializeToolTips();
-                Initializer.InitializeNotsCounter();
-                $('[data-toggle="popover"]').popover();
+        return new Promise((resolve, reject) => {
+            Initializer.InitializeConfigs().then(() => {
+                Initializer.InitalizeAppData().then(() => {
+                    Initializer.RestoreTabs();
+                    Initializer.RestoreDropdowns();
+                    Initializer.RestoreCheckMarks();
+                    Initializer.AttachAutocomplite();
+                    Initializer.AttachMasks();
+                    Initializer.InitializeScrools();
+                    Initializer.InitializeToolTips();
+                    Initializer.InitializeNotsCounter();
+                    $('[data-toggle="popover"]').popover();
+                    resolve();
+                });
             });
-        });
+        })
     }
 
     // Заполнение объекта с локализацией

@@ -1,23 +1,15 @@
-﻿using GSCrm.Mapping;
-using GSCrm.Helpers;
+﻿using GSCrm.Helpers;
 using GSCrm.Models;
-using GSCrm.Models.ViewModels;
-using GSCrm.Repository;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using System;
-using System.Collections.Generic;
 using GSCrm.Data;
 using GSCrm.Data.Cash;
-using GSCrm.Models.Enums;
-using static GSCrm.CommonConsts;
-using static GSCrm.Repository.AccountRepository;
 using GSCrm.Factories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using GSCrm.Data.ApplicationInfo;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
 {
@@ -59,7 +51,7 @@ namespace GSCrm.Controllers
             AppData appData = new AppData()
             {
                 NotsCount = Convert.ToInt32(notsCount),
-                ViewName = cachService.GetCurrentViewName(currentUser.Id)
+                ViewInfo = cachService.GetCurrentViewInfo(currentUser.Id)
             };
             return Json(appData);
         }

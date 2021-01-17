@@ -1,6 +1,7 @@
 ﻿// Инициализация автокомплита
 $(document).ready(() => {
-    Initializer.Execute();
+    Initializer.Execute().then(() =>
+        Renderer.Render());
 })
 
 $(document).click(function () {
