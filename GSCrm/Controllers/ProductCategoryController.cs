@@ -1,16 +1,13 @@
-﻿using GSCrm.Mapping;
-using GSCrm.Helpers;
-using GSCrm.Models;
+﻿using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using System;
-using System.Collections.Generic;
 using GSCrm.Data;
 using GSCrm.Models.Enums;
+using GSCrm.Data.ApplicationInfo;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
@@ -29,27 +26,41 @@ namespace GSCrm.Controllers
             Organization organization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
             if (organization != null)
             {
-                ProductCategoriesViewModel prodCatsViewModel = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
+                ProductCategoriesViewModel prodCatsCached = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
                 ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
                 productCategoryRepository.SetViewInfo(PROD_CATS, pageNumber);
-                productCategoryRepository.InitProductCategoriesViewModel(ref prodCatsViewModel);
-                return Json(prodCatsViewModel, serializerSettings);
+                productCategoryRepository.InitProductCategoriesViewModel(ref prodCatsCached);
+                return Json(prodCatsCached, serializerSettings);
             }
             return Json("");
         }
 
         [HttpPost("Search")]
-        public IActionResult SearchByCategoryName(ProductCategoriesViewModel productCategoriesViewModel)
+        public IActionResult Search(ProductCategoriesViewModel prodCatsViewModel)
         {
-            cachService.CacheItem(currentUser.Id, PROD_CATS, productCategoriesViewModel);
+            new ProductCategoryRepository(serviceProvider, context).Search(prodCatsViewModel);
             return RedirectToAction(PROD_CATS, PROD_CAT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpGet("ClearSearch")]
-        public IActionResult ClearSearchByCategoryName()
+        public IActionResult ClearSearch()
         {
             new ProductCategoryRepository(serviceProvider, context).ClearSearch();
             return RedirectToAction(PROD_CATS, PROD_CAT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+        }
+
+        [HttpGet("NextRecords")]
+        public IActionResult NextRecords()
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
+            return RedirectToAction(PROD_CATS, PROD_CAT, new { pageNumber = viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP });
+        }
+
+        [HttpGet("PreviousRecords")]
+        public IActionResult PreviousRecords()
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
+            return RedirectToAction(PROD_CATS, PROD_CAT, new { pageNumber = viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP });
         }
     }
 }

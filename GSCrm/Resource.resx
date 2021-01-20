@@ -423,6 +423,9 @@
   <data name="CannotLeaveYourOrg" xml:space="preserve">
     <value>Вы не можете покинуть принадлежащую вам организацию</value>
   </data>
+  <data name="CategoryName" xml:space="preserve">
+    <value>Название категории</value>
+  </data>
   <data name="Change" xml:space="preserve">
     <value>Изменить</value>
   </data>
@@ -939,11 +942,17 @@
   <data name="ManagerNotExists" xml:space="preserve">
     <value>Менеджер с таким именем не найден</value>
   </data>
+  <data name="MaxConst" xml:space="preserve">
+    <value>Цена до</value>
+  </data>
   <data name="MiddleNameLength" xml:space="preserve">
     <value>Отчество не может быть длиннее 300 символов</value>
   </data>
   <data name="MidNameLabel" xml:space="preserve">
     <value>Отчество</value>
+  </data>
+  <data name="MinConst" xml:space="preserve">
+    <value>Цена от</value>
   </data>
   <data name="NameLabel" xml:space="preserve">
     <value>Название</value>
@@ -1259,6 +1268,9 @@
   </data>
   <data name="ProductModel" xml:space="preserve">
     <value>Продуктовая модель</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>Название продукта</value>
   </data>
   <data name="Quote" xml:space="preserve">
     <value>Сделка</value>

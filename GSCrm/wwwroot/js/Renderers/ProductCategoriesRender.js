@@ -1,23 +1,41 @@
 class ProductCategoriesRender {
     static DepthConst = 46;
 
+    //#region Rendering
     Render() {
-        // Получение списка категория продуктов
         let productCategoriesUrl = Localization.GetUri("productCategories");
+        this.RenderCategoriesRequest(productCategoriesUrl);
+    }
+
+    /**
+     * Получение и рендеринг списка категория продуктов
+     * @param {*} url Ссылка для получения списка категорий
+     */
+    RenderCategoriesRequest(url) {
         let request = new AjaxRequests();
-        request.CommonGetRequest(productCategoriesUrl).then(categories => {
+        request.CommonGetRequest(url).then(response => {
+
+            // Рендеринг категорий
+            let categories = response["ProductCategoryViewModels"];
             if (!Utils.IsNullOrEmpty(categories)) {
-                // Рендеринг категорий
-                this.RenderCategories(categories["ProductCategoryViewModels"]);
+                this.RenderCategories(categories);
             }
         })
     }
 
+    /**
+     * Рендеринг категорий
+     * @param {*} categories Категории 
+     */
     RenderCategories(categories) {
+        // Очистка дерева
+        $("#productCategoriesTree").empty();
+
         // Рендер корневых директорий 
         categories.filter(category => {
             return category["ParentProductCategoryId"] == null;
         }).map(category => {
+            // Есть ли ц текущей категории дочерние
             let hasChildrens = categories.filter(item => item["ParentProductCategoryId"] == category["Id"]).length > 0;
             if (hasChildrens) {
                 $("#productCategoriesTree").append(this.GetRootCategoryHTML(category));
@@ -98,6 +116,15 @@ class ProductCategoriesRender {
             }
         });
     }
+    //#endregion
+
+    //#region Actions
+    Navigate(event) {
+        event.preventDefault();
+        let productCategoriesUrl = $(event.currentTarget).attr("data-href");
+        let renderer = new ProductCategoriesRender();
+        renderer.RenderCategoriesRequest(productCategoriesUrl);
+    }
 
     /**
      * Развернуть категорию
@@ -134,7 +161,73 @@ class ProductCategoriesRender {
                 .addClass("icon-plus-square");
         }
     }
+
+    /**
+     * Выполняет поиск по категориям и продуктам
+     * @param {*} event 
+     */
+    Search(event) {
+        event.preventDefault();
+        let searchUrl = $("#productCategoriesFilter").attr("action");
+        let searchData = this.SearchGetData();
+        let request = new AjaxRequests();
+        request.CommonPostRequest(searchUrl, searchData).then(response => {
+            this.RenderCategories(response["ProductCategoryViewModels"]);
+        })
+    }
+
+    SearchGetData() {
+        return {
+            SearchProductCategoryName: $("#SearchProductCategoryName").val(),
+            SearchProductName: $("#SearchProductName").val(),
+            MinConst: $("#prodMinCost").val(),
+            MaxConst: $("#prodMaxCost").val()
+        }
+    }
+
+    /**
+     * Очищает поиск по категориям и продуктам
+     * @param {*} event 
+     */
+    ClearSearch(event) {
+        event.preventDefault();
+        let clearSearchUrl = $("#clearProdsSearch").attr("href");
+        let request = new AjaxRequests();
+        request.CommonGetRequest(clearSearchUrl).then(response => {
+
+            // Рендеринг категорий
+            let categories = response["ProductCategoryViewModels"];
+            if (!Utils.IsNullOrEmpty(categories)) {
+                this.RenderCategories(categories);
+            }
+            
+            // Очистка полей
+            $("#SearchProductCategoryName").val(response["SearchProductCategoryName"]);
+            $("#SearchProductName").val(response["SearchProductName"]);
+            $("#prodMinCost").val(response["MinConst"]);
+            $("#prodMaxCost").val(response["MaxConst"]);
+        })
+    }
+    //#endregion
 }
+
+$("#productCategoriesForm")
+    .off("click", ".nav-previous .nav-url").on("click", ".nav-previous .nav-url", event => {
+        let renderer = new ProductCategoriesRender();
+        renderer.Navigate(event);
+    })
+    .off("click", ".nav-next .nav-url").on("click", ".nav-next .nav-url", event => {
+        let renderer = new ProductCategoriesRender();
+        renderer.Navigate(event);
+    })
+    .off("click", "#prodsSearch").on("click", "#prodsSearch", event => {
+        let renderer = new ProductCategoriesRender();
+        renderer.Search(event);
+    })
+    .off("click", "#clearProdsSearch").on("click", "#clearProdsSearch", event => {
+        let renderer = new ProductCategoriesRender();
+        renderer.ClearSearch(event);
+    });
 
 $("#productCategoriesTree")
     .off("click", ".category-expand").on("click", ".category-expand", event => {

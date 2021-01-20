@@ -16,24 +16,60 @@
     ViewInfo prodCatsView = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
 }
 
-<div id="productCategoriesForm" class="mt-3 ml-3">
+<div id="productCategoriesForm" class="mt-3">
     <div class="text-center">
         <p class="label-md">
             @resManager.GetString("OrganizationProducts") @Model.OrganizationViewModel.Name
         </p>
     </div>
-    <div id="productCategoriesTree"></div>
+    <form id="productCategoriesFilter" class="mt-3" asp-controller="@PROD_CAT" asp-action="Search">
+        <div class="row justify-content-around">
+            <div class="col-lg mb-4 mb-lg-0">
+                <input asp-for="SearchProductCategoryName" class="form-control" placeholder="@resManager.GetString("CategoryName")" />
+            </div>
+            <div class="col-lg mb-4 mb-lg-0">
+                <input asp-for="SearchProductName" class="form-control" placeholder="@resManager.GetString("ProductName")" />
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3">
+            <div class="col-lg mb-4 mb-lg-0">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">@resManager.GetString("MinConst")</span>
+                    </div>
+                    <input asp-for="MinConst" type="number" class="form-control" id="prodMinCost">
+                </div>
+            </div>
+            <div class="col-lg mb-4 mb-lg-0">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">@resManager.GetString("MaxConst")</span>
+                    </div>
+                    <input asp-for="MaxConst" type="number" class="form-control" id="prodMaxCost">
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-around mt-3">
+            <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
+                <input id="prodsSearch" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
+            </div>
+            <div class="col-auto text-center flex-grow-0">
+                <a id="clearProdsSearch" asp-controller="@PROD_CAT" asp-action="ClearSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+            </div>
+        </div>
+    </form>
+    <div id="productCategoriesTree" class="mt-3"></div>
     <div class="list-nav row no-gutters justify-content-center mt-3">
         <div class="col">
             <div class="nav-previous">
-                <div class="nav-url">
+                <div class="nav-url" data-href="@Url.Action("PreviousRecords", PROD_CAT)">
                     <span class="icon-chevron-thin-left"></span>
                 </div>
             </div>
         </div>
         <div class="col">
             <div class="nav-next">
-                <div class="nav-url">
+                <div class="nav-url" data-href="@Url.Action("NextRecords", PROD_CAT)">
                     <span class="icon-chevron-thin-right"></span>
                 </div>
             </div>

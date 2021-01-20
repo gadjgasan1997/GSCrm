@@ -448,16 +448,17 @@
 }
 
 #productCategoriesForm {
-    overflow-x: auto;
-
     #productCategoriesTree {
-        min-width: 400px;
+        width: 95%;
+        margin: auto;
+        overflow-x: auto;
 
         .category-row {
             width: 100%;
 
             .row {
                 width: 100%;
+                margin: 0;
 
                 .category-expand,
                 .category-collapse {
@@ -475,6 +476,15 @@
 
         .category-row:last-child {
             margin-bottom: 10px
+        }
+    }
+}
+
+@media all and (min-width: 800px) {
+    #productCategoriesFilter {
+        .row {
+            width: 80%;
+            margin: auto
         }
     }
 }

@@ -4,9 +4,7 @@ using System.Linq;
 using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Mapping;
 using GSCrm.Models.ViewModels;
-using static GSCrm.CommonConsts;
 
 namespace GSCrm.Repository
 {
@@ -25,7 +23,7 @@ namespace GSCrm.Repository
 
         private void LimitByName(ref List<Product> products, ProductCategoriesViewModel productCategoriesViewModel)
         {
-            string productName = productCategoriesViewModel.SearchProductCategoryName.ToLower().TrimStartAndEnd();
+            string productName = productCategoriesViewModel.SearchProductName.ToLower().TrimStartAndEnd();
             if (!string.IsNullOrEmpty(productName))
                 products = products.Where(prod => prod.Name.ToLower().Contains(productName)).ToList();
         }
