@@ -23,22 +23,99 @@ namespace GSCrm.Repository
             prodCatsViewModel = viewModel;
         }
 
-        private List<ProductCategory> GetLimitedProdCatsList(List<ProductCategory> prodCats, ProductCategoriesViewModel prodCatsViewModel)
+        private List<ProductCategory> GetLimitedProdCatsList(List<ProductCategory> allProdCats, ProductCategoriesViewModel prodCatsViewModel)
         {
-            // Получение корневых категорий и ограничение их по количеству
-            List<ProductCategory> rootProdCats = prodCats.Where(prodCat => prodCat.ParentProductCategoryId == null).OrderBy(n => n.Name).ToList();
-            LimitListByPageNumber(PROD_CATS, ref rootProdCats);
+            LimitByCategoryName(ref allProdCats, prodCatsViewModel);
+            LimitProducts(ref allProdCats, prodCatsViewModel);
+            return allProdCats.OrderBy(n => n.Name).ToList();
+        }
 
-            // Затем для всех рут директорий находятся дочерние
-            Func<ProductCategory, bool> predicate = prodCat => prodCat.RootCategoryId != null && rootProdCats.Select(i => i.Id).Contains((Guid)prodCat.RootCategoryId);
-            List<ProductCategory> limitedProdCats = rootProdCats.Concat(prodCats.Where(predicate)).ToList();
-            LimitByCategoryName(ref limitedProdCats, prodCatsViewModel);
+        /// <summary>
+        /// Ограничение списка категорий продуктов по названию
+        /// </summary>
+        /// <param name="allProdCats"></param>
+        /// <param name="prodCatsViewModel"></param>
+        private void LimitByCategoryName(ref List<ProductCategory> allProdCats, ProductCategoriesViewModel prodCatsViewModel)
+        {
+            // Применение фильтрации если необходимо
+            string searchSpec = prodCatsViewModel.SearchProductCategoryName?.ToLower().TrimStartAndEnd();
+            if (!string.IsNullOrEmpty(searchSpec))
+            {
+                List<ProductCategory> limitedProdCats = new List<ProductCategory>();
 
-            // Для каждой дочерней категории необходимо получить список проудктов
+                // Директории, не являющиеся корневыми
+                List<ProductCategory> nonRootProdCats = allProdCats.Where(prodCat => prodCat.ParentProductCategoryId != null).ToList();
+
+                // Получение списка категорий, у которых нет дочерних
+                List<ProductCategory> hasNoChildsProdCats = new List<ProductCategory>();
+                foreach(ProductCategory nonRootProdCat in nonRootProdCats)
+                {
+                    ProductCategory parentProdCat = allProdCats.FirstOrDefault(cat => cat.ParentProductCategoryId == nonRootProdCat.Id);
+                    if (parentProdCat == null)
+                        hasNoChildsProdCats.Add(nonRootProdCat);
+                }
+
+                // Для всего этого списка запускается поиск подходящих категорий
+                foreach (ProductCategory hasNoChildsProdCat in hasNoChildsProdCats)
+                {
+                    if (hasNoChildsProdCat.Name.ToLower().Contains(searchSpec))
+                        AddHierarchyToResultList(hasNoChildsProdCat, allProdCats, limitedProdCats);
+                    else
+                    {
+                        ProductCategory parentProdCat = allProdCats.FirstOrDefault(i => i.Id == hasNoChildsProdCat.ParentProductCategoryId);
+                        while (parentProdCat != null)
+                        {
+                            if (parentProdCat.Name.ToLower().Contains(searchSpec))
+                            {
+                                AddHierarchyToResultList(parentProdCat, allProdCats, limitedProdCats);
+                                break;
+                            }
+                            if (parentProdCat.ParentProductCategoryId == null)
+                                break;
+                            parentProdCat = allProdCats.FirstOrDefault(i => i.Id == parentProdCat.ParentProductCategoryId);
+                        }
+                    }
+                }
+
+                // Директории, являющиеся корневыми
+                List<ProductCategory> rootProdCats = allProdCats.Where(prodCat => prodCat.ParentProductCategoryId == null).ToList();
+                limitedProdCats.AddRange(rootProdCats);
+                allProdCats = limitedProdCats;
+            }
+        }
+
+        /// <summary>
+        /// Метод добавляет поданный на вход элемент и всю его иерархию в результирующий список
+        /// </summary>
+        /// <param name="currentProdCat">Текущая категория</param>
+        /// <param name="allProdCats">Все категории</param>
+        /// <param name="resultList">Результирующий список</param>
+        private void AddHierarchyToResultList(ProductCategory currentProdCat, List<ProductCategory> allProdCats, List<ProductCategory> resultList)
+        {
+            do
+            {
+                if (resultList.Contains(currentProdCat))
+                    return;
+                resultList.Add(currentProdCat);
+                currentProdCat = allProdCats.FirstOrDefault(i => i.Id == currentProdCat.ParentProductCategoryId);
+            }
+            while (currentProdCat?.ParentProductCategoryId != null);
+        }
+
+        /// <summary>
+        /// Ограничение списка продуктов в уже отфильтрованном списке категорий
+        /// </summary>
+        /// <param name="allProdCats"></param>
+        /// <param name="prodCatsViewModel"></param>
+        private void LimitProducts(ref List<ProductCategory> allProdCats, ProductCategoriesViewModel prodCatsViewModel)
+        {
+            // Для каждой категории необходимо получить список продуктов
             ProductMap productMap = new ProductMap(serviceProvider, context);
             ProductRepository productRepository = new ProductRepository(serviceProvider, context);
-            limitedProdCats.ForEach(productCategory =>
+            allProdCats.ForEach(productCategory =>
             {
+                // Фильтрация списка продуктов теми, которые находятся в отфильтрованном списке категорий
+                // Затем применяются продуктовые фильтры
                 List<ProductViewModel> productViewModels = productCategory.GetProducts(context)
                     .MapToViewModels(productMap, products =>
                         productRepository.GetLimitedProductList(products, prodCatsViewModel));
@@ -50,17 +127,12 @@ namespace GSCrm.Repository
                     else prodCatsViewModel.CategoriesProducts[categoryId] = productViewModels;
                 }
             });
-            return limitedProdCats.OrderBy(n => n.Name).ToList();
-        }
-
-        private void LimitByCategoryName(ref List<ProductCategory> productCategories, ProductCategoriesViewModel prodCatsViewModel)
-        {
-            string categoryName = prodCatsViewModel.SearchProductCategoryName?.ToLower().TrimStartAndEnd();
-            if (!string.IsNullOrEmpty(categoryName))
-                productCategories = productCategories.Where(cat => cat.Name.ToLower().Contains(categoryName)).ToList();
         }
 
         #region Searching
+        /// <summary>
+        /// Метод выполняет поиск по продуктам и категориям
+        /// </summary>
         public void Search(ProductCategoriesViewModel prodCatsViewModel)
         {
             ProductCategoriesViewModel prodCatsCache = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);

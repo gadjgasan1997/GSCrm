@@ -1,0 +1,36 @@
+﻿@inject ResManager resManager
+@using static GSCrm.CommonConsts
+
+@* // Модальное окно изменения продукта *@
+<div id="updateProductModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" asp-controller="@PRODUCT" asp-action="Update">
+                <div class="modal-header">
+                    <h5 class="modal-title">@resManager.GetString("UpdateProduct")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input id="updateProdName" class="form-control" type="text" placeholder="@resManager.GetString("NameLabel")" />
+                        <ul id="updateProdNameError" data-connect-el="updateProdName" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="updateProdDesc" class="form-control" type="text" placeholder="@resManager.GetString("Description")"></textarea>
+                        <ul id="updateProdDescError" data-connect-el="updateProdDesc" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="form-group">
+                        <input id="updateProdCost" class="form-control" type="number" placeholder="@resManager.GetString("Cost")" />
+                        <ul id="updateProdCostError" data-connect-el="updateProdCost" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="updateProdBtn" type="button" class="btn btn-primary" value="@resManager.GetString("Save")" />
+                    <input id="cancelUpdateProdBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

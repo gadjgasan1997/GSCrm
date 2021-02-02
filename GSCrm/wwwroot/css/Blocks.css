@@ -447,3 +447,46 @@
 
 .popover-body {
   user-select: none; }
+
+/* Settings-menu */
+.settings-menu-btn {
+  cursor: pointer; }
+
+.settings-menu {
+  position: absolute;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0px 35px 50px rgba(0, 0, 0, 0.2); }
+  .settings-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0; }
+    .settings-menu ul li {
+      position: relative;
+      text-align: center;
+      cursor: pointer;
+      height: 40px; }
+      .settings-menu ul li form, .settings-menu ul li div {
+        margin: 0;
+        line-height: 40px; }
+        .settings-menu ul li form input, .settings-menu ul li div input {
+          height: 100%;
+          width: 100%;
+          outline: none !important;
+          border: none !important;
+          background-color: white; }
+    .settings-menu ul li:first-child {
+      margin-top: 10px; }
+    .settings-menu ul li:last-child {
+      margin-bottom: 10px; }
+    .settings-menu ul li:hover input {
+      background-color: lightgray; }
+
+@media all and (max-width: 576px) {
+  .settings-menu {
+    width: 100%;
+    left: 0; } }
+
+@media all and (min-width: 576px) {
+  .settings-menu {
+    width: 400px; } }

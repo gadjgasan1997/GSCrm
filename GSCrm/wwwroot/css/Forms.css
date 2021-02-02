@@ -53,50 +53,8 @@
 #organizationForm #orgFormHeader .col-auto:first-child {
   visibility: hidden; }
 
-#organizationForm #orgFormHeader #orgSettingsBtn {
-  cursor: pointer; }
-
 #organizationForm .nav-tabs .nav-item:last-child {
   width: 33.34% !important; }
-
-#orgSettingsMenu {
-  position: absolute;
-  z-index: 1000;
-  background-color: white;
-  box-shadow: 0px 35px 50px rgba(0, 0, 0, 0.2); }
-  #orgSettingsMenu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0; }
-    #orgSettingsMenu ul li {
-      position: relative;
-      text-align: center;
-      cursor: pointer;
-      height: 40px; }
-      #orgSettingsMenu ul li form {
-        margin: 0;
-        line-height: 40px; }
-        #orgSettingsMenu ul li form input {
-          height: 100%;
-          width: 100%;
-          outline: none !important;
-          border: none !important;
-          background-color: white; }
-    #orgSettingsMenu ul li:first-child {
-      margin-top: 10px; }
-    #orgSettingsMenu ul li:last-child {
-      margin-bottom: 10px; }
-    #orgSettingsMenu ul li:hover input {
-      background-color: lightgray; }
-
-@media all and (max-width: 576px) {
-  #orgSettingsMenu {
-    width: 100%;
-    left: 0; } }
-
-@media all and (min-width: 576px) {
-  #orgSettingsMenu {
-    width: 400px; } }
 
 #employeeForm > div:first-child > h3,
 #positionForm > div:first-child > h3 {
@@ -287,15 +245,19 @@
   overflow-x: auto; }
   #productCategoriesForm #productCategoriesTree .category-row {
     width: 100%; }
-    #productCategoriesForm #productCategoriesTree .category-row .row {
+    #productCategoriesForm #productCategoriesTree .category-row .category-row-main-line {
       width: 100%;
-      margin: 0; }
-      #productCategoriesForm #productCategoriesTree .category-row .row .category-expand,
-      #productCategoriesForm #productCategoriesTree .category-row .row .category-collapse {
+      margin: 0;
+      display: inline-flex;
+      white-space: nowrap; }
+      #productCategoriesForm #productCategoriesTree .category-row .category-row-main-line .category-expand,
+      #productCategoriesForm #productCategoriesTree .category-row .category-row-main-line .category-collapse {
         cursor: pointer; }
-      #productCategoriesForm #productCategoriesTree .category-row .row .category-name p {
-        margin: 0;
-        user-select: none; }
+      #productCategoriesForm #productCategoriesTree .category-row .category-row-main-line .category-name {
+        text-align: center; }
+        #productCategoriesForm #productCategoriesTree .category-row .category-row-main-line .category-name p {
+          margin: 0;
+          user-select: none; }
   #productCategoriesForm #productCategoriesTree .category-row:last-child {
     margin-bottom: 10px; }
 

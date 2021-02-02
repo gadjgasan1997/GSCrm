@@ -115,6 +115,35 @@ class Button {
             }, 600);
         }
     }
+
+    /**
+     * Отображение меню с настройками
+     * @param {*} Event 
+     */
+    ShowSettingsMenu(event) {
+        let settingsMenuId = $(event.currentTarget).attr("data-settings-menu-id");
+        let settingsMenuEl = $(document).find("#" + settingsMenuId);
+        let top = $(event.currentTarget).offset().top;
+        let left = $(event.currentTarget).offset().left;
+        let documentWidth = $("body")[0].offsetWidth;
+    
+        if (documentWidth < 576) {
+            $(settingsMenuEl).css("top", top)
+        }
+        else {
+            let menuPXWidth = $(settingsMenuEl).css("width");
+            let menuWidth = Number.parseInt(menuPXWidth.split("px")[0]);
+            if (documentWidth < left + menuWidth)
+                left = left - menuWidth;
+            $(settingsMenuEl).css({
+                "top": top,
+                "left": left,
+                "width": menuWidth
+            })
+        }
+        
+        $(settingsMenuEl).removeClass("d-none");
+    }
 }
 
 // Checkmark
@@ -203,4 +232,15 @@ $(document).off("click", ".nav-previous .nav-url").on("click", ".nav-previous .n
     if (href != undefined) {
         window.location.replace($(event.currentTarget).attr("href"));
     }
+})
+
+// Settings Menu
+$(document).off("click", ".settings-menu-btn").on("click", ".settings-menu-btn", event => {
+    event.stopPropagation();
+    let button = new Button();
+    button.ShowSettingsMenu(event);
+})
+
+$(document).off("click", ".settings-menu").on("click", ".settings-menu", event => {
+    event.stopPropagation();
 })

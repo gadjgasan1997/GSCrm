@@ -1,0 +1,32 @@
+﻿@inject ResManager resManager
+@using static GSCrm.CommonConsts
+
+@* // Модальное окно изменения категории *@
+<div id="updateCategoryModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" asp-controller="@PROD_CAT" asp-action="Update">
+                <div class="modal-header">
+                    <h5 class="modal-title">@resManager.GetString("UpdateCategory")</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input id="updateProdCatName" class="form-control" type="text" />
+                        <ul id="updateProdCatNameError" data-connect-el="updateProdCatName" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="updateProdCatDesc" class="form-control" type="text"></textarea>
+                        <ul id="updateProdCatDescError" data-connect-el="updateProdCatDesc" class="d-none under-field-error label-sm mt-2"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="updateProdCatBtn" type="button" class="btn btn-primary" value="@resManager.GetString("Save")" />
+                    <input id="cancelUpdateProdCatBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

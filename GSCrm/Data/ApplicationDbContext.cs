@@ -34,6 +34,7 @@ namespace GSCrm.Data
         public ApplicationDbContext() { }
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
+            //Database.Migrate();
             Database.SetCommandTimeout(180);
         }
 

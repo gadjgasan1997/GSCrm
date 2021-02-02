@@ -1,3 +1,5 @@
-﻿@{
+﻿@using Microsoft.Extensions.Options;
+@inject IOptionsSnapshot<AppSettings> Settings
+@{
     Layout = "_Layout";
 }

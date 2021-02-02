@@ -17,6 +17,14 @@
 }
 
 <div id="productCategoriesForm" class="mt-3">
+    @* // Создание категории *@
+    @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/CreateCategory.cshtml"); }
+    @* // Создание продукта *@
+    @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/CreateProduct.cshtml"); }
+    @* // Изменение категории *@
+    @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/UpdateCategory.cshtml"); }
+    @* // Изменение продукта *@
+    @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/UpdateProduct.cshtml"); }
     <div class="text-center">
         <p class="label-md">
             @resManager.GetString("OrganizationProducts") @Model.OrganizationViewModel.Name
@@ -31,7 +39,7 @@
                 <input asp-for="SearchProductName" class="form-control" placeholder="@resManager.GetString("ProductName")" />
             </div>
         </div>
-        <div class="row justify-content-center mt-3">
+        <div class="row justify-content-center mt-0 mt-lg-3">
             <div class="col-lg mb-4 mb-lg-0">
                 <div class="input-group">
                     <div class="input-group-prepend">
@@ -75,4 +83,42 @@
             </div>
         </div>
     </div>
+</div>
+<div id="prodCatSettingsMenu" class="settings-menu d-none">
+    <ul>
+        <li>
+            <div>
+                <input id="addCategoryBtn" data-toggle="modal" data-target="#addCategoryModal" type="button" class="label-sm" value="@resManager.GetString("AddCategory")" />
+            </div>
+        </li>
+        <li>
+            <div>
+                <input id="addProductBtn" data-toggle="modal" data-target="#addProductModal" type="button" class="label-sm" value="@resManager.GetString("AddProduct")" />
+            </div>
+        </li>
+        <li>
+            <div>
+                <input id="updateCategoryBtn" data-toggle="modal" data-target="#updateCategoryModal" type="button" class="label-sm" value="@resManager.GetString("ChangeCategory")" />
+            </div>
+        </li>
+        <li>
+            <form asp-controller="@PROD_CAT" asp-action="Delete">
+                <input id="deleteCategoryBtn" type="submit" class="label-sm" value="@resManager.GetString("DeleteCategory")" />
+            </form>
+        </li>
+    </ul>
+</div>
+<div id="prodSettingsMenu" class="settings-menu d-none">
+    <ul>
+        <li>
+            <div>
+                <input id="updateProductBtn" data-toggle="modal" data-target="#updateProductModal" type="button" class="label-sm" value="@resManager.GetString("UpdateProduct")" />
+            </div>
+        </li>
+        <li>
+            <form asp-controller="@PRODUCT" asp-action="Delete">
+                <input id="deleteProductBtn" type="submit" class="label-sm" value="@resManager.GetString("DeleteProduct")" />
+            </form>
+        </li>
+    </ul>
 </div>

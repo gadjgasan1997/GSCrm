@@ -306,6 +306,9 @@
   <data name="AccUpdateNotSubject" xml:space="preserve">
     <value>Изменение клиента</value>
   </data>
+  <data name="AddCategory" xml:space="preserve">
+    <value>Добавить категорию</value>
+  </data>
   <data name="AddEmployeePosition" xml:space="preserve">
     <value>Добавить должность</value>
   </data>
@@ -317,6 +320,9 @@
   </data>
   <data name="AddPosNotExists" xml:space="preserve">
     <value>Добавляемая должность не найдена</value>
+  </data>
+  <data name="AddProduct" xml:space="preserve">
+    <value>Добавить продукт</value>
   </data>
   <data name="AddRespNotExists" xml:space="preserve">
     <value>Добавляемое полномочие не найдено</value>
@@ -429,6 +435,9 @@
   <data name="Change" xml:space="preserve">
     <value>Изменить</value>
   </data>
+  <data name="ChangeCategory" xml:space="preserve">
+    <value>Изменить категорию</value>
+  </data>
   <data name="ChangeCurrentLegalAddressType" xml:space="preserve">
     <value>Измените тип текущего юридического адреса</value>
   </data>
@@ -452,6 +461,9 @@
   </data>
   <data name="ChangePrimaryOrg" xml:space="preserve">
     <value>Сделать выбранную органзацию основной</value>
+  </data>
+  <data name="ChangeProduct" xml:space="preserve">
+    <value>Изменить данные продукта</value>
   </data>
   <data name="CheckingAccount" xml:space="preserve">
     <value>Расчетный счет</value>
@@ -519,6 +531,9 @@
   <data name="CorrespondentAccountLength" xml:space="preserve">
     <value>Некорректная длина корреспонденского счета</value>
   </data>
+  <data name="Cost" xml:space="preserve">
+    <value>Цена</value>
+  </data>
   <data name="Country" xml:space="preserve">
     <value>Страна</value>
   </data>
@@ -576,8 +591,17 @@
   <data name="CurrentAccountsFilter" xml:space="preserve">
     <value>Фильтр по клиентам организации </value>
   </data>
+  <data name="DeleteCategory" xml:space="preserve">
+    <value>Удалить категорию</value>
+  </data>
   <data name="DeleteNot" xml:space="preserve">
     <value>Удалить</value>
+  </data>
+  <data name="DeleteProduct" xml:space="preserve">
+    <value>Удалить продукт</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Описание</value>
   </data>
   <data name="DivCreate" xml:space="preserve">
     <value>Создание подразделения</value>
@@ -977,6 +1001,12 @@
   </data>
   <data name="NewPosition" xml:space="preserve">
     <value>Новая должность</value>
+  </data>
+  <data name="NewProduct" xml:space="preserve">
+    <value>Новый продукт</value>
+  </data>
+  <data name="NewProductCategory" xml:space="preserve">
+    <value>Новая категория</value>
   </data>
   <data name="NewQuote" xml:space="preserve">
     <value>Новая сделка</value>
@@ -1472,6 +1502,12 @@
   </data>
   <data name="Update" xml:space="preserve">
     <value>Обновить</value>
+  </data>
+  <data name="UpdateCategory" xml:space="preserve">
+    <value>Изменение категории</value>
+  </data>
+  <data name="UpdateProduct" xml:space="preserve">
+    <value>Изменение продукта</value>
   </data>
   <data name="UserAccountIsBusy" xml:space="preserve">
     <value>Учетная запись занята другим сотрудником</value>

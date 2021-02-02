@@ -35,7 +35,7 @@ class ProductCategoriesRender {
         categories.filter(category => {
             return category["ParentProductCategoryId"] == null;
         }).map(category => {
-            // Есть ли ц текущей категории дочерние
+            // Есть ли у текущей категории дочерние
             let hasChildrens = categories.filter(item => item["ParentProductCategoryId"] == category["Id"]).length > 0;
             if (hasChildrens) {
                 $("#productCategoriesTree").append(this.GetRootCategoryHTML(category));
@@ -54,9 +54,10 @@ class ProductCategoriesRender {
      */
     GetRootCategoryHTML(category) {
         return '<div class="category-row mt-3" data-category-id=' + category["Id"] + '>' +
-            '<div class="row">' +
-            '<div class="col-auto category-expand"><div class="block-center"><span class="icon-plus-square"></span></div></div>' +
-            '<div class="col-auto category-name"><p class="label-md">' + category["Name"] + '</p></div>' +
+            '<div class="category-row-main-line">' +
+            '<div class="settings-menu-btn col-auto mt-2" data-settings-menu-id="prodCatSettingsMenu"><div class="block-center"><span class="icon-dots-three-vertical"></span></div></div>' +
+            '<div class="col-auto category-expand mt-2"><div class="block-center"><span class="icon-plus-square"></span></div></div>' +
+            '<div class="col-auto category-name mt-2 text-center"><p class="label-md">' + category["Name"] + '</p></div>' +
             '</div><div class="child-category d-none"></div></div>';
     }
 
@@ -66,8 +67,9 @@ class ProductCategoriesRender {
      */
     GetEmptyRootCategoryHTML(category) {
         return '<div class="category-row mt-3" data-category-id=' + category["Id"] + '>' +
-            '<div class="row">' +
-            '<div class="col-auto category-name"><p class="label-md">' + category["Name"] + '</p></div>' +
+            '<div class="category-row-main-line">' +
+            '<div class="settings-menu-btn col-auto mt-2" data-settings-menu-id="prodCatSettingsMenu"><div class="block-center"><span class="icon-dots-three-vertical"></span></div></div>' +
+            '<div class="col-auto category-name mt-2 text-center"><p class="label-md">' + category["Name"] + '</p></div>' +
             '</div><div class="child-category d-none"></div></div>';
     }
 
@@ -77,9 +79,10 @@ class ProductCategoriesRender {
      */
     GetChildCategoryHTML(category) {
         return '<div class="category-row mt-3" data-category-id=' + category["Id"] + ' style="padding-left: ' +
-            ProductCategoriesRender.DepthConst + 'px"><div class="row">' +
-            '<div class="col-auto category-expand"><div class="block-center"><span class="icon-plus-square"></span></div></div>' +
-            '<div class="col-auto category-name"><p class="label-md">' + category["Name"] + '</p></div>' +
+            ProductCategoriesRender.DepthConst + 'px"><div class="category-row-main-line">' +
+            '<div class="settings-menu-btn col-auto mt-2" data-settings-menu-id="prodCatSettingsMenu"><div class="block-center"><span class="icon-dots-three-vertical"></span></div></div>' +
+            '<div class="col-auto category-expand mt-2"><div class="block-center"><span class="icon-plus-square"></span></div></div>' +
+            '<div class="col-auto category-name mt-2 text-center"><p class="label-md">' + category["Name"] + '</p></div>' +
             '</div><div class="child-category d-none"></div></div>';
     }
 
@@ -89,8 +92,9 @@ class ProductCategoriesRender {
      */
     GetEmptyChildCategoryHTML(category) {
         return '<div class="category-row mt-3" data-category-id=' + category["Id"] + ' style="padding-left: ' +
-            ProductCategoriesRender.DepthConst + 'px"><div class="row">' +
-            '<div class="col-auto category-name"><p class="label-md">' + category["Name"] + '</p></div>' +
+            ProductCategoriesRender.DepthConst + 'px"><div class="category-row-main-line">' +
+            '<div class="settings-menu-btn col-auto mt-2" data-settings-menu-id="prodCatSettingsMenu"><div class="block-center"><span class="icon-dots-three-vertical"></span></div></div>' +
+            '<div class="col-auto category-name mt-2 text-center"><p class="label-md">' + category["Name"] + '</p></div>' +
             '</div><div class="child-category d-none"></div></div>';
     }
 
@@ -237,4 +241,40 @@ $("#productCategoriesTree")
     .off("click", ".category-collapse").on("click", ".category-collapse", event => {
         let renderer = new ProductCategoriesRender();
         renderer.CollapseCategory(event);
+    });
+
+// Меню настроек категории
+$("#prodCatSettingsMenu")
+    .off("click", "#addCategoryBtn").on("click", "#addCategoryBtn", event => {
+        event.stopPropagation();
+        event.preventDefault();
+        $("#createProdCatName").val("");
+        $("#createProdCatDesc").val("");
+        $("#addCategoryModal").modal();
+    })
+    .off("click", "#addProductBtn").on("click", "#addProductBtn", event => {
+        event.stopPropagation();
+        event.preventDefault();
+        $("#createProdName").val("");
+        $("#createProdDesc").val("");
+        $("#createProdCost").val("");
+        $("#addProductModal").modal();
+    })
+    .off("click", "#deleteCategoryBtn").on("click", "#deleteCategoryBtn", event => {
+        event.stopPropagation();
+        event.preventDefault();
+        let productCategory = new ProductCategory();
+        productCategory.Delete(event);
+    })
+    .off("click", "input").on("click", "input", event => {
+        $("#prodCatSettingsMenu").addClass("d-none");
+    });
+
+// Меню настроек продуктов
+$("#prodSettingsMenu")
+    .off("click", "#deleteProductBtn").on("click", "#deleteProductBtn", event => {
+        event.stopPropagation();
+        event.preventDefault();
+        let product = new Product();
+        product.Delete(event);
     });

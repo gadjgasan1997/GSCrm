@@ -500,6 +500,22 @@ class MessageManager {
                         timer: 1500
                     }
                 }
+            },
+
+            /** Сообщение с подтверждением удаления категории продуктов */
+            RemoveCategoryConfirmation: class {
+                Initialize(inputProperties) {
+                    return {
+                        title: Localization.GetString("removeCategory"),
+                        text: Localization.GetString("removeCategoryConfirmation"),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: Localization.GetString("acceptItemRemove"),
+                        cancelButtonText: Localization.GetString("declineItemRemove")
+                    }
+                }
             }
         }[messageName];
         return messages.Initialize(inputProperties);

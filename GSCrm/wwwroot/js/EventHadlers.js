@@ -7,7 +7,7 @@ $(document).ready(() => {
 $(document).click(function () {
     $('.dropdown-el').removeClass('expanded');
     $('.popover').popover("hide");
-    $("#orgSettingsMenu").addClass("d-none");
+    $(".settings-menu").addClass("d-none");
 });
 
 // Переход в профиль пользователя

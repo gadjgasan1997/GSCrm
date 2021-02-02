@@ -85,7 +85,7 @@
             <div class="col">
                 <h3 class="label-non-select text-center m-0">@Model.Name</h3>
             </div>
-            <div id="orgSettingsBtn" class="col-auto">
+            <div id="orgSettingsBtn" data-settings-menu-id="orgSettingsMenu" class="settings-menu-btn col-auto">
                 <div class="block-center">
                     <span class="icon-dots-three-vertical"></span>
                 </div>
@@ -137,11 +137,11 @@
         </div>
     }
 </div>
-<div id="orgSettingsMenu" class="d-none">
+<div id="orgSettingsMenu" class="settings-menu d-none">
     <ul>
         <li>
             <form method="get" asp-controller="@ORGANIZATION" asp-action="@PROD_CATS" asp-route-orgId="@Model.Id">
-                <input id="goToProductModel" type="submit" class="label-md" value="@resManager.GetString("ProductModel")" />
+                <input id="goToProductModel" type="submit" class="label-sm" value="@resManager.GetString("ProductModel")" />
             </form>
         </li>
     </ul>
