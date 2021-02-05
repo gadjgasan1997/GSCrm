@@ -61,8 +61,11 @@
             <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                 <input id="prodsSearch" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
             </div>
-            <div class="col-auto text-center flex-grow-0">
+            <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                 <a id="clearProdsSearch" asp-controller="@PROD_CAT" asp-action="ClearSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+            </div>
+            <div class="col-auto text-center flex-grow-0">
+                <input id="addRootCategory" data-toggle="modal" data-target="#addCategoryModal" type="button" class="btn btn-outline-primary" value="@resManager.GetString("AddCategory")" />
             </div>
         </div>
     </form>
@@ -88,7 +91,7 @@
     <ul>
         <li>
             <div>
-                <input id="addCategoryBtn" data-toggle="modal" data-target="#addCategoryModal" type="button" class="label-sm" value="@resManager.GetString("AddCategory")" />
+                <input id="addCategoryBtn" data-toggle="modal" data-target="#addCategoryModal" type="button" class="label-sm" value="@resManager.GetString("AddSubCategory")" />
             </div>
         </li>
         <li>

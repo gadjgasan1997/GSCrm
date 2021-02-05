@@ -1,4 +1,4 @@
-class ProductCategoriesRender {
+class ProductCategoriesRender extends BaseProductCategoriesRender {
     static DepthConst = 46;
 
     //#region Rendering
@@ -56,9 +56,9 @@ class ProductCategoriesRender {
         return '<div class="category-row mt-3" data-category-id=' + category["Id"] + '>' +
             '<div class="category-row-main-line">' +
             '<div class="settings-menu-btn col-auto mt-2" data-settings-menu-id="prodCatSettingsMenu"><div class="block-center"><span class="icon-dots-three-vertical"></span></div></div>' +
-            '<div class="col-auto category-expand mt-2"><div class="block-center"><span class="icon-plus-square"></span></div></div>' +
+            this.GetExpandHTML(category["Id"]) + '</div>' +
             '<div class="col-auto category-name mt-2 text-center"><p class="label-md">' + category["Name"] + '</p></div>' +
-            '</div><div class="child-category d-none"></div></div>';
+            '</div><div class="child-category' + (this.IsCategoryExpand(category["Id"]) ? "" : " d-none") + '"></div></div>';
     }
 
     /**
@@ -81,9 +81,9 @@ class ProductCategoriesRender {
         return '<div class="category-row mt-3" data-category-id=' + category["Id"] + ' style="padding-left: ' +
             ProductCategoriesRender.DepthConst + 'px"><div class="category-row-main-line">' +
             '<div class="settings-menu-btn col-auto mt-2" data-settings-menu-id="prodCatSettingsMenu"><div class="block-center"><span class="icon-dots-three-vertical"></span></div></div>' +
-            '<div class="col-auto category-expand mt-2"><div class="block-center"><span class="icon-plus-square"></span></div></div>' +
+            this.GetExpandHTML(category["Id"]) + '</div>' +
             '<div class="col-auto category-name mt-2 text-center"><p class="label-md">' + category["Name"] + '</p></div>' +
-            '</div><div class="child-category d-none"></div></div>';
+            '</div><div class="child-category' + (this.IsCategoryExpand(category["Id"]) ? "" : " d-none") + '"></div></div>';
     }
 
     /**
@@ -96,6 +96,23 @@ class ProductCategoriesRender {
             '<div class="settings-menu-btn col-auto mt-2" data-settings-menu-id="prodCatSettingsMenu"><div class="block-center"><span class="icon-dots-three-vertical"></span></div></div>' +
             '<div class="col-auto category-name mt-2 text-center"><p class="label-md">' + category["Name"] + '</p></div>' +
             '</div><div class="child-category d-none"></div></div>';
+    }
+
+    /** Метод возвращает значок сворачивания/разворота категории */
+    GetExpandHTML(categoryId) {
+        if (this.IsCategoryExpand(categoryId)) {
+            return '<div class="col-auto category-collapse mt-2"><div class="block-center"><span class="icon-minus"></span></div>';
+        }
+        return '<div class="col-auto category-expand mt-2"><div class="block-center"><span class="icon-plus-square"></span></div>';
+    }
+
+    /**
+     * Метод определяет, была ли развернута категория
+     * @param {*} categoryId Id категории
+     */
+    IsCategoryExpand(categoryId) {
+        let expandedCategories = JSON.parse(localStorage.getItem("ExpandedCategories"));
+        return !Utils.IsNullOrEmpty(expandedCategories) && expandedCategories.includes(categoryId);
     }
 
     /**
@@ -146,6 +163,7 @@ class ProductCategoriesRender {
                 .removeClass("icon-plus-square")
                 .addClass("icon-minus");
         }
+        super.ExpandCategory($(categoryRow).attr("data-category-id"));
     }
 
     /**
@@ -164,6 +182,7 @@ class ProductCategoriesRender {
                 .removeClass("icon-minus")
                 .addClass("icon-plus-square");
         }
+        super.CollapseCategory($(categoryRow).attr("data-category-id"));
     }
 
     /**
@@ -197,20 +216,8 @@ class ProductCategoriesRender {
         event.preventDefault();
         let clearSearchUrl = $("#clearProdsSearch").attr("href");
         let request = new AjaxRequests();
-        request.CommonGetRequest(clearSearchUrl).then(response => {
-
-            // Рендеринг категорий
-            let categories = response["ProductCategoryViewModels"];
-            if (!Utils.IsNullOrEmpty(categories)) {
-                this.RenderCategories(categories);
-            }
-            
-            // Очистка полей
-            $("#SearchProductCategoryName").val(response["SearchProductCategoryName"]);
-            $("#SearchProductName").val(response["SearchProductName"]);
-            $("#prodMinCost").val(response["MinConst"]);
-            $("#prodMaxCost").val(response["MaxConst"]);
-        })
+        request.CommonGetRequest(clearSearchUrl)
+            .then(() => location.reload())
     }
     //#endregion
 }

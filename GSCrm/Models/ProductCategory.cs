@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,5 +21,12 @@ namespace GSCrm.Models
         {
             Products = new List<Product>();
         }
+    }
+
+    public class ProductCategoryEqualityComparer : IEqualityComparer<ProductCategory>
+    {
+        public bool Equals(ProductCategory prodCat1, ProductCategory prodCat2) => prodCat1.Id == prodCat2.Id;
+
+        public int GetHashCode(ProductCategory prodCat) => prodCat.Name.GetHashCode();
     }
 }

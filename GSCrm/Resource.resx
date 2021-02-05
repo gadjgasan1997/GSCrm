@@ -348,6 +348,9 @@
   <data name="AddSelectedPositions" xml:space="preserve">
     <value>Добавить выбранные должности</value>
   </data>
+  <data name="AddSubCategory" xml:space="preserve">
+    <value>Добавить подкатегорию</value>
+  </data>
   <data name="AllAccountsFilter" xml:space="preserve">
     <value>Фильтр по всем клиентам</value>
   </data>

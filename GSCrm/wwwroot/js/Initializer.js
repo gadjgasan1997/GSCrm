@@ -11,6 +11,7 @@ class Initializer {
                     Initializer.AttachMasks();
                     Initializer.InitializeScrools();
                     Initializer.InitializeToolTips();
+                    Initializer.ClearCache();
                     Initializer.InitializeNotsCounter();
                     $('[data-toggle="popover"]').popover();
                     resolve();
@@ -130,6 +131,11 @@ class Initializer {
             axis:"x",
             theme:"dark"
         });
+    }
+
+    /** Метод чистит лишний кеш */
+    static ClearCache() {
+        localStorage.removeItem("ExpandedCategories");
     }
 
     /** Метод инициализрует счетчик с количеством уведомлений */

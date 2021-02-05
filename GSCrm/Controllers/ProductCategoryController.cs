@@ -29,7 +29,7 @@ namespace GSCrm.Controllers
                 ProductCategoriesViewModel prodCatsCached = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
                 ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
                 productCategoryRepository.SetViewInfo(PROD_CATS, pageNumber);
-                productCategoryRepository.InitProductCategoriesViewModel(ref prodCatsCached);
+                productCategoryRepository.AttachProductCategories(ref prodCatsCached);
                 return Json(prodCatsCached, serializerSettings);
             }
             return Json("");

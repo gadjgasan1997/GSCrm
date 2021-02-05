@@ -5,10 +5,22 @@ class ProductCategory {
         })
     }
 
+    CreateGetData() {
+        return {
+
+        }
+    }
+
     Update(event) {
         return new Promise((resolve, reject) => {
             
         })
+    }
+
+    UpdateGetData() {
+        return {
+            
+        }
     }
 
     Delete(event) {

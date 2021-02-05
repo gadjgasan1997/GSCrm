@@ -15,7 +15,8 @@ namespace GSCrm.Repository
         public ProductCategoryRepository(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context)
         { }
 
-        public void InitProductCategoriesViewModel(ref ProductCategoriesViewModel prodCatsViewModel)
+        #region Attach Categories
+        public void AttachProductCategories(ref ProductCategoriesViewModel prodCatsViewModel)
         {
             ProductCategoriesViewModel viewModel = prodCatsViewModel;
             viewModel.ProductCategoryViewModels = context.GetOrgProdCats(prodCatsViewModel.OrganizationViewModel.Id)
@@ -26,6 +27,7 @@ namespace GSCrm.Repository
         private List<ProductCategory> GetLimitedProdCatsList(List<ProductCategory> allProdCats, ProductCategoriesViewModel prodCatsViewModel)
         {
             LimitByCategoryName(ref allProdCats, prodCatsViewModel);
+            LimitByPageNumber(ref allProdCats);
             LimitProducts(ref allProdCats, prodCatsViewModel);
             return allProdCats.OrderBy(n => n.Name).ToList();
         }
@@ -79,9 +81,37 @@ namespace GSCrm.Repository
 
                 // Директории, являющиеся корневыми
                 List<ProductCategory> rootProdCats = allProdCats.Where(prodCat => prodCat.ParentProductCategoryId == null).ToList();
-                limitedProdCats.AddRange(rootProdCats);
+                foreach (ProductCategory rootProdCat in rootProdCats)
+                {
+                    // Если категория уже не была добавлена в список
+                    if (!limitedProdCats.Contains(rootProdCat, new ProductCategoryEqualityComparer()))
+                    {
+                        if (!string.IsNullOrEmpty(searchSpec))
+                        {
+                            if (rootProdCat.Name.ToLower().Contains(searchSpec))
+                                limitedProdCats.Add(rootProdCat);
+                        }
+                        else limitedProdCats.Add(rootProdCat);
+                    }
+                }
                 allProdCats = limitedProdCats;
             }
+        }
+
+        /// <summary>
+        /// Ограничение списка категорий продуктов по номеру страницы
+        /// </summary>
+        /// <param name="allProdCats"></param>
+        private void LimitByPageNumber(ref List<ProductCategory> allProdCats)
+        {
+            // Поиск корневых директорий и ограничение их по количеству отображаемых
+            List<ProductCategory> rootProdCats = allProdCats.Where(prodCat => prodCat.ParentProductCategoryId == null).ToList();
+            LimitListByPageNumber(PROD_CATS, ref rootProdCats);
+
+            // В результате должны остаться только категории, являющиеся дочерними по отношению к отобранным корневым
+            Func<ProductCategory, bool> predicate = prodCat => prodCat.RootCategoryId != null &&
+                rootProdCats.Select(root => root.Id).ToList().Contains((Guid)prodCat.RootCategoryId);
+            allProdCats = rootProdCats.Concat(allProdCats.Where(predicate)).ToList();
         }
 
         /// <summary>
@@ -97,9 +127,11 @@ namespace GSCrm.Repository
                 if (resultList.Contains(currentProdCat))
                     return;
                 resultList.Add(currentProdCat);
+                if (currentProdCat.ParentProductCategoryId == null)
+                    return;
                 currentProdCat = allProdCats.FirstOrDefault(i => i.Id == currentProdCat.ParentProductCategoryId);
             }
-            while (currentProdCat?.ParentProductCategoryId != null);
+            while (currentProdCat != null);
         }
 
         /// <summary>
@@ -128,6 +160,7 @@ namespace GSCrm.Repository
                 }
             });
         }
+        #endregion
 
         #region Searching
         /// <summary>
