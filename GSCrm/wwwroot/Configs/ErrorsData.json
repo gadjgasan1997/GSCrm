@@ -943,5 +943,37 @@
                 "type": "swal"
             }
         ]
+    ],
+    "CreateProductCategory": [
+        [
+            ["ProductCategoryLength", "CategoryAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#createProdCatNameError"]
+            }
+        ],
+        [
+            ["CategoryDescriptionLength"],
+            {
+                "type": "attach",
+                "elements": ["#createProdCatDescError"]
+            }
+        ]
+    ],
+    "UpdateProductCategory": [
+        [
+            ["ProductCategoryLength", "CategoryAlreadyExists"],
+            {
+                "type": "attach",
+                "elements": ["#updateProdCatNameError"]
+            }
+        ],
+        [
+            ["CategoryDescriptionLength"],
+            {
+                "type": "attach",
+                "elements": ["#updateProdCatDescError"]
+            }
+        ]
     ]
 }

@@ -212,6 +212,9 @@
         },
         "removeCategory": {
             "ru-RU": "Удаление категории продуктов"
+        },
+        "productCategoryInitializeError": {
+            "ru-RU": "Во время получения данных о категории произошла ошибка"
         }
     },
     "uri": {
@@ -234,6 +237,7 @@
         "makeNotHasReed": "/MakeHasReed/",
         "makeNotHasNoReed": "/MakeHasNoReed/",
         "initalizeAppDataUrl": "/AppData/InitalizeAppData/",
-        "productCategories": "/ProductCategory/ProductCategories/0/"
+        "productCategories": "/ProductCategory/ProductCategories/",
+        "initalizeProductCategory": "/ProductCategory/Initalize/"
     }
 }

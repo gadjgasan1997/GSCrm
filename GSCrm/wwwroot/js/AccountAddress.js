@@ -180,7 +180,7 @@ class AccountAddress {
             if (updateAddressData["CurrentAddressNewType"] == "Legal") resolve({ "WaitForChanges": false });
 
             // Иначе, если изначально тип адреса был юридическим, необходимо выбрать другой адрес как юридический
-            else if (changedAddressType == Localization.GetString("Legal") && !addressHasBeenSelected) {
+            else if (changedAddressType == LocalizationManager.GetString("Legal") && !addressHasBeenSelected) {
 
                 // Подтверждение выбора другого юридического адреса у пользователя
                 Swal.fire(MessageManager.Invoke("ChangeLegalAddressInfo")).then(dialogResult => {

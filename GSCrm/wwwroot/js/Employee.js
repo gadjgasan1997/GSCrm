@@ -45,8 +45,8 @@
             FirstName: $("#empFirstName").val(),
             LastName: $("#empLastName").val(),
             MiddleName: $("#empMidName").val(),
-            DivisionName: BaseAutocomplete.GetValue($("#employeeDiv")),
-            PrimaryPositionName: BaseAutocomplete.GetValue($("#employeePosition")),
+            DivisionName: AutocompleteManager.GetValue($("#employeeDiv")),
+            PrimaryPositionName: AutocompleteManager.GetValue($("#employeePosition")),
         }
     }
 
@@ -129,8 +129,8 @@
         return {
             Id: $("#employeeId").val(),
             OrganizationId: $("#OrganizationId").val(),
-            DivisionName: BaseAutocomplete.GetValue($("#empNewDiv")),
-            PrimaryPositionName: BaseAutocomplete.GetValue($("#empNewPrimaryPos"))
+            DivisionName: AutocompleteManager.GetValue($("#empNewDiv")),
+            PrimaryPositionName: AutocompleteManager.GetValue($("#empNewPrimaryPos"))
         }
     }
 

@@ -174,10 +174,10 @@
         responsibilities.map(responsibility => {
             $("#responsibilitiesList").append("<li class='list-group-item'>" +
             "<div class='row'><div class='col'>" +
-            "<a href='" + Localization.GetUri("responsibility") + responsibility["id"] + "'>" + responsibility["name"] +"</a>" +
+            "<a href='" + LocalizationManager.GetUri("responsibility") + responsibility["id"] + "'>" + responsibility["name"] +"</a>" +
             "</div><div class='col-auto remove-item-btn'>" +
             "<div class='remove-item-url' hidden='hidden'>" +
-            "<a href='" + Localization.GetUri("deleteResponsibility") + responsibility["id"] + "'>" + responsibility["name"] +"</a>" +
+            "<a href='" + LocalizationManager.GetUri("deleteResponsibility") + responsibility["id"] + "'>" + responsibility["name"] +"</a>" +
             "</div><span class='icon-bin'></span></div></li>")
         });
     }
@@ -209,17 +209,17 @@
      * @param {*} event 
      */
     SetUpPrimaryOrg(event) {
-        let button = new Button();
+        let block= new Block();
         let table = $(event.currentTarget).closest(".fl-table");
         let checkMarks = $(table).find(".oval-mark-readonly");
 
         // Скрытие галок для остальных выбранных контактов
         Array.from(checkMarks).map(item => {
-            button.HideOvalCheckmarkReadonly(item);
+            block.HideOvalCheckmarkReadonly(item);
         });
 
         // Проставление признака организации для выбранной записи
-        button.OvalCheckmarkReadonly($(event.currentTarget));
+        block.OvalCheckmarkReadonly($(event.currentTarget));
 
         // Отображение блока с фиксацией изменений
         this.ShowSavePrimaryOrgBlock(event);

@@ -13,6 +13,7 @@ using GSCrm.Data;
 using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
 using static GSCrm.Repository.OrganizationRepository;
+using GSCrm.Data.ApplicationInfo;
 
 namespace GSCrm.Controllers
 {
@@ -86,7 +87,8 @@ namespace GSCrm.Controllers
 
             // Простановка текущего представления
             ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
-            productCategoryRepository.SetViewInfo(PROD_CATS, DEFAULT_MIN_PAGE_NUMBER);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
+            productCategoryRepository.SetViewInfo(PROD_CATS, viewInfo.CurrentPageNumber);
             ProductCategoriesViewModel productCategoriesViewModel = new ProductCategoriesViewModel() { OrganizationViewModel = orgViewModel };
             cachService.CacheItem(currentUser.Id, PROD_CATS, productCategoriesViewModel);
             return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", productCategoriesViewModel);

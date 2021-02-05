@@ -258,6 +258,8 @@
         #productCategoriesForm #productCategoriesTree .category-row .category-row-main-line .category-name p {
           margin: 0;
           user-select: none; }
+      #productCategoriesForm #productCategoriesTree .category-row .category-row-main-line .searched-category-name {
+        color: #28a745; }
   #productCategoriesForm #productCategoriesTree .category-row:last-child {
     margin-bottom: 10px; }
 

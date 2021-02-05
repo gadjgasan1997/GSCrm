@@ -1,11 +1,6 @@
-﻿class BaseAutocomplete {
-    static autocomplitesData = {};
+﻿class AutocompleteManager {
     static Initialize(control) {
-        BaseAutocomplete.Attach($(control).closest(".autocomplete"));
-    }
-
-    static SetData(data) {
-        BaseAutocomplete.autocomplitesData = data;
+        AutocompleteManager.Attach($(control).closest(".autocomplete"));
     }
 
     /**
@@ -22,7 +17,7 @@
                         return resolve([])
                     }
 
-                    fetch(location.origin + BaseAutocomplete.GetUrl(control, input))
+                    fetch(location.origin + AutocompleteManager.GetUrl(control, input))
                         .then(response => {
                             switch (response["status"]) {
                                 case 404:
@@ -38,7 +33,7 @@
             onSubmit: result => {
                 // Добавление id выбранной сущности
                 // Создание элемента если требуется
-                let selectedItemId = BaseAutocomplete.GetSelecteditemId(control);
+                let selectedItemId = AutocompleteManager.GetSelecteditemId(control);
                 let selectedItem = "<input hidden='hidden' id='" + selectedItemId + "' />";
                 if ($(document).find($("#" + selectedItemId)).length == 0) {
                     $(selectedItem).insertBefore($(control));
@@ -51,13 +46,13 @@
                     $(document).find($("#" + selectedItemId)).val(result["id"]);
                 }
                 // Вызов событие, которое можно обработать
-                BaseAutocomplete.OnSubmit(control, result);
+                AutocompleteManager.OnSubmit(control, result);
             },
 
             getResultValue: result => {
                 // Если результат не является объектом, то запись просто добавлется в пиклист
                 if (typeof(result) != (typeof{})) return result;
-                return result[BaseAutocomplete.GetPropertyName(control)];
+                return result[AutocompleteManager.GetPropertyName(control)];
             },
             
             renderResult: (result, props) => {
@@ -67,12 +62,12 @@
                 // Иначе свойству из объекта
                 let newItemId = result;
                 if (typeof(result) == (typeof{})) {
-                    value = result[BaseAutocomplete.GetPropertyName(control)];
+                    value = result[AutocompleteManager.GetPropertyName(control)];
                     newItemId = result["id"];
                 }
 
                 // Текущее выбранное значение
-                let selectedItemId = $(document).find("#" + BaseAutocomplete.GetSelecteditemId(control)).val();
+                let selectedItemId = $(document).find("#" + AutocompleteManager.GetSelecteditemId(control)).val();
                 if (selectedItemId == newItemId) {
                     let element = $(`<li ${props}>${value}</li>`);
                     $(element).addClass("atc-current-val");
@@ -95,7 +90,7 @@
     static GetUrl(control, input) {
         let returnUrl = $(control).find(".autocomplete-link").attr("href");
         let defaultUrl = returnUrl + input;
-        let getPropsResult = BaseAutocomplete.TryGetAutocompliteProps(control);
+        let getPropsResult = AutocompleteManager.TryGetAutocompliteProps(control);
         if (getPropsResult["Success"]) {
             let currentAutocompliteProps = getPropsResult["Result"];
 
@@ -145,7 +140,7 @@
      */
     static GetPropertyName(control) {
         let propertyName = "name";
-        let getPropsResult = BaseAutocomplete.TryGetAutocompliteProps(control);
+        let getPropsResult = AutocompleteManager.TryGetAutocompliteProps(control);
         if (getPropsResult["Success"]) {
             let selectPropertyName = getPropsResult["Result"]["SelectPropertyName"];
             if (selectPropertyName != undefined && selectPropertyName != null && selectPropertyName.length > 0) {
@@ -161,7 +156,7 @@
      * @param {*} result Выбранный результат
      */
     static OnSubmit(control, result) {
-        let getPropsResult = BaseAutocomplete.TryGetAutocompliteProps(control);
+        let getPropsResult = AutocompleteManager.TryGetAutocompliteProps(control);
         if (getPropsResult["Success"]) {
             let onSubmitMethodName = getPropsResult["Result"]["OnSubmit"];
             if (onSubmitMethodName != undefined && onSubmitMethodName != null && onSubmitMethodName.length > 0) {
@@ -176,7 +171,7 @@
      */
     static TryGetAutocompliteProps(control) {
         let autocompliteType = $(control).attr("data-autocomplite-type");
-        let autocompliteTypes = BaseAutocomplete.autocomplitesData["AutocompliteTypes"];
+        let autocompliteTypes = ConfigsData.autocomplitesData["AutocompliteTypes"];
         autocompliteType = autocompliteTypes[autocompliteType];
         if (autocompliteType == undefined) return { Success: false };
         

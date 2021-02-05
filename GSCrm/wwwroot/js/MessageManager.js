@@ -5,7 +5,7 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("errorLabel"),
+                        title: LocalizationManager.GetString("errorLabel"),
                         html:  inputProperties["error"]
                     }
                 }
@@ -15,14 +15,14 @@ class MessageManager {
             PositionModalClosedConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("attentionModalClosing"),
-                        text: Localization.GetString("positionModalClosingConfirm"),
+                        title: LocalizationManager.GetString("attentionModalClosing"),
+                        text: LocalizationManager.GetString("positionModalClosingConfirm"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptModalClosing"),
-                        cancelButtonText: Localization.GetString("declineModalClosing")
+                        confirmButtonText: LocalizationManager.GetString("acceptModalClosing"),
+                        cancelButtonText: LocalizationManager.GetString("declineModalClosing")
                     }
                 }
             },
@@ -31,14 +31,14 @@ class MessageManager {
             ChangeEmpDivisionConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("divisionChanging"),
-                        text: Localization.GetString("employeeDivChangingConfirmation"),
+                        title: LocalizationManager.GetString("divisionChanging"),
+                        text: LocalizationManager.GetString("employeeDivChangingConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptItemChanging"),
-                        cancelButtonText: Localization.GetString("declineItemChanging"),
+                        confirmButtonText: LocalizationManager.GetString("acceptItemChanging"),
+                        cancelButtonText: LocalizationManager.GetString("declineItemChanging"),
                     }
                 }
             },
@@ -48,8 +48,8 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("errorLabel"),
-                        text: Localization.GetString("removeEmpError")
+                        title: LocalizationManager.GetString("errorLabel"),
+                        text: LocalizationManager.GetString("removeEmpError")
                     }
                 }
             },
@@ -59,8 +59,8 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("errorLabel"),
-                        text: Localization.GetString("removeEmpContactError")
+                        title: LocalizationManager.GetString("errorLabel"),
+                        text: LocalizationManager.GetString("removeEmpContactError")
                     }  
                 }
             },
@@ -69,14 +69,14 @@ class MessageManager {
             RemoveOrgConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("orgRemoving"),
-                        text: Localization.GetString("removeOrgConfirmation"),
+                        title: LocalizationManager.GetString("orgRemoving"),
+                        text: LocalizationManager.GetString("removeOrgConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptItemRemove"),
-                        cancelButtonText: Localization.GetString("declineItemRemove"),
+                        confirmButtonText: LocalizationManager.GetString("acceptItemRemove"),
+                        cancelButtonText: LocalizationManager.GetString("declineItemRemove"),
                     }
                 }
             },
@@ -85,14 +85,14 @@ class MessageManager {
             LeaveOrgConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("orgLeaving"),
-                        text: Localization.GetString("leaveOrgConfirmation"),
+                        title: LocalizationManager.GetString("orgLeaving"),
+                        text: LocalizationManager.GetString("leaveOrgConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("declineLeave"),
-                        cancelButtonText: Localization.GetString("cancel"),
+                        confirmButtonText: LocalizationManager.GetString("declineLeave"),
+                        cancelButtonText: LocalizationManager.GetString("cancel"),
                     }
                 }
             },
@@ -101,14 +101,14 @@ class MessageManager {
             RemovePositionConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("positionRemoving"),
-                        text: Localization.GetString("removePositionConfirmation"),
+                        title: LocalizationManager.GetString("positionRemoving"),
+                        text: LocalizationManager.GetString("removePositionConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptRemove"),
-                        cancelButtonText: Localization.GetString("decline"),
+                        confirmButtonText: LocalizationManager.GetString("acceptRemove"),
+                        cancelButtonText: LocalizationManager.GetString("decline"),
                     }
                 }
             },
@@ -118,8 +118,8 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("errorLabel"),
-                        text: Localization.GetString("removePosError")
+                        title: LocalizationManager.GetString("errorLabel"),
+                        text: LocalizationManager.GetString("removePosError")
                     }
                 }
             },
@@ -128,14 +128,14 @@ class MessageManager {
             ChangePosDivisionConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("divisionChanging"),
-                        text: Localization.GetString("positionDivChangingConfirmation"),
+                        title: LocalizationManager.GetString("divisionChanging"),
+                        text: LocalizationManager.GetString("positionDivChangingConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptItemChanging"),
-                        cancelButtonText: Localization.GetString("declineItemChanging"),
+                        confirmButtonText: LocalizationManager.GetString("acceptItemChanging"),
+                        cancelButtonText: LocalizationManager.GetString("declineItemChanging"),
                     }
                 }
             },
@@ -144,14 +144,14 @@ class MessageManager {
             RemoveDivConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("divisionRemoving"),
-                        text: Localization.GetString("removeDivisionConfirmation"),
+                        title: LocalizationManager.GetString("divisionRemoving"),
+                        text: LocalizationManager.GetString("removeDivisionConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptItemRemove"),
-                        cancelButtonText: Localization.GetString("declineItemRemove"),
+                        confirmButtonText: LocalizationManager.GetString("acceptItemRemove"),
+                        cancelButtonText: LocalizationManager.GetString("declineItemRemove"),
                     }  
                 }
             },
@@ -161,8 +161,8 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("errorLabel"),
-                        text: Localization.GetString("removeDivError")
+                        title: LocalizationManager.GetString("errorLabel"),
+                        text: LocalizationManager.GetString("removeDivError")
                     }
                 }
             },
@@ -174,18 +174,18 @@ class MessageManager {
                     let changeSiteUrl = inputProperties["changeSiteUrl"];
                     let sitePlaceholder = siteInput.attr("href");
                     if (sitePlaceholder == undefined) {
-                        sitePlaceholder = Localization.GetString("siteName");
+                        sitePlaceholder = LocalizationManager.GetString("siteName");
                     }
                     return {
-                        title: Localization.GetString("siteChanging"),
+                        title: LocalizationManager.GetString("siteChanging"),
                         input: 'text',
                         inputAttributes: {
                         autocapitalize: 'off'
                         },
                         showCancelButton: true,
-                        confirmButtonText: Localization.GetString("change"),
+                        confirmButtonText: LocalizationManager.GetString("change"),
                         showLoaderOnConfirm: true,
-                        cancelButtonText: Localization.GetString("cancel"),
+                        cancelButtonText: LocalizationManager.GetString("cancel"),
                         inputValue: sitePlaceholder,
                         preConfirm: (newSite) => {
                             let request = new AjaxRequests();
@@ -211,7 +211,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("siteHasBeenChanged"),
+                        title: LocalizationManager.GetString("siteHasBeenChanged"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -223,7 +223,7 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("siteHasNotBeenChanged"),
+                        title: LocalizationManager.GetString("siteHasNotBeenChanged"),
                         html: inputProperties["error"]
                     }
                 }
@@ -234,7 +234,7 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("removeAccContactError"),
+                        title: LocalizationManager.GetString("removeAccContactError"),
                         html: inputProperties["error"]
                     }
                 }
@@ -245,7 +245,7 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("changeAccPrimaryContactError"),
+                        title: LocalizationManager.GetString("changeAccPrimaryContactError"),
                         html: inputProperties["error"]
                     }
                 }
@@ -257,7 +257,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("primaryContactHasBeenChanged"),
+                        title: LocalizationManager.GetString("primaryContactHasBeenChanged"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -270,7 +270,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("primaryOrgHasBeenChanged"),
+                        title: LocalizationManager.GetString("primaryOrgHasBeenChanged"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -281,14 +281,14 @@ class MessageManager {
             ChangeLegalAddressInfo: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("changingAddressType"),
-                        text: Localization.GetString("changingAddressTypeInfo"),
+                        title: LocalizationManager.GetString("changingAddressType"),
+                        text: LocalizationManager.GetString("changingAddressTypeInfo"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("selectAddress"),
-                        cancelButtonText: Localization.GetString("declineModalClosing")
+                        confirmButtonText: LocalizationManager.GetString("selectAddress"),
+                        cancelButtonText: LocalizationManager.GetString("declineModalClosing")
                     }
                 }
             },
@@ -298,8 +298,8 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("addressListIsEmpty"),
-                        text: Localization.GetString("addressListIsEmptyForChangeLegal")
+                        title: LocalizationManager.GetString("addressListIsEmpty"),
+                        text: LocalizationManager.GetString("addressListIsEmptyForChangeLegal")
                     }
                 }
             },
@@ -310,7 +310,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("legalAddressHasBeenChanged"),
+                        title: LocalizationManager.GetString("legalAddressHasBeenChanged"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -321,14 +321,14 @@ class MessageManager {
             RemoveAccountConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("accountRemoving"),
-                        text: Localization.GetString("removeAccConfirmation"),
+                        title: LocalizationManager.GetString("accountRemoving"),
+                        text: LocalizationManager.GetString("removeAccConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptRemove"),
-                        cancelButtonText: Localization.GetString("decline"),
+                        confirmButtonText: LocalizationManager.GetString("acceptRemove"),
+                        cancelButtonText: LocalizationManager.GetString("decline"),
                     }
                 }
             },
@@ -338,8 +338,8 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("errorLabel"),
-                        text: Localization.GetString("removeAccError")
+                        title: LocalizationManager.GetString("errorLabel"),
+                        text: LocalizationManager.GetString("removeAccError")
                     }
                 }
             },
@@ -348,14 +348,14 @@ class MessageManager {
             RemoveEmployeeConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("employeeRemoving"),
-                        text: Localization.GetString("removeEmployeeConfirmation"),
+                        title: LocalizationManager.GetString("employeeRemoving"),
+                        text: LocalizationManager.GetString("removeEmployeeConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptRemove"),
-                        cancelButtonText: Localization.GetString("decline"),
+                        confirmButtonText: LocalizationManager.GetString("acceptRemove"),
+                        cancelButtonText: LocalizationManager.GetString("decline"),
                     }
                 }
             },
@@ -365,14 +365,14 @@ class MessageManager {
                 Initialize(inputProperties) {
                     let currentReponsibilityName = inputProperties["currentReponsibilityName"];
                     return {
-                        title: Localization.GetString("changingReponsibilityName"),
+                        title: LocalizationManager.GetString("changingReponsibilityName"),
                         input: 'text',
                         inputAttributes: {
                           autocapitalize: 'off'
                         },
                         showCancelButton: true,
-                        confirmButtonText: Localization.GetString("change"),
-                        cancelButtonText: Localization.GetString("declineModalClosing"),
+                        confirmButtonText: LocalizationManager.GetString("change"),
+                        cancelButtonText: LocalizationManager.GetString("declineModalClosing"),
                         showLoaderOnConfirm: true,
                         inputValue: currentReponsibilityName,
                         allowOutsideClick: () => !Swal.isLoading()
@@ -384,14 +384,14 @@ class MessageManager {
             NotCommitModalClosedConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("attentionModalClosing"),
-                        text: Localization.GetString("notCommitModalClosingConfirm"),
+                        title: LocalizationManager.GetString("attentionModalClosing"),
+                        text: LocalizationManager.GetString("notCommitModalClosingConfirm"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptModalClosing"),
-                        cancelButtonText: Localization.GetString("declineModalClosing")
+                        confirmButtonText: LocalizationManager.GetString("acceptModalClosing"),
+                        cancelButtonText: LocalizationManager.GetString("declineModalClosing")
                     }
                 }
             },
@@ -401,7 +401,7 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("syncPositionsError"),
+                        title: LocalizationManager.GetString("syncPositionsError"),
                         text: inputProperties["error"]
                     }
                 }
@@ -412,7 +412,7 @@ class MessageManager {
                 Initialize(inputProperties) {
                     return {
                         icon: 'error',
-                        title: Localization.GetString("hasNotPermissions"),
+                        title: LocalizationManager.GetString("hasNotPermissions"),
                         text: inputProperties["error"]
                     }
                 }
@@ -424,7 +424,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("notSettingsCommitSuccess"),
+                        title: LocalizationManager.GetString("notSettingsCommitSuccess"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -437,7 +437,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("setNotSettingsToDefaultSuccess"),
+                        title: LocalizationManager.GetString("setNotSettingsToDefaultSuccess"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -448,14 +448,14 @@ class MessageManager {
             ResetOrgNotSettingsConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("setNotSettingsToDefault"),
-                        text: Localization.GetString("setOrgNotSettingsToDefaultConfirmation"),
+                        title: LocalizationManager.GetString("setNotSettingsToDefault"),
+                        text: LocalizationManager.GetString("setOrgNotSettingsToDefaultConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptSetToDefault"),
-                        cancelButtonText: Localization.GetString("decline"),
+                        confirmButtonText: LocalizationManager.GetString("acceptSetToDefault"),
+                        cancelButtonText: LocalizationManager.GetString("decline"),
                     }
                 }
             },
@@ -464,14 +464,14 @@ class MessageManager {
             ResetUserNotSettingsConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("setNotSettingsToDefault"),
-                        text: Localization.GetString("setUserNotSettingsToDefaultConfirmation"),
+                        title: LocalizationManager.GetString("setNotSettingsToDefault"),
+                        text: LocalizationManager.GetString("setUserNotSettingsToDefaultConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptSetToDefault"),
-                        cancelButtonText: Localization.GetString("decline"),
+                        confirmButtonText: LocalizationManager.GetString("acceptSetToDefault"),
+                        cancelButtonText: LocalizationManager.GetString("decline"),
                     }
                 }
             },
@@ -482,7 +482,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("inviteHasBeenRejected"),
+                        title: LocalizationManager.GetString("inviteHasBeenRejected"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -495,7 +495,7 @@ class MessageManager {
                     return {
                         position: 'top-end',
                         icon: 'success',
-                        title: Localization.GetString("inviteHasBeenAccepted"),
+                        title: LocalizationManager.GetString("inviteHasBeenAccepted"),
                         showConfirmButton: false,
                         timer: 1500
                     }
@@ -506,14 +506,25 @@ class MessageManager {
             RemoveCategoryConfirmation: class {
                 Initialize(inputProperties) {
                     return {
-                        title: Localization.GetString("removeCategory"),
-                        text: Localization.GetString("removeCategoryConfirmation"),
+                        title: LocalizationManager.GetString("removeCategory"),
+                        text: LocalizationManager.GetString("removeCategoryConfirmation"),
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: Localization.GetString("acceptItemRemove"),
-                        cancelButtonText: Localization.GetString("declineItemRemove")
+                        confirmButtonText: LocalizationManager.GetString("acceptItemRemove"),
+                        cancelButtonText: LocalizationManager.GetString("declineItemRemove")
+                    }
+                }
+            },
+
+            /** Недостаточно полномочий */
+            ProductCategoryInitializeError: class {
+                Initialize(inputProperties) {
+                    return {
+                        icon: 'error',
+                        title: LocalizationManager.GetString("errorLabel"),
+                        text: LocalizationManager.GetString("productCategoryInitializeError")
                     }
                 }
             }

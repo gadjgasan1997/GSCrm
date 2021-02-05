@@ -98,6 +98,7 @@
         </main>
     </div>
 
+    <!-- Библиотеки -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -105,20 +106,35 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script src="~/lib/autocomplete-master/min/Autocomplite.min.js"></script>
     <script src="~/lib/malihu-custom-scrollbar-plugin-master/js/uncompressed/jquery.mCustomScrollbar.js"></script>
+
+    <!-- Классы взаимодействия с конфигами -->
+    <script src="~/js/ConfigsData.js" asp-append-version="true"></script>
     <script src="~/js/Initializer.js" asp-append-version="true"></script>
-    <script src="~/js/Masks.js" asp-append-version="true"></script>
-    <script src="~/js/Tabs.js" asp-append-version="true"></script>
-    <script src="~/js/Button.js" asp-append-version="true"></script>
-    <script src="~/js/Tooltip.js" asp-append-version="true"></script>
-    <script src="~/js/Localization.js" asp-append-version="true"></script>
+    <script src="~/js/SettingsMenuManager.js" asp-append-version="true"></script>
+    <script src="~/js/LocalizationManager.js" asp-append-version="true"></script>
     <script src="~/js/ErrorsManager.js" asp-append-version="true"></script>
     <script src="~/js/MessageManager.js" asp-append-version="true"></script>
-    <script src="~/js/Renderer.js" asp-append-version="true"></script>
+    <script src="~/js/AutocompleteManager.js" asp-append-version="true"></script>
+
+    <!-- Общее -->
+    <script src="~/js/Masks.js" asp-append-version="true"></script>
+    <script src="~/js/Tabs.js" asp-append-version="true"></script>
+    <script src="~/js/Block.js" asp-append-version="true"></script>
+    <script src="~/js/Tooltip.js" asp-append-version="true"></script>
     <script src="~/js/Dropdown.js" asp-append-version="true"></script>
-    <script src="~/js/Autocomplite.js" asp-append-version="true"></script>
     <script src="~/js/Utils.js" asp-append-version="true"></script>
     <script src="~/js/EventHadlers.js" asp-append-version="true"></script>
     <script src="~/js/AjaxRequests.js" asp-append-version="true"></script>
+
+    <!-- Рендеры -->
+    <script src="~/js/Renderer.js" asp-append-version="true"></script>
+    <script src="~/js/Renderers/BaseProductCategoriesRender.js" asp-append-version="true"></script>
+    <script src="~/js/Renderers/ProductCategoriesRender.js" asp-append-version="true"></script>
+
+    <!-- Обработчики для меню настроек -->
+    <script src="~/js/SettingsMenuHandlers/ProdCatSettingsMenuHandler.js" asp-append-version="true"></script>
+
+    <!-- Классы для конкретных сущностей -->
     <script src="~/js/Organization.js" asp-append-version="true"></script>
     <script src="~/js/Responsibility.js" asp-append-version="true"></script>
     <script src="~/js/Division.js" asp-append-version="true"></script>
@@ -139,8 +155,6 @@
     <script src="~/js/Quote.js" asp-append-version="true"></script>
     <script src="~/js/Notification.js" asp-append-version="true"></script>
     <script src="~/js/NotificationsSetting.js" asp-append-version="true"></script>
-    <script src="~/js/Renderers/BaseProductCategoriesRender.js" asp-append-version="true"></script>
-    <script src="~/js/Renderers/ProductCategoriesRender.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

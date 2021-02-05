@@ -6,7 +6,7 @@
             dataType: "json",
             url: url,
             data: data
-        });
+        });dataCategoryId
     }
 
     JsonGetRequest(url) {

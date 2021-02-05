@@ -6,6 +6,6 @@ namespace GSCrm.Models.ViewModels
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public Guid? ParentProductCategoryId { get; set; }
+        public string ParentProductCategoryId { get; set; }
     }
 }

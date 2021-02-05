@@ -25,6 +25,8 @@
     @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/UpdateCategory.cshtml"); }
     @* // Изменение продукта *@
     @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/UpdateProduct.cshtml"); }
+
+    <input id="organizationId" value="@Model.OrganizationViewModel.Id" hidden="hidden" />
     <div class="text-center">
         <p class="label-md">
             @resManager.GetString("OrganizationProducts") @Model.OrganizationViewModel.Name

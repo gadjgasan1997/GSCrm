@@ -1,18 +1,7 @@
-﻿using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.Mapping;
-using GSCrm.Helpers;
-using GSCrm.Localization;
-using GSCrm.Models;
-using GSCrm.Models.ViewModels;
-using GSCrm.Repository;
-using GSCrm.Validators;
-using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using static GSCrm.CommonConsts;
 
 namespace GSCrm.Utils
 {

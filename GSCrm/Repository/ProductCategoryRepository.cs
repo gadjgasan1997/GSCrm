@@ -6,14 +6,71 @@ using GSCrm.Models;
 using GSCrm.Helpers;
 using GSCrm.Mapping;
 using GSCrm.Models.ViewModels;
+using static GSCrm.Utils.CollectionsUtils;
 using static GSCrm.CommonConsts;
+using Microsoft.EntityFrameworkCore;
 
 namespace GSCrm.Repository
 {
     public class ProductCategoryRepository : BaseRepository<ProductCategory, ProductCategoryViewModel>
     {
+        #region Declarations
+        /// <summary>
+        /// Минимальная длина названия категории
+        /// </summary>
+        private const int MIN_PROD_CAT_NAME_LENGTH = 3;
+        /// <summary>
+        /// Максимальная длина названия категории
+        /// </summary>
+        private const int MAX_PROD_CAT_NAME_LENGTH = 100;
+        /// <summary>
+        /// Максимальная длина описания категории
+        /// </summary>
+        private const int MAX_PROD_CAT_DESC_LENGTH = 2000;
+        #endregion
+
         public ProductCategoryRepository(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context)
         { }
+
+        #region Override Methods
+        public override bool HasPermissionsForSeeItem(ProductCategory productCategory)
+            => new OrganizationRepository(serviceProvider, context).HasPermissionsForSeeOrgItem();
+
+        protected override bool RespsIsCorrectOnCreate(ProductCategoryViewModel entityToCreate)
+        {
+            return true;
+        }
+
+        protected override bool TryCreatePrepare(ProductCategoryViewModel prodCatViewModel)
+        {
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => CommonChecks(prodCatViewModel),
+                () => CheckCategoryNotExistsOnCreate(prodCatViewModel)
+            });
+            return !errors.Any();
+        }
+
+        protected override bool RespsIsCorrectOnUpdate(ProductCategoryViewModel entityToUpdate)
+        {
+            return true;
+        }
+
+        protected override bool TryUpdatePrepare(ProductCategoryViewModel prodCatViewModel)
+        {
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => CommonChecks(prodCatViewModel),
+                () => CheckCategoryNotExistsOnUpdate(prodCatViewModel)
+            });
+            return !errors.Any();
+        }
+
+        protected override bool RespsIsCorrectOnDelete(ProductCategory entityToDelete)
+        {
+            return true;
+        }
+        #endregion
 
         #region Attach Categories
         public void AttachProductCategories(ref ProductCategoriesViewModel prodCatsViewModel)
@@ -187,6 +244,118 @@ namespace GSCrm.Repository
             prodCatsCached.MinConst = default;
             prodCatsCached.MaxConst = default;
             cachService.CacheItem(currentUser.Id, PROD_CATS, prodCatsCached);
+        }
+        #endregion
+
+        #region Validations
+        /// <summary>
+        /// Метод проверяет, что не существует категории с таким же названием при создании записи
+        /// </summary>
+        /// <param name="prodCatViewModel"></param>
+        private void CheckCategoryNotExistsOnCreate(ProductCategoryViewModel prodCatViewModel)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            List<ProductCategory> productCategories = currentOrganization.GetProductCategories(context);
+
+            // Проверка в случае, если создается корневая директория
+            if (string.IsNullOrEmpty(prodCatViewModel.ParentProductCategoryId))
+            {
+                if (productCategories.Where(p => p.ParentProductCategoryId == null).Select(n => n.Name.ToLower()).Contains(prodCatViewModel.Name.ToLower()))
+                    errors.Add("CategoryAlreadyExists", resManager.GetString("CategoryAlreadyExists"));
+            }
+
+            // Если создается дочерняя категория
+            else if (TryGetParentCategory(prodCatViewModel, productCategories, out ProductCategory parentProductCategory))
+            {
+                if (productCategories.Where(p => p.ParentProductCategoryId == parentProductCategory.Id).Select(n => n.Name.ToLower()).Contains(prodCatViewModel.Name.ToLower()))
+                    errors.Add("CategoryAlreadyExists", resManager.GetString("CategoryAlreadyExists"));
+            }
+        }
+
+        /// <summary>
+        /// Метод проверяет, что не существует категории с таким же названием при изменении записи
+        /// </summary>
+        /// <param name="prodCatViewModel"></param>
+        private void CheckCategoryNotExistsOnUpdate(ProductCategoryViewModel prodCatViewModel)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            List<ProductCategory> productCategories = currentOrganization.GetProductCategories(context);
+            ProductCategory changedProductCategory = (ProductCategory)transaction.GetParameterValue("RecordToChange");
+
+            // Проверка в случае, если изменяется корневая директория
+            if (changedProductCategory.ParentProductCategoryId == null)
+            {
+                Func<ProductCategory, bool> predicate = p => p.ParentProductCategoryId == null && p.Id != changedProductCategory.Id;
+                if (productCategories.Where(predicate).Select(n => n.Name.ToLower()).Contains(prodCatViewModel.Name.ToLower()))
+                    errors.Add("CategoryAlreadyExists", resManager.GetString("CategoryAlreadyExists"));
+            }
+
+            // Если изменяется дочерняя категория
+            else
+            {
+                ProductCategory parentProductCategory = context.ProductCategories.AsNoTracking().FirstOrDefault(i => i.Id == changedProductCategory.ParentProductCategoryId);
+                if (parentProductCategory == null)
+                    errors.Add("ParentCategoryNotFound", resManager.GetString("ParentCategoryNotFound"));
+                else
+                {
+                    Func<ProductCategory, bool> predicate = p => p.ParentProductCategoryId == parentProductCategory.Id && p.Id != changedProductCategory.Id;
+                    if (productCategories.Where(predicate).Select(n => n.Name.ToLower()).Contains(prodCatViewModel.Name.ToLower()))
+                        errors.Add("CategoryAlreadyExists", resManager.GetString("CategoryAlreadyExists"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Метод пытается найти родительскую категорию
+        /// </summary>
+        /// <param name="prodCatViewModel"></param>
+        /// <param name="productCategories"></param>
+        /// <param name="parentProductCategory"></param>
+        /// <returns></returns>
+        private bool TryGetParentCategory(ProductCategoryViewModel prodCatViewModel, List<ProductCategory> productCategories, out ProductCategory parentProductCategory)
+        {
+            // Попытка распарсить id
+            parentProductCategory = null;
+            if (!Guid.TryParse(prodCatViewModel.ParentProductCategoryId, out Guid parentProductCategoryId))
+            {
+                errors.Add("ParentCategoryNotFound", resManager.GetString("ParentCategoryNotFound"));
+                return false;
+            }
+
+            // Попытка найти категорию
+            ProductCategory parentProdCat = productCategories.FirstOrDefault(i => i.Id == parentProductCategoryId);
+            if (parentProdCat == null)
+            {
+                errors.Add("ParentCategoryNotFound", resManager.GetString("ParentCategoryNotFound"));
+                return false;
+            }
+
+            parentProductCategory = parentProdCat;
+            transaction.AddParameter("ParentProductCategory", parentProdCat);
+            return true;
+        }
+
+        private void CommonChecks(ProductCategoryViewModel prodCatViewModel)
+        {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            prodCatViewModel.Normalize();
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => {
+                    if (currentOrganization == null)
+                        errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
+                },
+                () => {
+                    if (string.IsNullOrEmpty(prodCatViewModel.Name) || prodCatViewModel.Name.Length < MIN_PROD_CAT_NAME_LENGTH)
+                        errors.Add("ProductCategoryLength", resManager.GetString("ProductCategoryLength")
+                            .Replace("{min}", MIN_PROD_CAT_NAME_LENGTH.ToString())
+                            .Replace("{max}", MAX_PROD_CAT_NAME_LENGTH.ToString()));
+                },
+                () => {
+                    if (!string.IsNullOrEmpty(prodCatViewModel.Description) && prodCatViewModel.Description.Length > MAX_PROD_CAT_DESC_LENGTH)
+                        errors.Add("CategoryDescriptionLength", resManager.GetString("CategoryDescriptionLength").Replace("{n}", MAX_PROD_CAT_DESC_LENGTH.ToString()));
+                }
+            });
         }
         #endregion
     }

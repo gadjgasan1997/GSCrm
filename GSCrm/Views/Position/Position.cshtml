@@ -121,54 +121,57 @@
                 </div>
             </div>
         </div>
-        <div class="col-auto mr-auto ml-auto mr-xl-3 order-1 order-xl-2">
-            <div>
-                <p class="label-md label-non-select text-center">
-                    @resManager.GetString("ParentPositionsLabel")
-                </p>
-            </div>
-            <div id="positionsHierarchy">
-                <div class="mt-3 position-relative">
-                    <div class="positions-connector"></div>
-                    @foreach (PositionViewModel positionViewModel in Model.PositionsHierarchy)
-                    {
-                        @if (positionViewModel.Name == Model.Name)
+        @if (Model.PositionsHierarchy.Count > 0)
+        {
+            <div class="col-auto mr-auto ml-auto mr-xl-3 order-1 order-xl-2">
+                <div>
+                    <p class="label-md label-non-select text-center">
+                        @resManager.GetString("ParentPositionsLabel")
+                    </p>
+                </div>
+                <div id="positionsHierarchy">
+                    <div class="mt-3 position-relative">
+                        <div class="positions-connector"></div>
+                        @foreach (PositionViewModel positionViewModel in Model.PositionsHierarchy)
                         {
-                            <div class="position-hierarchy-item position-current-item mb-2">
-                                <div class="row">
-                                    <div class="col-auto m-auto">
-                                        <div class="oval-mark">
-                                            <div class="icon-checkmark"></div>
+                            @if (positionViewModel.Name == Model.Name)
+                            {
+                                <div class="position-hierarchy-item position-current-item mb-2">
+                                    <div class="row">
+                                        <div class="col-auto m-auto">
+                                            <div class="oval-mark">
+                                                <div class="icon-checkmark"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <p class="label-bold-md label-non-select m-0">@positionViewModel.Name</p>
                                         </div>
                                     </div>
-                                    <div class="col">
-                                        <p class="label-bold-md label-non-select m-0">@positionViewModel.Name</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="position-hierarchy-item mb-5">
+                                    <div class="position-hierarchy-link">
+                                        @Html.ActionLink(positionViewModel.Name, POSITION, POSITION, new { id = positionViewModel.Id })
                                     </div>
-                                </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="position-hierarchy-item mb-5">
-                                <div class="position-hierarchy-link">
-                                    @Html.ActionLink(positionViewModel.Name, POSITION, POSITION, new { id = positionViewModel.Id })
-                                </div>
-                                <div class="row">
-                                    <div class="col-auto m-auto">
-                                        <div class="oval-mark">
-                                            <div class="oval-mark-point"></div>
+                                    <div class="row">
+                                        <div class="col-auto m-auto">
+                                            <div class="oval-mark">
+                                                <div class="oval-mark-point"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <p class="label-bold-md label-non-select m-0">@positionViewModel.Name</p>
                                         </div>
                                     </div>
-                                    <div class="col">
-                                        <p class="label-bold-md label-non-select m-0">@positionViewModel.Name</p>
-                                    </div>
                                 </div>
-                            </div>
+                            }
                         }
-                    }
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
 </div>
 }

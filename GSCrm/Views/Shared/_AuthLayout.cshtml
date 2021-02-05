@@ -40,40 +40,34 @@
             @RenderBody()
         </main>
     </div>
+    <!-- Библиотеки -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/jquery.maskedinput-master/src/jquery.maskedinput.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery.maskedinput-master/src/jquery.maskedinput.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script src="~/lib/autocomplete-master/min/Autocomplite.min.js"></script>
     <script src="~/lib/malihu-custom-scrollbar-plugin-master/js/uncompressed/jquery.mCustomScrollbar.js"></script>
+
+    <!-- Классы взаимодействия с конфигами -->
+    <script src="~/js/ConfigsData.js" asp-append-version="true"></script>
     <script src="~/js/Initializer.js" asp-append-version="true"></script>
-    <script src="~/js/Masks.js" asp-append-version="true"></script>
-    <script src="~/js/Tabs.js" asp-append-version="true"></script>
-    <script src="~/js/Button.js" asp-append-version="true"></script>
-    <script src="~/js/Tooltip.js" asp-append-version="true"></script>
-    <script src="~/js/Localization.js" asp-append-version="true"></script>
+    <script src="~/js/SettingsMenuManager.js" asp-append-version="true"></script>
+    <script src="~/js/LocalizationManager.js" asp-append-version="true"></script>
     <script src="~/js/ErrorsManager.js" asp-append-version="true"></script>
     <script src="~/js/MessageManager.js" asp-append-version="true"></script>
+    <script src="~/js/AutocompleteManager.js" asp-append-version="true"></script>
+
+    <!-- Общее -->
+    <script src="~/js/Masks.js" asp-append-version="true"></script>
+    <script src="~/js/Tabs.js" asp-append-version="true"></script>
+    <script src="~/js/Block.js" asp-append-version="true"></script>
+    <script src="~/js/Tooltip.js" asp-append-version="true"></script>
     <script src="~/js/Dropdown.js" asp-append-version="true"></script>
-    <script src="~/js/Autocomplite.js" asp-append-version="true"></script>
     <script src="~/js/Utils.js" asp-append-version="true"></script>
     <script src="~/js/EventHadlers.js" asp-append-version="true"></script>
     <script src="~/js/AjaxRequests.js" asp-append-version="true"></script>
-    <script src="~/js/Organization.js" asp-append-version="true"></script>
-    <script src="~/js/Division.js" asp-append-version="true"></script>
-    <script src="~/js/Position.js" asp-append-version="true"></script>
-    <script src="~/js/Employee.js" asp-append-version="true"></script>
-    <script src="~/js/EmployeeContact.js" asp-append-version="true"></script>
-    <script src="~/js/EmployeePosition.js" asp-append-version="true"></script>
-    <script src="~/js/EmployeePositionsManagement.js" asp-append-version="true"></script>
-    <script src="~/js/Auth.js" asp-append-version="true"></script>
-    <script src="~/js/Account.js" asp-append-version="true"></script>
-    <script src="~/js/AccountAddress.js" asp-append-version="true"></script>
-    <script src="~/js/AccountContact.js" asp-append-version="true"></script>
-    <script src="~/js/AccountInvoice.js" asp-append-version="true"></script>
-    <script src="~/js/AccountQuote.js" asp-append-version="true"></script>
-    <script src="~/js/AccountManagement.js" asp-append-version="true"></script>
+    <script src="~/js/Renderer.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

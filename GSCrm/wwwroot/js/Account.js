@@ -99,8 +99,8 @@ class Account {
             // Проставление галки "Назначить меня"
             let mark = $("#appointMeBody").find(".oval-mark");
             if (mark.length > 0) {
-                let button = new Button();
-                button.OvalCheckmarkCheck($(mark));
+                let block= new Block();
+                block.OvalCheckmarkCheck($(mark));
             }
 
             // Проставление поля с выбором менеджера в "ридонли"
@@ -165,7 +165,7 @@ class Account {
     HasAccNotLegalAddress() {
         return new Promise((resolve, reject) => {
             let accountId = $("#accountId").val();
-            let getAddressesUrl = Localization.GetUri("hasAccNotLegalAddress") + accountId;
+            let getAddressesUrl = LocalizationManager.GetUri("hasAccNotLegalAddress") + accountId;
             let request = new AjaxRequests();
             request.JsonGetRequest(getAddressesUrl)
                 .catch(error => reject(error))
@@ -389,14 +389,14 @@ $("#accountModal")
     })
     .off("click", ".oval-mark").on("click", ".oval-mark", event => {
         event.preventDefault();
-        let button = new Button();
-        button.OvalCheckmarkCheck($(event.currentTarget));
+        let block= new Block();
+        block.OvalCheckmarkCheck($(event.currentTarget));
         $("#accManagerVal").attr("readonly", true); 
     })
     .off("click", ".oval-mark-check").on("click", ".oval-mark-check", event => {
         event.preventDefault();
-        let button = new Button();
-        button.OvalCheckmarkCheck($(event.currentTarget));
+        let block= new Block();
+        block.OvalCheckmarkCheck($(event.currentTarget));
         $("#accManagerVal").attr("readonly", false); 
     })
     .off("click", "#userOrgsChoiseList .list-group-item").on("click", "#userOrgsChoiseList .list-group-item", event => {

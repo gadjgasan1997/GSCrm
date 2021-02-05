@@ -14,7 +14,6 @@ using GSCrm.Data;
 using GSCrm.Transactions;
 using GSCrm.Models.ViewTypes;
 using GSCrm.Models.Enums;
-using GSCrm.Notifications;
 using GSCrm.Notifications.Factories.UserNotFactories0;
 using GSCrm.Notifications.Params;
 using Microsoft.AspNetCore.Mvc;
@@ -42,10 +41,7 @@ namespace GSCrm.Repository
 
         #region Override Methods
         public override bool HasPermissionsForSeeItem(Employee employee)
-        {
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            return organizationRepository.HasPermissionsForSeeOrgItem();
-        }
+            => new OrganizationRepository(serviceProvider, context).HasPermissionsForSeeOrgItem();
 
         protected override bool RespsIsCorrectOnCreate(EmployeeViewModel employeeViewModel)
             => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpCreate", transaction);
@@ -55,6 +51,10 @@ namespace GSCrm.Repository
             Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             InvokeIntermittinActions(errors, new List<Action>()
             {
+                () => {
+                    if (currentOrganization == null)
+                        errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
+                },
                 () => CheckEmployeeAccount(employeeViewModel),
                 () => {
                     new PersonValidator(resManager)
@@ -82,7 +82,18 @@ namespace GSCrm.Repository
 
         protected override bool TryUpdatePrepare(EmployeeViewModel employeeViewModel)
         {
-            new PersonValidator(resManager).CheckPersonName(employeeViewModel.FirstName, employeeViewModel.LastName, employeeViewModel.MiddleName, ref errors);
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            InvokeIntermittinActions(errors, new List<Action>()
+            {
+                () => {
+                    if (currentOrganization == null)
+                        errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
+                },
+                () => {
+                    new PersonValidator(resManager).CheckPersonName(employeeViewModel.FirstName,
+                        employeeViewModel.LastName, employeeViewModel.MiddleName, ref errors);
+                }
+            });
             return !errors.Any();
         }
 
@@ -103,6 +114,13 @@ namespace GSCrm.Repository
 
         protected override bool TryDeletePrepare(Employee employee)
         {
+            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            if (currentOrganization == null)
+            {
+                errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
+                return false;
+            }
+            
             CheckEmployeePositions(employee);
             RemoveUserOrganization(employee);
             new AccountRepository(serviceProvider, context).CheckAccountsForLock(employee, transaction);

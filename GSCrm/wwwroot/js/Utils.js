@@ -67,13 +67,25 @@ class Utils {
      */
     static DefaultErrorHandling(errorsArray) {
         let errorAlertsArray = [];
-        // Формирование массива с алертами
-        for (let errorName in errorsArray) {
+
+        // Добавление ошибки в том случае, если пришедший массив пустой(чтобы вот всх случаях отображать какое-то исключение)
+        if (Utils.IsNullOrEmpty(errorsArray)) {
             errorAlertsArray.push(Utils.GetDefaultErrorMessage({
-                messageName: errorName,
-                errorText: errorsArray[errorName]
+                messageName: "UnhandledException",
+                errorText: ""
             }));
         }
+        
+        // Иначе формирование массива с алертами
+        else {
+            for (let errorName in errorsArray) {
+                errorAlertsArray.push(Utils.GetDefaultErrorMessage({
+                    messageName: errorName,
+                    errorText: errorsArray[errorName]
+                }));
+            }
+        }
+        
         // Вывод очередью на экран
         if (errorAlertsArray.length > 0) {
             Swal.queue(errorAlertsArray);
@@ -116,11 +128,11 @@ class Utils {
         switch(messageName) {
             // необработанное исключение
             case "UnhandledException":
-                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : Localization.GetString("unhandledException") });
+                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : LocalizationManager.GetString("unhandledException") });
                 
             // Запись не найдена
             case "RecordNotFound":
-                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : Localization.GetString("recordNotFound") });
+                return MessageManager.Invoke("CommonError", { "error": !Utils.IsNullOrEmpty(errorText) ? errorText : LocalizationManager.GetString("recordNotFound") });
             
             // Обработка ошибок, коды которых удовлетворяют определенным паттернам
             default:
@@ -143,7 +155,7 @@ class Utils {
                     // Получение связанного с ошибкой поля для его подсветки
                     let connectedFieldId = $(item).attr("data-connect-el");
                     if (!Utils.IsNullOrEmpty(connectedFieldId)) {
-                        let connectedField = $("" + connectedFieldId);
+                        let connectedField = $("#" + connectedFieldId);
                         if (connectedField.length > 0) {
                             $(connectedField).addClass("is-invalid");
                         }

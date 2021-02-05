@@ -539,7 +539,7 @@ class EmployeePositionsManagement {
     ClearPositionManagementSearch() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let clearPositionSearchUrl = Localization.GetUri("clearPositionSearch");
+            let clearPositionSearchUrl = LocalizationManager.GetUri("clearPositionSearch");
 
             request.CommonGetRequest(clearPositionSearchUrl)
                 .fail(() => reject(error))
@@ -556,21 +556,21 @@ $("#employeePosisionModal")
         employeePositionsManagement.SynchronizePositions();
     })
     .off("checkmark-check", ".checkmark").on("checkmark-check", ".checkmark", event => {
-        let button = new Button();
-        button.CheckmarkCheck(event);
+        let block= new Block();
+        block.CheckmarkCheck(event);
         let employeePositionsManagement = new EmployeePositionsManagement();
         employeePositionsManagement.OnPositionAddBtnClick(event);
     })
     .off("hide-checkmark-click", ".hide-checkmark").on("hide-checkmark-click", ".hide-checkmark", event => {
-        let button = new Button();
-        button.HideCheckmarkCheck(event);
+        let block= new Block();
+        block.HideCheckmarkCheck(event);
         let employeePositionsManagement = new EmployeePositionsManagement();
         employeePositionsManagement.OnPrimaryPositionChange();
         EmployeePositionsManagement.primaryPositionChanged = true;
     })
     .off("cross-click", ".cross").on("cross-click", ".cross", event => {
-        let button = new Button();
-        button.CrossClick(event);
+        let block= new Block();
+        block.CrossClick(event);
         let employeePositionsManagement = new EmployeePositionsManagement();
         employeePositionsManagement.OnPositionRemoveBtnClick(event);
     })

@@ -432,6 +432,12 @@
   <data name="CannotLeaveYourOrg" xml:space="preserve">
     <value>Вы не можете покинуть принадлежащую вам организацию</value>
   </data>
+  <data name="CategoryAlreadyExists" xml:space="preserve">
+    <value>Категория с таким названием уже существует</value>
+  </data>
+  <data name="CategoryDescriptionLength" xml:space="preserve">
+    <value>Описание категории не может составлять более {n} символов</value>
+  </data>
   <data name="CategoryName" xml:space="preserve">
     <value>Название категории</value>
   </data>
@@ -1086,6 +1092,9 @@
   <data name="OrganizationNameLength" xml:space="preserve">
     <value>Название организации не может быть меньше трех сиволов</value>
   </data>
+  <data name="OrganizationNotFound" xml:space="preserve">
+    <value>Организация не найдена</value>
+  </data>
   <data name="OrganizationProducts" xml:space="preserve">
     <value>Продукты организации</value>
   </data>
@@ -1127,6 +1136,9 @@
   </data>
   <data name="ParentAndCurrentPositionsCompare" xml:space="preserve">
     <value>Родительская должность должна отличаться от текущей</value>
+  </data>
+  <data name="ParentCategoryNotFound" xml:space="preserve">
+    <value>Родительская категория не найдена</value>
   </data>
   <data name="ParentDivNameLabel" xml:space="preserve">
     <value>Родительское подразделение</value>
@@ -1298,6 +1310,9 @@
   </data>
   <data name="PrivateNotSettings" xml:space="preserve">
     <value>Личные</value>
+  </data>
+  <data name="ProductCategoryLength" xml:space="preserve">
+    <value>Название категории не может быть короче {min} и длиннее {max} символов</value>
   </data>
   <data name="ProductModel" xml:space="preserve">
     <value>Продуктовая модель</value>

@@ -24,17 +24,17 @@ class Initializer {
     static InitializeConfigs() {
         return new Promise((resolve, reject) => {
             Promise.all([
-                $.getJSON(location.origin + "/js/FrontResource.json", data => {
-                    Localization.SetData(data);
-                }),
+                $.getJSON(location.origin + "/Configs/LocalizationData.json", data => 
+                    ConfigsData.SetData("Localization", data)),
         
-                $.getJSON(location.origin + "/js/ErrorsData.json", data => {
-                    ErrorsManager.SetData(data);
-                }),
+                $.getJSON(location.origin + "/Configs/ErrorsData.json", data => 
+                    ConfigsData.SetData("Errors", data)),
         
-                $.getJSON(location.origin + "/js/AutocomplitesData.json", data => {
-                    BaseAutocomplete.SetData(data);
-                })
+                $.getJSON(location.origin + "/Configs/AutocomplitesData.json", data => 
+                    ConfigsData.SetData("Autocomplites", data)),
+        
+                $.getJSON(location.origin + "/Configs/SettingsMenuData.json", data => 
+                    ConfigsData.SetData("SettingsMenu", data))
             ]).then(() => resolve())
         })
     }
@@ -44,7 +44,7 @@ class Initializer {
      */
     static InitalizeAppData() {
         return new Promise((resolve, reject) => {
-            let initalizeAppDataUrl = Localization.GetUri("initalizeAppDataUrl");
+            let initalizeAppDataUrl = LocalizationManager.GetUri("initalizeAppDataUrl");
             let requests = new AjaxRequests();
             requests.CommonGetRequest(initalizeAppDataUrl).then(appData => {
                 localStorage.setItem("GSCrmAppData", JSON.stringify(appData));
@@ -73,14 +73,14 @@ class Initializer {
 
     // Восстановление чекбоксов
     static RestoreCheckMarks() {
-        let button = new Button();
-        button.InitializeCheckMarks();
+        let block= new Block();
+        block.InitializeCheckMarks();
     }
 
     // Инициализация автокомплитов
     static AttachAutocomplite() {
         document.querySelectorAll(".autocomplete").forEach(control => {
-            BaseAutocomplete.Initialize(control);
+            AutocompleteManager.Initialize(control);
         });
     }
 
@@ -135,7 +135,8 @@ class Initializer {
 
     /** Метод чистит лишний кеш */
     static ClearCache() {
-        localStorage.removeItem("ExpandedCategories");
+        let productCategory = new ProductCategory();
+        productCategory.ClearCache();
     }
 
     /** Метод инициализрует счетчик с количеством уведомлений */

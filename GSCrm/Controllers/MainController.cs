@@ -75,16 +75,19 @@ namespace GSCrm.Controllers
             {
                 ModelStateDictionary modelState = ModelState;
                 if (repository.TryCreate(ref viewModel, modelState, currentUser))
-                {
-                    string entityName = typeof(TViewModel).Name.GetEntityNameForUrl();
-                    return Json(Url.Action(entityName, entityName, new { id = repository.NewRecord.Id.ToString() }));
-                }
+                    return CreateSuccessHandler();
                 return BadRequest(modelState);
             }
             catch (Exception)
             {
                 return BadRequest();
             }
+        }
+
+        protected virtual IActionResult CreateSuccessHandler()
+        {
+            string entityName = typeof(TViewModel).Name.GetEntityNameForUrl();
+            return Json(Url.Action(entityName, entityName, new { id = repository.NewRecord.Id.ToString() }));
         }
 
         [HttpPost("Update")]
@@ -94,16 +97,19 @@ namespace GSCrm.Controllers
             {
                 ModelStateDictionary modelState = ModelState;
                 if (repository.TryUpdate(ref viewModel, modelState, currentUser))
-                {
-                    string entityName = typeof(TViewModel).Name.GetEntityNameForUrl();
-                    return Json(Url.Action(entityName, entityName, new { id = repository.ChangedRecord.Id.ToString() }));
-                }
+                    return UpdateSuccessHandler();
                 return BadRequest(modelState);
             }
             catch (Exception)
             {
                 return BadRequest();
             }
+        }
+
+        protected virtual IActionResult UpdateSuccessHandler()
+        {
+            string entityName = typeof(TViewModel).Name.GetEntityNameForUrl();
+            return Json(Url.Action(entityName, entityName, new { id = repository.ChangedRecord.Id.ToString() }));
         }
 
         [HttpDelete("Delete")]
@@ -114,7 +120,7 @@ namespace GSCrm.Controllers
             {
                 ModelStateDictionary modelState = ModelState;
                 if (repository.TryDelete(id, modelState, currentUser))
-                    return Json(typeof(TViewModel).Name.GetReturnUrl(Url));
+                    return DeleteSuccessHandler();
                 return BadRequest(modelState);
             }
             catch (Exception)
@@ -122,6 +128,9 @@ namespace GSCrm.Controllers
                 return BadRequest();
             }
         }
+
+        protected virtual IActionResult DeleteSuccessHandler()
+            => Json(typeof(TViewModel).Name.GetReturnUrl(Url));
 
         /// <summary>
         /// Добавляет ошибки в модель

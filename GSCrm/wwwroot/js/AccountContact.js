@@ -246,7 +246,7 @@ class AccountContact {
      * @param {*} event 
      */
     SetUpIndividualPrimaryContact(event) {
-        let button = new Button();
+        let block= new Block();
         let table = $(event.currentTarget).closest(".fl-table");
         let checkMarks = $(table).find(".oval-mark-readonly");
 
@@ -255,11 +255,11 @@ class AccountContact {
             let currentPrimaryContactRow = $(item).closest("tr");
             let removeItemCell = $(currentPrimaryContactRow).find(".hide-remove-item-btn");
             $(removeItemCell).removeClass("hide-remove-item-btn").addClass("remove-item-btn");
-            button.HideOvalCheckmarkReadonly(item);
+            block.HideOvalCheckmarkReadonly(item);
         });
 
         // ѕроставление признака основного контакта дл€ выбранной записи
-        button.OvalCheckmarkReadonly($(event.currentTarget));
+        block.OvalCheckmarkReadonly($(event.currentTarget));
 
         // ƒл€ записи, помечаемой основной, скрываетс€ кнопка удалени€
         let newPrimaryContactRow = $(event.currentTarget).closest("tr");
@@ -271,15 +271,15 @@ class AccountContact {
      * @param {*} event 
      */
     SetUpIELEPrimaryContact(event) {
-        let button = new Button();
+        let block= new Block();
         let table = $(event.currentTarget).closest(".fl-table");
         let checkMarks = $(table).find(".oval-mark-check");
 
         // —крытие галок дл€ остальных выбранных контактов
-        Array.from(checkMarks).map(item => button.HideOvalCheckmarkCheck(item));
+        Array.from(checkMarks).map(item => block.HideOvalCheckmarkCheck(item));
 
         // ѕроставление(сн€тие) признака основного контакта дл€ выбранной записи
-        button.OvalCheckmarkCheck($(event.currentTarget));
+        block.OvalCheckmarkCheck($(event.currentTarget));
     }
 
     /**
@@ -402,8 +402,8 @@ $("#accContactsList")
     })
     .off("click", ".oval-mark-check").on("click", ".oval-mark-check", event => {
         event.preventDefault();
-        let button = new Button();
-        button.OvalCheckmarkCheck($(event.currentTarget));
+        let block= new Block();
+        block.OvalCheckmarkCheck($(event.currentTarget));
         let accountContact = new AccountContact();
         accountContact.ShowSavePrimaryContactBlock(event);
     });

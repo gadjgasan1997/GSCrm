@@ -430,8 +430,8 @@ class AccountManagement {
         $(accountManager).removeClass("list-group-item-action");
         $(accountManager).addClass("primary-manager");
         let checkMark = $(accountManager).find(".oval-mark");
-        let button = new Button();
-        button.OvalCheckmarkReadonly(checkMark);
+        let block= new Block();
+        block.OvalCheckmarkReadonly(checkMark);
     }
 
     /**
@@ -473,7 +473,7 @@ class AccountManagement {
     ClearAccTeamManagementSearch() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let clearAccTeamSearchUrl = Localization.GetUri("clearAccTeamSearch");
+            let clearAccTeamSearchUrl = LocalizationManager.GetUri("clearAccTeamSearch");
             request.CommonGetRequest(clearAccTeamSearchUrl)
                 .fail(() => reject(error))
                 .done(() => resolve())
@@ -544,8 +544,8 @@ $("#accTeamManagementModal")
         accountManagement.CheckEmployeePrimary(event);
     })
     .off("checkmark-check", ".checkmark").on("checkmark-check", ".checkmark", event => {
-        let button = new Button();
-        button.CheckmarkCheck(event);
+        let block= new Block();
+        block.CheckmarkCheck(event);
         let accountManagement = new AccountManagement();
         accountManagement.OnEmployeeAddBtnClick(event);
     })

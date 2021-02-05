@@ -21,8 +21,8 @@
         return {
             Name: $("#positionName").val(),
             OrganizationId: $("#orgId").val(),
-            DivisionName: BaseAutocomplete.GetValue($("#positionDivModal")),
-            ParentPositionName: BaseAutocomplete.GetValue($("#parentPositionModal")),
+            DivisionName: AutocompleteManager.GetValue($("#positionDivModal")),
+            ParentPositionName: AutocompleteManager.GetValue($("#parentPositionModal")),
             PrimaryEmployeeId: $("#positionModal #primaryEmployeeId").val(),
             PrimaryEmployeeInitialName: $("#positionModal #primaryEmployeeModalVal").val()
         }
@@ -87,7 +87,7 @@
         return {
             Id: $("#positionId").val(),
             OrganizationId: $("#OrganizationId").val(),
-            DivisionName: BaseAutocomplete.GetValue($("#positionNewDiv"))
+            DivisionName: AutocompleteManager.GetValue($("#positionNewDiv"))
         }
     }
 

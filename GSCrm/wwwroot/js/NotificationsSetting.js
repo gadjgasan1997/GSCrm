@@ -19,7 +19,7 @@ class NotificationsSetting {
     }
 
     CommitGetUrl() {
-        let appendUrlPath = this.IsUserNotSettingsActive() ? Localization.GetUri("commitUserSettingsPath") : Localization.GetUri("commitOrgSettingsPath");
+        let appendUrlPath = this.IsUserNotSettingsActive() ? LocalizationManager.GetUri("commitUserSettingsPath") : LocalizationManager.GetUri("commitOrgSettingsPath");
         return $("#notSettingsActions").attr("action") + appendUrlPath;
     }
 
@@ -209,7 +209,7 @@ class NotificationsSetting {
     }
 
     SetNotSettingsToDefaultGetUrl() {
-        let appendUrlPath = this.IsUserNotSettingsActive() ? Localization.GetUri("setUserNotSettingsToDefaultPath") : Localization.GetUri("setOrgNotSettingsToDefaultPath");
+        let appendUrlPath = this.IsUserNotSettingsActive() ? LocalizationManager.GetUri("setUserNotSettingsToDefaultPath") : LocalizationManager.GetUri("setOrgNotSettingsToDefaultPath");
         return $("#setNotSettingsToDefault").closest("form").attr("action") + appendUrlPath;
     }
 }

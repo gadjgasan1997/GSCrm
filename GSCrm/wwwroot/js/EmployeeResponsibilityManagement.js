@@ -267,7 +267,7 @@ class EmployeeResponsibilityManagement {
     ClearEmpRespManagementSearch() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let clearEmpRespSearch = Localization.GetUri("clearEmpRespSearch");
+            let clearEmpRespSearch = LocalizationManager.GetUri("clearEmpRespSearch");
             request.CommonGetRequest(clearEmpRespSearch)
                 .fail(() => reject(error))
                 .done(() => resolve())
@@ -384,14 +384,14 @@ $("#empRespManagement")
         employeeResponsibilityManagement.SynchronizeResponsibilities(event);
     })
     .off("checkmark-check", ".checkmark").on("checkmark-check", ".checkmark", event => {
-        let button = new Button();
-        button.CheckmarkCheck(event);
+        let block= new Block();
+        block.CheckmarkCheck(event);
         let employeeResponsibilityManagement = new EmployeeResponsibilityManagement();
         employeeResponsibilityManagement.OnResponsibilityAddBtnClick(event);
     })
     .off("cross-click", ".cross").on("cross-click", ".cross", event => {
-        let button = new Button();
-        button.CrossClick(event);
+        let block= new Block();
+        block.CrossClick(event);
         let employeeResponsibilityManagement = new EmployeeResponsibilityManagement();
         employeeResponsibilityManagement.OnResponsibilityRemoveBtnClick(event);
     })

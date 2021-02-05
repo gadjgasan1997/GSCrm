@@ -14,7 +14,7 @@ class Notification {
             // Запрос на простановку признака
             let notificationItemId = $(notificationItem).find(".notification-item-id").val();
             let makeHasReedBaseUrl = $(event.currentTarget).closest("form").attr("action");
-            let makeHasReedUrl = makeHasReedBaseUrl + Localization.GetUri("makeNotHasReed") + notificationItemId;
+            let makeHasReedUrl = makeHasReedBaseUrl + LocalizationManager.GetUri("makeNotHasReed") + notificationItemId;
             let request = new AjaxRequests();
             request.CommonGetRequest(makeHasReedUrl);
         })
@@ -34,7 +34,7 @@ class Notification {
             // Запрос на простановку признака
             let notificationItemId = $(notificationItem).find(".notification-item-id").val();
             let makeHasNoReedBaseUrl = $(event.currentTarget).closest("form").attr("action");
-            let makeHasNoReedUrl = makeHasNoReedBaseUrl + Localization.GetUri("makeNotHasNoReed") + notificationItemId;
+            let makeHasNoReedUrl = makeHasNoReedBaseUrl + LocalizationManager.GetUri("makeNotHasNoReed") + notificationItemId;
             let request = new AjaxRequests();
             request.CommonGetRequest(makeHasNoReedUrl);
         })
