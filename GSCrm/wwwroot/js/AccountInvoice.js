@@ -4,7 +4,7 @@ class AccountInvoice {
      * @param {*} event 
      */
     Create(event) {
-        this.Clear();
+        Utils.ClearErrors();
         let filter = $(event.currentTarget).closest("#accInvoiceCreateModal");
         let accInvoiceCreateUrl = $(filter).find("form").attr("action");
         let accInvoiceCreateData = this.CreateGetData();
@@ -37,7 +37,7 @@ class AccountInvoice {
     CancelCreate() {
         $("#accInvoiceCreateModal").modal("hide");
         this.CreateClearFields();
-        this.Clear();
+        Utils.ClearErrors();
     }
 
     /** Очищает поля в модальном окне создания реквизита */
@@ -87,6 +87,7 @@ class AccountInvoice {
      */
     Update(event) {
         return new Promise((resolve, reject) => {
+            Utils.ClearErrors();
             let accInvoiceUpdateUrl = $(event.currentTarget).closest("#accInvoiceUpdateModal").find("form").attr("action");
             let accInvoiceUpdateData = this.UpdateGetData();
             let request = new AjaxRequests();
@@ -120,7 +121,7 @@ class AccountInvoice {
     CancelUpdate() {
         $("#accInvoiceUpdateModal").modal("hide");
         this.UpdateClearFields();
-        this.Clear();
+        Utils.ClearErrors();
     }
 
     /** Очищает поля в модальном окне изменения реквизита */
@@ -144,11 +145,6 @@ class AccountInvoice {
                 })
                 .done(() => location.reload());
         });
-    }
-
-    /** Очищает поля с ошибками */
-    Clear() {
-        $('.under-field-error').empty();
     }
 }
 

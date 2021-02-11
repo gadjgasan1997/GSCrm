@@ -3,20 +3,19 @@ using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Models.ViewTypes;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using GSCrm.Data;
 using GSCrm.Transactions;
-using static GSCrm.CommonConsts;
-using static GSCrm.RegexConsts;
-using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Validators;
 using Newtonsoft.Json.Linq;
 using GSCrm.Utils;
 using GSCrm.Models.Enums;
+using static GSCrm.CommonConsts;
+using static GSCrm.RegexConsts;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
@@ -230,10 +229,12 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearAllAccountsSearch()
         {
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, ALL_ACCS);
-            accountsViewModelCash.AllAccountsSearchName = default;
-            accountsViewModelCash.AllAccountsSearchType = default;
-            cachService.CacheItem(currentUser.Id, ALL_ACCS, accountsViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountsViewModel accountsViewModelCash, ALL_ACCS))
+            {
+                accountsViewModelCash.AllAccountsSearchName = default;
+                accountsViewModelCash.AllAccountsSearchType = default;
+                cachService.AddOrUpdate(currentUser, ALL_ACCS, accountsViewModelCash);
+            }
         }
 
         /// <summary>
@@ -241,10 +242,12 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearCurrentAccountsSearch()
         {
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, CURRENT_ACCS);
-            accountsViewModelCash.CurrentAccountsSearchName = default;
-            accountsViewModelCash.CurrentAccountsSearchType = default;
-            cachService.CacheItem(currentUser.Id, CURRENT_ACCS, accountsViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountsViewModel accountsViewModelCash, CURRENT_ACCS))
+            {
+                accountsViewModelCash.CurrentAccountsSearchName = default;
+                accountsViewModelCash.CurrentAccountsSearchType = default;
+                cachService.AddOrUpdate(currentUser, CURRENT_ACCS, accountsViewModelCash);
+            }
         }
 
         /// <summary>
@@ -252,13 +255,15 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearContactSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_CONTACTS);
-            accountViewModelCash.SearchContactFullName = default;
-            accountViewModelCash.SearchContactType = default;
-            accountViewModelCash.SearchContactEmail = default;
-            accountViewModelCash.SearchContactPhoneNumber = default;
-            accountViewModelCash.SearchContactPrimary = default;
-            cachService.CacheItem(currentUser.Id, ACC_CONTACTS, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_CONTACTS))
+            {
+                accountViewModelCash.SearchContactFullName = default;
+                accountViewModelCash.SearchContactType = default;
+                accountViewModelCash.SearchContactEmail = default;
+                accountViewModelCash.SearchContactPhoneNumber = default;
+                accountViewModelCash.SearchContactPrimary = default;
+                cachService.AddOrUpdate(currentUser, ACC_CONTACTS, accountViewModelCash);
+            }
         }
 
         /// <summary>
@@ -266,14 +271,16 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearAddressSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_ADDRESSES);
-            accountViewModelCash.SearchAddressType = default;
-            accountViewModelCash.SearchAddressCountry = default;
-            accountViewModelCash.SearchAddressRegion = default;
-            accountViewModelCash.SearchAddressCity = default;
-            accountViewModelCash.SearchAddressStreet = default;
-            accountViewModelCash.SearchAddressHouse = default;
-            cachService.CacheItem(currentUser.Id, ACC_ADDRESSES, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_ADDRESSES))
+            {
+                accountViewModelCash.SearchAddressType = default;
+                accountViewModelCash.SearchAddressCountry = default;
+                accountViewModelCash.SearchAddressRegion = default;
+                accountViewModelCash.SearchAddressCity = default;
+                accountViewModelCash.SearchAddressStreet = default;
+                accountViewModelCash.SearchAddressHouse = default;
+                cachService.AddOrUpdate(currentUser, ACC_ADDRESSES, accountViewModelCash);
+            }
         }
 
         /// <summary>
@@ -281,14 +288,16 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearInvoiceSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_INVOICES);
-            accountViewModelCash.SearchInvoiceBankName = default;
-            accountViewModelCash.SearchInvoiceCity = default;
-            accountViewModelCash.SearchInvoiceCheckingAccount = default;
-            accountViewModelCash.SearchInvoiceCorrespondentAccount = default;
-            accountViewModelCash.SearchInvoiceBIC = default;
-            accountViewModelCash.SearchInvoiceSWIFT = default;
-            cachService.CacheItem(currentUser.Id, ACC_INVOICES, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_INVOICES))
+            {
+                accountViewModelCash.SearchInvoiceBankName = default;
+                accountViewModelCash.SearchInvoiceCity = default;
+                accountViewModelCash.SearchInvoiceCheckingAccount = default;
+                accountViewModelCash.SearchInvoiceCorrespondentAccount = default;
+                accountViewModelCash.SearchInvoiceBIC = default;
+                accountViewModelCash.SearchInvoiceSWIFT = default;
+                cachService.AddOrUpdate(currentUser, ACC_INVOICES, accountViewModelCash);
+            }
         }
 
         /// <summary>
@@ -296,8 +305,8 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearQuoteSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_QUOTES);
-            cachService.CacheItem(currentUser.Id, ACC_QUOTES, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_QUOTES))
+                cachService.AddOrUpdate(currentUser, ACC_QUOTES, accountViewModelCash);
         }
 
         #endregion
@@ -324,9 +333,11 @@ namespace GSCrm.Repository
         private List<Account> GetLimitedAllAccountsList(List<Account> accounts)
         {
             List<Account> limitedAccounts = accounts;
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, ALL_ACCS);
-            LimitAllAccsBySearchName(ref limitedAccounts, accountsViewModelCash);
-            LimitAllAccsBySearchType(ref limitedAccounts, accountsViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountsViewModel accountsViewModelCash, ALL_ACCS))
+            {
+                LimitAllAccsBySearchName(ref limitedAccounts, accountsViewModelCash);
+                LimitAllAccsBySearchType(ref limitedAccounts, accountsViewModelCash);
+            }
             LimitListByPageNumber(ALL_ACCS, ref limitedAccounts);
             return limitedAccounts;
         }
@@ -360,9 +371,11 @@ namespace GSCrm.Repository
         private List<Account> GetLimitedCurrentAccountsList(List<Account> accounts)
         {
             List<Account> limitedAccounts = accounts.Where(orgId => orgId.OrganizationId == currentUser.PrimaryOrganizationId).ToList();
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, CURRENT_ACCS);
-            LimitCurrentAccsBySearchName(ref limitedAccounts, accountsViewModelCash);
-            LimitCurrentAccsBySearchType(ref limitedAccounts, accountsViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountsViewModel accountsViewModelCash, CURRENT_ACCS))
+            {
+                LimitCurrentAccsBySearchName(ref limitedAccounts, accountsViewModelCash);
+                LimitCurrentAccsBySearchType(ref limitedAccounts, accountsViewModelCash);
+            }
             LimitListByPageNumber(CURRENT_ACCS, ref limitedAccounts);
             return limitedAccounts;
         }
@@ -404,13 +417,15 @@ namespace GSCrm.Repository
 
         private List<AccountContact> GetLimitedAccContactsList(List<AccountContact> accountContacts)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_CONTACTS);
             List<AccountContact> limitedAccContacts = accountContacts;
-            LimitContactsByFullName(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByType(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByPhoneNumber(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByEmail(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByPrimarySign(ref limitedAccContacts, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_CONTACTS))
+            {
+                LimitContactsByFullName(ref limitedAccContacts, accountViewModelCash);
+                LimitContactsByType(ref limitedAccContacts, accountViewModelCash);
+                LimitContactsByPhoneNumber(ref limitedAccContacts, accountViewModelCash);
+                LimitContactsByEmail(ref limitedAccContacts, accountViewModelCash);
+                LimitContactsByPrimarySign(ref limitedAccContacts, accountViewModelCash);
+            }
             LimitListByPageNumber(ACC_CONTACTS, ref limitedAccContacts);
             return limitedAccContacts;
         }
@@ -472,7 +487,6 @@ namespace GSCrm.Repository
         #endregion
 
         #region Attaching Addresses
-
         /// <summary>
         /// Добавляет адреса к клиенту
         /// </summary>
@@ -488,14 +502,16 @@ namespace GSCrm.Repository
 
         private List<AccountAddress> GetLimitedAccAddressesList(List<AccountAddress> accountAddresses)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_ADDRESSES);
             List<AccountAddress> limitedAccAddresses = accountAddresses;
-            LimitAddressesByCountry(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByRegion(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByCity(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByStreet(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByHouse(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByType(ref limitedAccAddresses, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_ADDRESSES))
+            {
+                LimitAddressesByCountry(ref limitedAccAddresses, accountViewModelCash);
+                LimitAddressesByRegion(ref limitedAccAddresses, accountViewModelCash);
+                LimitAddressesByCity(ref limitedAccAddresses, accountViewModelCash);
+                LimitAddressesByStreet(ref limitedAccAddresses, accountViewModelCash);
+                LimitAddressesByHouse(ref limitedAccAddresses, accountViewModelCash);
+                LimitAddressesByType(ref limitedAccAddresses, accountViewModelCash);
+            }
             LimitListByPageNumber(ACC_ADDRESSES, ref limitedAccAddresses);
             return limitedAccAddresses;
         }
@@ -586,14 +602,16 @@ namespace GSCrm.Repository
 
         private List<AccountInvoice> GetLimitedAccInvoicesList(List<AccountInvoice> accountInvoices)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_INVOICES);
             List<AccountInvoice> limitedAccInvoices = accountInvoices;
-            LimitInvoicesByBankName(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByCity(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByCheckingAccount(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByCorrespondentAccount(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByBIC(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesBySWIFT(ref limitedAccInvoices, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_INVOICES))
+            {
+                LimitInvoicesByBankName(ref limitedAccInvoices, accountViewModelCash);
+                LimitInvoicesByCity(ref limitedAccInvoices, accountViewModelCash);
+                LimitInvoicesByCheckingAccount(ref limitedAccInvoices, accountViewModelCash);
+                LimitInvoicesByCorrespondentAccount(ref limitedAccInvoices, accountViewModelCash);
+                LimitInvoicesByBIC(ref limitedAccInvoices, accountViewModelCash);
+                LimitInvoicesBySWIFT(ref limitedAccInvoices, accountViewModelCash);
+            }
             LimitListByPageNumber(ACC_INVOICES, ref limitedAccInvoices);
             return limitedAccInvoices;
         }
@@ -679,8 +697,8 @@ namespace GSCrm.Repository
 
         private List<AccountQuote> GetLimitedAccQuotesList(List<AccountQuote> accountQuotes)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_QUOTES);
             List<AccountQuote> limitedAccQuotes = accountQuotes;
+            cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_QUOTES);
             LimitListByPageNumber(ACC_QUOTES, ref limitedAccQuotes);
             return limitedAccQuotes;
         }
@@ -695,8 +713,8 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         public void AttachManagers(AccountViewModel accountViewModel)
         {
-            accountViewModel.AccountManagers = accountViewModel.GetAccTeam(context).GetViewModelsFromData
-                <AccountManager, AccountManagerViewModel>(new AccountManagerMap(serviceProvider, context));
+            accountViewModel.AccountManagers = accountViewModel.GetAccTeam(context)
+                .GetViewModelsFromData(new AccountManagerMap(serviceProvider, context));
         }
 
         #endregion

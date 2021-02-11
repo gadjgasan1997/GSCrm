@@ -29,7 +29,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             // Кеширование найденного полномочия
                             User currentUser = accessibilityHandlerData.GetCurrentUser();
                             ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService(typeof(ICachService)) as ICachService;
-                            cachService.CacheItem(currentUser.Id, "CurrentResponsibilityData", responsibility);
+                            cachService.AddOrUpdateEntity(currentUser, responsibility);
                         }
                     }
                     else accessibilityHandlerData.Redirect($"/{RESPONSIBILITY}/HasNoPermissionsForSee");

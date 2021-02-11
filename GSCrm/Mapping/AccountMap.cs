@@ -133,14 +133,17 @@ namespace GSCrm.Mapping
             if (primaryOrganization != null)
                 accountsViewModel.PrimaryOrganization = new OrganizationMap(serviceProvider, context).DataToViewModel(primaryOrganization);
 
-
             // Проставление значений в поля фильтров
-            AccountsViewModel allAccsViewModel = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, ALL_ACCS);
-            AccountsViewModel currentAccsViewModel = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, CURRENT_ACCS);
-            accountsViewModel.AllAccountsSearchName = allAccsViewModel.AllAccountsSearchName;
-            accountsViewModel.AllAccountsSearchType = allAccsViewModel.AllAccountsSearchType;
-            accountsViewModel.CurrentAccountsSearchName = currentAccsViewModel.CurrentAccountsSearchName;
-            accountsViewModel.CurrentAccountsSearchType = currentAccsViewModel.CurrentAccountsSearchType;
+            if (cachService.TryGetEntityCache(currentUser, out AccountsViewModel allAccsViewModel, ALL_ACCS))
+            {
+                accountsViewModel.AllAccountsSearchName = allAccsViewModel.AllAccountsSearchName;
+                accountsViewModel.AllAccountsSearchType = allAccsViewModel.AllAccountsSearchType;
+            }
+            if (cachService.TryGetEntityCache(currentUser, out AccountsViewModel currentAccsViewModel, CURRENT_ACCS))
+            {
+                accountsViewModel.CurrentAccountsSearchName = currentAccsViewModel.CurrentAccountsSearchName;
+                accountsViewModel.CurrentAccountsSearchType = currentAccsViewModel.CurrentAccountsSearchType;
+            }
         }
 
         public override AccountViewModel DataToViewModel(Account account)
@@ -180,44 +183,50 @@ namespace GSCrm.Mapping
                 {
                     // Восстановление данных поиска по контактам
                     case AccountViewType.ACC_CONTACTS:
-                        AccountViewModel accContactsCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_CONTACTS);
-                        accountViewModel.SearchContactFullName = accContactsCash.SearchContactFullName;
-                        accountViewModel.SearchContactType = accContactsCash.SearchContactType;
-                        accountViewModel.SearchContactPhoneNumber = accContactsCash.SearchContactPhoneNumber;
-                        accountViewModel.SearchContactEmail = accContactsCash.SearchContactEmail;
-                        accountViewModel.SearchContactPrimary = accContactsCash.SearchContactPrimary;
+                        if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accContactsCash, ACC_CONTACTS))
+                        {
+                            accountViewModel.SearchContactFullName = accContactsCash.SearchContactFullName;
+                            accountViewModel.SearchContactType = accContactsCash.SearchContactType;
+                            accountViewModel.SearchContactPhoneNumber = accContactsCash.SearchContactPhoneNumber;
+                            accountViewModel.SearchContactEmail = accContactsCash.SearchContactEmail;
+                            accountViewModel.SearchContactPrimary = accContactsCash.SearchContactPrimary;
+                        }
                         break;
 
                     // Восстановление данных поиска по адресам
                     case AccountViewType.ACC_ADDRESSES:
-                        AccountViewModel accAddressesCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_ADDRESSES);
-                        accountViewModel.SearchAddressCountry = accAddressesCash.SearchAddressCountry;
-                        accountViewModel.SearchAddressRegion = accAddressesCash.SearchAddressRegion;
-                        accountViewModel.SearchAddressCity = accAddressesCash.SearchAddressCity;
-                        accountViewModel.SearchAddressStreet = accAddressesCash.SearchAddressStreet;
-                        accountViewModel.SearchAddressHouse = accAddressesCash.SearchAddressHouse;
-                        accountViewModel.SearchAddressType = accAddressesCash.SearchAddressType;
+                        if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accAddressesCash, ACC_ADDRESSES))
+                        {
+                            accountViewModel.SearchAddressCountry = accAddressesCash.SearchAddressCountry;
+                            accountViewModel.SearchAddressRegion = accAddressesCash.SearchAddressRegion;
+                            accountViewModel.SearchAddressCity = accAddressesCash.SearchAddressCity;
+                            accountViewModel.SearchAddressStreet = accAddressesCash.SearchAddressStreet;
+                            accountViewModel.SearchAddressHouse = accAddressesCash.SearchAddressHouse;
+                            accountViewModel.SearchAddressType = accAddressesCash.SearchAddressType;
+                        }
                         break;
 
                     // Восстановление данных поиска по банковским реквизитам
                     case AccountViewType.ACC_INVOICES:
-                        AccountViewModel accInvoicesCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_INVOICES);
-                        accountViewModel.SearchInvoiceBankName = accInvoicesCash.SearchInvoiceBankName;
-                        accountViewModel.SearchInvoiceCity = accInvoicesCash.SearchInvoiceCity;
-                        accountViewModel.SearchInvoiceCheckingAccount = accInvoicesCash.SearchInvoiceCheckingAccount;
-                        accountViewModel.SearchInvoiceCorrespondentAccount = accInvoicesCash.SearchInvoiceCorrespondentAccount;
-                        accountViewModel.SearchInvoiceBIC = accInvoicesCash.SearchInvoiceBIC;
-                        accountViewModel.SearchInvoiceSWIFT = accInvoicesCash.SearchInvoiceSWIFT;
+                        if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accInvoicesCash, ACC_INVOICES))
+                        {
+                            accountViewModel.SearchInvoiceBankName = accInvoicesCash.SearchInvoiceBankName;
+                            accountViewModel.SearchInvoiceCity = accInvoicesCash.SearchInvoiceCity;
+                            accountViewModel.SearchInvoiceCheckingAccount = accInvoicesCash.SearchInvoiceCheckingAccount;
+                            accountViewModel.SearchInvoiceCorrespondentAccount = accInvoicesCash.SearchInvoiceCorrespondentAccount;
+                            accountViewModel.SearchInvoiceBIC = accInvoicesCash.SearchInvoiceBIC;
+                            accountViewModel.SearchInvoiceSWIFT = accInvoicesCash.SearchInvoiceSWIFT;
+                        }
                         break;
 
                     // Восстановление данных поиска по сделкам
                     case AccountViewType.ACC_QUOTES:
-                        AccountViewModel accQuotesCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_QUOTES);
+                        cachService.TryGetEntityCache(currentUser, out AccountViewModel accQuotesCash, ACC_CONTACTS);
                         break;
 
                     // Восстановление данных поиска по документам
                     case AccountViewType.ACC_DOCS:
-                        AccountViewModel accDocumentsCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_DOCS);
+                        cachService.TryGetEntityCache(currentUser, out AccountViewModel accDocumentsCash, ACC_DOCS);
                         break;
 
                     // Восстановление данных поиска по менеджерам
@@ -227,12 +236,12 @@ namespace GSCrm.Mapping
 
                     // Восстановление данных поиска по списку всех сотрудников организации, создавшей клиента
                     case AccountViewType.ACC_TEAM_ALL_EMPLOYEES:
-                        AccountViewModel accountAllManagersCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
+                        cachService.TryGetEntityCache(currentUser, out AccountViewModel accountAllManagersCash, ACC_TEAM_ALL_EMPLOYEES);
                         break;
 
                     // Восстановление данных поиска для команды по клиенту
                     case AccountViewType.ACC_TEAM_SELECTED_EMPLOYEES:
-                        AccountViewModel accountSelectedManagersCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
+                        cachService.TryGetEntityCache(currentUser, out AccountViewModel accountSelectedManagersCash, ACC_TEAM_SELECTED_EMPLOYEES);
                         break;
 
                     default:

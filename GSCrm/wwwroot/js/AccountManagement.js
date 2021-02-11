@@ -224,7 +224,7 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamAllEmployees(response["teamAllEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderAllEmployeesFilterFields(response);
                     resolve();
                 })
         });
@@ -256,7 +256,7 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamSelectedEmployees(response["teamSelectedEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderSelectedEmployeesFilterFields(response);
                     resolve();
                 })
         });
@@ -287,7 +287,7 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamAllEmployees(response["teamAllEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderAllEmployeesFilterFields(response);
                     resolve();
                 })
         });
@@ -306,25 +306,32 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamSelectedEmployees(response["teamSelectedEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderSelectedEmployeesFilterFields(response);
                     resolve();
                 })
         });
     }
 
     /**
-     * Метод заполняет поля фильтров значениями, пришедшими с сервера
-     * @param {*} response Ответ, пришедший с сервера с данными для фильтров
+     * Метод заполняет значениями, пришедшими с сервера, поля фильтра по добавленным в команду по клиенту сотрудникам
+     * @param {*} response Ответ, пришедший с сервера с данными для фильтра
      */
-    RenderEmployeesFilterFields(response) {
-        let teamAllEmployeesVM = response["teamAllEmployeesVM"];
+    RenderSelectedEmployeesFilterFields(response) {
         let teamSelectedEmployeesVM = response["teamSelectedEmployeesVM"];
-        $("#SearchAllManagersName").val(teamAllEmployeesVM["searchAllManagersName"]);
-        $("#SearchAllManagersDivision").val(teamAllEmployeesVM["searchAllManagersDivision"]);
-        $("#SearchAllManagersPosition").val(teamAllEmployeesVM["searchAllManagersPosition"]);
         $("#SearchSelectedManagersName").val(teamSelectedEmployeesVM["searchSelectedManagersName"]);
         $("#SearchSelectedManagersPosition").val(teamSelectedEmployeesVM["searchSelectedManagersPosition"]);
         $("#SearchSelectedManagersPhone").val(teamSelectedEmployeesVM["searchSelectedManagersPhone"]);
+    }
+
+    /**
+     * Метод заполняет значениями, пришедшими с сервера, поля фильтра по всем сотрудникам организации
+     * @param {*} response Ответ, пришедший с сервера с данными для фильтра
+     */
+    RenderAllEmployeesFilterFields(response) {
+        let teamAllEmployeesVM = response["teamAllEmployeesVM"];
+        $("#SearchAllManagersName").val(teamAllEmployeesVM["searchAllManagersName"]);
+        $("#SearchAllManagersDivision").val(teamAllEmployeesVM["searchAllManagersDivision"]);
+        $("#SearchAllManagersPosition").val(teamAllEmployeesVM["searchAllManagersPosition"]);
     }
 
     /**

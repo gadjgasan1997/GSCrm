@@ -1,7 +1,7 @@
 ﻿using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Repository;
 using GSCrm.Data.Cash;
+using GSCrm.Repository;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
@@ -22,17 +22,17 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         ProductCategoryRepository prodCatRepository = new ProductCategoryRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                         OrganizationRepository organizationRepository = new OrganizationRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                         if (!prodCatRepository.TryGetItemById(id.ToString(), out ProductCategory productCategory))
-                            cachService.CacheItem(currentUser.Id, $"{PC}{PROD_CATS}", false.ToString());
+                            cachService.AddOrUpdate(currentUser, $"{PC}{PROD_CATS}", false);
                         else if (!organizationRepository.HasPermissionsForSeeItem(productCategory.GetOrganization(accessibilityHandlerData.Context)))
-                            cachService.CacheItem(currentUser.Id, $"{PC}{PROD_CATS}", false.ToString());
+                            cachService.AddOrUpdate(currentUser, $"{PC}{PROD_CATS}", false);
                         else if (!prodCatRepository.HasPermissionsForSeeItem(productCategory))
-                            cachService.CacheItem(currentUser.Id, $"{PC}{PROD_CATS}", false.ToString());
+                            cachService.AddOrUpdate(currentUser, $"{PC}{PROD_CATS}", false);
 
                         // Если все ок, то кеширование результата
                         else
                         {
-                            cachService.CacheItem(currentUser.Id, $"{PC}{PROD_CATS}", true.ToString());
-                            cachService.CacheItem(currentUser.Id, "CurrentProductCategoryData", productCategory);
+                            cachService.AddOrUpdate(currentUser, $"{PC}{PROD_CATS}", true);
+                            cachService.AddOrUpdateEntity(currentUser, productCategory);
                         }
                     }
                     break;

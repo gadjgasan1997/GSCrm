@@ -9,6 +9,9 @@ using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Data;
 using GSCrm.Transactions;
+using GSCrm.Models.Enums;
+using GSCrm.Data.ApplicationInfo;
+using GSCrm.Mapping;
 
 namespace GSCrm.Repository
 {
@@ -57,10 +60,12 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearAllPositionSearch()
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
-            employeeViewModelCash.SearchAllPosName = default;
-            employeeViewModelCash.SearchAllParentPosName = default;
-            cachService.CacheItem(currentUser.Id, ALL_EMP_POSS, employeeViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModelCash, ALL_EMP_POSS))
+            {
+                employeeViewModelCash.SearchAllPosName = default;
+                employeeViewModelCash.SearchAllParentPosName = default;
+                cachService.AddOrUpdate(currentUser, ALL_EMP_POSS, employeeViewModelCash);
+            }
         }
 
         /// <summary>
@@ -68,10 +73,12 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSelectedPositionSearch()
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
-            employeeViewModelCash.SearchSelectedPosName = default;
-            employeeViewModelCash.SearchSelectedParentPosName = default;
-            cachService.CacheItem(currentUser.Id, SELECTED_EMP_POSS, employeeViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModelCash, SELECTED_EMP_POSS))
+            {
+                employeeViewModelCash.SearchSelectedPosName = default;
+                employeeViewModelCash.SearchSelectedParentPosName = default;
+                cachService.AddOrUpdate(currentUser, SELECTED_EMP_POSS, employeeViewModelCash);
+            }
         }
         #endregion
 
@@ -79,10 +86,11 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список всех должностей исходя из подразделения основной должности сотрудника
         /// </summary>
-        /// <param name="employeeId"></param>
+        /// <param name="employee"></param>
+        /// <param name="employeeViewModelCash"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Position> AttachAllPositions(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Position> GetAllPositions(Employee employee, EmployeeViewModel employeeViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             SetViewInfo(ALL_EMP_POSS, pageNumber);
 
@@ -94,7 +102,6 @@ namespace GSCrm.Repository
             List<Position> allPositionsExceptSelected = new List<Position>(allPositions);
 
             // Ограничение списка должностей по фильтрам и номеру страницы
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
             LimitAllPosByName(employeeViewModelCash, ref allPositions);
             LimitAllPosByParent(employeeViewModelCash, allPositionsExceptSelected, ref allPositions);
             LimitListByPageNumber(ALL_EMP_POSS, ref allPositions);
@@ -136,14 +143,14 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список должностей сотрудника для модального окна с ограничением в 5 записей
         /// </summary>
-        /// <param name="employeeId"></param>
+        /// <param name="employee"></param>
+        /// <param name="employeeViewModelCash"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<EmployeePosition> AttachSelectedPositions(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<EmployeePosition> GetSelectedPositions(Employee employee, EmployeeViewModel employeeViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             // Ограничение списка должностей по фильтрам и номеру страницы
             SetViewInfo(SELECTED_EMP_POSS, pageNumber);
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
             List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employee.Id).ToList();
             LimitSelectedPosByName(employeeViewModelCash, ref selectedPositions);
             LimitSelectedPosByParent(employeeViewModelCash, ref selectedPositions);
@@ -371,6 +378,40 @@ namespace GSCrm.Repository
             EmployeePosition currentPrimaryPosition = employee.EmployeePositions.FirstOrDefault(i => i.PositionId == employee.PrimaryPositionId);
             employee.PrimaryPositionId = selectedPrimaryPosition.PositionId;
             syncPossTransaction.AddChange(employee, EntityState.Modified);
+        }
+
+        /// <summary>
+        /// Вызывается для пролистывания всех должностей
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="navigateDirection">Направление пролистывания</param>
+        /// <returns></returns>
+        public List<PositionViewModel> NavigateGetAllRecords(Employee employee, NavigateDirection navigateDirection)
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_POSS);
+            EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+            if (!cachService.TryGetEntityCache(currentUser, out EmployeeViewModel allEmployeePossCash, ALL_EMP_POSS))
+                allEmployeePossCash = new EmployeeViewModel();
+            int pageNumber = viewInfo.GetNewPageNumber(navigateDirection);
+            List<Position> allPositions = employeeRepository.GetAllPositions(employee, allEmployeePossCash, pageNumber);
+            return allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
+        }
+
+        /// <summary>
+        /// Вызывается для пролистывания выбранных должностей
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="navigateDirection">Направление пролистывания</param>
+        /// <returns></returns>
+        public List<EmployeePositionViewModel> NavigateGetSelectedRecords(Employee employee, NavigateDirection navigateDirection)
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_POSS);
+            EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+            if (!cachService.TryGetEntityCache(currentUser, out EmployeeViewModel selectedEmployeePossCash, SELECTED_EMP_POSS))
+                selectedEmployeePossCash = new EmployeeViewModel();
+            int pageNumber = viewInfo.GetNewPageNumber(navigateDirection);
+            List<EmployeePosition> selectedPositions = employeeRepository.GetSelectedPositions(employee, selectedEmployeePossCash, pageNumber);
+            return selectedPositions.GetViewModelsFromData(map);
         }
         #endregion
     }

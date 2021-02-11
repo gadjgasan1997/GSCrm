@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using GSCrm.Data;
-using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
 using static GSCrm.Repository.PositionRepository;
 
@@ -30,16 +29,20 @@ namespace GSCrm.Controllers
         [HttpGet("{id}")]
         public ViewResult Position()
         {
-            Position position = cachService.GetMainEntity(currentUser, MainEntityType.PositionData) as Position;
-            PositionMap positionMap = new PositionMap(serviceProvider, context);
-            PositionViewModel posViewModel = positionMap.DataToViewModelExt(position);
-            posViewModel = positionMap.Refresh(posViewModel, currentUser, PosAllViewTypes);
-            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            positionRepository.AttachEmployees(posViewModel);
-            positionRepository.AttachSubPositions(posViewModel);
-            cachService.SetCurrentView(currentUser.Id, POSITION);
-            cachService.CachePosition(currentUser, position, posViewModel);
-            return View(POSITION, posViewModel);
+            if (cachService.TryGetEntityCache(currentUser, out Position position))
+            {
+                PositionMap positionMap = new PositionMap(serviceProvider, context);
+                PositionViewModel posViewModel = positionMap.DataToViewModelExt(position);
+                posViewModel = positionMap.Refresh(posViewModel, currentUser, PosAllViewTypes);
+                PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
+                positionRepository.AttachEmployees(posViewModel);
+                positionRepository.AttachSubPositions(posViewModel);
+                cachService.SetCurrentView(currentUser.Id, POSITION);
+                cachService.AddOrUpdateEntity(currentUser, position);
+                cachService.AddOrUpdateEntity(currentUser, posViewModel);
+                return View(POSITION, posViewModel);
+            }
+            return View("Error");
         }
 
         /// <summary>
@@ -50,11 +53,14 @@ namespace GSCrm.Controllers
         [HttpGet("PositionSubPositions/{pageNumber}")]
         public IActionResult PositionSubPositions(int pageNumber)
         {
-            PositionViewModel positionViewModel = (PositionViewModel)cachService.GetMainEntity(currentUser, MainEntityType.PositionView);
-            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            positionRepository.SetViewInfo(POS_EMPLOYEES, pageNumber);
-            positionRepository.AttachSubPositions(positionViewModel);
-            return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
+            if(cachService.TryGetEntityCache(currentUser, out PositionViewModel positionViewModel))
+            {
+                PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
+                positionRepository.SetViewInfo(POS_EMPLOYEES, pageNumber);
+                positionRepository.AttachSubPositions(positionViewModel);
+                return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
+            }
+            return View("Error");
         }
 
         /// <summary>
@@ -65,11 +71,14 @@ namespace GSCrm.Controllers
         [HttpGet("PositionEmployees/{pageNumber}")]
         public IActionResult PositionEmployees(int pageNumber)
         {
-            PositionViewModel positionViewModel = (PositionViewModel)cachService.GetMainEntity(currentUser, MainEntityType.PositionView);
-            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            positionRepository.SetViewInfo(POS_EMPLOYEES, pageNumber);
-            positionRepository.AttachEmployees(positionViewModel);
-            return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
+            if(cachService.TryGetEntityCache(currentUser, out PositionViewModel positionViewModel))
+            {
+                PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
+                positionRepository.SetViewInfo(POS_EMPLOYEES, pageNumber);
+                positionRepository.AttachEmployees(positionViewModel);
+                return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
+            }
+            return View("Error");
         }
 
         [HttpPost("ChangeDivision")]
@@ -99,29 +108,29 @@ namespace GSCrm.Controllers
         [HttpPost("SearchEmployee")]
         public IActionResult SearchEmployee(PositionViewModel positionViewModel)
         {
-            cachService.CacheItem(currentUser.Id, POS_EMPLOYEES, positionViewModel);
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            cachService.AddOrUpdate(currentUser, POS_EMPLOYEES, positionViewModel);
+            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetEntityId<PositionViewModel>(currentUser) });
         }
 
         [HttpGet("ClearSearchEmployee")]
         public IActionResult ClearSearchEmployee()
         {
             new PositionRepository(serviceProvider, context).ClearSearchEmployee();
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetEntityId<PositionViewModel>(currentUser) });
         }
 
         [HttpPost("SearchSubPosition")]
         public IActionResult SearchSubPosition(PositionViewModel positionViewModel)
         {
-            cachService.CacheItem(currentUser.Id, POS_SUB_POSS, positionViewModel);
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            cachService.AddOrUpdate(currentUser, POS_SUB_POSS, positionViewModel);
+            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetEntityId<PositionViewModel>(currentUser) });
         }
 
         [HttpGet("ClearSearchSubPosition")]
         public IActionResult ClearSearchSubPosition()
         {
             new PositionRepository(serviceProvider, context).ClearSearchSubPosition();
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetEntityId<PositionViewModel>(currentUser) });
         }
     }
 }

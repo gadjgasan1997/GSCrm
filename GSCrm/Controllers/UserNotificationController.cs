@@ -6,11 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System;
 using GSCrm.Data;
-using static GSCrm.CommonConsts;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
 {
@@ -21,17 +19,9 @@ namespace GSCrm.Controllers
         public UserNotificationController(ApplicationDbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
         { }
 
-        [HttpGet("ListOfNotifications/{pageNumber}")]
-        public IActionResult UserNotifications(int pageNumber)
-        {
-            UserNotificationsViewModel userNotsViewModel = cachService.GetCachedItem<UserNotificationsViewModel>(currentUser.Id, USER_NOTS);
-            UserNotificationRepository userNotRepository = new UserNotificationRepository(serviceProvider, context);
-            userNotRepository.SetViewInfo(USER_NOTS, pageNumber);
-            userNotRepository.AttachNotifications(ref userNotsViewModel);
-            UserNotificationsSetting userNotSetting = context.UserNotificationsSettings.AsNoTracking().FirstOrDefault(u => u.UserId == currentUser.Id);
-            userNotsViewModel.UserNotificationsSettingId = userNotSetting.Id.ToString();
-            return View(USER_NOTS, userNotsViewModel);
-        }
+        [HttpGet("HasNoPermissionsForSee")]
+        public IActionResult HasNoPermissionsForSee()
+            => View($"{USER_NOT_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new UserNotificationsSettingViewModel());
 
         #region HasReedSign
         [HttpGet("MakeHasReed/{id}")]

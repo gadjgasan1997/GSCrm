@@ -19,8 +19,8 @@ namespace GSCrm.Transactions.Factories
         {
             if (operationType.IsInList(baseOperationTypes))
             {
-                Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
+                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                    transaction.AddParameter("CurrentOrganization", currentOrganization);
             }
         }
 
@@ -28,8 +28,8 @@ namespace GSCrm.Transactions.Factories
         {
             if (operationType == OperationType.Delete)
             {
-                Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
+                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                    transaction.AddParameter("CurrentOrganization", currentOrganization);
             }
         }
 

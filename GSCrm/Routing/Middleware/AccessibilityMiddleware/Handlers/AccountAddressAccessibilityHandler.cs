@@ -1,7 +1,7 @@
 ﻿using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Repository;
 using GSCrm.Data.Cash;
+using GSCrm.Repository;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
@@ -22,15 +22,15 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         AccountAddressRepository addressRepository = new AccountAddressRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                         AccountRepository accountRepository = new AccountRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                         if (!addressRepository.TryGetItemById(id.ToString(), out AccountAddress accountAddress))
-                            cachService.CacheItem(currentUser.Id, $"{PC}{ACC_ADDRESS}", false.ToString());
+                            cachService.AddOrUpdate(currentUser, $"{PC}{ACC_ADDRESS}", false);
                         else if (!accountRepository.HasPermissionsForSeeItem(accountAddress.GetAccount(accessibilityHandlerData.Context)))
-                            cachService.CacheItem(currentUser.Id, $"{PC}{ACC_ADDRESS}", false.ToString());
+                            cachService.AddOrUpdate(currentUser, $"{PC}{ACC_ADDRESS}", false);
 
                         // Если все ок, то кеширование результата
                         else
                         {
-                            cachService.CacheItem(currentUser.Id, $"{PC}{ACC_ADDRESS}", true.ToString());
-                            cachService.CacheItem(currentUser.Id, "CurrentAccountAddressData", accountAddress);
+                            cachService.AddOrUpdate(currentUser, $"{PC}{ACC_ADDRESS}", true);
+                            cachService.AddOrUpdateEntity(currentUser, accountAddress);
                         }
                     }
                     break;

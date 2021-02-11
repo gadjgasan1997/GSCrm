@@ -17,6 +17,7 @@ namespace GSCrm.Factories
                 "AccountInvoice" => new AccountInvoiceAccessibilityHandler(),
                 "AccountContact" => new AccountContactAccessibilityHandler(),
                 "AccountAddress" => new AccountAddressAccessibilityHandler(),
+                "Root" => new RootAccessibilityHandler(),
                 //"AccountManager" => new AccountManagerAccessibilityHandler(),
                 _ => null
             };

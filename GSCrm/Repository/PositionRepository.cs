@@ -139,9 +139,11 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSearchEmployee()
         {
-            PositionViewModel posViewModelModelCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_EMPLOYEES);
-            posViewModelModelCash.SearchEmployeeInitialName = default;
-            cachService.CacheItem(currentUser.Id, POS_EMPLOYEES, posViewModelModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_EMPLOYEES))
+            {
+                posViewModelModelCash.SearchEmployeeInitialName = default;
+                cachService.AddOrUpdate(currentUser, POS_EMPLOYEES, posViewModelModelCash);
+            }
         }
 
         /// <summary>
@@ -149,10 +151,12 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSearchSubPosition()
         {
-            PositionViewModel posViewModelModelCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_SUB_POSS);
-            posViewModelModelCash.SearchSubPositionName = default;
-            posViewModelModelCash.SearchSubPositionPrimaryEmployee = default;
-            cachService.CacheItem(currentUser.Id, POS_SUB_POSS, posViewModelModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_SUB_POSS))
+            {
+                posViewModelModelCash.SearchSubPositionName = default;
+                posViewModelModelCash.SearchSubPositionPrimaryEmployee = default;
+                cachService.AddOrUpdate(currentUser, POS_SUB_POSS, posViewModelModelCash);
+            }
         }
         #endregion
 
@@ -164,16 +168,14 @@ namespace GSCrm.Repository
         public void AttachEmployees(PositionViewModel positionViewModel)
         {
             positionViewModel.PositionEmployees = positionViewModel.GetEmployees(context)
-                .MapToViewModels<Employee, EmployeeViewModel>(
-                    map: new EmployeeMap(serviceProvider, context),
-                    limitingFunc: GetLimitedEmployeesList);
+                .MapToViewModels(new EmployeeMap(serviceProvider, context), GetLimitedEmployeesList);
         }
 
         private List<Employee> GetLimitedEmployeesList(List<Employee> employees)
         {
-            PositionViewModel posViewModelCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_EMPLOYEES);
             List<Employee> limitedEmployees = employees;
-            LimitEmployeesByName(posViewModelCash, ref limitedEmployees);
+            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_EMPLOYEES))
+                LimitEmployeesByName(posViewModelModelCash, ref limitedEmployees);
             LimitListByPageNumber(POS_EMPLOYEES, ref limitedEmployees);
             return limitedEmployees;
         }
@@ -203,10 +205,12 @@ namespace GSCrm.Repository
 
         private List<Position> GetLimitedSubPositionsList(List<Position> positions)
         {
-            PositionViewModel posViewModelCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_SUB_POSS);
             List<Position> limitedPositions = positions;
-            LimitSubPositionsByName(posViewModelCash, ref limitedPositions);
-            LimitSubPositionsByPrimaryEmployee(posViewModelCash, ref limitedPositions);
+            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_SUB_POSS))
+            {
+                LimitSubPositionsByName(posViewModelModelCash, ref limitedPositions);
+                LimitSubPositionsByPrimaryEmployee(posViewModelModelCash, ref limitedPositions);
+            }
             LimitListByPageNumber(POS_SUB_POSS, ref limitedPositions);
             return limitedPositions;
         }

@@ -1,7 +1,7 @@
 ﻿using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Repository;
 using GSCrm.Data.Cash;
+using GSCrm.Repository;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
@@ -29,7 +29,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             // Кеширование найденного сотрудника
                             User currentUser = accessibilityHandlerData.GetCurrentUser();
                             ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService(typeof(ICachService)) as ICachService;
-                            cachService.CacheItem(currentUser.Id, "CurrentEmployeeData", employee);
+                            cachService.AddOrUpdateEntity(currentUser, employee);
                         }
                     }
                     else accessibilityHandlerData.Redirect($"/{EMPLOYEE}/HasNoPermissionsForSee");

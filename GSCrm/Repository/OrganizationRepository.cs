@@ -11,9 +11,9 @@ using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Transactions;
 using GSCrm.Models.Enums;
+using GSCrm.Notifications;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
-using GSCrm.Notifications;
 
 namespace GSCrm.Repository
 {
@@ -38,9 +38,9 @@ namespace GSCrm.Repository
         public override bool HasPermissionsForSeeItem(Organization organization)
         {
             if (organization == null) return false;
-            cachService.CacheItem(currentUser.Id, $"{PC}Organization", organization);
+            cachService.AddOrUpdate(currentUser, $"{PC}Organization", organization);
             List<UserOrganization> userOrganizations = context.UserOrganizations.Where(userOrg => userOrg.UserId == currentUser.Id).ToList();
-            cachService.CacheItems(currentUser.Id, $"{PC}UserOrganizations", userOrganizations);
+            cachService.AddOrUpdate(currentUser, $"{PC}UserOrganizations", userOrganizations);
             return userOrganizations.Select(userOrg => userOrg.OrganizationId).Contains(organization.Id);
         }
 
@@ -68,9 +68,11 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSearch()
         {
-            OrganizationsViewModel orgsViewModelCash = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
-            orgsViewModelCash.SearchName = default;
-            cachService.CacheItem(currentUser.Id, ORGANIZATIONS, orgsViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationsViewModel orgsViewModelCash, ORGANIZATIONS))
+            {
+                orgsViewModelCash.SearchName = default;
+                cachService.AddOrUpdate(currentUser, ORGANIZATIONS, orgsViewModelCash);
+            }
         }
 
         /// <summary>
@@ -78,10 +80,12 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearDivisionSearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, DIVISIONS);
-            orgViewModelCash.SearchDivName = default;
-            orgViewModelCash.SearchParentDivName = default;
-            cachService.CacheItem(currentUser.Id, DIVISIONS, orgViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, DIVISIONS))
+            {
+                orgViewModelCash.SearchDivName = default;
+                orgViewModelCash.SearchParentDivName = default;
+                cachService.AddOrUpdate(currentUser, DIVISIONS, orgViewModelCash);
+            }
         }
 
         /// <summary>
@@ -89,12 +93,14 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearPositionSearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, POSITIONS);
-            orgViewModelCash.SearchPosName = default;
-            orgViewModelCash.SeacrhPositionDivName = default;
-            orgViewModelCash.SearchPrimaryEmployeeName = default;
-            orgViewModelCash.SearchParentPosName = default;
-            cachService.CacheItem(currentUser.Id, POSITIONS, orgViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, POSITIONS))
+            {
+                orgViewModelCash.SearchPosName = default;
+                orgViewModelCash.SeacrhPositionDivName = default;
+                orgViewModelCash.SearchPrimaryEmployeeName = default;
+                orgViewModelCash.SearchParentPosName = default;
+                cachService.AddOrUpdate(currentUser, POSITIONS, orgViewModelCash);
+            }
         }
 
         /// <summary>
@@ -102,11 +108,13 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearEmployeeSearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, EMPLOYEES);
-            orgViewModelCash.SearchEmployeeName = default;
-            orgViewModelCash.SearchEmployeePrimaryPosName = default;
-            orgViewModelCash.SeacrhEmployeeDivName = default;
-            cachService.CacheItem(currentUser.Id, EMPLOYEES, orgViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, EMPLOYEES))
+            {
+                orgViewModelCash.SearchEmployeeName = default;
+                orgViewModelCash.SearchEmployeePrimaryPosName = default;
+                orgViewModelCash.SeacrhEmployeeDivName = default;
+                cachService.AddOrUpdate(currentUser, EMPLOYEES, orgViewModelCash);
+            }
         }
 
         /// <summary>
@@ -114,9 +122,11 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearResponsibilitySearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, RESPONSIBILITIES);
-            orgViewModelCash.SeacrhResponsibilityName = default;
-            cachService.CacheItem(currentUser.Id, RESPONSIBILITIES, orgViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, RESPONSIBILITIES))
+            {
+                orgViewModelCash.SeacrhResponsibilityName = default;
+                cachService.AddOrUpdate(currentUser, RESPONSIBILITIES, orgViewModelCash);
+            }
         }
         #endregion
 
@@ -145,9 +155,11 @@ namespace GSCrm.Repository
 
         private List<Organization> GetLimitedOrgsList(List<Organization> orgsToLimit)
         {
-            OrganizationsViewModel orgsViewModelCash = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
-            if (!string.IsNullOrEmpty(orgsViewModelCash.SearchName))
-                orgsToLimit = orgsToLimit.Where(n => n.Name.ToLower().Contains(orgsViewModelCash.SearchName)).ToList();
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationsViewModel orgsViewModelCash, ORGANIZATIONS))
+            {
+                if (!string.IsNullOrEmpty(orgsViewModelCash.SearchName))
+                    orgsToLimit = orgsToLimit.Where(n => n.Name.ToLower().Contains(orgsViewModelCash.SearchName)).ToList();
+            }
             return orgsToLimit;
         }
         #endregion
@@ -165,10 +177,12 @@ namespace GSCrm.Repository
 
         private List<Division> GetLimitedDivisionsList(List<Division> divisions)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, DIVISIONS);
             List<Division> limitedDivisions = divisions;
-            LimitDivByName(orgViewModelCash, ref limitedDivisions);
-            LimitDivByParent(orgViewModelCash, divisions, ref limitedDivisions);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, DIVISIONS))
+            {
+                LimitDivByName(orgViewModelCash, ref limitedDivisions);
+                LimitDivByParent(orgViewModelCash, divisions, ref limitedDivisions);
+            }
             LimitListByPageNumber(DIVISIONS, ref limitedDivisions);
             return limitedDivisions;
         }
@@ -212,25 +226,20 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void AttachPositions(OrganizationViewModel orgViewModel)
         {
-            try
-            {
-                orgViewModel.Positions = orgViewModel.GetAllPositions(context)
-                    .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedPositionsList);
-            }
-            catch(Exception ex)
-            {
-                var test = ex;
-            }
+            orgViewModel.Positions = orgViewModel.GetAllPositions(context)
+                .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedPositionsList);
         }
 
         private List<Position> GetLimitedPositionsList(List<Position> positions)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, POSITIONS);
             List<Position> limitedPositions = positions;
-            LimitPosByName(orgViewModelCash, ref limitedPositions);
-            LimitPosByDivision(orgViewModelCash, ref limitedPositions);
-            LimitPosByPrimaryEmployee(orgViewModelCash, ref limitedPositions);
-            LimitPosByParent(orgViewModelCash, ref limitedPositions);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, POSITIONS))
+            {
+                LimitPosByName(orgViewModelCash, ref limitedPositions);
+                LimitPosByDivision(orgViewModelCash, ref limitedPositions);
+                LimitPosByPrimaryEmployee(orgViewModelCash, ref limitedPositions);
+                LimitPosByParent(orgViewModelCash, ref limitedPositions);
+            }
             LimitListByPageNumber(POSITIONS, ref limitedPositions);
             return limitedPositions;
         }
@@ -314,11 +323,13 @@ namespace GSCrm.Repository
 
         private List<Employee> GetLimitedEmployeesList(List<Employee> employees)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, EMPLOYEES);
             List<Employee> limitedEmployees = employees;
-            LimitEmpByName(orgViewModelCash, ref limitedEmployees);
-            LimitEmpByPrimaryPosition(orgViewModelCash, ref limitedEmployees);
-            LimitEmpByDivision(orgViewModelCash, ref limitedEmployees);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, EMPLOYEES))
+            {
+                LimitEmpByName(orgViewModelCash, ref limitedEmployees);
+                LimitEmpByPrimaryPosition(orgViewModelCash, ref limitedEmployees);
+                LimitEmpByDivision(orgViewModelCash, ref limitedEmployees);
+            }
             LimitListByPageNumber(EMPLOYEES, ref limitedEmployees);
             return limitedEmployees;
         }
@@ -384,9 +395,9 @@ namespace GSCrm.Repository
 
         private List<Responsibility> GetLimitedResponsibilitiesList(List<Responsibility> responsibilities)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, RESPONSIBILITIES);
             List<Responsibility> limitedResponsibilities = responsibilities;
-            LimitRespByName(orgViewModelCash, ref limitedResponsibilities);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModelCash, RESPONSIBILITIES))
+                LimitRespByName(orgViewModelCash, ref limitedResponsibilities);
             LimitListByPageNumber(RESPONSIBILITIES, ref limitedResponsibilities);
             return limitedResponsibilities;
         }
@@ -720,9 +731,12 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool HasPermissionsForSeeOrgItem()
         {
-            Organization organization = cachService.GetCachedItem<Organization>(currentUser.Id, $"{PC}Organization");
-            List<UserOrganization> userOrganizations = cachService.GetCachedItems<UserOrganization>(currentUser.Id, $"{PC}UserOrganizations");
-            return userOrganizations.Where(userOrg => userOrg.Accepted).Select(userOrg => userOrg.OrganizationId).Contains(organization.Id);
+            if (cachService.TryGetEntityCache(currentUser, out Organization organization, $"{PC}Organization") &&
+                cachService.TryGetEntitiesCache(currentUser, out List<UserOrganization> userOrganizations, $"{PC}UserOrganizations"))
+            {
+                return userOrganizations.Where(userOrg => userOrg.Accepted).Select(userOrg => userOrg.OrganizationId).Contains(organization.Id);
+            }
+            return false;
         }
         #endregion
     }

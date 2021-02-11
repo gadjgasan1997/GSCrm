@@ -1,7 +1,7 @@
 ﻿using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Repository;
 using GSCrm.Data.Cash;
+using GSCrm.Repository;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
@@ -22,15 +22,15 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         AccountInvoiceRepository invoiceRepository = new AccountInvoiceRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                         AccountRepository accountRepository = new AccountRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                         if (!invoiceRepository.TryGetItemById(id.ToString(), out AccountInvoice accountInvoice))
-                            cachService.CacheItem(currentUser.Id, $"{PC}{ACC_INVOICE}", false.ToString());
+                            cachService.AddOrUpdate(currentUser, $"{PC}{ACC_INVOICE}", false);
                         else if (!accountRepository.HasPermissionsForSeeItem(accountInvoice.GetAccount(accessibilityHandlerData.Context)))
-                            cachService.CacheItem(currentUser.Id, $"{PC}{ACC_INVOICE}", false.ToString());
+                            cachService.AddOrUpdate(currentUser, $"{PC}{ACC_INVOICE}", false);
 
                         // Если все ок, то кеширование результата
                         else
                         {
-                            cachService.CacheItem(currentUser.Id, $"{PC}{ACC_INVOICE}", true.ToString());
-                            cachService.CacheItem(currentUser.Id, "CurrentAccountInvoiceData", accountInvoice);
+                            cachService.AddOrUpdate(currentUser, $"{PC}{ACC_INVOICE}", true);
+                            cachService.AddOrUpdateEntity(currentUser, accountInvoice);
                         }
                     }
                     break;

@@ -2,7 +2,6 @@
     Layout = "_Layout";
 }
 @using GSCrm.Data
-@using GSCrm.Data.ApplicationInfo
 @using GSCrm.Models.ViewModels
 @using GSCrm.Models.ViewModels.Notifications
 @using static GSCrm.CommonConsts
@@ -30,7 +29,7 @@
 <div class="mt-3">
     <div id="notificationsList" class="mt-3">
         <div class="text-center">
-            <a class="label-md" asp-area="" asp-controller="@NOT_SETTING" asp-action="@NOT_SETTING" asp-route-id="@Model.UserNotificationsSettingId">@resManager.GetString(NOT_SETTINGS)</a>
+            <a class="label-md" asp-area="" asp-controller="Root" asp-action="@NOT_SETTING">@resManager.GetString(NOT_SETTINGS)</a>
         </div>
         @if (userNotViewModels.Count() > 0)
         {

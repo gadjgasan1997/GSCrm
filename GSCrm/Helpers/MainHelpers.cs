@@ -8,6 +8,8 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using GSCrm.Models.Enums;
+using GSCrm.Data.ApplicationInfo;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.AppUtils;
 
@@ -42,29 +44,6 @@ namespace GSCrm.Helpers
         /// <returns></returns>
         public static User GetUserModel(this ClaimsPrincipal User, ApplicationDbContext context)
             => context.Users.AsNoTracking().FirstOrDefault(n => n.UserName == User.Identity.Name);
-
-        /// <summary>
-        /// Получение названия основной сущности по названию поданной на вход
-        /// </summary>
-        /// <param name="entityName"></param>
-        /// <returns></returns>
-        public static string GetMainEntityName(this string entityName)
-            => entityName switch
-            {
-                "ResponsibilityViewModel" => "OrganizationViewModel",
-                "PositionViewModel" => "OrganizationViewModel",
-                "EmployeeViewModel" => "OrganizationViewModel",
-                "DivisionViewModel" => "OrganizationViewModel",
-                "EmployeeResponsibilityViewModel" => "EmployeeViewModel",
-                "EmployeePositionViewModel" => "EmployeeViewModel",
-                "EmployeeContactViewModel" => "EmployeeViewModel",
-                "AccountQuoteViewModel" => "AccountViewModel",
-                "AccountManagerViewModel" => "AccountViewModel",
-                "AccountInvoiceViewModel" => "AccountViewModel",
-                "AccountContactViewModel" => "AccountViewModel",
-                "AccountAddressViewModel" => "AccountViewModel",
-                _ => entityName
-            };
 
         /// <summary>
         /// Метод возвращает название действия для урла
@@ -123,5 +102,19 @@ namespace GSCrm.Helpers
                         break;
                 }
             });
+
+        /// <summary>
+        /// Метод возвращает новый номер страницы исходя из направления прокрутки
+        /// </summary>
+        /// <param name="viewInfo"></param>
+        /// <param name="navigateDirection"></param>
+        /// <returns></returns>
+        public static int GetNewPageNumber(this ViewInfo viewInfo, NavigateDirection navigateDirection)
+            => navigateDirection switch
+            {
+                NavigateDirection.Forward => viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP,
+                NavigateDirection.Backward => viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP,
+                _ => 0
+            };
     }
 }

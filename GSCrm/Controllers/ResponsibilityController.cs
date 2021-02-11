@@ -29,28 +29,34 @@ namespace GSCrm.Controllers
         [HttpGet("{id}")]
         public ViewResult Responsibility()
         {
-            Responsibility responsibility = cachService.GetMainEntity(currentUser, MainEntityType.ResponsibilityData) as Responsibility;
-            ResponsibilityViewModel respViewModel = new ResponsibilityMap(serviceProvider, context).DataToViewModel(responsibility);
-            cachService.SetCurrentView(currentUser.Id, RESPONSIBILITY);
-            cachService.CacheResponsibility(currentUser, responsibility, respViewModel);
-            return View(RESPONSIBILITY, respViewModel);
+            if (cachService.TryGetEntityCache(currentUser, out Responsibility responsibility))
+            {
+                ResponsibilityViewModel respViewModel = new ResponsibilityMap(serviceProvider, context).DataToViewModel(responsibility);
+                cachService.SetCurrentView(currentUser.Id, RESPONSIBILITY);
+                cachService.AddOrUpdateEntity(currentUser, responsibility);
+                cachService.AddOrUpdateEntity(currentUser, respViewModel);
+                return View(RESPONSIBILITY, respViewModel);
+            }
+            return View("Error");
         }
 
         protected override IActionResult DeleteSuccessHandler()
         {
-            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.AttachResponsibilities(orgViewModel);
-            return Json(orgViewModel.Responsibilities);
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModel))
+            {
+                OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+                organizationRepository.AttachResponsibilities(orgViewModel);
+                return Json(orgViewModel.Responsibilities);
+            }
+            return Json("");
         }
 
         [HttpGet("NextResponsibilities")]
         public IActionResult NextResponsibilities()
         {
-            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
-            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
-            if (orgViewModel != null)
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModel))
             {
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
                 OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
                 organizationRepository.SetViewInfo(RESPONSIBILITIES, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 organizationRepository.AttachResponsibilities(orgViewModel);
@@ -62,10 +68,9 @@ namespace GSCrm.Controllers
         [HttpGet("PreviousResponsibilities")]
         public IActionResult PreviousResponsibilities()
         {
-            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
-            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
-            if (orgViewModel != null)
+            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModel))
             {
+                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
                 OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
                 organizationRepository.SetViewInfo(RESPONSIBILITIES, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 organizationRepository.AttachResponsibilities(orgViewModel);

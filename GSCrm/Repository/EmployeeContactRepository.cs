@@ -1,14 +1,12 @@
 ﻿using GSCrm.Data;
-using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Validators;
 using System;
-using static GSCrm.Utils.CollectionsUtils;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using GSCrm.Models.Enums;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {

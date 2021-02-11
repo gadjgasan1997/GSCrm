@@ -1,7 +1,7 @@
 ﻿using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Repository;
 using GSCrm.Data.Cash;
+using GSCrm.Repository;
 using Microsoft.AspNetCore.Http;
 using static GSCrm.CommonConsts;
 
@@ -27,7 +27,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             // Кеширование найденного клиента
                             User currentUser = accessibilityHandlerData.GetCurrentUser();
                             ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService(typeof(ICachService)) as ICachService;
-                            cachService.CacheItem(currentUser.Id, "CurrentAccountData", account);
+                            cachService.AddOrUpdateEntity(currentUser, account);
                         }
                     }
                     break;

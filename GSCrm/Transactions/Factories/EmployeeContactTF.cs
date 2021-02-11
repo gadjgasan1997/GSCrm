@@ -3,7 +3,6 @@ using System.Linq;
 using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Models;
-using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications.Params.EmpUpdate;
 using GSCrm.Notifications.Factories.OrgNotFactories.EmpUpdate;
@@ -20,8 +19,8 @@ namespace GSCrm.Transactions.Factories
         {
             if (operationType.IsInList(baseOperationTypes))
             {
-                Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
+                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                    transaction.AddParameter("CurrentOrganization", currentOrganization);
                 Employee employee = context.Employees.AsNoTracking().FirstOrDefault(emp => emp.Id == Guid.Parse(contactViewModel.EmployeeId));
                 transaction.AddParameter("Employee", employee);
             }
@@ -29,8 +28,8 @@ namespace GSCrm.Transactions.Factories
 
         protected override void CreateHandler(OperationType operationType, string recordId)
         {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            transaction.AddParameter("CurrentOrganization", currentOrganization);
+            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                transaction.AddParameter("CurrentOrganization", currentOrganization);
         }
 
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)

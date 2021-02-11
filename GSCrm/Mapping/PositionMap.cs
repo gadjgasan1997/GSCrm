@@ -6,10 +6,10 @@ using GSCrm.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GSCrm.CommonConsts;
 using GSCrm.Data;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Transactions;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Mapping
 {
@@ -76,15 +76,17 @@ namespace GSCrm.Mapping
                 {
                     // Восстановление данных поиска по сотрудникам
                     case PositionViewType.POS_EMPLOYEES:
-                        PositionViewModel positionEmployeesCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_EMPLOYEES);
-                        positionViewModel.SearchEmployeeInitialName = positionEmployeesCash.SearchEmployeeInitialName;
+                        if (cachService.TryGetEntityCache(currentUser, out PositionViewModel positionEmployeesCash, POS_EMPLOYEES))
+                            positionViewModel.SearchEmployeeInitialName = positionEmployeesCash.SearchEmployeeInitialName;
                         break;
 
                     // Восстановление данных поиска по дочерним должностям
                     case PositionViewType.POS_SUB_POSS:
-                        PositionViewModel positionSubPositionsCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_SUB_POSS);
-                        positionViewModel.SearchSubPositionName = positionSubPositionsCash.SearchSubPositionName;
-                        positionViewModel.SearchSubPositionPrimaryEmployee = positionSubPositionsCash.SearchSubPositionPrimaryEmployee;
+                        if (cachService.TryGetEntityCache(currentUser, out PositionViewModel positionSubPositionsCash, POS_SUB_POSS))
+                        {
+                            positionViewModel.SearchSubPositionName = positionSubPositionsCash.SearchSubPositionName;
+                            positionViewModel.SearchSubPositionPrimaryEmployee = positionSubPositionsCash.SearchSubPositionPrimaryEmployee;
+                        }
                         break;
 
                     default:

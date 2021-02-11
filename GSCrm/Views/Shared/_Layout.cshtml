@@ -59,7 +59,7 @@
                             <a class="nav-link text-white label-md" asp-area="" asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="1">@resManager.GetString(ORGANIZATIONS)</a>
                         </li>
                         <li class="nav-item text-center d-block d-xl-none">
-                            <a class="nav-link text-white label-md" asp-area="" asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
+                            <a class="nav-link text-white label-md" asp-area="" asp-controller="Root" asp-action="@USER_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
                         </li>
                         <li class="nav-item text-center mb-2 mb-xl-0 mr-0 mr-xl-2">
                             <a class="nav-link user-profile-link text-white label-md" asp-area="" asp-controller="@USER" asp-action="@USER" asp-route-id="@currentUser?.Id">@User.Identity.Name</a>
@@ -86,7 +86,7 @@
                 <a class="nav-link text-white label-md" asp-area="" asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="1">@resManager.GetString(ORGANIZATIONS)</a>
             </li>
             <li class="nav-item text-center">
-                <a class="nav-link text-white label-md" asp-area="" asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
+                <a class="nav-link text-white label-md" asp-area="" asp-controller="Root" asp-action="@USER_NOTS" asp-route-pageNumber="1">@resManager.GetString(NOTIFICATIONS)</a>
                 <div class="nots-link popover-source" data-toggle="popover" data-placement="right" data-content="">
                 </div>
             </li>

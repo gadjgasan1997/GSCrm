@@ -1,5 +1,4 @@
-﻿using GSCrm.Data.ApplicationInfo;
-using GSCrm.Mapping;
+﻿using GSCrm.Mapping;
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using GSCrm.Data;
-using GSCrm.Models.ViewTypes;
 using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
 
@@ -21,26 +19,26 @@ namespace GSCrm.Controllers
         : MainController<EmployeePosition, EmployeePositionViewModel>
     {
         public EmployeePositionController(IServiceProvider serviceProvider, ApplicationDbContext context)
-            : base (context, serviceProvider)
+            : base(context, serviceProvider)
         { }
 
         [HttpGet("GetPositions")]
         public IActionResult GetPositions()
         {
-            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
+            if (cachService.TryGetEntityCache(currentUser, out Employee employee))
             {
+                // Получение моделей с информацией об установленных для пользователя условиях поиска по должностям
+                if (!cachService.TryGetEntityCache(currentUser, out EmployeeViewModel allEmployeePossCash, ALL_EMP_POSS))
+                    allEmployeePossCash = new EmployeeViewModel();
+                if (!cachService.TryGetEntityCache(currentUser, out EmployeeViewModel selectedEmployeePossCash, SELECTED_EMP_POSS))
+                    selectedEmployeePossCash = new EmployeeViewModel();
+
                 // Получение списка со всеми должностями организации и списка с должностями сотрудника
                 EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
-                List<Position> allPositions = employeeRepository.AttachAllPositions(employee);
-                List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(employee);
+                List<Position> allPositions = employeeRepository.GetAllPositions(employee, allEmployeePossCash);
+                List<EmployeePosition> selectedPositions = employeeRepository.GetSelectedPositions(employee, selectedEmployeePossCash);
                 List<PositionViewModel> allPositionVMs = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
                 List<EmployeePositionViewModel> selectedPositionsVMs = selectedPositions.GetViewModelsFromData(map);
-
-                // Получение моделей с информацией об установленных для пользователя условиях поиска по должностям
-                EmployeeViewModel allEmployeePossCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
-                allEmployeePossCash = new EmployeeMap(serviceProvider, context).Refresh(allEmployeePossCash, currentUser, EmployeeViewType.ALL_EMP_POSS);
-                EmployeeViewModel selectedEmployeePossCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
-                selectedEmployeePossCash = new EmployeeMap(serviceProvider, context).Refresh(selectedEmployeePossCash, currentUser, EmployeeViewType.SELECTED_EMP_POSS);
 
                 // Возврат результата
                 Dictionary<string, object> result = new Dictionary<string, object>()
@@ -58,12 +56,10 @@ namespace GSCrm.Controllers
         [HttpGet("NextAllRecords")]
         public IActionResult NextAllRecords()
         {
-            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
+            if (cachService.TryGetEntityCache(currentUser, out Employee employee))
             {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_POSS);
-                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
-                List<Position> allPositions = employeeRepository.AttachAllPositions(employee, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
+                EmployeePositionRepository employeePositionRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<PositionViewModel> allPositionViewModels = employeePositionRepository.NavigateGetAllRecords(employee, NavigateDirection.Forward);
                 return Json(allPositionViewModels);
             }
             return BadRequest("NextAllRecords");
@@ -72,12 +68,10 @@ namespace GSCrm.Controllers
         [HttpGet("PreviousAllRecords")]
         public IActionResult PreviousAllRecords()
         {
-            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
+            if (cachService.TryGetEntityCache(currentUser, out Employee employee))
             {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_POSS);
-                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
-                List<Position> allPositions = employeeRepository.AttachAllPositions(employee, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                List<PositionViewModel> allPositionViewModels = allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
+                EmployeePositionRepository employeePositionRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<PositionViewModel> allPositionViewModels = employeePositionRepository.NavigateGetAllRecords(employee, NavigateDirection.Backward);
                 return Json(allPositionViewModels);
             }
             return BadRequest("PreviousAllRecords");
@@ -86,12 +80,10 @@ namespace GSCrm.Controllers
         [HttpGet("NextSelectedRecords")]
         public IActionResult NextSelectedRecords()
         {
-            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
+            if (cachService.TryGetEntityCache(currentUser, out Employee employee))
             {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_POSS);
-                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
-                List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(employee, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData(map);
+                EmployeePositionRepository employeePositionRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<EmployeePositionViewModel> selectedPositionViewModels = employeePositionRepository.NavigateGetSelectedRecords(employee, NavigateDirection.Forward);
                 return Json(selectedPositionViewModels);
             }
             return BadRequest("NextSelectedRecords");
@@ -100,12 +92,10 @@ namespace GSCrm.Controllers
         [HttpGet("PreviousSelectedRecords")]
         public IActionResult PreviousSelectedRecords()
         {
-            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
+            if (cachService.TryGetEntityCache(currentUser, out Employee employee))
             {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_POSS);
-                EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
-                List<EmployeePosition> selectedPositions = employeeRepository.AttachSelectedPositions(employee, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                List<EmployeePositionViewModel> selectedPositionViewModels = selectedPositions.GetViewModelsFromData(map);
+                EmployeePositionRepository employeePositionRepository = new EmployeePositionRepository(serviceProvider, context);
+                List<EmployeePositionViewModel> selectedPositionViewModels = employeePositionRepository.NavigateGetSelectedRecords(employee, NavigateDirection.Backward);
                 return Json(selectedPositionViewModels);
             }
             return BadRequest("PreviousSelectedRecords");
@@ -123,8 +113,8 @@ namespace GSCrm.Controllers
         [HttpPost("SearchAllPosition")]
         public IActionResult SearchAllPosition(EmployeeViewModel employeeViewModel)
         {
-            cachService.CacheItem(currentUser.Id, ALL_EMP_POSS, employeeViewModel);
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            cachService.AddOrUpdate(currentUser, ALL_EMP_POSS, employeeViewModel);
+            return RedirectToAction("GetPositions", EMP_POSITION);
         }
 
         [HttpGet("ClearAllPositionSearch")]
@@ -132,14 +122,14 @@ namespace GSCrm.Controllers
         {
             EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
             employeeRepository.ClearAllPositionSearch();
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            return RedirectToAction("GetPositions", EMP_POSITION);
         }
 
         [HttpPost("SearchSelectedPosition")]
         public IActionResult SearchSelectedPosition(EmployeeViewModel employeeViewModel)
         {
-            cachService.CacheItem(currentUser.Id, SELECTED_EMP_POSS, employeeViewModel);
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            cachService.AddOrUpdate(currentUser, SELECTED_EMP_POSS, employeeViewModel);
+            return RedirectToAction("GetPositions", EMP_POSITION);
         }
 
         [HttpGet("ClearSelectedPositionSearch")]
@@ -147,7 +137,7 @@ namespace GSCrm.Controllers
         {
             EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
             employeeRepository.ClearSelectedPositionSearch();
-            return RedirectToAction("GetPositions", EMP_POSITION, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            return RedirectToAction("GetPositions", EMP_POSITION);
         }
 
         [HttpPost("Synchronize")]

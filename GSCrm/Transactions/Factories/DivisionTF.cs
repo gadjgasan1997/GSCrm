@@ -20,15 +20,15 @@ namespace GSCrm.Transactions.Factories
         {
             if (operationType.IsInList(baseOperationTypes))
             {
-                Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
+                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                    transaction.AddParameter("CurrentOrganization", currentOrganization);
             }
         }
 
         protected override void CreateHandler(OperationType operationType, string recordId)
         {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            transaction.AddParameter("CurrentOrganization", currentOrganization);
+            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                transaction.AddParameter("CurrentOrganization", currentOrganization);
         }
 
         /// <summary>

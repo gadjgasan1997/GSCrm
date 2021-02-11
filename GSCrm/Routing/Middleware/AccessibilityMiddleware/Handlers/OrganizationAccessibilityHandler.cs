@@ -1,7 +1,7 @@
 ﻿using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Repository;
 using GSCrm.Data.Cash;
+using GSCrm.Repository;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
@@ -27,7 +27,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             // Кеширование найденной организации
                             User currentUser = accessibilityHandlerData.GetCurrentUser();
                             ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService(typeof(ICachService)) as ICachService;
-                            cachService.CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
+                            cachService.AddOrUpdateEntity(currentUser, organization);
                         }
                     }
                     else accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");

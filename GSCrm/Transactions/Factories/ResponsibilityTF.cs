@@ -1,11 +1,8 @@
-﻿using GSCrm.Models.ViewModels;
-using System;
+﻿using System;
 using GSCrm.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Models.Enums;
+using GSCrm.Models.ViewModels;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -17,16 +14,18 @@ namespace GSCrm.Transactions.Factories
         {
             if (operationType.IsInList(baseOperationTypes))
             {
-                Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
-                transaction.AddParameter("Responsibilities", currentOrganization.GetResponsibilities(context));
+                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                {
+                    transaction.AddParameter("CurrentOrganization", currentOrganization);
+                    transaction.AddParameter("Responsibilities", currentOrganization.GetResponsibilities(context));
+                }
             }
         }
 
         protected override void CreateHandler(OperationType operationType, string recordId)
         {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            transaction.AddParameter("CurrentOrganization", currentOrganization);
+            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                transaction.AddParameter("CurrentOrganization", currentOrganization);
         }
     }
 }

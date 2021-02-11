@@ -25,7 +25,7 @@ namespace GSCrm.Repository
         /// <summary>
         /// Словарь с менеджерами и с типами уведомлений, адресованными им
         /// </summary>
-        private Dictionary<Guid, AccTeamManagementNotType> managersNotTypes = new Dictionary<Guid, AccTeamManagementNotType>();
+        private readonly Dictionary<Guid, AccTeamManagementNotType> managersNotTypes = new Dictionary<Guid, AccTeamManagementNotType>();
         private readonly ITransactionFactory<SyncAccountViewModel> syncRespsTransactionFactory;
         #endregion
 
@@ -43,11 +43,13 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearAllManagersSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
-            accountViewModelCash.SearchAllManagersName = default;
-            accountViewModelCash.SearchAllManagersDivision = default;
-            accountViewModelCash.SearchAllManagersPosition = default;
-            cachService.CacheItem(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_TEAM_ALL_EMPLOYEES))
+            {
+                accountViewModelCash.SearchAllManagersName = default;
+                accountViewModelCash.SearchAllManagersDivision = default;
+                accountViewModelCash.SearchAllManagersPosition = default;
+                cachService.AddOrUpdate(currentUser, ACC_TEAM_ALL_EMPLOYEES, accountViewModelCash);
+            }
         }
 
         /// <summary>
@@ -55,11 +57,13 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSelectedManagersSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
-            accountViewModelCash.SearchSelectedManagersName = default;
-            accountViewModelCash.SearchSelectedManagersPhone = default;
-            accountViewModelCash.SearchSelectedManagersPosition = default;
-            cachService.CacheItem(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, accountViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out AccountViewModel accountViewModelCash, ACC_TEAM_SELECTED_EMPLOYEES))
+            {
+                accountViewModelCash.SearchSelectedManagersName = default;
+                accountViewModelCash.SearchSelectedManagersPhone = default;
+                accountViewModelCash.SearchSelectedManagersPosition = default;
+                cachService.AddOrUpdate(currentUser, ACC_TEAM_SELECTED_EMPLOYEES, accountViewModelCash);
+            }
         }
         #endregion
 
@@ -67,12 +71,14 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список всех сотрудников организации для отображения в окне управления командой по клиенту
         /// </summary>
+        /// <param name="account"></param>
+        /// <param name="accountViewModelCash"></param>
+        /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Employee> AttachTeamAllEmployees(Account account, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Employee> GetTeamAllEmployees(Account account, AccountViewModel accountViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(ACC_TEAM_ALL_EMPLOYEES, pageNumber);
             List<Employee> teamAllEmployees = context.GetOrgEmployees(account.OrganizationId);
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
+            SetViewInfo(ACC_TEAM_ALL_EMPLOYEES, pageNumber);
             ExcludeSelectedEmployees(ref teamAllEmployees, account.Id);
             LimitAllEmployeesByName(ref teamAllEmployees, accountViewModelCash);
             LimitAllEmployeesByDivision(ref teamAllEmployees, accountViewModelCash);
@@ -147,15 +153,16 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список менеджеров клиента для отображения в окне управления командой
         /// </summary>
+        /// <param name="account"></param>
+        /// <param name="accountViewModelCash"></param>
+        /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<AccountManager> GetTeamSelectedEmployees(Account account, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<AccountManager> GetTeamSelectedEmployees(Account account, AccountViewModel accountViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(ACC_TEAM_SELECTED_EMPLOYEES, pageNumber);
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
             List<AccountManager> teamSelectedEmployees = context.AccountManagers
-                .AsNoTracking()
-                .Include(man => man.Manager)
+                .AsNoTracking().Include(man => man.Manager)
                 .Where(accId => accId.AccountId == account.Id).ToList();
+            SetViewInfo(ACC_TEAM_SELECTED_EMPLOYEES, pageNumber);
             LimitSelectedEmployeesByName(ref teamSelectedEmployees, accountViewModelCash);
             LimitSelectedEmployeesByPosition(ref teamSelectedEmployees, accountViewModelCash);
             LimitSelectedEmployeesByPhone(ref teamSelectedEmployees, accountViewModelCash);
@@ -228,7 +235,7 @@ namespace GSCrm.Repository
                         AddHasNoPermissionsError(OperationType.AccountTeamManagement);
                 },
                 () => {
-                    if (cachService.GetMainEntity(currentUser, MainEntityType.AccountData) is not Account account)
+                    if (!cachService.TryGetEntityCache(currentUser, out Account account))
                         errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
                     else syncRespsTransaction.AddParameter("Account", account);
                 },

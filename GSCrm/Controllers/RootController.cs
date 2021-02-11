@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using GSCrm.Data;
 using GSCrm.Data.Cash;
 using GSCrm.Factories;
@@ -10,6 +11,7 @@ using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
@@ -42,7 +44,8 @@ namespace GSCrm.Controllers
         [HttpGet("Organizations/{pageNumber}")]
         public ViewResult Organizations(int pageNumber)
         {
-            OrganizationsViewModel orgsViewModel = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
+            if (!cachService.TryGetEntityCache(currentUser, out OrganizationsViewModel orgsViewModel, ORGANIZATIONS))
+                orgsViewModel = new OrganizationsViewModel();
             OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
             organizationRepository.SetViewInfo(ORGANIZATIONS, pageNumber);
             organizationRepository.AttachOrganizations(ref orgsViewModel);
@@ -79,6 +82,43 @@ namespace GSCrm.Controllers
             accountRepository.SetViewInfo(CURRENT_ACCS, pageNumber);
             accountRepository.AttachAccounts(ref accountsViewModel);
             return View($"{ACC_VIEWS_REL_PATH}{ACCOUNTS}.cshtml", accountsViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка уведомлений пользователя
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Notifications/{pageNumber}")]
+        public IActionResult UserNotifications(int pageNumber)
+        {
+            if (!cachService.TryGetEntityCache(currentUser, out UserNotificationsViewModel userNotsViewModel, USER_NOTS))
+                userNotsViewModel = new UserNotificationsViewModel();
+            UserNotificationRepository userNotRepository = new UserNotificationRepository(serviceProvider, context);
+            userNotRepository.SetViewInfo(USER_NOTS, pageNumber);
+            userNotRepository.AttachNotifications(ref userNotsViewModel);
+            UserNotificationsSetting userNotSetting = context.UserNotificationsSettings.AsNoTracking().FirstOrDefault(u => u.UserId == currentUser.Id);
+            userNotsViewModel.UserNotificationsSettingId = userNotSetting.Id.ToString();
+            return View($"{USER_NOT_VIEWS_REL_PATH}{USER_NOTS}.cshtml", userNotsViewModel);
+        }
+
+        /// <summary>
+        /// Получение настроек уведомлений
+        /// </summary
+        /// <returns></returns>
+        [HttpGet("NotificationsSetting")]
+        public ViewResult NotificationsSetting()
+        {
+            if (cachService.TryGetEntityCache(currentUser, out UserNotificationsSetting userNotificationsSetting))
+            {
+                AllNotificationsSettingsViewModel allSettingsViewModel = new AllNotificationsSettingsViewModel();
+                UserNotificationsSettingMap notificationsSettingMap = new UserNotificationsSettingMap(serviceProvider, context);
+                allSettingsViewModel.UserNotificationsSettingViewModel = notificationsSettingMap.DataToViewModel(userNotificationsSetting);
+                OrgNotificationsSettingRepository orgNotSettingRepository = new OrgNotificationsSettingRepository(serviceProvider, context);
+                orgNotSettingRepository.AttachSettings(ref allSettingsViewModel);
+                return View($"{NOT_SETTING_VIEWS_REL_PATH}{NOT_SETTINGS}.cshtml", allSettingsViewModel);
+            }
+            return View("Error");
         }
     }
 }

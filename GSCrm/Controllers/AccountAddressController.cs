@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using static GSCrm.CommonConsts;
+using GSCrm.Models.Enums;
 
 namespace GSCrm.Controllers
 {
@@ -24,9 +25,9 @@ namespace GSCrm.Controllers
         [HttpGet("{id}")]
         public IActionResult Address()
         {
-            if (bool.TryParse(cachService.GetCachedItem(currentUser.Id, $"{PC}{ACC_ADDRESS}"), out bool isCorrectCheck) && isCorrectCheck)
+            if (cachService.TryGetValue(currentUser, $"{PC}{ACC_ADDRESS}", out bool isCorrectCheck) && isCorrectCheck)
             {
-                AccountAddress accountAddress = cachService.GetCachedItem<AccountAddress>(currentUser.Id, "CurrentAccountAddressData");
+                cachService.TryGetEntityCache(currentUser, out AccountAddress accountAddress);
                 return Json(map.DataToViewModel(accountAddress));
             }
             return Json("");

@@ -22,7 +22,7 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
         <li class="breadcrumb-item">
-            <a asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="@notView.CurrentPageNumber">
+            <a asp-controller="Root" asp-action="@USER_NOTS" asp-route-pageNumber="@notView.CurrentPageNumber">
                 @resManager.GetString(NOTIFICATIONS)
             </a>
         </li>

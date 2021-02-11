@@ -70,11 +70,12 @@ namespace GSCrm.Repository
                 {
                     // Если успешно, закрытие транзакции и изменение счетчика уведомлений пользователя
                     viewModelsTransactionFactory.Close(transaction);
-                    int.TryParse(cachService.GetCachedItem(currentUser.Id, "NotsCount"), out int notsCount);
-                    if (hasReed) notsCount--;
-                    else notsCount++;
-                    cachService.CacheItem(currentUser.Id, "NotsCount", notsCount.ToString());
-
+                    if (cachService.TryGetValue(currentUser, "NotsCount", out int notsCount))
+                    {
+                        if (hasReed) notsCount--;
+                        else notsCount++;
+                        cachService.AddOrUpdate(currentUser, "NotsCount", notsCount);
+                    }
                 }
                 else viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
             }
@@ -95,9 +96,11 @@ namespace GSCrm.Repository
         public void OnUserNotAdded(User targetUser)
         {
             // Необходимо инкрементировать счетчик непрочитанных сообщений
-            int.TryParse(cachService.GetCachedItem(targetUser.Id, "NotsCount"), out int notsCount);
-            notsCount++;
-            cachService.CacheItem(targetUser.Id, "NotsCount", notsCount.ToString());
+            if (cachService.TryGetValue(targetUser, "NotsCount", out int notsCount))
+            {
+                notsCount++;
+                cachService.AddOrUpdate(targetUser, "NotsCount", notsCount);
+            }
         }
 
         /// <summary>
@@ -107,11 +110,10 @@ namespace GSCrm.Repository
         public void OnUserNotRemoved(UserNotification userNot)
         {
             // Необходимо уменьшить счетчик непрочитанных сообщений, если сообщение не было прочитано перед удалением
-            if (!userNot.HasRead)
+            if (!userNot.HasRead && cachService.TryGetValue(currentUser, "NotsCount", out int notsCount))
             {
-                int.TryParse(cachService.GetCachedItem(currentUser.Id, "NotsCount"), out int notsCount);
                 notsCount--;
-                cachService.CacheItem(currentUser.Id, "NotsCount", notsCount.ToString());
+                cachService.AddOrUpdate(currentUser, "NotsCount", notsCount);
             }
         }
         #endregion

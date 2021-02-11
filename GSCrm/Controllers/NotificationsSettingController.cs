@@ -6,9 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System;
 using GSCrm.Data;
-using static GSCrm.CommonConsts;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using GSCrm.Mapping;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
 {
@@ -19,32 +18,17 @@ namespace GSCrm.Controllers
         public NotificationsSettingController(ApplicationDbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
         { }
 
-        [HttpGet("NotificationsSetting/{id}")]
-        public ViewResult NotificationsSetting(string id)
+        [HttpGet("OrgNotificationsSettings/{pageNumber}")]
+        public ViewResult OrgNotificationsSettings(int pageNumber)
         {
-            UserNotificationsSettingRepository userNotSettingRepository = new UserNotificationsSettingRepository(serviceProvider, context);
-            if (userNotSettingRepository.TryGetItemById(id, out UserNotificationsSetting userNotificationsSetting))
+            if (cachService.TryGetEntityCache(currentUser, out AllNotificationsSettingsViewModel allSettingsViewModel, NOT_SETTINGS))
             {
-                // Заполнение модели с данными настроек уведомления для пользователя
-                AllNotificationsSettingsViewModel allSettingsViewModel = cachService.GetCachedItem<AllNotificationsSettingsViewModel>(currentUser.Id, NOT_SETTINGS);
-                allSettingsViewModel.UserNotificationsSettingViewModel = new UserNotificationsSettingMap(serviceProvider, context).DataToViewModel(userNotificationsSetting);
-
-                // Прикрепление списка моделей с настройками уведомлений для организаций, в которых состоит пользователь
                 OrgNotificationsSettingRepository orgNotSettingRepository = new OrgNotificationsSettingRepository(serviceProvider, context);
+                orgNotSettingRepository.SetViewInfo(NOT_SETTINGS, pageNumber);
                 orgNotSettingRepository.AttachSettings(ref allSettingsViewModel);
                 return View(NOT_SETTINGS, allSettingsViewModel);
             }
             return View("Error");
-        }
-
-        [HttpGet("OrgNotificationsSettings/{pageNumber}")]
-        public ViewResult OrgNotificationsSettings(int pageNumber)
-        {
-            AllNotificationsSettingsViewModel allSettingsViewModel = cachService.GetCachedItem<AllNotificationsSettingsViewModel>(currentUser.Id, NOT_SETTINGS);
-            OrgNotificationsSettingRepository orgNotSettingRepository = new OrgNotificationsSettingRepository(serviceProvider, context);
-            orgNotSettingRepository.SetViewInfo(NOT_SETTINGS, pageNumber);
-            orgNotSettingRepository.AttachSettings(ref allSettingsViewModel);
-            return View(NOT_SETTINGS, allSettingsViewModel);
         }
 
         [HttpPost("CommitOrgSettings")]

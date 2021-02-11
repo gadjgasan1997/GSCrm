@@ -26,22 +26,24 @@ namespace GSCrm.Transactions.Factories
 
         protected override void CreateHandler(OperationType operationType, EmployeeViewModel employeeViewModel)
         {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            if (operationType.IsInList(baseOperationTypes.With(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision)))
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
-            if (operationType.IsInList(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision))
+            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
             {
-                List<Division> allDivisions = currentOrganization.GetDivisions(context);
-                transaction.AddParameter("AllDivisions", allDivisions);
-                Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == employeeViewModel.Id);
-                transaction.AddParameter("Employee", employee);
+                if (operationType.IsInList(baseOperationTypes.With(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision)))
+                    transaction.AddParameter("CurrentOrganization", currentOrganization);
+                if (operationType.IsInList(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision))
+                {
+                    List<Division> allDivisions = currentOrganization.GetDivisions(context);
+                    transaction.AddParameter("AllDivisions", allDivisions);
+                    Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == employeeViewModel.Id);
+                    transaction.AddParameter("Employee", employee);
+                }
             }
         }
 
         protected override void CreateHandler(OperationType operationType, string recordId)
         {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            transaction.AddParameter("CurrentOrganization", currentOrganization);
+            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                transaction.AddParameter("CurrentOrganization", currentOrganization);
         }
 
         protected override void BeforeCommit(OperationType operationType)

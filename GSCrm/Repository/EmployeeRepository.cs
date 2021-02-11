@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GSCrm.CommonConsts;
-using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Data;
 using GSCrm.Transactions;
 using GSCrm.Models.ViewTypes;
@@ -17,6 +15,8 @@ using GSCrm.Models.Enums;
 using GSCrm.Notifications.Factories.UserNotFactories0;
 using GSCrm.Notifications.Params;
 using Microsoft.AspNetCore.Mvc;
+using static GSCrm.CommonConsts;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
@@ -134,10 +134,12 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearPositionSearch()
         {
-            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_POSITIONS);
-            empViewModelCash.SearchPosName = default;
-            empViewModelCash.SearchParentPosName = default;
-            cachService.CacheItem(currentUser.Id, EMP_POSITIONS, empViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel empViewModelCash, EMP_POSITIONS))
+            {
+                empViewModelCash.SearchPosName = default;
+                empViewModelCash.SearchParentPosName = default;
+                cachService.AddOrUpdate(currentUser, EMP_POSITIONS, empViewModelCash);
+            }
         }
 
         /// <summary>
@@ -145,11 +147,13 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearContactSearch()
         {
-            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_CONTACTS);
-            empViewModelCash.SearchContactType = default;
-            empViewModelCash.SearchContactPhone = default;
-            empViewModelCash.SearchContactEmail = default;
-            cachService.CacheItem(currentUser.Id, EMP_CONTACTS, empViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel empViewModelCash, EMP_CONTACTS))
+            {
+                empViewModelCash.SearchContactType = default;
+                empViewModelCash.SearchContactPhone = default;
+                empViewModelCash.SearchContactEmail = default;
+                cachService.AddOrUpdate(currentUser, EMP_CONTACTS, empViewModelCash);
+            }
         }
 
         /// <summary>
@@ -157,9 +161,11 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSubordinateSearch()
         {
-            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_SUBS);
-            empViewModelCash.SearchSubordinateFullName = default;
-            cachService.CacheItem(currentUser.Id, EMP_SUBS, empViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel empViewModelCash, EMP_SUBS))
+            {
+                empViewModelCash.SearchSubordinateFullName = default;
+                cachService.AddOrUpdate(currentUser, EMP_SUBS, empViewModelCash);
+            }
         }
         #endregion
 
@@ -176,10 +182,12 @@ namespace GSCrm.Repository
 
         private List<EmployeePosition> GetLimitedPositionsList(List<EmployeePosition> positions)
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_POSITIONS);
             List<EmployeePosition> limitedPositions = positions;
-            LimitPosByName(employeeViewModelCash, ref limitedPositions);
-            LimitPosByParent(employeeViewModelCash, ref limitedPositions);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModelCash, EMP_POSITIONS))
+            {
+                LimitPosByName(employeeViewModelCash, ref limitedPositions);
+                LimitPosByParent(employeeViewModelCash, ref limitedPositions);
+            }
             LimitListByPageNumber(EMP_POSITIONS, ref limitedPositions);
             return limitedPositions;
         }
@@ -227,11 +235,13 @@ namespace GSCrm.Repository
 
         private List<EmployeeContact> GetLimitedContactsList(List<EmployeeContact> contacts)
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_CONTACTS);
             List<EmployeeContact> limitedContacts = contacts;
-            LimitContactsByType(employeeViewModelCash, ref limitedContacts);
-            LimitContactsByPhone(employeeViewModelCash, ref limitedContacts);
-            LimitContactsByEmail(employeeViewModelCash, ref limitedContacts);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModelCash, EMP_CONTACTS))
+            {
+                LimitContactsByType(employeeViewModelCash, ref limitedContacts);
+                LimitContactsByPhone(employeeViewModelCash, ref limitedContacts);
+                LimitContactsByEmail(employeeViewModelCash, ref limitedContacts);
+            }
             LimitListByPageNumber(EMP_CONTACTS, ref limitedContacts);
             return limitedContacts;
         }
@@ -283,9 +293,9 @@ namespace GSCrm.Repository
 
         private List<Employee> GetLimitedSubordinatesList(List<Employee> employees)
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_SUBS);
             List<Employee> limitedSubordinates = employees;
-            LimitSubordinatesByFullName(employeeViewModelCash, ref limitedSubordinates);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModelCash, EMP_SUBS))
+                LimitSubordinatesByFullName(employeeViewModelCash, ref limitedSubordinates);
             LimitListByPageNumber(EMP_SUBS, ref limitedSubordinates);
             return limitedSubordinates;
         }

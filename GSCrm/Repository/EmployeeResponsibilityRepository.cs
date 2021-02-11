@@ -2,16 +2,16 @@
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Validators;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using static GSCrm.CommonConsts;
 using GSCrm.Data;
 using GSCrm.Transactions;
+using GSCrm.Models.Enums;
+using GSCrm.Data.ApplicationInfo;
+using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
@@ -32,14 +32,6 @@ namespace GSCrm.Repository
         /// Полномочия сотрудника, которые пользователь хочет удалить из его списка полномочий
         /// </summary>
         private readonly List<EmployeeResponsibility> respsToRemove = new List<EmployeeResponsibility>();
-        /// <summary>
-        /// Количество одновременно отоброжаемых полномочий из списка всех полномочий организации
-        /// </summary>
-        private const int ALL_EMP_RESPS_COUNT = 5;
-        /// <summary>
-        /// Количество одновременно отоброжаемых полномочий из списка всех полномочий сотрудника
-        /// </summary>
-        private const int SELECTED_EMP_RESPS_COUNT = 5;
         /// <summary>
         /// Транзакция для синхронизации должностей
         /// </summary>
@@ -64,9 +56,11 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearAllResponsibilitiesSearch()
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_RESPS);
-            employeeViewModelCash.SearchAllRespName = default;
-            cachService.CacheItem(currentUser.Id, ALL_EMP_RESPS, employeeViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModelCash, ALL_EMP_RESPS))
+            {
+                employeeViewModelCash.SearchAllRespName = default;
+                cachService.AddOrUpdate(currentUser, ALL_EMP_RESPS, employeeViewModelCash);
+            }
         }
 
         /// <summary>
@@ -74,9 +68,11 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSelectedResponsibilitiesSearch()
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_RESPS);
-            employeeViewModelCash.SearchSelectedRespName = default;
-            cachService.CacheItem(currentUser.Id, SELECTED_EMP_RESPS, employeeViewModelCash);
+            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModelCash, SELECTED_EMP_RESPS))
+            {
+                employeeViewModelCash.SearchSelectedRespName = default;
+                cachService.AddOrUpdate(currentUser, SELECTED_EMP_RESPS, employeeViewModelCash);
+            }
         }
         #endregion
 
@@ -84,10 +80,11 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список всех полномочий организации
         /// </summary>
-        /// <param name="employeeId"></param>
+        /// <param name="employee"></param>
+        /// <param name="employeeViewModelCash"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Responsibility> AttachAllResponsibilities(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Responsibility> GetAllResponsibilities(Employee employee, EmployeeViewModel employeeViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             SetViewInfo(ALL_EMP_RESPS, pageNumber);
 
@@ -105,7 +102,6 @@ namespace GSCrm.Repository
                 .Except(selectedResponsibilities, new ResponsibilityComparer()).ToList();
 
             // Ограничение по фильтрам и номеру страницы
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_RESPS);
             LimitAllRespsByName(employeeViewModelCash, ref allResponsibilities);
             LimitListByPageNumber(ALL_EMP_RESPS, ref allResponsibilities);
             return allResponsibilities;
@@ -128,10 +124,11 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список всех полномочий сотрудника
         /// </summary>
-        /// <param name="employeeId"></param>
+        /// <param name="employee"></param>
+        /// <param name="employeeViewModelCash"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Responsibility> AttachSelectedResponsibilities(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Responsibility> GetSelectedResponsibilities(Employee employee, EmployeeViewModel employeeViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             SetViewInfo(SELECTED_EMP_RESPS, pageNumber);
 
@@ -140,7 +137,6 @@ namespace GSCrm.Repository
                 .AsNoTracking()
                 .Include(resp => resp.Responsibility)
                 .Where(emp => emp.EmployeeId == employee.Id).ToList();
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_RESPS);
             LimitSelectedRespsByName(employeeViewModelCash, ref selectedResponsibilities);
             LimitListByPageNumber(SELECTED_EMP_RESPS, ref selectedResponsibilities);
             return selectedResponsibilities.Select(resp => resp.Responsibility).ToList();
@@ -272,6 +268,40 @@ namespace GSCrm.Repository
                 }
                 else syncErrors.Add(resManager.GetString("UnhandledException"), "UnhandledException");
             });
+        }
+
+        /// <summary>
+        /// Вызывается для пролистывания всех полномочий
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="navigateDirection">Направление пролистывания</param>
+        /// <returns></returns>
+        public List<ResponsibilityViewModel> NavigateGetAllRecords(Employee employee, NavigateDirection navigateDirection)
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_RESPS);
+            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
+            if (!cachService.TryGetEntityCache(currentUser, out EmployeeViewModel allEmployeeRespsCash, ALL_EMP_RESPS))
+                allEmployeeRespsCash = new EmployeeViewModel();
+            int pageNumber = viewInfo.GetNewPageNumber(navigateDirection);
+            List<Responsibility> allResponsibilities = responsibilityRepository.GetAllResponsibilities(employee, allEmployeeRespsCash, pageNumber);
+            return allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
+        }
+
+        /// <summary>
+        /// Вызывается для пролистывания выбранных полномочий пользователя
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="navigateDirection">Направление пролистывания</param>
+        /// <returns></returns>
+        public List<ResponsibilityViewModel> NavigateGetSelectedRecords(Employee employee, NavigateDirection navigateDirection)
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_RESPS);
+            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
+            if (!cachService.TryGetEntityCache(currentUser, out EmployeeViewModel selectedEmployeeRespsCash, SELECTED_EMP_RESPS))
+                selectedEmployeeRespsCash = new EmployeeViewModel();
+            int pageNumber = viewInfo.GetNewPageNumber(navigateDirection);
+            List<Responsibility> selectedResponsibilities = responsibilityRepository.GetSelectedResponsibilities(employee, selectedEmployeeRespsCash, pageNumber);
+            return selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
         }
         #endregion
     }

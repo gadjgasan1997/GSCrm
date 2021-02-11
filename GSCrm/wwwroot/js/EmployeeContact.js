@@ -158,8 +158,8 @@ class EmployeeContact {
             let removeEmpContactUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
 
             request.CommonDeleteRequest(removeEmpContactUrl)
-                .fail(() => {
-                    Swal.fire(MessageManager.Invoke("RemoveEmployeeContactError"));
+                .fail(response => {
+                    Utils.DefaultErrorHandling(response["responseJSON"]);
                     reject();
                 })
                 .done(() => location.reload());

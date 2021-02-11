@@ -846,6 +846,9 @@
   <data name="HasPermissionsForSeeEmployee" xml:space="preserve">
     <value>Сотрудник не найден или у вас нет прав на его просмотр</value>
   </data>
+  <data name="HasPermissionsForSeeNotSetting" xml:space="preserve">
+    <value>Настройки уведомлений не найдены</value>
+  </data>
   <data name="HasPermissionsForSeeOrganization" xml:space="preserve">
     <value>Организация не найдена или у вас нет прав на ее просмотр</value>
   </data>

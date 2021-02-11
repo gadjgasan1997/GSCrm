@@ -42,11 +42,13 @@ namespace GSCrm.Controllers
         public IActionResult InitalizeAppData()
         {
             if (currentUser == null) return Json(new AppData());
-            string notsCount = cachService.GetCachedItem(currentUser.Id, "NotsCount");
-            if (string.IsNullOrEmpty(notsCount))
+            if (cachService.TryGetValue(currentUser, "NotsCount", out int notsCount))
             {
-                notsCount = context.UserNotifications.AsNoTracking().Where(userNot => userNot.UserId == currentUser.Id && !userNot.HasRead).Count().ToString();
-                cachService.CacheItem(currentUser.Id, "NotsCount", notsCount);
+                if (notsCount == 0)
+                {
+                    notsCount = context.UserNotifications.AsNoTracking().Where(userNot => userNot.UserId == currentUser.Id && !userNot.HasRead).Count();
+                    cachService.AddOrUpdate(currentUser, "NotsCount", notsCount);
+                }
             }
             AppData appData = new AppData()
             {

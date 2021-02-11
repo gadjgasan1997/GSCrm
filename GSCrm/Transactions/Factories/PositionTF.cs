@@ -2,16 +2,13 @@
 using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Helpers;
-using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications.Params;
 using GSCrm.Notifications.Factories.OrgNotFactories;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Repository;
-using static GSCrm.CommonConsts;
 using GSCrm.Notifications;
 
 namespace GSCrm.Transactions.Factories
@@ -24,15 +21,15 @@ namespace GSCrm.Transactions.Factories
         {
             if (operationType.IsInList(baseOperationTypes.With(OperationType.ChangePositionDivision, OperationType.UnlockPosition)))
             {
-                Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
+                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                    transaction.AddParameter("CurrentOrganization", currentOrganization);
             }
         }
 
         protected override void CreateHandler(OperationType operationType, string recordId)
         {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            transaction.AddParameter("CurrentOrganization", currentOrganization);
+            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
+                transaction.AddParameter("CurrentOrganization", currentOrganization);
         }
 
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)

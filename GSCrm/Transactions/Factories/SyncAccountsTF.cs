@@ -8,7 +8,6 @@ using GSCrm.Notifications.Params;
 using GSCrm.Notifications.Auxiliary;
 using GSCrm.Notifications.Factories.OrgNotFactories;
 using Microsoft.EntityFrameworkCore;
-using GSCrm.Models.Enums;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -20,8 +19,8 @@ namespace GSCrm.Transactions.Factories
         {
             if (operationType == OperationType.AccountTeamManagement)
             {
-                Account currentAccount = cachService.GetMainEntity(currentUser, MainEntityType.AccountData) as Account;
-                transaction.AddParameter("CurrentAccount", currentAccount);
+                if (cachService.TryGetEntityCache(currentUser, out Account currentAccount))
+                    transaction.AddParameter("CurrentAccount", currentAccount);
             }
         }
 

@@ -6,9 +6,9 @@ using GSCrm.Models;
 using GSCrm.Helpers;
 using GSCrm.Mapping;
 using GSCrm.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using static GSCrm.Utils.CollectionsUtils;
 using static GSCrm.CommonConsts;
-using Microsoft.EntityFrameworkCore;
 
 namespace GSCrm.Repository
 {
@@ -225,12 +225,14 @@ namespace GSCrm.Repository
         /// </summary>
         public void Search(ProductCategoriesViewModel prodCatsViewModel)
         {
-            ProductCategoriesViewModel prodCatsCache = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
-            prodCatsCache.SearchProductCategoryName = prodCatsViewModel.SearchProductCategoryName;
-            prodCatsCache.SearchProductName = prodCatsViewModel.SearchProductName;
-            prodCatsCache.MinConst = prodCatsViewModel.MinConst;
-            prodCatsCache.MaxConst = prodCatsViewModel.MaxConst;
-            cachService.CacheItem(currentUser.Id, PROD_CATS, prodCatsCache);
+            if (cachService.TryGetEntityCache(currentUser, out ProductCategoriesViewModel prodCatsCache, PROD_CATS))
+            {
+                prodCatsCache.SearchProductCategoryName = prodCatsViewModel.SearchProductCategoryName;
+                prodCatsCache.SearchProductName = prodCatsViewModel.SearchProductName;
+                prodCatsCache.MinConst = prodCatsViewModel.MinConst;
+                prodCatsCache.MaxConst = prodCatsViewModel.MaxConst;
+                cachService.AddOrUpdate(currentUser, PROD_CATS, prodCatsCache);
+            }
         }
 
         /// <summary>
@@ -238,12 +240,14 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearSearch()
         {
-            ProductCategoriesViewModel prodCatsCached = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
-            prodCatsCached.SearchProductCategoryName = default;
-            prodCatsCached.SearchProductName = default;
-            prodCatsCached.MinConst = default;
-            prodCatsCached.MaxConst = default;
-            cachService.CacheItem(currentUser.Id, PROD_CATS, prodCatsCached);
+            if (cachService.TryGetEntityCache(currentUser, out ProductCategoriesViewModel prodCatsCache, PROD_CATS))
+            {
+                prodCatsCache.SearchProductCategoryName = default;
+                prodCatsCache.SearchProductName = default;
+                prodCatsCache.MinConst = default;
+                prodCatsCache.MaxConst = default;
+                cachService.AddOrUpdate(currentUser, PROD_CATS, prodCatsCache);
+            }
         }
         #endregion
 

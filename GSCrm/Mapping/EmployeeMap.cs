@@ -103,49 +103,57 @@ namespace GSCrm.Mapping
                 {
                     // Восстановление данных поиска по должностям
                     case EmployeeViewType.EMP_POSITIONS:
-                        EmployeeViewModel employeePosCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_POSITIONS);
-                        employeeViewModel.SearchPosName = employeePosCash.SearchPosName;
-                        employeeViewModel.SearchParentPosName = employeePosCash.SearchParentPosName;
+                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeePosCash, EMP_POSITIONS))
+                        {
+                            employeeViewModel.SearchPosName = employeePosCash.SearchPosName;
+                            employeeViewModel.SearchParentPosName = employeePosCash.SearchParentPosName;
+                        }
                         break;
 
                     // Восстановление данных поиска по контактам
                     case EmployeeViewType.EMP_CONTACTS:
-                        EmployeeViewModel employeeContactCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_CONTACTS);
-                        employeeViewModel.SearchContactType = employeeContactCash.SearchContactType;
-                        employeeViewModel.SearchContactPhone = employeeContactCash.SearchContactPhone;
-                        employeeViewModel.SearchContactEmail = employeeContactCash.SearchContactEmail;
+                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeContactCash, EMP_CONTACTS))
+                        {
+                            employeeViewModel.SearchContactType = employeeContactCash.SearchContactType;
+                            employeeViewModel.SearchContactPhone = employeeContactCash.SearchContactPhone;
+                            employeeViewModel.SearchContactEmail = employeeContactCash.SearchContactEmail;
+                        }
                         break;
 
                     // Восстановление данных поиска по подчиненным
                     case EmployeeViewType.EMP_SUBS:
-                        EmployeeViewModel employeeSubCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_SUBS);
-                        employeeViewModel.SearchSubordinateFullName = employeeSubCash.SearchSubordinateFullName;
+                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeSubCash, EMP_SUBS))
+                            employeeViewModel.SearchSubordinateFullName = employeeSubCash.SearchSubordinateFullName;
                         break;
 
                     // Восстановление данных поиска по всем должностям организации для модального окна управления должностями
                     case EmployeeViewType.ALL_EMP_POSS:
-                        EmployeeViewModel allEmployeePossCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
-                        employeeViewModel.SearchAllPosName = allEmployeePossCash.SearchAllPosName;
-                        employeeViewModel.SearchAllParentPosName = allEmployeePossCash.SearchAllParentPosName;
+                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel allEmployeePossCash, ALL_EMP_POSS))
+                        {
+                            employeeViewModel.SearchAllPosName = allEmployeePossCash.SearchAllPosName;
+                            employeeViewModel.SearchAllParentPosName = allEmployeePossCash.SearchAllParentPosName;
+                        }
                         break;
 
                     // Восстановление данных поиска по выбранным должностям сотрудника для модального окна управления должностями
                     case EmployeeViewType.SELECTED_EMP_POSS:
-                        EmployeeViewModel selectedEmployeePossCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
-                        employeeViewModel.SearchSelectedPosName = selectedEmployeePossCash.SearchSelectedPosName;
-                        employeeViewModel.SearchSelectedParentPosName = selectedEmployeePossCash.SearchSelectedParentPosName;
+                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel selectedEmployeePossCash, SELECTED_EMP_POSS))
+                        {
+                            employeeViewModel.SearchSelectedPosName = selectedEmployeePossCash.SearchSelectedPosName;
+                            employeeViewModel.SearchSelectedParentPosName = selectedEmployeePossCash.SearchSelectedParentPosName;
+                        }
                         break;
 
                     // Восстановление данных поиска по всем полномочиям организации для модального окна управления полномочиями
                     case EmployeeViewType.ALL_EMP_RESPS:
-                        EmployeeViewModel allEmployeeRespsCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_RESPS);
-                        employeeViewModel.SearchAllRespName = allEmployeeRespsCash.SearchAllRespName;
+                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel allEmployeeRespsCash, ALL_EMP_RESPS))
+                            employeeViewModel.SearchAllRespName = allEmployeeRespsCash.SearchAllRespName;
                         break;
 
                     // Восстановление данных поиска по выбранным полномочиям сотрудника для модального окна управления полномочиями
                     case EmployeeViewType.SELECTED_EMP_RESPS:
-                        EmployeeViewModel selectedEmployeeRespsCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_RESPS);
-                        employeeViewModel.SearchSelectedRespName = selectedEmployeeRespsCash.SearchSelectedRespName;
+                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel selectedEmployeeRespsCash, SELECTED_EMP_RESPS))
+                            employeeViewModel.SearchSelectedRespName = selectedEmployeeRespsCash.SearchSelectedRespName;
                         break;
 
                     default:

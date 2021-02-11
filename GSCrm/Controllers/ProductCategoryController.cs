@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using GSCrm.Data;
 using GSCrm.Mapping;
-using GSCrm.Models.Enums;
 using GSCrm.Data.ApplicationInfo;
-using GSCrm.Helpers;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
@@ -24,11 +22,9 @@ namespace GSCrm.Controllers
         [HttpGet("ProductCategories")]
         public IActionResult ProductCategories()
         {
-            // Запрос сюда возможен после получения представления продуктовых категорий, а значит, организация в этот момент уже инициализирована
-            Organization organization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            if (organization.Id != Guid.Empty)
+            // Запрос сюда возможен после получения представления продуктовых категорий
+            if (cachService.TryGetEntityCache(currentUser, out ProductCategoriesViewModel prodCatsCached, PROD_CATS))
             {
-                ProductCategoriesViewModel prodCatsCached = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
                 ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
                 ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
                 productCategoryRepository.SetViewInfo(PROD_CATS, viewInfo.CurrentPageNumber);
@@ -42,9 +38,9 @@ namespace GSCrm.Controllers
         public IActionResult Initalize()
         {
             // Получение признака проверки категории и прав пользователя на ее просмотр
-            if (bool.TryParse(cachService.GetCachedItem(currentUser.Id, $"{PC}{PROD_CATS}"), out bool isCheckCorrect) && isCheckCorrect)
+            if (cachService.TryGetValue(currentUser, $"{PC}{PROD_CATS}", out bool isCheckCorrect) && isCheckCorrect)
             {
-                ProductCategory productCategory = cachService.GetCachedItem<ProductCategory>(currentUser.Id, "CurrentProductCategoryData");
+                cachService.TryGetEntityCache(currentUser, out ProductCategory productCategory);
                 ProductCategoryViewModel prodCatViewModel = new ProductCategoryMap(serviceProvider, context).DataToViewModel(productCategory);
                 return Json(prodCatViewModel);
             }

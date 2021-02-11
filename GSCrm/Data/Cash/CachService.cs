@@ -1,238 +1,200 @@
 ﻿using System;
 using System.Collections.Generic;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.Helpers;
 using GSCrm.Models;
-using GSCrm.Models.Enums;
-using GSCrm.Models.ViewModels;
+using GSCrm.Helpers;
+using GSCrm.Data.ApplicationInfo;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GSCrm.Data.Cash
 {
     public class CachService : ICachService
     {
-        public string GetCachedItem(string userId, string itemName)
+        #region Base
+        public void RemoveUserCache(string userId)
         {
-            if (!CachMainData._cashItems.ContainsKey(userId) ||
-                !CachMainData._cashItems[userId].ContainsKey(itemName))
-                return string.Empty;
-            return CachMainData._cashItems[userId][itemName];
+            if (CacheData._cashItems.ContainsKey(userId))
+                CacheData._cashItems.Remove(userId);
+            if (CacheData._cashViews.ContainsKey(userId))
+                CacheData._cashViews.Remove(userId);
+            if (CacheData._currentViews.ContainsKey(userId))
+                CacheData._currentViews.Remove(userId);
         }
+        #endregion
 
-        public void CacheItem(string userId, string itemName, string itemValue)
+        #region Objects
+        public bool TryGetValue(User user, string itemName, out object itemValue)
         {
-            InitCacheItem(userId, itemName, itemValue);
-            CachMainData._cashItems[userId][itemName] = itemValue;
-        }
-
-        /// <summary>
-        /// Метод инициализирует элемент кеша, не изменяя его при наличии
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="userId"></param>
-        /// <param name="itemName"></param>
-        /// <param name="itemValue"></param>
-        private void InitCacheItem(string userId, string itemName, string itemValue)
-        {
-            if (!CachMainData._cashItems.ContainsKey(userId))
+            InitCacheItems(user);
+            if (CacheData._cashItems[user.Id].TryGetValue(itemName, out object item))
             {
-                CachMainData._cashItems.Add(userId, new Dictionary<string, string>()
-                {
-                    { itemName, itemValue }
-                });
+                itemValue = item;
+                return true;
             }
-            else if (!CachMainData._cashItems[userId].ContainsKey(itemName))
-                CachMainData._cashItems[userId].Add(itemName, itemValue);
+            itemValue = null;
+            return false;
         }
 
-        public TEntity GetCachedItem<TEntity>(string userId, string entityName)
-            where TEntity : IMainEntity, new()
+        public bool TryGetValue(User user, string itemName, out bool itemValue)
         {
-            InitCacheItem(userId, entityName, new TEntity());
-            return CachEntitiesData<TEntity>._cashItems[userId][entityName];
-        }
-
-        public void CacheItem<TEntity>(string userId, string entityName, TEntity entity)
-            where TEntity : IMainEntity
-        {
-            InitCacheItem(userId, entityName, entity);
-            CachEntitiesData<TEntity>._cashItems[userId][entityName] = entity;
-        }
-
-        public List<TEntity> GetCachedItems<TEntity>(string userId, string entityName)
-            where TEntity : IMainEntity, new()
-        {
-            InitCacheItems(userId, entityName, new List<TEntity>());
-            return CachEntitiesData<TEntity>._cashListedItems[userId][entityName];
-        }
-
-        public void CacheItems<TEntity>(string userId, string entityName, List<TEntity> entities)
-            where TEntity : IMainEntity
-        {
-            InitCacheItems(userId, entityName, entities);
-            CachEntitiesData<TEntity>._cashListedItems[userId][entityName] = entities;
-        }
-
-        /// <summary>
-        /// Метод инициализирует элемент кеша, не изменяя его при наличии
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="userId"></param>
-        /// <param name="entityName"></param>
-        /// <param name="entity"></param>
-        private void InitCacheItem<TEntity>(string userId, string entityName, TEntity entity)
-            where TEntity : IMainEntity
-        {
-            if (!CachEntitiesData<TEntity>._cashItems.ContainsKey(userId))
+            InitCacheItems(user);
+            if (CacheData._cashItems[user.Id].TryGetValue(itemName, out bool item))
             {
-                CachEntitiesData<TEntity>._cashItems.Add(userId, new Dictionary<string, TEntity>()
-                {
-                    { entityName, entity }
-                });
+                itemValue = item;
+                return true;
             }
-            else if (!CachEntitiesData<TEntity>._cashItems[userId].ContainsKey(entityName))
-                CachEntitiesData<TEntity>._cashItems[userId].Add(entityName, entity);
+            itemValue = false;
+            return false;
         }
 
-        /// <summary>
-        /// Метод инициализирует элемент кеша со списком элементов, не изменяя его при наличии
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="userId"></param>
-        /// <param name="entityName"></param>
-        /// <param name="entity"></param>
-        private void InitCacheItems<TEntity>(string userId, string entityName, List<TEntity> entity)
+        public bool TryGetValue(User user, string itemName, out int itemValue)
+        {
+            InitCacheItems(user);
+            if (CacheData._cashItems[user.Id].TryGetValue(itemName, out int item))
+            {
+                itemValue = item;
+                return true;
+            }
+            itemValue = default;
+            return false;
+        }
+
+        public void AddOrUpdate(User user, string itemName, object itemValue)
+        {
+            InitCacheItems(user);
+            CacheData._cashItems[user.Id].Set(itemName, itemValue);
+        }
+
+        public void AddOrUpdate(User user, string itemName, bool itemValue)
+        {
+            InitCacheItems(user);
+            CacheData._cashItems[user.Id].Set(itemName, itemValue);
+        }
+
+        public void AddOrUpdate(User user, string itemName, int itemValue)
+        {
+            InitCacheItems(user);
+            CacheData._cashItems[user.Id].Set(itemName, itemValue);
+        }
+        #endregion
+            
+        #region Generic Entities
+        public bool TryGetEntityCache<TEntity>(User user, out TEntity entity, string cachedEntityName = null)
+            where TEntity : class, IMainEntity
+        {
+            if (TryGetValue(user, cachedEntityName ?? $"Current{typeof(TEntity).Name}", out object item))
+            {
+                entity = (TEntity)item;
+                return entity != null;
+            }
+            entity = null;
+            return false;
+        }
+
+        public bool TryGetEntitiesCache<TEntity>(User user, out List<TEntity> entities, string cachedEntitiesName = null)
+            where TEntity : class, IMainEntity
+        {
+            if (TryGetValue(user, cachedEntitiesName ?? $"ListOf{typeof(TEntity).Name}", out object items))
+            {
+                entities = (List<TEntity>)items;
+                return entities != null;
+            }
+            entities = null;
+            return false;
+        }
+
+        public Guid GetEntityId<TEntity>(User user, string cachedEntityName = null)
+            where TEntity : class, IMainEntity
+        {
+            if (TryGetEntityCache(user, out TEntity entity, cachedEntityName))
+                return entity.Id;
+            return Guid.Empty;
+        }
+
+        public void AddOrUpdateEntity<TEntity>(User user, TEntity entity, string entityName = null)
             where TEntity : IMainEntity
         {
-            if (!CachEntitiesData<TEntity>._cashListedItems.ContainsKey(userId))
-            {
-                CachEntitiesData<TEntity>._cashListedItems.Add(userId, new Dictionary<string, List<TEntity>>()
-                {
-                    { entityName, entity }
-                });
-            }
-            else if (!CachEntitiesData<TEntity>._cashListedItems[userId].ContainsKey(entityName))
-                CachEntitiesData<TEntity>._cashListedItems[userId].Add(entityName, entity);
+            InitCacheItems(user);
+            CacheData._cashItems[user.Id].Set(entityName ?? $"Current{typeof(TEntity).Name}", entity);
         }
+        #endregion
 
+        #region ViewInfo
         public void SetViewInfo(string userId, string viewName, ViewInfo viewInfo)
         {
             if (new[] { userId, viewName }.IsNullOrEmpty()) return;
+            InitCacheViews(userId);
 
             // Добавление информации о представлении в список представлений пользователя
-            if (!CashViewData._cashItems.ContainsKey(userId))
-            {
-                CashViewData._cashItems.Add(userId, new Dictionary<string, ViewInfo>()
-                {
-                    { viewName, viewInfo }
-                });
-            }
-            else if (!CashViewData._cashItems[userId].ContainsKey(viewName))
-                CashViewData._cashItems[userId].Add(viewName, viewInfo);
-            else CashViewData._cashItems[userId][viewName] = viewInfo;
+            if (!CacheData._cashViews[userId].ContainsKey(viewName))
+                CacheData._cashViews[userId].Add(viewName, viewInfo);
+            else CacheData._cashViews[userId][viewName] = viewInfo;
 
             // Прсотавление назвакния текущего представления, на котором находится пользователь
-            if (!CashViewData._currentViews.ContainsKey(userId))
-                CashViewData._currentViews.Add(userId, viewInfo);
-            else CashViewData._currentViews[userId] = viewInfo;
+            if (!CacheData._currentViews.ContainsKey(userId))
+                CacheData._currentViews.Add(userId, viewInfo);
+            else CacheData._currentViews[userId] = viewInfo;
         }
 
         public ViewInfo GetViewInfo(string userId, string viewName)
         {
-            if (new[] { userId, viewName }.IsNullOrEmpty()) return new ViewInfo(viewName);
-            if (!CashViewData._cashItems.ContainsKey(userId)) return new ViewInfo(viewName);
-            if (!CashViewData._cashItems[userId].ContainsKey(viewName)) return new ViewInfo(viewName);
-            return CashViewData._cashItems[userId][viewName];
+            if (new[] { userId, viewName }.IsNullOrEmpty())
+                return new ViewInfo(viewName);
+            InitCacheViews(userId);
+            if (!CacheData._cashViews[userId].ContainsKey(viewName))
+                return new ViewInfo(viewName);
+            return CacheData._cashViews[userId][viewName];
         }
 
         public void SetCurrentView(string userId, string currentViewName)
         {
             if (!string.IsNullOrEmpty(userId))
             {
-                if (!CashViewData._currentViews.ContainsKey(userId))
-                    CashViewData._currentViews.Add(userId, new ViewInfo(currentViewName));
-                else CashViewData._currentViews[userId] = new ViewInfo(currentViewName);
+                if (!CacheData._currentViews.ContainsKey(userId))
+                    CacheData._currentViews.Add(userId, new ViewInfo(currentViewName));
+                else CacheData._currentViews[userId] = new ViewInfo(currentViewName);
             }
         }
 
         public ViewInfo GetCurrentViewInfo(string userId)
         {
-            if (string.IsNullOrEmpty(userId) || !CashViewData._currentViews.ContainsKey(userId))
+            if (string.IsNullOrEmpty(userId) || !CacheData._currentViews.ContainsKey(userId))
                 return null;
-            return CashViewData._currentViews[userId];
+            return CacheData._currentViews[userId];
+        }
+        #endregion
+
+        #region Addition Methods
+        private void InitCacheItems(User user)
+        {
+            if (!CacheData._cashItems.ContainsKey(user.Id))
+                CacheData._cashItems.Add(user.Id, new MemoryCache(new MemoryCacheOptions()));
         }
 
-        public IMainEntity GetMainEntity(User currentUser, MainEntityType mainEntityType)
-            => mainEntityType switch
-            {
-                MainEntityType.AccountData => GetCachedItem<Account>(currentUser.Id, "CurrentAccountData"),
-                MainEntityType.OrganizationData => GetCachedItem<Organization>(currentUser.Id, "CurrentOrganizationData"),
-                MainEntityType.EmployeeData => GetCachedItem<Employee>(currentUser.Id, "CurrentEmployeeData"),
-                MainEntityType.PositionData => GetCachedItem<Position>(currentUser.Id, "CurrentPositionData"),
-                MainEntityType.ResponsibilityData => GetCachedItem<Responsibility>(currentUser.Id, "CurrentResponsibilityData"),
-                MainEntityType.NotificationData => GetCachedItem<Notification>(currentUser.Id, "CurrentNotificationData"),
-                MainEntityType.AccountView => GetCachedItem<AccountViewModel>(currentUser.Id, "CurrentAccountView"),
-                MainEntityType.OrganizationView => GetCachedItem<OrganizationViewModel>(currentUser.Id, "CurrentOrganizationView"),
-                MainEntityType.EmployeeView => GetCachedItem<EmployeeViewModel>(currentUser.Id, "CurrentEmployeeView"),
-                MainEntityType.PositionView => GetCachedItem<PositionViewModel>(currentUser.Id, "CurrentPositionView"),
-                MainEntityType.ResponsibilityView => GetCachedItem<ResponsibilityViewModel>(currentUser.Id, "CurrentResponsibilityView"),
-                MainEntityType.NotificationView => GetCachedItem<UserNotificationViewModel>(currentUser.Id, "CurrentNotificationView"),
-                _ => null
-            };
-
-        public Guid GetMainEntityId(User currentUser, MainEntityType mainEntityType) => GetMainEntity(currentUser, mainEntityType).Id;
-
-        public void CacheOrganization(User currentUser, Organization organization, OrganizationViewModel orgViewModel)
+        private void InitCacheListItems(User user)
         {
-            CacheItem(currentUser.Id, "CurrentOrganizationData", organization);
-            CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
+            if (!CacheData._cashListItems.ContainsKey(user.Id))
+                CacheData._cashListItems.Add(user.Id, new MemoryCache(new MemoryCacheOptions()));
         }
 
-        public void GetCachedOrganization(User currentUser, out Organization organization, out OrganizationViewModel orgViewModel)
+        private void InitCacheViews(string userId)
         {
-            organization = GetCachedItem<Organization>(currentUser.Id, "CurrentOrganizationData");
-            orgViewModel = GetCachedItem<OrganizationViewModel>(currentUser.Id, "CurrentOrganizationView");
+            if (!CacheData._cashViews.ContainsKey(userId))
+                CacheData._cashViews.Add(userId, new Dictionary<string, ViewInfo>());
+            if (!CacheData._currentViews.ContainsKey(userId))
+                CacheData._currentViews.Add(userId, null);
         }
+        #endregion
 
-        public void CachePosition(User currentUser, Position position, PositionViewModel posViewModel)
+        class CacheData
         {
-            CacheItem(currentUser.Id, "CurrentPositionData", position);
-            CacheItem(currentUser.Id, "CurrentPositionView", posViewModel);
-        }
-
-        public void CacheEmployee(User currentUser, Employee employee, EmployeeViewModel empViewModel)
-        {
-            CacheItem(currentUser.Id, "CurrentEmployeeData", employee);
-            CacheItem(currentUser.Id, "CurrentEmployeeView", empViewModel);
-        }
-
-        public void CacheResponsibility(User currentUser, Responsibility responsibility, ResponsibilityViewModel respViewModel)
-        {
-            CacheItem(currentUser.Id, "CurrentResponsibilityData", responsibility);
-            CacheItem(currentUser.Id, "CurrentResponsibilityView", respViewModel);
-        }
-
-        public void CacheAccount(User currentUser, Account account, AccountViewModel accViewModel)
-        {
-            CacheItem(currentUser.Id, "CurrentAccountData", account);
-            CacheItem(currentUser.Id, "CurrentAccountView", accViewModel);
-        }
-
-        class CachMainData
-        {
-            public static readonly Dictionary<string, Dictionary<string, string>> _cashItems = new Dictionary<string, Dictionary<string, string>>();
-        }
-
-        class CashViewData
-        {
-            public static Dictionary<string, ViewInfo> _currentViews { get; set; } = new Dictionary<string, ViewInfo>();
-            public static Dictionary<string, Dictionary<string, ViewInfo>> _cashItems { get; set; } = new Dictionary<string, Dictionary<string, ViewInfo>>();
-        }
-
-        class CachEntitiesData<TEntity>
-            where TEntity : IMainEntity
-        {
-            public static readonly Dictionary<string, Dictionary<string, TEntity>> _cashItems = new Dictionary<string, Dictionary<string, TEntity>>();
-            public static readonly Dictionary<string, Dictionary<string, List<TEntity>>> _cashListedItems = new Dictionary<string, Dictionary<string, List<TEntity>>>();
+            public static readonly Dictionary<string, MemoryCache> _cashItems
+                = new Dictionary<string, MemoryCache>();
+            public static readonly Dictionary<string, MemoryCache> _cashListItems
+                = new Dictionary<string, MemoryCache>();
+            public static readonly Dictionary<string, Dictionary<string, ViewInfo>> _cashViews
+                = new Dictionary<string, Dictionary<string, ViewInfo>>();
+            public static readonly Dictionary<string, ViewInfo> _currentViews
+                = new Dictionary<string, ViewInfo>();
         }
     }
 }
