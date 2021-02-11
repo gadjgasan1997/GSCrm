@@ -3,78 +3,80 @@
 }
 @inject GSCrm.Localization.ResManager resManager
 @model GSCrm.Models.ViewModels.UserViewModel
-<div class="register-form">
-    <div class="form-shadow d-none"></div>
-    <ul class="nav nav-tabs register-nav" role="tablist">
-        <li class="nav-item label-lg">
-            <a class="nav-link active" href="#login" id="loginTab" data-toggle="tab" role="tab" aria-selected="true">Log In</a>
-        </li>
-        <li class="nav-item label-lg">
-            <a class="nav-link" href="#signup" id="signupTab" data-toggle="tab" role="tab" aria-selected="false">Sign Up</a>
-        </li>
-    </ul>
-    <div class="tab-content login-body">
-        <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="loginTab">
-            <form method="post" asp-controller="Auth" asp-action="Login">
-                <div class="form-group mt-3 user-avatar-lg">
-                    <p class="icon-user-circle-o"></p>
-                </div>
-                <div class="form-group mb-5">
-                    <p class="label-md label-non-select">@resManager.GetString("Username")</p>
-                    <input id="LoginUserName" asp-for="UserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")">
-                    <ul id="LoginUserNameError" class="d-none under-field-error label-sm"></ul>
-                </div>
-                <div class="form-group mb-5">
-                    <p class="label-md label-non-select">@resManager.GetString("Password")</p>
-                    <input id="LoginPassword" asp-for="Password" type="password" class="form-control" placeholder="@resManager.GetString("Password")">
-                    <ul id="LoginPasswordError" class="d-none under-field-error label-sm"></ul>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col">
-                            <input id="loginBtn" type="submit" class="btn btn-dark" value="Login" />
-                        </div>
-                        <div class="col">
-                            <a class="btn btn-outline-primary" asp-controller="Auth" asp-action="ResetPasswordSpecifyEmail">@resManager.GetString("ResetPasswordLabel")</a>
+<div class="register-form-wrapper">
+    <div class="register-form">
+        <div class="form-shadow d-none"></div>
+        <ul class="nav nav-tabs register-nav" role="tablist">
+            <li class="nav-item label-lg">
+                <a class="nav-link active" href="#login" id="loginTab" data-toggle="tab" role="tab" aria-selected="true">Log In</a>
+            </li>
+            <li class="nav-item label-lg">
+                <a class="nav-link" href="#signup" id="signupTab" data-toggle="tab" role="tab" aria-selected="false">Sign Up</a>
+            </li>
+        </ul>
+        <div class="tab-content login-body">
+            <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="loginTab">
+                <form method="post" asp-controller="Auth" asp-action="Login">
+                    <div class="form-group mt-3 user-avatar-lg">
+                        <p class="icon-user-circle-o"></p>
+                    </div>
+                    <div class="form-group mb-5">
+                        <p class="label-md label-non-select">@resManager.GetString("Username")</p>
+                        <input id="LoginUserName" asp-for="UserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")">
+                        <ul id="LoginUserNameError" data-connect-el="LoginUserName" class="d-none under-field-error label-sm"></ul>
+                    </div>
+                    <div class="form-group mb-5">
+                        <p class="label-md label-non-select">@resManager.GetString("Password")</p>
+                        <input id="LoginPassword" asp-for="Password" type="password" class="form-control" placeholder="@resManager.GetString("Password")">
+                        <ul id="LoginPasswordError" data-connect-el="LoginPassword" class="d-none under-field-error label-sm"></ul>
+                    </div>
+                    <div id="loginActions" class="form-group">
+                        <div class="row">
+                            <div class="col-md mb-3 text-center">
+                                <input id="loginBtn" type="submit" class="btn btn-dark" value="@resManager.GetString("Login")" />
+                            </div>
+                            <div class="col-md mb-3 text-center">
+                                <input id="resetPasswordBtn" class="btn btn-outline-primary" asp-controller="Auth" asp-action="ResetPasswordSpecifyEmail" value="@resManager.GetString("ResetPasswordLabel")" />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
-        </div>
-        <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signupTab">
-            <form method="post" asp-controller="Auth" asp-action="Signup">
-                <div class="form-group mt-5 mb-5">
-                    <div class="row">
-                        <div class="col">
-                            <p class="label-md label-non-select">@resManager.GetString("Username")</p>
-                            <input id="SignupUserName" asp-for="UserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")">
-                            <ul id="SignupUserNameError" class="d-none under-field-error label-sm"></ul>
-                        </div>
-                        <div class="col">
-                            <p class="label-md label-non-select">@resManager.GetString("Email")</p>
-                            <input id="SignupEmail" asp-for="Email" type="email" class="form-control" placeholder="name@example.com">
-                            <ul id="SignupEmailError" class="d-none under-field-error label-sm"></ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group mt-5 mb-5">
-                    <div class="row">
-                        <div class="col">
-                            <p class="label-md label-non-select">@resManager.GetString("Password")</p>
-                            <input id="SignupPassword" asp-for="Password" type="password" class="form-control" placeholder="@resManager.GetString("Password")">
-                            <ul id="SignupPasswordError" class="d-none under-field-error label-sm"></ul>
-                        </div>
-                        <div class="col">
-                            <p class="label-md label-non-select">@resManager.GetString("ConfirmPassword")</p>
-                            <input id="SignupConfirmPassword" asp-for="ConfirmPassword" type="password" class="form-control" placeholder="@resManager.GetString("ConfirmPassword")">
-                            <ul id="SignupConfirmPasswordError" class="d-none under-field-error label-sm"></ul>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signupTab">
+                <form method="post" asp-controller="Auth" asp-action="Signup">
+                    <div class="form-group mt-5 mb-4 mb-md-5">
+                        <div class="row">
+                            <div class="col-md mb-4 mb-md-0">
+                                <p class="label-md label-non-select">@resManager.GetString("Username")</p>
+                                <input id="SignupUserName" asp-for="UserName" type="text" class="form-control" placeholder="@resManager.GetString("Username")">
+                                <ul id="SignupUserNameError" data-connect-el="SignupUserName" class="d-none under-field-error label-sm"></ul>
+                            </div>
+                            <div class="col-md">
+                                <p class="label-md label-non-select">@resManager.GetString("Email")</p>
+                                <input id="SignupEmail" asp-for="Email" type="email" class="form-control" placeholder="name@example.com">
+                                <ul id="SignupEmailError" data-connect-el="SignupEmail" class="d-none under-field-error label-sm"></ul>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <input id="signupBtn" type="submit" class="btn btn-dark" value="Signup" />
-                </div>
-            </form>
+                    <div class="form-group mb-2 mb-md-4">
+                        <div class="row">
+                            <div class="col-md mb-4 mb-md-0">
+                                <p class="label-md label-non-select">@resManager.GetString("Password")</p>
+                                <input id="SignupPassword" asp-for="Password" type="password" class="form-control" placeholder="@resManager.GetString("Password")">
+                                <ul id="SignupPasswordError" class="d-none under-field-error label-sm"></ul>
+                            </div>
+                            <div class="col-md mb-3">
+                                <p class="label-md label-non-select">@resManager.GetString("ConfirmPassword")</p>
+                                <input id="SignupConfirmPassword" asp-for="ConfirmPassword" type="password" class="form-control" placeholder="@resManager.GetString("ConfirmPassword")">
+                                <ul id="SignupConfirmPasswordError" class="d-none under-field-error label-sm"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group text-center text-md-right">
+                        <input id="signupBtn" type="submit" class="btn btn-dark" value="Signup" />
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

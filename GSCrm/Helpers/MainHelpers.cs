@@ -1,5 +1,4 @@
 ﻿using GSCrm.Data;
-using GSCrm.Factories;
 using GSCrm.Models;
 using GSCrm.Transactions;
 using Microsoft.AspNetCore.Builder;
@@ -8,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.AppUtils;
-using Microsoft.AspNetCore.Mvc;
 
 namespace GSCrm.Helpers
 {
@@ -91,8 +90,8 @@ namespace GSCrm.Helpers
         public static string GetReturnUrl(this string entityName, IUrlHelper Url)
             => entityName switch
             {
-                "AccountViewModel" => Url.Action("ListOfOrganizations", ORGANIZATION, new { id = DEFAULT_MIN_PAGE_NUMBER }),
-                "OrganizationViewModel" => Url.Action("ListOfOrganizations", ORGANIZATION, new { id = DEFAULT_MIN_PAGE_NUMBER }),
+                "AccountViewModel" => Url.Action(ACCOUNTS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER }),
+                "OrganizationViewModel" => Url.Action(ORGANIZATIONS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER }),
                 _ => string.Empty
             };
 
@@ -105,5 +104,24 @@ namespace GSCrm.Helpers
         /// <param name="types"></param>
         /// <returns></returns>
         public static bool IsInList(this OperationType operationType, params OperationType[] types) => types.Contains(operationType);
+
+        /// <summary>
+        /// Метод задействует перенаправление на страницы в зависимостпи от кодов ошибок
+        /// </summary>
+        /// <param name="applicationBuilder"></param>
+        public static void UseStatusCodePagesRedirect(this IApplicationBuilder applicationBuilder)
+            => applicationBuilder.UseStatusCodePages(async codeContext => {
+                switch (codeContext.HttpContext.Response.StatusCode)
+                {
+                    case 400:
+                        codeContext.HttpContext.Response.Redirect($"/Shared/Error");
+                        break;
+                    case 404:
+                        codeContext.HttpContext.Response.Redirect($"/Shared/ViewNotFound");
+                        break;
+                    default:
+                        break;
+                }
+            });
     }
 }

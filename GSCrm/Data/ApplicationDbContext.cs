@@ -43,6 +43,7 @@ namespace GSCrm.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new AccountAddressConfiguration());
+            modelBuilder.ApplyConfiguration(new AccountManagerConfiguration());
             modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
             modelBuilder.ApplyConfiguration(new QuoteConfiguration());
             modelBuilder.ApplyConfiguration(new OrganizationConfiguration());

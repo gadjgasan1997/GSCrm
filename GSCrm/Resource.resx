@@ -717,6 +717,9 @@
   <data name="Employee" xml:space="preserve">
     <value>Работник</value>
   </data>
+  <data name="EmployeeAlreadyAdded" xml:space="preserve">
+    <value>Сотрудник {Name} уже есть в команде по клиенту</value>
+  </data>
   <data name="EmployeeDeleteNot" xml:space="preserve">
     <value>Удаление  сотрудника</value>
   </data>
@@ -1568,6 +1571,12 @@
   </data>
   <data name="UserResetPasswordSubject" xml:space="preserve">
     <value>Сброс пароля в системе GSCrm</value>
+  </data>
+  <data name="ViewError" xml:space="preserve">
+    <value>Во время обработки вашего запроса произошло необработанное исключение</value>
+  </data>
+  <data name="ViewNotFound" xml:space="preserve">
+    <value>Запрашиваемая вами страница не найдена</value>
   </data>
   <data name="Work" xml:space="preserve">
     <value>Рабочий</value>

@@ -1,18 +1,17 @@
-﻿using GSCrm.Helpers;
+﻿using System;
+using System.Linq;
+using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using System;
-using GSCrm.Data;
 using System.Collections.Generic;
 using static GSCrm.Utils.CollectionsUtils;
-using System.Linq;
 
 namespace GSCrm.Repository
 {
     public class ResponsibilityRepository : BaseRepository<Responsibility, ResponsibilityViewModel>
     {
         #region Constructs
-        public ResponsibilityRepository(IServiceProvider serviceProvider, ApplicationDbContext context, OrganizationViewModel currentOrganization = null)
+        public ResponsibilityRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(serviceProvider, context)
         { }
         #endregion

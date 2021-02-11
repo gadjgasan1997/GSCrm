@@ -82,13 +82,13 @@ namespace GSCrm.Repository
         /// <param name="employeeId"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Position> AttachAllPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Position> AttachAllPositions(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             SetViewInfo(ALL_EMP_POSS, pageNumber);
 
             // Получение списка всех должностей подразделения и исключение из него списка должностей сотрудника
-            List<Position> allPositions = GetAllPositions(employeeId);
-            List<EmployeePosition> employeePositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
+            List<Position> allPositions = GetAllPositions(employee.Id);
+            List<EmployeePosition> employeePositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employee.Id).ToList();
             List<Position> selectedPositions = employeePositions.GetPositionsFromEmployeePositions(context);
             allPositions = allPositions.Except(selectedPositions, new PositionEqualityComparer()).ToList();
             List<Position> allPositionsExceptSelected = new List<Position>(allPositions);
@@ -139,12 +139,12 @@ namespace GSCrm.Repository
         /// <param name="employeeId"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<EmployeePosition> AttachSelectedPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<EmployeePosition> AttachSelectedPositions(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             // Ограничение списка должностей по фильтрам и номеру страницы
             SetViewInfo(SELECTED_EMP_POSS, pageNumber);
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
-            List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
+            List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employee.Id).ToList();
             LimitSelectedPosByName(employeeViewModelCash, ref selectedPositions);
             LimitSelectedPosByParent(employeeViewModelCash, ref selectedPositions);
             LimitListByPageNumber(SELECTED_EMP_POSS, ref selectedPositions);

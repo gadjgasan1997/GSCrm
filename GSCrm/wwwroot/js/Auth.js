@@ -49,7 +49,10 @@
     }
 
     LoginGetData() {
+        let searchParams = new URLSearchParams(window.location.search);
+        let returnUrl = searchParams.get("ReturnUrl");
         return {
+            ReturnUrl: returnUrl,
             UserName: $("#LoginUserName").val(),
             Password: $("#LoginPassword").val()
         }

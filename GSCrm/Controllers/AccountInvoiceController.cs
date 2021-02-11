@@ -1,14 +1,10 @@
-﻿using GSCrm.Data;
-using GSCrm.Mapping;
+﻿using System;
+using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Repository;
-using GSCrm.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System;
-using System.Linq;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
@@ -22,12 +18,15 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet(INVOICE)]
-        public IActionResult Invoice(string id)
+        [HttpGet("{id}")]
+        public IActionResult Invoice()
         {
-            if (!repository.TryGetItemById(id, out AccountInvoice accountInvoice))
-                return View("Error");
-            return Json(map.DataToViewModel(accountInvoice));
+            if (bool.TryParse(cachService.GetCachedItem(currentUser.Id, $"{PC}{ACC_INVOICE}"), out bool isCorrectCheck) && isCorrectCheck)
+            {
+                AccountInvoice accountInvoice = cachService.GetCachedItem<AccountInvoice>(currentUser.Id, "CurrentAccountInvoiceData");
+                return Json(map.DataToViewModel(accountInvoice));
+            }
+            return Json("");
         }
     }
 }

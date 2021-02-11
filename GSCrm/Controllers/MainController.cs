@@ -1,4 +1,5 @@
-﻿using GSCrm.Data;
+﻿using System;
+using GSCrm.Data;
 using GSCrm.Data.Cash;
 using GSCrm.Mapping;
 using GSCrm.Helpers;
@@ -8,11 +9,10 @@ using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
-using static GSCrm.Helpers.MainHelpers;
 using GSCrm.Factories;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using static GSCrm.Helpers.MainHelpers;
 
 namespace GSCrm.Controllers
 {
@@ -53,23 +53,24 @@ namespace GSCrm.Controllers
         #region Constructs
         public MainController(ApplicationDbContext context, IServiceProvider serviceProvider)
         {
-            this.serviceProvider = serviceProvider;
-            this.context = context;
-
+            // Вспомогательные сервисы
             IMapFactory mapFactory = serviceProvider.GetService(typeof(IMapFactory)) as IMapFactory;
             IRepositoryFactory repositoryFactory = serviceProvider.GetService(typeof(IRepositoryFactory)) as IRepositoryFactory;
+            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
+
+            // Прочее
+            this.serviceProvider = serviceProvider;
+            this.context = context;
             map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
             repository = repositoryFactory.GetRepository<TDataModel, TViewModel>(serviceProvider, context);
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
-
-            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
             currentUser = userContextServices.HttpContext.GetCurrentUser(context);
         }
         #endregion
 
         [HttpPost("Create")]
-        public virtual IActionResult Create(TViewModel viewModel)
+        public IActionResult Create(TViewModel viewModel)
         {
             try
             {
@@ -91,7 +92,7 @@ namespace GSCrm.Controllers
         }
 
         [HttpPost("Update")]
-        public virtual IActionResult Update(TViewModel viewModel)
+        public IActionResult Update(TViewModel viewModel)
         {
             try
             {
@@ -114,7 +115,7 @@ namespace GSCrm.Controllers
 
         [HttpDelete("Delete")]
         [HttpDelete("Delete/{id}")]
-        public virtual IActionResult Delete(string id)
+        public IActionResult Delete(string id)
         {
             try
             {

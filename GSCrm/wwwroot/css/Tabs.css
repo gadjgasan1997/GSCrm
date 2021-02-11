@@ -1,8 +1,10 @@
 ﻿@import url("https://fonts.googleapis.com/css?family=Oswald");
 .nav.nav-tabs .nav-item .active {
   background-color: rgba(0, 0, 0, 0.03);
-  border-bottom: 1px solid #f7f7f7;
   cursor: auto; }
+
+.nav.nav-tabs .nav-item .active:not([id=userNotSettingsTab]):not([id=orgNotSettingsTab]) {
+  border-bottom: 1px solid #f7f7f7; }
 
 .nav.nav-tabs .nav-link {
   text-overflow: ellipsis;

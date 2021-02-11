@@ -13,10 +13,12 @@ using GSCrm.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using static GSCrm.CommonConsts;
 using GSCrm.Transactions;
 using GSCrm.Factories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Repository
 {
@@ -80,21 +82,29 @@ namespace GSCrm.Repository
         #region Constructs
         public BaseRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
-            this.serviceProvider = serviceProvider;
-            this.context = context;
-
+            // Вспомогательные сервисы
+            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
+            IUrlHelperFactory urlHelperFactory = serviceProvider.GetService(typeof(IUrlHelperFactory)) as IUrlHelperFactory;
+            IActionContextAccessor actionAccessor = serviceProvider.GetService(typeof(IActionContextAccessor)) as IActionContextAccessor;
             IMapFactory mapFactory = serviceProvider.GetService(typeof(IMapFactory)) as IMapFactory;
+
+            // Фабрики
             TFFactory = serviceProvider.GetService(typeof(ITFFactory)) as ITFFactory;
-            map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
             viewModelsTransactionFactory = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
             dataModelsTransactionFactory = TFFactory.GetTransactionFactory<TDataModel>(serviceProvider, context);
+
+            // ActionContext может быть null, так как этот конструктор вызывается из "AccessibilityMiddleware"
+            if (actionAccessor.ActionContext != null)
+                urlHelper = urlHelperFactory.GetUrlHelper(actionAccessor.ActionContext);
+
+            // Прочее
+            this.serviceProvider = serviceProvider;
+            this.context = context;
+            httpContext = userContextServices.HttpContext;
+            currentUser = httpContext.GetCurrentUser(context);
+            map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
             cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
             resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
-
-            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
-            httpContext = userContextServices.HttpContext;
-            urlHelper = serviceProvider.GetService(typeof(IUrlHelper)) as IUrlHelper;
-            currentUser = httpContext.GetCurrentUser(context);
             errors = new Dictionary<string, string>();
             dbSet = context.Set<TDataModel>();
         }

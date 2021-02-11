@@ -11,6 +11,7 @@ using static GSCrm.CommonConsts;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using GSCrm.Data;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace GSCrm.Controllers
 {
@@ -104,8 +105,8 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             AuthRepository authRepository = new AuthRepository(serviceProvider, context);
             if (await authRepository.TryLogin(model, modelState))
-                return Json(Url.Action("Index", "Home"));
-            else return BadRequest(ModelState);
+                return Json(string.IsNullOrEmpty(model.ReturnUrl) ? Url.Action("Index", "Home") : model.ReturnUrl);
+            return BadRequest(ModelState);
         }
 
         /// <summary>

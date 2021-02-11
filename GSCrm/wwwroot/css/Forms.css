@@ -175,7 +175,6 @@
 #responsibilityForm > div .resp-setting-group {
   margin-bottom: 15px; }
   #responsibilityForm > div .resp-setting-group > div h3 {
-    height: 32px;
     margin: 0; }
   #responsibilityForm > div .resp-setting-group .switch {
     margin-top: 6px; }
@@ -192,13 +191,21 @@
   #responsibilityForm > div .resp-setting .switch {
     margin-top: 10px; }
 
+#responsibilityForm #responsibilityActions #updateResp, #responsibilityForm #responsibilityActions #cancelUpdateResp {
+  height: 100%;
+  width: 100%; }
+
 @media (min-width: 1000px) {
   #responsibilityForm {
-    width: 40%; } }
+    width: 40%;
+    margin-left: auto;
+    margin-right: auto; } }
 
 @media (min-width: 800px) {
   #responsibilityForm {
-    width: 60%; } }
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto; } }
 
 @media all and (max-width: 800px) {
   .has-no-permissions-form .row .col:first-child {
@@ -267,3 +274,42 @@
   #productCategoriesFilter .row {
     width: 80%;
     margin: auto; } }
+
+.register-form-wrapper {
+  overflow-x: auto; }
+  .register-form-wrapper .register-form {
+    position: relative;
+    margin-right: auto;
+    margin-left: auto; }
+    .register-form-wrapper .register-form .register-nav .nav-item {
+      cursor: pointer;
+      user-select: none;
+      width: 50%;
+      text-align: center; }
+      .register-form-wrapper .register-form .register-nav .nav-item a {
+        color: black; }
+    .register-form-wrapper .register-form .login-body {
+      border: 1px solid lightgray;
+      border-top: none;
+      padding: 20px;
+      min-height: 400px; }
+      .register-form-wrapper .register-form .login-body #login .user-avatar {
+        text-align: center;
+        color: grey;
+        font-size: 120px;
+        text-align: center; }
+      .register-form-wrapper .register-form .login-body #login form .form-group:last-of-type .col:last-child, .register-form-wrapper .register-form .login-body #signup form .form-group:last-of-type .col:last-child {
+        text-align: right; }
+      .register-form-wrapper .register-form .login-body #login form .form-group .under-field-error, .register-form-wrapper .register-form .login-body #signup form .form-group .under-field-error {
+        overflow-wrap: break-word;
+        margin-top: 20px;
+        margin-left: -10px; }
+      .register-form-wrapper .register-form .login-body #login form .form-group .col, .register-form-wrapper .register-form .login-body #signup form .form-group .col {
+        width: 50%; }
+      .register-form-wrapper .register-form .login-body #login #loginActions > .row > .col-md {
+        height: 40px; }
+        .register-form-wrapper .register-form .login-body #login #loginActions > .row > .col-md #loginBtn, .register-form-wrapper .register-form .login-body #login #loginActions > .row > .col-md #resetPasswordBtn {
+          height: 100%;
+          max-width: 100%;
+          min-width: 180px;
+          cursor: pointer; }

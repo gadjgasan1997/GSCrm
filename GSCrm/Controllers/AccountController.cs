@@ -24,27 +24,9 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("ListOfAllAccounts/{pageNumber}")]
-        public ViewResult AllAccounts(int pageNumber)
-        {
-            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            AccountsViewModel accountsViewModel = new AccountsViewModel();
-            new AccountMap(serviceProvider, context).InitializeAccountsViewModel(accountsViewModel);
-            accountRepository.SetViewInfo(ALL_ACCS, pageNumber);
-            accountRepository.AttachAccounts(ref accountsViewModel);
-            return View(ACCOUNTS, accountsViewModel);
-        }
-
-        [HttpGet("ListOfCurrentAccounts/{pageNumber}")]
-        public ViewResult CurrentAccounts(int pageNumber)
-        {
-            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            AccountsViewModel accountsViewModel = new AccountsViewModel();
-            new AccountMap(serviceProvider, context).InitializeAccountsViewModel(accountsViewModel);
-            accountRepository.SetViewInfo(CURRENT_ACCS, pageNumber);
-            accountRepository.AttachAccounts(ref accountsViewModel);
-            return View(ACCOUNTS, accountsViewModel);
-        }
+        [HttpGet("HasNoPermissionsForSee")]
+        public IActionResult HasNoPermissionsForSee()
+            => View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel());
 
         [HttpGet("BackToAccounts")]
         public IActionResult BackToAccounts()
@@ -52,27 +34,21 @@ namespace GSCrm.Controllers
             => cachService.GetCachedItem(currentUser.Id, "SelectedAccountsTab") switch
                 {
                     // Проваливание со списка всех клиентов
-                    ALL_ACCS => RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = cachService.GetViewInfo(currentUser.Id, ALL_ACCS)?.CurrentPageNumber }),
+                    ALL_ACCS => RedirectToAction(ALL_ACCS, "Root", new { pageNumber = cachService.GetViewInfo(currentUser.Id, ALL_ACCS)?.CurrentPageNumber }),
 
                     // Проваливание со списка клиентов основной организации текущего пользователя
-                    _ => RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = cachService.GetViewInfo(currentUser.Id, CURRENT_ACCS)?.CurrentPageNumber }),
+                    _ => RedirectToAction(CURRENT_ACCS, "Root", new { pageNumber = cachService.GetViewInfo(currentUser.Id, CURRENT_ACCS)?.CurrentPageNumber }),
                 };
         
 
         [HttpGet("{id}")]
-        public ViewResult Account(string id)
+        public ViewResult Account()
         {
-            // Проверки на наличие клиента и доступа к нему у пользователя
-            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            if (!accountRepository.TryGetItemById(id, out Account account))
-                return View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel());
-            if (!accountRepository.HasPermissionsForSeeItem(account))
-                return View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel());
-
-            // Если клиент и доступ имеются
+            Account account = cachService.GetMainEntity(currentUser, MainEntityType.AccountData) as Account;
             AccountMap map = new AccountMap(serviceProvider, context);
             AccountViewModel accountViewModel = map.DataToViewModel(account);
             accountViewModel = map.Refresh(accountViewModel, currentUser, AccAllViewTypes);
+            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
             accountRepository.AttachContacts(accountViewModel);
             accountRepository.AttachAddresses(accountViewModel);
             accountRepository.AttachInvoices(accountViewModel);
@@ -81,6 +57,51 @@ namespace GSCrm.Controllers
             cachService.SetCurrentView(currentUser.Id, ACCOUNT);
             cachService.CacheAccount(currentUser, account, accountViewModel);
             return View(ACCOUNT, accountViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка контактов клиента
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Contacts/{pageNumber}")]
+        public IActionResult Contacts(int pageNumber)
+        {
+            AccountViewModel accountViewModel = (AccountViewModel)cachService.GetMainEntity(currentUser, MainEntityType.AccountView);
+            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
+            accountRepository.SetViewInfo(ACC_CONTACTS, pageNumber);
+            accountRepository.AttachContacts(accountViewModel);
+            return View($"{ACC_VIEWS_REL_PATH}{ACCOUNT}.cshtml", accountViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка адресов клиента
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Addresses/{pageNumber}")]
+        public IActionResult Addresses(int pageNumber)
+        {
+            AccountViewModel accountViewModel = (AccountViewModel)cachService.GetMainEntity(currentUser, MainEntityType.AccountView);
+            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
+            accountRepository.SetViewInfo(ACC_ADDRESSES, pageNumber);
+            accountRepository.AttachAddresses(accountViewModel);
+            return View($"{ACC_VIEWS_REL_PATH}{ACCOUNT}.cshtml", accountViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка банковских реквизитов клиента
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Invoices/{pageNumber}")]
+        public IActionResult Invoices(int pageNumber)
+        {
+            AccountViewModel accountViewModel = (AccountViewModel)cachService.GetMainEntity(currentUser, MainEntityType.AccountView);
+            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
+            accountRepository.SetViewInfo(ACC_INVOICES, pageNumber);
+            accountRepository.AttachInvoices(accountViewModel);
+            return View($"{ACC_VIEWS_REL_PATH}{ACCOUNT}.cshtml", accountViewModel);
         }
 
         [HttpGet("/GetAccount/{id}")]
@@ -138,28 +159,28 @@ namespace GSCrm.Controllers
         public IActionResult SearchAllAccounts(AccountsViewModel accountsViewModel)
         {
             cachService.CacheItem(currentUser.Id, ALL_ACCS, accountsViewModel);
-            return RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+            return RedirectToAction(ALL_ACCS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpGet("ClearAllAccountsSearch")]
         public IActionResult ClearAllAccountsSearch()
         {
             new AccountRepository(serviceProvider, context).ClearAllAccountsSearch();
-            return RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+            return RedirectToAction(ALL_ACCS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpPost("SearchCurrentAccounts")]
         public IActionResult SearchCurrentAccounts(AccountsViewModel accountsViewModel)
         {
             cachService.CacheItem(currentUser.Id, CURRENT_ACCS, accountsViewModel);
-            return RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+            return RedirectToAction(CURRENT_ACCS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpGet("ClearCurrentAccountsSearch")]
         public IActionResult ClearCurrentAccountsSearch()
         {
             new AccountRepository(serviceProvider, context).ClearCurrentAccountsSearch();
-            return RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+            return RedirectToAction(CURRENT_ACCS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpPost("SearchContact")]

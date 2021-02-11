@@ -114,6 +114,5 @@
         public const int DEFAULT_ITEMS_COUNT = 10;
         public const int DEFAULT_MIN_PAGE_NUMBER = 1;
         public const int DEFAULT_PAGE_STEP = 1;
-        public const int DEFAULT_BREAK_COUNTER = 5;
     }
 }

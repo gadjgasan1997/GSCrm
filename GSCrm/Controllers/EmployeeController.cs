@@ -1,18 +1,16 @@
 ﻿using GSCrm.Mapping;
-using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
-using static GSCrm.CommonConsts;
-using static GSCrm.Repository.EmployeeRepository;
 using GSCrm.Data;
 using GSCrm.Models.Enums;
+using static GSCrm.CommonConsts;
+using static GSCrm.Repository.EmployeeRepository;
 
 namespace GSCrm.Controllers
 {
@@ -20,39 +18,24 @@ namespace GSCrm.Controllers
     [Route(EMPLOYEE)]
     public class EmployeeController : MainController<Employee, EmployeeViewModel>
     {
-        public EmployeeController(UserManager<User> userManager, IServiceProvider serviceProvider, ApplicationDbContext context)
+        public EmployeeController(IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("ListOfEmployees/{pageNumber}")]
-        public IActionResult Employees(int pageNumber)
-        {
-            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.SetViewInfo(EMPLOYEES, pageNumber);
-            organizationRepository.AttachEmployees(orgViewModel);
-            return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
-        }
+        [HttpGet("HasNoPermissionsForSee")]
+        public IActionResult HasNoPermissionsForSee()
+            => View($"{EMP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new EmployeeViewModel());
 
         [HttpGet("{id}")]
-        public ViewResult Employee(string id)
+        public ViewResult Employee()
         {
-            // Проверки на наличие сотрудника и доступа к нему у пользователя
-            EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            if (!employeeRepository.TryGetItemById(id, out Employee employee))
-                return View($"{EMP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new EmployeeViewModel());
-            if (!organizationRepository.HasPermissionsForSeeItem(employee.GetOrganization(context)))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            if (!employeeRepository.HasPermissionsForSeeItem(employee))
-                return View($"{EMP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new EmployeeViewModel());
-
-            // Если сотрудник и доступ имеются
+            Employee employee = cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) as Employee;
             EmployeeMap employeeMap = new EmployeeMap(serviceProvider, context);
             EmployeeViewModel empViewModel = employeeMap.DataToViewModel(employee);
             empViewModel = new EmployeeMap(serviceProvider, context).Refresh(empViewModel, currentUser, EmpBaseViewTypes);
             if (employee.EmployeeStatus == EmployeeStatus.Active)
             {
+                EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
                 employeeRepository.AttachPositions(empViewModel);
                 employeeRepository.AttachContacts(empViewModel);
                 employeeRepository.AttachSubordinates(empViewModel);
@@ -60,6 +43,36 @@ namespace GSCrm.Controllers
             cachService.SetCurrentView(currentUser.Id, EMPLOYEE);
             cachService.CacheEmployee(currentUser, employee, empViewModel);
             return View(EMPLOYEE, empViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка подчиненных сотрудника
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Subordinates/{pageNumber}")]
+        public IActionResult Subordinates(int pageNumber)
+        {
+            EmployeeViewModel employeeViewModel = (EmployeeViewModel)cachService.GetMainEntity(currentUser, MainEntityType.EmployeeView);
+            EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
+            employeeRepository.SetViewInfo(EMP_SUBS, pageNumber);
+            employeeRepository.AttachSubordinates(employeeViewModel);
+            return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка контактов сотрудника
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Contacts/{pageNumber}")]
+        public IActionResult Contacts(int pageNumber)
+        {
+            EmployeeViewModel employeeViewModel = (EmployeeViewModel)cachService.GetMainEntity(currentUser, MainEntityType.EmployeeView);
+            EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
+            employeeRepository.SetViewInfo(EMP_CONTACTS, pageNumber);
+            employeeRepository.AttachContacts(employeeViewModel);
+            return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
         }
 
         [HttpPost("ChangeDivision")]

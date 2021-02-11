@@ -268,7 +268,6 @@
             margin-bottom: 15px;
 
             > div h3 {
-                height: 32px;
                 margin: 0;
             }
 
@@ -296,17 +295,28 @@
             }
         }
     }
+
+    #responsibilityActions {
+        #updateResp, #cancelUpdateResp {
+            height: 100%;
+            width: 100%
+        }
+    }
 }
 
 @media (min-width: 1000px) {
     #responsibilityForm {
-        width: 40%
+        width: 40%;
+        margin-left: auto;
+        margin-right: auto
     }
 }
 
 @media (min-width: 800px) {
     #responsibilityForm {
-        width: 60%
+        width: 60%;
+        margin-left: auto;
+        margin-right: auto
     }
 }
 
@@ -429,6 +439,82 @@
         .row {
             width: 80%;
             margin: auto
+        }
+    }
+}
+
+.register-form-wrapper {
+    overflow-x: auto;
+
+    .register-form {
+        position: relative;
+        margin-right: auto;
+        margin-left: auto;
+
+        .register-nav {
+            .nav-item {
+                cursor: pointer;
+                user-select: none;
+                width: 50%;
+                text-align: center;
+
+                a {
+                    color: black
+                }
+            }
+        }
+
+        .login-body {
+            border: 1px solid lightgray;
+            border-top: none;
+            padding: 20px;
+            min-height: 400px;
+
+            #login {
+                .user-avatar {
+                    text-align: center;
+                    color: grey;
+                    font-size: 120px;
+                    text-align: center
+                }
+            }
+
+            #login, #signup {
+                form {
+                    .form-group:last-of-type .col:last-child {
+                        text-align: right;
+                    }
+
+                    .form-group {
+                        .under-field-error {
+                            overflow-wrap: break-word;
+                            margin-top: 20px;
+                            margin-left: -10px
+                        }
+
+                        .col {
+                            width: 50%;
+                        }
+                    }
+                }
+            }
+
+            #login {
+                #loginActions {
+                    > .row {
+                        > .col-md {
+                            height: 40px;
+
+                            #loginBtn, #resetPasswordBtn {
+                                height: 100%;
+                                max-width: 100%;
+                                min-width: 180px;
+                                cursor: pointer
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

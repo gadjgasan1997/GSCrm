@@ -11,9 +11,9 @@ using System;
 using System.Collections.Generic;
 using GSCrm.Data;
 using GSCrm.Models.Enums;
+using GSCrm.Data.ApplicationInfo;
 using static GSCrm.CommonConsts;
 using static GSCrm.Repository.OrganizationRepository;
-using GSCrm.Data.ApplicationInfo;
 
 namespace GSCrm.Controllers
 {
@@ -26,29 +26,17 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("ListOfOrganizations/{pageNumber}")]
-        public ViewResult Organizations(int pageNumber)
-        {
-            OrganizationsViewModel orgsViewModel = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.SetViewInfo(ORGANIZATIONS, pageNumber);
-            organizationRepository.AttachOrganizations(ref orgsViewModel);
-            return View(ORGANIZATIONS, orgsViewModel);
-        }
+        [HttpGet("HasNoPermissionsForSee")]
+        public IActionResult HasNoPermissionsForSee()
+            => View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
 
         [HttpGet("{id}")]
-        public ViewResult Organization(string id)
+        public ViewResult Organization()
         {
-            // Поптыка получить организацию, на которую перешел пользователь
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            if (!organizationRepository.TryGetItemById(id, out Organization organization))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            if (!organizationRepository.HasPermissionsForSeeItem(organization))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-
-            // Если к ней есть доступ, то установка ее как текущей
+            Organization organization = (Organization)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData);
             OrganizationViewModel orgViewModel = map.DataToViewModel(organization);
             orgViewModel = new OrganizationMap(serviceProvider, context).Refresh(orgViewModel, currentUser, OrgAllViewTypes);
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
             organizationRepository.AttachDivisions(orgViewModel);
             organizationRepository.AttachPositions(orgViewModel);
             organizationRepository.AttachEmployees(orgViewModel);
@@ -58,32 +46,18 @@ namespace GSCrm.Controllers
             return View(ORGANIZATION, orgViewModel);
         }
 
-        [HttpGet("BackToOrganization/{orgId}")]
-        public IActionResult BackToOrganization(string orgId)
+        /// <summary>
+        /// Получить продуктовую модель организации
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("ProductCategories/{id}")]
+        public ViewResult ProductCategories()
         {
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            if (!organizationRepository.TryGetItemById(orgId, out Organization organization))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            if (!organizationRepository.HasPermissionsForSeeItem(organization))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            return RedirectToAction(ORGANIZATION, ORGANIZATION, new { id = organization.Id });
-        }
-
-        [HttpGet("{orgId}/ProductCategories/")]
-        public ViewResult ProductCategories(string orgId)
-        {
-            // Поптыка получить организацию, на которую перешел пользователь
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            if (!organizationRepository.TryGetItemById(orgId, out Organization organization))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            if (!organizationRepository.HasPermissionsForSeeItem(organization))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            
-            // Если к организации есть доступ, то установка ее как текущей, на которой находится пользователь
+            // Если к организации есть доступ, то установка ее как текущей, на которой находится пользовательs
             OrganizationMap organizationMap = new OrganizationMap(serviceProvider, context);
-            OrganizationViewModel orgViewModel = organizationMap.DataToViewModel(organization);
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
             orgViewModel = organizationMap.Refresh(orgViewModel, currentUser, OrgAllViewTypes);
-            cachService.CacheOrganization(currentUser, organization, orgViewModel);
+            cachService.CacheItem(currentUser.Id, "CurrentOrganizationView", orgViewModel);
 
             // Простановка текущего представления
             ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
@@ -92,6 +66,66 @@ namespace GSCrm.Controllers
             ProductCategoriesViewModel productCategoriesViewModel = new ProductCategoriesViewModel() { OrganizationViewModel = orgViewModel };
             cachService.CacheItem(currentUser.Id, PROD_CATS, productCategoriesViewModel);
             return View($"{PROD_CAT_VIEWS_REL_PATH}{PROD_CATS}.cshtml", productCategoriesViewModel);
+        }
+
+        /// <summary>
+        /// Получить список подразделений организации
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Divisions/{pageNumber}")]
+        public IActionResult Divisions(int pageNumber)
+        {
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            organizationRepository.SetViewInfo(DIVISIONS, pageNumber);
+            organizationRepository.AttachDivisions(orgViewModel);
+            return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
+        }
+
+        /// <summary>
+        /// Получить список должностей организации
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Positions/{pageNumber}")]
+        public IActionResult Positions(int pageNumber)
+        {
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            organizationRepository.SetViewInfo(POSITIONS, pageNumber);
+            organizationRepository.AttachPositions(orgViewModel);
+            return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
+        }
+
+        /// <summary>
+        /// Получить список сотрудников организации
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Employees/{pageNumber}")]
+        public IActionResult Employees(int pageNumber)
+        {
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            organizationRepository.SetViewInfo(EMPLOYEES, pageNumber);
+            organizationRepository.AttachEmployees(orgViewModel);
+            return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
+        }
+
+        /// <summary>
+        /// Получить список полномочий организации
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("Responsibilities/{pageNumber}")]
+        public IActionResult Responsibilities(int pageNumber)
+        {
+            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
+            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
+            organizationRepository.SetViewInfo(RESPONSIBILITIES, pageNumber);
+            organizationRepository.AttachResponsibilities(orgViewModel);
+            return Json(orgViewModel.Responsibilities);
         }
 
         [HttpGet("ChangePrimaryOrg/{newPrimaryOrgId}")]
@@ -141,14 +175,14 @@ namespace GSCrm.Controllers
         public IActionResult Search(OrganizationsViewModel orgViewModels)
         {
             cachService.CacheItem(currentUser.Id, ORGANIZATIONS, orgViewModels);
-            return RedirectToAction(ORGANIZATIONS, ORGANIZATION, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+            return RedirectToAction(ORGANIZATIONS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpGet("ClearSearch")]
         public IActionResult ClearSearch()
         {
             new OrganizationRepository(serviceProvider, context).ClearSearch();
-            return RedirectToAction(ORGANIZATIONS, ORGANIZATION, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
+            return RedirectToAction(ORGANIZATIONS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
         }
 
         [HttpPost("SearchDivision")]
@@ -197,14 +231,14 @@ namespace GSCrm.Controllers
         public IActionResult SearchResponsibility(OrganizationViewModel orgViewModel)
         {
             cachService.CacheItem(currentUser.Id, RESPONSIBILITIES, orgViewModel);
-            return RedirectToAction(RESPONSIBILITIES, RESPONSIBILITY, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
+            return RedirectToAction(RESPONSIBILITIES, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
 
         [HttpGet("ClearResponsibilitySearch")]
         public IActionResult ClearResponsibilitySearch()
         {
             new OrganizationRepository(serviceProvider, context).ClearResponsibilitySearch();
-            return RedirectToAction(RESPONSIBILITIES, RESPONSIBILITY, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
+            return RedirectToAction(RESPONSIBILITIES, ORGANIZATION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.OrganizationView) });
         }
     }
 }

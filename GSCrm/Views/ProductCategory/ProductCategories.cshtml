@@ -14,7 +14,26 @@
     IEnumerable<ProductCategoryViewModel> prodCatViewModels = Model.ProductCategoryViewModels;
     User currentUser = User.GetUserModel(context);
     ViewInfo prodCatsView = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
+    ViewInfo orgView = cachService.GetViewInfo(currentUser.Id, ORGANIZATIONS);
 }
+
+@* // Хлебные крошки *@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb one-line-crumbs">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+                @resManager.GetString(ORGANIZATIONS)
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATION" asp-route-id="@Model.OrganizationViewModel.Id">
+                @resManager.GetString(ORGANIZATION): @Model.OrganizationViewModel.Name
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString("OrganizationProducts")</li>
+    </ol>
+</nav>
 
 <div id="productCategoriesForm" class="mt-3">
     @* // Создание категории *@

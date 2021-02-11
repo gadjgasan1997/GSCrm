@@ -20,7 +20,7 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
         <li class="breadcrumb-item">
-            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+            <a asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
                 @resManager.GetString(ORGANIZATIONS)
             </a>
         </li>
@@ -140,7 +140,7 @@
 <div id="orgSettingsMenu" class="settings-menu d-none">
     <ul>
         <li>
-            <form method="get" asp-controller="@ORGANIZATION" asp-action="@PROD_CATS" asp-route-orgId="@Model.Id">
+            <form method="get" asp-controller="@ORGANIZATION" asp-action="@PROD_CATS" asp-route-id="@Model.Id">
                 <input id="goToProductModel" type="submit" class="label-sm" value="@resManager.GetString("ProductModel")" />
             </form>
         </li>

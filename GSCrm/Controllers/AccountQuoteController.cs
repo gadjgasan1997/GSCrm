@@ -1,15 +1,11 @@
-﻿using GSCrm.Mapping;
+﻿using System;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Repository;
-using GSCrm.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System;
-using static GSCrm.CommonConsts;
-using Microsoft.AspNetCore.Http;
 using GSCrm.Data;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
 {

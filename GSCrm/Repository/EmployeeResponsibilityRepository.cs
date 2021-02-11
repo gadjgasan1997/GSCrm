@@ -87,17 +87,15 @@ namespace GSCrm.Repository
         /// <param name="employeeId"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Responsibility> AttachAllResponsibilities(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Responsibility> AttachAllResponsibilities(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             SetViewInfo(ALL_EMP_RESPS, pageNumber);
 
-            // Получение списка всех полномочий организации за исключением тех, которые уже присутствуют у сотрудника
-            Employee employee = context.Employees.FirstOrDefault(i => i.Id == employeeId);
             // Выбранные полномочия сотрудника
             List<Responsibility> selectedResponsibilities = context.EmployeeResponsibilities
                 .AsNoTracking()
                 .Include(resp => resp.Responsibility)
-                .Where(emp => emp.EmployeeId == employeeId)
+                .Where(emp => emp.EmployeeId == employee.Id)
                 .Select(resp => resp.Responsibility).ToList();
 
             // Все полномочия сотрудника
@@ -133,7 +131,7 @@ namespace GSCrm.Repository
         /// <param name="employeeId"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Responsibility> AttachSelectedResponsibilities(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Responsibility> AttachSelectedResponsibilities(Employee employee, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             SetViewInfo(SELECTED_EMP_RESPS, pageNumber);
 
@@ -141,7 +139,7 @@ namespace GSCrm.Repository
             List<EmployeeResponsibility> selectedResponsibilities = context.EmployeeResponsibilities
                 .AsNoTracking()
                 .Include(resp => resp.Responsibility)
-                .Where(emp => emp.EmployeeId == employeeId).ToList();
+                .Where(emp => emp.EmployeeId == employee.Id).ToList();
             EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_RESPS);
             LimitSelectedRespsByName(employeeViewModelCash, ref selectedResponsibilities);
             LimitListByPageNumber(SELECTED_EMP_RESPS, ref selectedResponsibilities);

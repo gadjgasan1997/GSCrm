@@ -116,37 +116,6 @@
   font-weight: bold;
   font-size: 21px; }
 
-.register-form {
-  position: relative;
-  width: 800px;
-  margin-right: auto;
-  margin-left: auto; }
-  .register-form .register-nav .nav-item {
-    cursor: pointer;
-    user-select: none;
-    width: 50%;
-    text-align: center; }
-    .register-form .register-nav .nav-item a {
-      color: black; }
-  .register-form .login-body {
-    border: 1px solid lightgray;
-    border-top: none;
-    padding: 20px;
-    min-height: 400px; }
-    .register-form .login-body #login .user-avatar {
-      text-align: center;
-      color: grey;
-      font-size: 120px;
-      text-align: center; }
-    .register-form .login-body #login form .form-group:last-of-type .col:last-child, .register-form .login-body #signup form .form-group:last-of-type .col:last-child {
-      text-align: right; }
-    .register-form .login-body #login form .form-group .under-field-error, .register-form .login-body #signup form .form-group .under-field-error {
-      overflow-wrap: break-word;
-      margin-top: 20px;
-      margin-left: -10px; }
-    .register-form .login-body #login form .form-group .col, .register-form .login-body #signup form .form-group .col {
-      width: 50%; }
-
 .main-nav {
   justify-content: flex-end; }
   .main-nav .nav-link {

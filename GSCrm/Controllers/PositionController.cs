@@ -7,11 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
-using static GSCrm.CommonConsts;
-using static GSCrm.Repository.PositionRepository;
 using GSCrm.Data;
 using GSCrm.Models.Enums;
-using GSCrm.Helpers;
+using static GSCrm.CommonConsts;
+using static GSCrm.Repository.PositionRepository;
 
 namespace GSCrm.Controllers
 {
@@ -24,38 +23,53 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("ListOfPositions/{pageNumber}")]
-        public IActionResult Positions(int pageNumber)
-        {
-            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.SetViewInfo(POSITIONS, pageNumber);
-            organizationRepository.AttachPositions(orgViewModel);
-            return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
-        }
+        [HttpGet("HasNoPermissionsForSee")]
+        public IActionResult HasNoPermissionsForSee()
+            => View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel());
 
         [HttpGet("{id}")]
-        public ViewResult Position(string id)
+        public ViewResult Position()
         {
-            // Проверки на наличие должности и доступа к ней у пользователя
-            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            if (!positionRepository.TryGetItemById(id, out Position position))
-                return View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel());
-            if (!organizationRepository.HasPermissionsForSeeItem(position.GetOrganization(context)))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            if (!positionRepository.HasPermissionsForSeeItem(position))
-                return View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel());
-
-            // Если должность и доступ имеются
+            Position position = cachService.GetMainEntity(currentUser, MainEntityType.PositionData) as Position;
             PositionMap positionMap = new PositionMap(serviceProvider, context);
             PositionViewModel posViewModel = positionMap.DataToViewModelExt(position);
             posViewModel = positionMap.Refresh(posViewModel, currentUser, PosAllViewTypes);
+            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
             positionRepository.AttachEmployees(posViewModel);
             positionRepository.AttachSubPositions(posViewModel);
             cachService.SetCurrentView(currentUser.Id, POSITION);
             cachService.CachePosition(currentUser, position, posViewModel);
             return View(POSITION, posViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка дочерних должностей
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("PositionSubPositions/{pageNumber}")]
+        public IActionResult PositionSubPositions(int pageNumber)
+        {
+            PositionViewModel positionViewModel = (PositionViewModel)cachService.GetMainEntity(currentUser, MainEntityType.PositionView);
+            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
+            positionRepository.SetViewInfo(POS_EMPLOYEES, pageNumber);
+            positionRepository.AttachSubPositions(positionViewModel);
+            return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
+        }
+
+        /// <summary>
+        /// Получение списка сотрудников, занимающих должность
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("PositionEmployees/{pageNumber}")]
+        public IActionResult PositionEmployees(int pageNumber)
+        {
+            PositionViewModel positionViewModel = (PositionViewModel)cachService.GetMainEntity(currentUser, MainEntityType.PositionView);
+            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
+            positionRepository.SetViewInfo(POS_EMPLOYEES, pageNumber);
+            positionRepository.AttachEmployees(positionViewModel);
+            return View($"{POS_VIEWS_REL_PATH}{POSITION}.cshtml", positionViewModel);
         }
 
         [HttpPost("ChangeDivision")]

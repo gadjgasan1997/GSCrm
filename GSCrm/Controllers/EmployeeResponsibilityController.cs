@@ -4,15 +4,14 @@ using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
-using GSCrm.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using static GSCrm.CommonConsts;
 using GSCrm.Data;
 using GSCrm.Models.ViewTypes;
 using GSCrm.Models.Enums;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
 {
@@ -25,15 +24,15 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("GetResponsibilities/{employeeId}")]
-        public IActionResult GetResponsibilities(string employeeId)
+        [HttpGet("GetResponsibilities")]
+        public IActionResult GetResponsibilities()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
+            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
             {
                 // Получение списка со всеми полномочиями организации и списка с полномочиями сотрудника
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid);
-                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid);
+                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(employee);
+                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(employee);
                 List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
                 List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
 
@@ -56,56 +55,56 @@ namespace GSCrm.Controllers
             else return BadRequest(resManager.GetString("ResponsibilitiesExtractError"));
         }
 
-        [HttpGet("NextAllRecords/{employeeId}")]
-        public IActionResult NextAllRecords(string employeeId)
+        [HttpGet("NextAllRecords")]
+        public IActionResult NextAllRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
+            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
             {
                 ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
+                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(employee, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
                 return Json(allResponsibilityVMs);
             }
             return BadRequest("NextAllRecords");
         }
 
-        [HttpGet("PreviousAllRecords/{employeeId}")]
-        public IActionResult PreviousAllRecords(string employeeId)
+        [HttpGet("PreviousAllRecords")]
+        public IActionResult PreviousAllRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
+            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
             {
                 ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
+                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(employee, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
                 return Json(allResponsibilityVMs);
             }
             return BadRequest("PreviousAllRecords");
         }
 
-        [HttpGet("NextSelectedRecords/{employeeId}")]
-        public IActionResult NextSelectedRecords(string employeeId)
+        [HttpGet("NextSelectedRecords")]
+        public IActionResult NextSelectedRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
+            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
             {
                 ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
+                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(employee, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
                 return Json(selectedResponsibilityVMs);
             }
             return BadRequest("NextSelectedRecords");
         }
 
-        [HttpGet("PreviousSelectedRecords/{employeeId}")]
-        public IActionResult PreviousSelectedRecords(string employeeId)
+        [HttpGet("PreviousSelectedRecords")]
+        public IActionResult PreviousSelectedRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
+            if (cachService.GetMainEntity(currentUser, MainEntityType.EmployeeData) is Employee employee)
             {
                 ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_RESPS);
                 EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
+                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(employee, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
                 List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
                 return Json(selectedResponsibilityVMs);
             }

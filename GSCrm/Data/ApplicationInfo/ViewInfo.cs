@@ -8,7 +8,7 @@ namespace GSCrm.Data.ApplicationInfo
         public ViewInfo(string viewName)
         {
             Name = viewName;
-            ItemsCount = !ViewItemsCount.ContainsKey(viewName) ? 10 : ViewItemsCount[viewName];
+            ItemsCount = !ViewItemsCount.ContainsKey(viewName) ? DEFAULT_ITEMS_COUNT : ViewItemsCount[viewName];
             RenderName = !NeedJSRender() || !ViewRenderers.ContainsKey(viewName) ? string.Empty : ViewRenderers[viewName];
         }
 
@@ -19,7 +19,7 @@ namespace GSCrm.Data.ApplicationInfo
         public string RenderName { get; private set; }
 
         /// <summary>
-        /// Словарь с колиечством элементов в представлениях
+        /// Словарь с количеством элементов в представлениях
         /// </summary>
         private static Dictionary<string, int> ViewItemsCount
             => new Dictionary<string, int>()

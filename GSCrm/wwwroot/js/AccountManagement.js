@@ -498,6 +498,7 @@ class AccountManagement {
             let syncAccTeamUrl = $(event.currentTarget).attr("data-href");
             let syncAccTeamData = this.SynchronizeAccTeamGetData();
             let request = new AjaxRequests();
+            console.log("SynchronizeAccTeam");
 
             request.JsonPostRequest(syncAccTeamUrl, syncAccTeamData)
                 .fail(response => {
@@ -520,7 +521,6 @@ class AccountManagement {
      */
     SynchronizeAccTeamGetData() {
         return {
-            AccountId: $("#accountId").val(),
             PrimaryManagerId: AccountManagement.primaryManagerIdCash,
             ManagersToAdd: AccountManagement.managersToAdd,
             ManagersToRemove: AccountManagement.managersToRemove

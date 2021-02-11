@@ -64,11 +64,11 @@
     <div class="row justify-content-start">
         <div class="col col-sm-auto text-center text-sm-left mt-3">
             <input id="initializeRespsBtn" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#empRespManagement" value="@resManager.GetString("EmpRespsManagement")" />
-            <a id="initializeRespsUrl" asp-controller="@EMP_RESPONSIBILITY" asp-action="GetResponsibilities" asp-route-employeeId="@Model.Id" hidden="hidden"></a>
+            <a id="initializeRespsUrl" asp-controller="@EMP_RESPONSIBILITY" asp-action="GetResponsibilities" hidden="hidden"></a>
         </div>
         <div class="col col-sm-auto text-center text-sm-left mt-3">
             <input id="initializePositionsBtn" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#employeePosisionModal" value="@resManager.GetString("PositionsManagement")" />
-            <a id="initializePositionsUrl" asp-controller="@EMP_POSITION" asp-action="GetPositions" asp-route-employeeId="@Model.Id" hidden="hidden"></a>
+            <a id="initializePositionsUrl" asp-controller="@EMP_POSITION" asp-action="GetPositions" hidden="hidden"></a>
         </div>
         <div class="col mt-3">
             <div class="fade nav-connected-tab text-center text-sm-left" nav-tab="#contacts">

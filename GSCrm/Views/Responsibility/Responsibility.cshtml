@@ -20,12 +20,12 @@
     <ol class="breadcrumb one-line-crumbs">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
         <li class="breadcrumb-item">
-            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+            <a asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
                 @resManager.GetString(ORGANIZATIONS)
             </a>
         </li>
         <li class="breadcrumb-item">
-            <a asp-controller="@ORGANIZATION" asp-action="BackToOrganization" asp-route-orgId="@Model.OrganizationId">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATION" asp-route-id="@Model.OrganizationId">
                 @resManager.GetString(ORGANIZATION): @Model.OrganizationName
             </a>
         </li>
@@ -34,18 +34,18 @@
 </nav>
 
 <div id="responsibilityHeader" class="input-group text-center mt-3">
-    <div class="row">
-        <div class="col-sm text-center text-sm-right">
+    <div class="row justify-content-center m-0">
+        <div class="col-auto text-center">
             <h3 id="orgName" class="m-0">@Model.Name</h3>
         </div>
-        <div class="col-sm input-group-append change-url-btn">
-            <div id="changeRespNameBtn" class="input-group-text ml-auto ml-sm-0 mr-auto mt-2 mt-sm-0">
+        <div class="col-auto input-group-append change-url-btn">
+            <div id="changeRespNameBtn" class="input-group-text">
                 <span class="icon-pencil"></span>
             </div>
         </div>
     </div>
 </div>
-<form id="responsibilityForm" class="mt-4 ml-3" asp-controller="@RESPONSIBILITY" asp-action="Update">
+<form id="responsibilityForm" class="mt-4" asp-controller="@RESPONSIBILITY" asp-action="Update">
     <input id="respId" asp-for="Id" hidden="hidden" />
     <input id="orgId" asp-for="OrganizationId" hidden="hidden" />
     <div class="mt-2">
@@ -517,10 +517,10 @@
         </div>
     </div>
     <div id="responsibilityActions" class="row justify-content-around mt-3">
-        <div class="col text-center">
+        <div class="col text-center mb-3 mb-sm-0">
             <button id="updateResp" disabled="disabled" type="submit" class="btn btn-outline-dark">@resManager.GetString("CommitChanges")</button>
         </div>
-        <div class="col text-center">
+        <div class="col text-center mb-3 mb-sm-0">
             <button id="cancelUpdateResp" disabled="disabled" class="btn btn-outline-danger">@resManager.GetString("CancelLabel")</button>
         </div>
     </div>

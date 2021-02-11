@@ -12,7 +12,9 @@ namespace GSCrm.Data.Cash
     {
         public string GetCachedItem(string userId, string itemName)
         {
-            InitCacheItem(userId, itemName, string.Empty);
+            if (!CachMainData._cashItems.ContainsKey(userId) ||
+                !CachMainData._cashItems[userId].ContainsKey(itemName))
+                return string.Empty;
             return CachMainData._cashItems[userId][itemName];
         }
 

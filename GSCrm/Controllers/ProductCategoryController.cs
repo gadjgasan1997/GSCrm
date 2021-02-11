@@ -1,18 +1,16 @@
-﻿using GSCrm.Models;
+﻿using System;
+using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System;
 using GSCrm.Data;
 using GSCrm.Mapping;
 using GSCrm.Models.Enums;
 using GSCrm.Data.ApplicationInfo;
-using static GSCrm.CommonConsts;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using GSCrm.Helpers;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
 {
@@ -28,7 +26,7 @@ namespace GSCrm.Controllers
         {
             // Запрос сюда возможен после получения представления продуктовых категорий, а значит, организация в этот момент уже инициализирована
             Organization organization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            if (organization != null)
+            if (organization.Id != Guid.Empty)
             {
                 ProductCategoriesViewModel prodCatsCached = cachService.GetCachedItem<ProductCategoriesViewModel>(currentUser.Id, PROD_CATS);
                 ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
@@ -40,24 +38,17 @@ namespace GSCrm.Controllers
             return Json("");
         }
 
-        [HttpGet("Initalize/{categoryId?}")]
-        public IActionResult Initalize(string categoryId = "")
+        [HttpGet("Initalize/{id}")]
+        public IActionResult Initalize()
         {
-            // Проверки, что категория существует и пользователь имеет права на просмотр организации
-            if (!repository.TryGetItemById(categoryId, out ProductCategory productCategory))
-                return Json("");
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            if (!organizationRepository.HasPermissionsForSeeItem(productCategory.GetOrganization(context)))
-                return Json("");
-            if (!repository.HasPermissionsForSeeItem(productCategory))
-                return Json("");
-
-            // Возврат данных категории
-            else
+            // Получение признака проверки категории и прав пользователя на ее просмотр
+            if (bool.TryParse(cachService.GetCachedItem(currentUser.Id, $"{PC}{PROD_CATS}"), out bool isCheckCorrect) && isCheckCorrect)
             {
+                ProductCategory productCategory = cachService.GetCachedItem<ProductCategory>(currentUser.Id, "CurrentProductCategoryData");
                 ProductCategoryViewModel prodCatViewModel = new ProductCategoryMap(serviceProvider, context).DataToViewModel(productCategory);
                 return Json(prodCatViewModel);
             }
+            return Json("");
         }
 
         protected override IActionResult CreateSuccessHandler()

@@ -450,6 +450,7 @@ namespace GSCrm.Repository
                     userOrganization = context.UserOrganizations.AsNoTracking()
                         .Include(org => org.Organization)
                         .FirstOrDefault(userOrg => userOrg.UserId == currentUser.Id && userOrg.OrganizationId == organizationId);
+
                     // Ошибка если не найдена
                     if (userOrganization == null)
                         errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
@@ -463,6 +464,7 @@ namespace GSCrm.Repository
                 // Поиск сотрудника в организации
                 () => {
                     currentEmployee = context.GetCurrentEmployee(userOrganization.Organization, Guid.Parse(currentUser.Id));
+
                     // Ошибка если не найден
                     if (currentEmployee == null)
                         errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
