@@ -74,7 +74,7 @@
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
                 ItemsCount = positionsCount,
-                ViewInfo = cachService.GetViewInfo(currentUserId, EMP_POSITIONS),
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, EMP_POSITIONS),
                 ControllerName = EMP_POSITION,
                 ActionName = POSITIONS
             });

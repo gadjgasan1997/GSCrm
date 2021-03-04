@@ -1,10 +1,9 @@
 ﻿@using static GSCrm.CommonConsts
-@using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model EmployeeViewModel
 @{
@@ -22,6 +21,7 @@
             </div>
             <div class="modal-body">
                 <form method="post" asp-controller="@EMP_RESPONSIBILITY" asp-action="Synchronize">
+                    <input id="clearResponsibilityManagementSearch" value="@Url.Content($"/{EMP_RESPONSIBILITY}/{Model.Id}/ClearResponsibilityManagementSearch/")" hidden="hidden" />
                     <div class="row">
                         <div class="col-xl">
                             <div class="row justify-content-center">
@@ -35,11 +35,11 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="allRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchAllResponsibilities", EMP_RESPONSIBILITY)" />
+                                               data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/SearchAllResponsibilities/")" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearAllRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
-                                               data-href="@Url.Action("ClearAllResponsibilitiesSearch", EMP_RESPONSIBILITY)" />
+                                               data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/{Model.Id}/ClearAllResponsibilitiesSearch/")" />
                                     </div>
                                 </div>
                             </div>
@@ -61,14 +61,14 @@
                             <div id="allRespsNav" class="list-nav row no-gutters justify-content-center mt-3">
                                 <div class="col">
                                     <div class="nav-previous">
-                                        <div class="nav-url" data-href="@Url.Action("PreviousAllRecords", EMP_RESPONSIBILITY)">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/{Model.Id}/PreviousAllRecords/")">
                                             <span class="icon-chevron-thin-left"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="nav-next">
-                                        <div class="nav-url" data-href="@Url.Action("NextAllRecords", EMP_RESPONSIBILITY)">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/{Model.Id}/NextAllRecords/")">
                                             <span class="icon-chevron-thin-right"></span>
                                         </div>
                                     </div>
@@ -88,11 +88,11 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="selectedRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchSelectedResponsibilities", EMP_RESPONSIBILITY)" />
+                                               data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/SearchSelectedResponsibilities/")" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearSelectedRespsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
-                                               data-href="@Url.Action("ClearSelectedResponsibilitiesSearch", EMP_RESPONSIBILITY)" />
+                                               data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/{Model.Id}/ClearSelectedResponsibilitiesSearch/")" />
                                     </div>
                                 </div>
                             </div>
@@ -114,14 +114,14 @@
                             <div id="selectedRespsNav" class="list-nav row no-gutters justify-content-center mt-3">
                                 <div class="col">
                                     <div class="nav-previous">
-                                        <div class="nav-url" data-href="@Url.Action("PreviousSelectedRecords", EMP_RESPONSIBILITY)">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/{Model.Id}/PreviousSelectedRecords/")">
                                             <span class="icon-chevron-thin-left"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="nav-next">
-                                        <div class="nav-url" data-href="@Url.Action("NextSelectedRecords", EMP_RESPONSIBILITY)">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_RESPONSIBILITY}/{Model.Id}/NextSelectedRecords/")">
                                             <span class="icon-chevron-thin-right"></span>
                                         </div>
                                     </div>

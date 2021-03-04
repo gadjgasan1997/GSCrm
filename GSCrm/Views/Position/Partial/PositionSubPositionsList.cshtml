@@ -1,11 +1,10 @@
 ﻿@using static GSCrm.CommonConsts
-@using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
 @inject ApplicationDbContext context
 @inject ResManager resManager
 @model PositionViewModel
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @{
     int subPositionsCount = Model.SubPositions.Count;
@@ -30,7 +29,8 @@
                             <th class="label-non-select">@resManager.GetString("PrimaryEmployeeLabel")</th>
                         </tr>
                     }
-                    else { <tr><th></th><th></th></tr> }
+                    else
+                    { <tr><th></th><th></th></tr> }
                 </thead>
                 <tbody>
                     @if (showES)
@@ -60,8 +60,9 @@
         @{
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
+                Id = Model.Id,
                 ItemsCount = subPositionsCount,
-                ViewInfo = cachService.GetViewInfo(currentUserId, POS_SUB_POSS),
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, POS_SUB_POSS),
                 ControllerName = POSITION,
                 ActionName = POS_SUB_POSS
             });

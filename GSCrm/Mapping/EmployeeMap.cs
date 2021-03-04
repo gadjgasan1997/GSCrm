@@ -1,15 +1,13 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
-using GSCrm.Models.ViewTypes;
 using GSCrm.Transactions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static GSCrm.CommonConsts;
 
 namespace GSCrm.Mapping
 {
@@ -88,14 +86,9 @@ namespace GSCrm.Mapping
                 SupervisorInitialName = supervisor?.GetIntialsFullName()
             };
         }
-        
-        /// <summary>
-         /// Метод обновляет данные сотрудника из кеша
-         /// </summary>
-         /// <param name="employeeViewModel"></param>
-         /// <param name="employeeViewTypes"></param>
-         /// <returns></returns>
-        public EmployeeViewModel Refresh(EmployeeViewModel employeeViewModel, User currentUser, params EmployeeViewType[] employeeViewTypes)
+
+        /* TO DELETE
+         * public EmployeeViewModel Refresh(EmployeeViewModel employeeViewModel, User currentUser, params EmployeeViewType[] employeeViewTypes)
         {
             employeeViewTypes.ToList().ForEach(employeeViewType =>
             {
@@ -103,7 +96,7 @@ namespace GSCrm.Mapping
                 {
                     // Восстановление данных поиска по должностям
                     case EmployeeViewType.EMP_POSITIONS:
-                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeePosCash, EMP_POSITIONS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out EmployeeViewModel employeePosCash, EMP_POSITIONS))
                         {
                             employeeViewModel.SearchPosName = employeePosCash.SearchPosName;
                             employeeViewModel.SearchParentPosName = employeePosCash.SearchParentPosName;
@@ -112,7 +105,7 @@ namespace GSCrm.Mapping
 
                     // Восстановление данных поиска по контактам
                     case EmployeeViewType.EMP_CONTACTS:
-                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeContactCash, EMP_CONTACTS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out EmployeeViewModel employeeContactCash, EMP_CONTACTS))
                         {
                             employeeViewModel.SearchContactType = employeeContactCash.SearchContactType;
                             employeeViewModel.SearchContactPhone = employeeContactCash.SearchContactPhone;
@@ -122,13 +115,13 @@ namespace GSCrm.Mapping
 
                     // Восстановление данных поиска по подчиненным
                     case EmployeeViewType.EMP_SUBS:
-                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeSubCash, EMP_SUBS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out EmployeeViewModel employeeSubCash, EMP_SUBS))
                             employeeViewModel.SearchSubordinateFullName = employeeSubCash.SearchSubordinateFullName;
                         break;
 
                     // Восстановление данных поиска по всем должностям организации для модального окна управления должностями
                     case EmployeeViewType.ALL_EMP_POSS:
-                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel allEmployeePossCash, ALL_EMP_POSS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out EmployeeViewModel allEmployeePossCash, ALL_EMP_POSS))
                         {
                             employeeViewModel.SearchAllPosName = allEmployeePossCash.SearchAllPosName;
                             employeeViewModel.SearchAllParentPosName = allEmployeePossCash.SearchAllParentPosName;
@@ -137,7 +130,7 @@ namespace GSCrm.Mapping
 
                     // Восстановление данных поиска по выбранным должностям сотрудника для модального окна управления должностями
                     case EmployeeViewType.SELECTED_EMP_POSS:
-                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel selectedEmployeePossCash, SELECTED_EMP_POSS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out EmployeeViewModel selectedEmployeePossCash, SELECTED_EMP_POSS))
                         {
                             employeeViewModel.SearchSelectedPosName = selectedEmployeePossCash.SearchSelectedPosName;
                             employeeViewModel.SearchSelectedParentPosName = selectedEmployeePossCash.SearchSelectedParentPosName;
@@ -146,13 +139,13 @@ namespace GSCrm.Mapping
 
                     // Восстановление данных поиска по всем полномочиям организации для модального окна управления полномочиями
                     case EmployeeViewType.ALL_EMP_RESPS:
-                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel allEmployeeRespsCash, ALL_EMP_RESPS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out EmployeeViewModel allEmployeeRespsCash, ALL_EMP_RESPS))
                             employeeViewModel.SearchAllRespName = allEmployeeRespsCash.SearchAllRespName;
                         break;
 
                     // Восстановление данных поиска по выбранным полномочиям сотрудника для модального окна управления полномочиями
                     case EmployeeViewType.SELECTED_EMP_RESPS:
-                        if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel selectedEmployeeRespsCash, SELECTED_EMP_RESPS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out EmployeeViewModel selectedEmployeeRespsCash, SELECTED_EMP_RESPS))
                             employeeViewModel.SearchSelectedRespName = selectedEmployeeRespsCash.SearchSelectedRespName;
                         break;
 
@@ -162,7 +155,7 @@ namespace GSCrm.Mapping
             });
 
             return employeeViewModel;
-        }
+        }*/
 
         /// <summary>
         /// Разблокировка сотрудника в случае блокировки из-за отсутствия должности
@@ -170,7 +163,7 @@ namespace GSCrm.Mapping
         public void UnlockOnPositionAbsent()
         {
             SetTransaction(OperationType.UnlockEmployee);
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             BindDivisionAndPosition(employee);
             employee.Unlock();
             transaction.AddChange(employee, EntityState.Modified);
@@ -182,7 +175,7 @@ namespace GSCrm.Mapping
         public void UnlockOnUserAccountAbsent(bool userAccountExists)
         {
             SetTransaction(OperationType.UnlockEmployee);
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             BindUserAccount(employee, userAccountExists);
             transaction.AddChange(employee, EntityState.Modified);
         }
@@ -193,7 +186,7 @@ namespace GSCrm.Mapping
         public void UnlockOnLockedEmployeeLeftOrg(bool userAccountExists)
         {
             SetTransaction(OperationType.UnlockEmployee);
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             BindDivisionAndPosition(employee);
             BindUserAccount(employee, userAccountExists);
             transaction.AddChange(employee, EntityState.Modified);
@@ -230,11 +223,11 @@ namespace GSCrm.Mapping
         public void ChangeDivision(EmployeeViewModel employeeViewModel)
         {
             SetTransaction(OperationType.ChangeEmployeeDivision);
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             List<Division> allDivisions = (List<Division>)transaction.GetParameterValue("AllDivisions");
             Division newDivision = allDivisions.FirstOrDefault(n => n.Name == employeeViewModel.DivisionName);
             Position newPrimaryPosition = (Position)transaction.GetParameterValue("PrimaryPosition");
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
             RemoveOldEmployeePositions(employee);
             AddEmployeePosition(employee, newPrimaryPosition);
             employee.DivisionId = newDivision.Id;

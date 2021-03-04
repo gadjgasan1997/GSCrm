@@ -43,6 +43,7 @@ namespace GSCrm
             services.AddSingleton<ResManager>();
             services.AddSingleton<IResManager, ResManager>();
             services.AddSingleton<ICachService, CachService>();
+            //services.AddSingleton<IOrgCachService, OrgCachService>();
             services.AddScoped<IMapFactory, MapFactory>();
             services.AddScoped<ITFFactory, TFFactory>();
             services.AddScoped<IRepositoryFactory, RepositoryFactory>();

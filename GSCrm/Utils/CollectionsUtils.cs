@@ -71,23 +71,6 @@ namespace GSCrm.Utils
         }
 
         /// <summary>
-        /// Метод вызывает список обработчиков, которые выполняют определенные действия, и, в случае обнаружения, тут же выходят
-        /// Также эта перегрузка выходит при передаче флага "needStop" со значением "true"
-        /// </summary>
-        /// <param name="errors"></param>
-        /// <param name="needStop"></param>
-        /// <param name="actions"></param>
-        public static void InvokeIntermittinActions(Dictionary<string, string> errors, bool needStop, IEnumerable<Action> actions)
-        {
-            if (needStop || errors.Any()) return;
-            foreach (Action action in actions)
-            {
-                action();
-                if (errors.Any()) break;
-            }
-        }
-
-        /// <summary>
         /// Метод вызывает список обработчиков, которые выполняют определенные действия, и не прерываются при их обнаружении
         /// </summary>
         /// <param name="actions"></param>

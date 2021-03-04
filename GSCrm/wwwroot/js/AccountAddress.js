@@ -1,11 +1,12 @@
 class AccountAddress {
+    //#region Create
     /**
      * —оздание адреса
      * @param {*} event 
      */
     Create(event) {
         return new Promise((resolve, reject) => {
-            this.Clear();
+            Utils.ClearErrors();
             let modal = $(event.currentTarget).closest("#accAddressCreateModal");
             let createAddressUrl = $(modal).find("form").attr("action");
             let createAddressData = this.CreateGetData();
@@ -48,7 +49,7 @@ class AccountAddress {
     CancelCreate() {
         $("#accAddressCreateModal").modal("hide");
         this.CreateClearFields();
-        this.Clear();
+        Utils.ClearErrors();
     }
 
     /**
@@ -61,7 +62,9 @@ class AccountAddress {
         let addressNoneType = $(modal).find(".dropdown-el input")[0];
         $(addressNoneType).prop('checked', true);
     }
+    //#endregion
 
+    //#region Update
     /**
      * ¬ыполн€ет запрос на сервер дл€ получени€ сведений об адресе при его редактировании
      * ≈сли все успешно, полученными данными заполн€ет пол€
@@ -106,7 +109,7 @@ class AccountAddress {
      */
     Update(event) {
         return new Promise((resolve, reject) => {
-            this.Clear();
+            Utils.ClearErrors();
             let modal = $(event.currentTarget).closest("#accAddressUpdateModal");
             let updateAddressUrl = $(modal).find("form").attr("action");
             let updateAddressData = this.UpdateGetData();
@@ -166,15 +169,14 @@ class AccountAddress {
      */
     UpdateCheckLegalAddressNotChanged(updateAddressData) {
         return new Promise((resolve, reject) => {
-            let addressList = $("#accAddressesList");
-            let addressesIdList = $(addressList).find(".address-id");
+            let addressesIdList = $("#accAddressesList").find(".address-id");
 
             // ѕоиск типа текущего измен€емого адреса
             let changedAddress = Array.from(addressesIdList).filter(addressIdElement => {
                 return $(addressIdElement).text() == updateAddressData["Id"];
             });
             let changedAddressType = $(changedAddress).closest("tr").find(".address-type").text();
-            let addressHasBeenSelected = localStorage.getItem("selectedAddressId") != "" && localStorage.getItem("selectedAddressId") != undefined && localStorage.getItem("selectedAddressId") != null;
+            let addressHasBeenSelected = !Utils.IsNullOrEmpty(localStorage.getItem("selectedAddressId"));
 
             // ≈сли новый тип адреса €вл€етс€ юридическим, то в любом случае можно осуществл€ть запрос на сервер
             if (updateAddressData["CurrentAddressNewType"] == "Legal") resolve({ "WaitForChanges": false });
@@ -192,8 +194,8 @@ class AccountAddress {
                         let account = new Account();
                         account.HasAccNotLegalAddress()
                             .catch(() => reject())
-                            .then(hasAccounts => {
-                                if (!hasAccounts) {
+                            .then(hasAddresses => {
+                                if (!hasAddresses) {
                                     Swal.fire(MessageManager.Invoke("AddressListIsEmpty"));
                                     reject();
                                 }
@@ -237,6 +239,9 @@ class AccountAddress {
                     $("#changeAccAddressType").val("None");
                 }, 300)
                 break;
+            
+            default:
+                break;
         }
 
         // јбсолютно во всех случа€х убираетс€ скрытие с блока выбора типа текущего адреса в модальном окне
@@ -261,9 +266,11 @@ class AccountAddress {
     CancelUpdate() {
         localStorage.removeItem("selectedAddressId");
         $("#accAddressUpdateModal").modal("hide");
-        this.Clear();
+        Utils.ClearErrors();
     }
+    //#endregion
 
+    //#region Remove
     /**
      * ”даление адреса клиента
      * @param {*} event 
@@ -281,13 +288,7 @@ class AccountAddress {
                 .done(() => location.reload());
         });
     }
-
-    /**
-     * ќчищает пол€ с ошибками
-     */
-    Clear() {
-        $('.under-field-error').addClass("d-none").empty();
-    }
+    //#endregion
 }
 
 // —писок адресов клиента

@@ -19,3 +19,10 @@ $(document)
     .off("click", ".navbar .navbar-avatar a").on("click", ".navbar .navbar-avatar a", event => {
         event.stopPropagation();
     })
+
+var test = () => {
+    let request = new AjaxRequests();
+    request.JsonGetRequest("https://localhost:44376/EmployeePosition/bde3f125-b686-4857-d1ca-08d84deccbb1/NextAllRecords/").then(response => {
+        console.log(response)
+    })
+}

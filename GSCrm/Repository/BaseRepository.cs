@@ -1,23 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Collections.Generic;
 using GSCrm.Data;
 using GSCrm.Data.Cash;
-using GSCrm.Data.ApplicationInfo;
+using GSCrm.Models;
 using GSCrm.Mapping;
 using GSCrm.Helpers;
+using GSCrm.Factories;
+using GSCrm.Transactions;
 using GSCrm.Localization;
-using GSCrm.Models;
 using GSCrm.Models.ViewModels;
+using GSCrm.Data.ApplicationInfo;
+using GSCrm.Routing.Middleware.AccessibilityMiddleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using GSCrm.Transactions;
-using GSCrm.Factories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Repository
@@ -30,7 +32,7 @@ namespace GSCrm.Repository
         /// <summary>
         /// Контекст приложения
         /// </summary>
-        protected ApplicationDbContext context;
+        protected readonly ApplicationDbContext context;
         /// <summary>
         /// Http context
         /// </summary>
@@ -39,8 +41,8 @@ namespace GSCrm.Repository
         /// Текущий пользователь
         /// </summary>
         protected User currentUser;
-        protected DbSet<TDataModel> dbSet;
-        protected IServiceProvider serviceProvider;
+        protected readonly DbSet<TDataModel> dbSet;
+        protected readonly IServiceProvider serviceProvider;
         protected readonly ITFFactory TFFactory;
         /// <summary>
         /// Хелпер для работы с урлами
@@ -53,26 +55,32 @@ namespace GSCrm.Repository
         /// <summary>
         /// Сервис транзакций
         /// </summary>
-        protected readonly ITransactionFactory<TViewModel> viewModelsTransactionFactory;
+        protected readonly ITransactionFactory<TViewModel> viewModelsTF;
         /// <summary>
         /// Сервис транзакций
         /// </summary>
-        protected readonly ITransactionFactory<TDataModel> dataModelsTransactionFactory;
+        protected readonly ITransactionFactory<TDataModel> dataModelsTF;
         protected ITransaction transaction;
         /// <summary>
         /// Менеджер ресурсов для доступа к переводам
         /// </summary>
-        protected IResManager resManager;
+        protected readonly IResManager resManager;
         /// <summary>
         /// Преобразователь сущностей при маппинге
         /// </summary>
-        protected IMap<TDataModel, TViewModel> map;
+        protected readonly IMap<TDataModel, TViewModel> map;
+        /// <summary>
+        /// Новая созданная запись, проставляется после маппинга и перед коммитом в базу в методе <see cref="TryCreate(ref TViewModel, ModelStateDictionary, User)"/>
+        /// </summary>
         public TDataModel NewRecord { get; protected set; }
+        /// <summary>
+        /// Измененная запись, проставляется после маппинга и перед коммитом в базу в методе <see cref="TryUpdate(ref TViewModel, ModelStateDictionary, User)"/>
+        /// </summary>
         public TDataModel ChangedRecord { get; protected set; }
         /// <summary>
-        /// Удаляемая запись
+        /// Удаляемая запись, проставляется перед проверкой полномочий на удаление в методе <see cref="TryDelete(string, ModelStateDictionary, User)"/>
         /// </summary>
-        protected TDataModel recordToRemove;
+        public TDataModel RecordToRemove { get; protected set; }
         /// <summary>
         /// Список с ошибками
         /// </summary>
@@ -83,17 +91,17 @@ namespace GSCrm.Repository
         public BaseRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
             // Вспомогательные сервисы
-            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
-            IUrlHelperFactory urlHelperFactory = serviceProvider.GetService(typeof(IUrlHelperFactory)) as IUrlHelperFactory;
-            IActionContextAccessor actionAccessor = serviceProvider.GetService(typeof(IActionContextAccessor)) as IActionContextAccessor;
-            IMapFactory mapFactory = serviceProvider.GetService(typeof(IMapFactory)) as IMapFactory;
+            IUserContextFactory userContextServices = serviceProvider.GetService<IUserContextFactory>();
+            IUrlHelperFactory urlHelperFactory = serviceProvider.GetService<IUrlHelperFactory>();
+            IActionContextAccessor actionAccessor = serviceProvider.GetService<IActionContextAccessor>();
+            IMapFactory mapFactory = serviceProvider.GetService<IMapFactory>();
 
             // Фабрики
-            TFFactory = serviceProvider.GetService(typeof(ITFFactory)) as ITFFactory;
-            viewModelsTransactionFactory = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
-            dataModelsTransactionFactory = TFFactory.GetTransactionFactory<TDataModel>(serviceProvider, context);
+            TFFactory = serviceProvider.GetService<ITFFactory>();
+            viewModelsTF = TFFactory.GetTransactionFactory<TViewModel>(serviceProvider, context);
+            dataModelsTF = TFFactory.GetTransactionFactory<TDataModel>(serviceProvider, context);
 
-            // ActionContext может быть null, так как этот конструктор вызывается из "AccessibilityMiddleware"
+            /// ActionContext может быть null, так как этот конструктор вызывается из <see cref="AccessibilityMiddleware"/>
             if (actionAccessor.ActionContext != null)
                 urlHelper = urlHelperFactory.GetUrlHelper(actionAccessor.ActionContext);
 
@@ -103,8 +111,8 @@ namespace GSCrm.Repository
             httpContext = userContextServices.HttpContext;
             currentUser = httpContext.GetCurrentUser(context);
             map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
-            cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
-            resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
+            cachService = serviceProvider.GetService<ICachService>();
+            resManager = serviceProvider.GetService<IResManager>();
             errors = new Dictionary<string, string>();
             dbSet = context.Set<TDataModel>();
         }
@@ -120,7 +128,7 @@ namespace GSCrm.Repository
             this.currentUser = currentUser ?? this.currentUser;
 
             // Создание и открытие транзакции
-            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Create, entityToCreate);
+            transaction = viewModelsTF.Create(this.currentUser.Id, OperationType.Create, entityToCreate);
 
             // Проверка прав пользователя на совершение действия
             if (!RespsIsCorrectOnCreate(entityToCreate))
@@ -135,9 +143,9 @@ namespace GSCrm.Repository
                     transaction.AddChange(dataModel, EntityState.Added);
                     NewRecord = dataModel;
                     transaction.AddParameter("NewRecord", dataModel);
-                    if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+                    if (viewModelsTF.TryCommit(transaction, errors))
                     {
-                        viewModelsTransactionFactory.Close(transaction);
+                        viewModelsTF.Close(transaction);
                         return true;
                     }
                 }
@@ -148,15 +156,17 @@ namespace GSCrm.Repository
                 modelState.AddModelError(error.Key, error.Value);
 
             // Закрытие транзакции и выход
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
+
         /// <summary>
         /// Метод проверяет возожность у сотрудника на создание записи
         /// </summary>
         /// <param name="entityToCreate"></param>
         /// <returns></returns>
         protected virtual bool RespsIsCorrectOnCreate(TViewModel entityToCreate) => false;
+
         /// <summary>
         /// Метод, обрабатывающий случай, когда у сотрудника недостаточно полномочий для создания записи
         /// </summary>
@@ -178,7 +188,7 @@ namespace GSCrm.Repository
             this.currentUser = currentUser ?? this.currentUser;
 
             // Создание и открытие транзакции
-            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Update, entityToUpdate);
+            transaction = viewModelsTF.Create(this.currentUser.Id, OperationType.Update, entityToUpdate);
 
             // Поиск записи
             Guid entityToUpdateId = entityToUpdate.Id;
@@ -202,10 +212,10 @@ namespace GSCrm.Repository
                             transaction.AddChange(dataModel, EntityState.Modified);
                             ChangedRecord = dataModel;
                             transaction.AddParameter("ChangedRecord", dataModel);
-                            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+                            if (viewModelsTF.TryCommit(transaction, errors))
                             {
                                 // Закрытие транзакции
-                                viewModelsTransactionFactory.Close(transaction);
+                                viewModelsTF.Close(transaction);
                                 // Получение из бд обновленной записи, преобразование ее в модель отображения
                                 entityToUpdate = map.DataToViewModel(dataModel);
                                 return true;
@@ -224,33 +234,39 @@ namespace GSCrm.Repository
             UpdateAddErrors(modelState);
 
             // Закрытие транзакции
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             FailureUpdateHandler(entityToUpdate);
             return false;
         }
+
         /// <summary>
         /// Метод обрабатывает ошибку отсутствия записи
         /// </summary>
         /// <param name="entityToUpdate"></param>
         protected virtual void OnRecordNotFound(TViewModel entityToUpdate)
             => errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
+
         /// <summary>
         /// Метод проверяет возожность у сотрудника на обновления записи
         /// </summary>
         /// <param name="entityToUpdate"></param>
         /// <returns></returns>
         protected virtual bool RespsIsCorrectOnUpdate(TViewModel entityToUpdate) => false;
+
         /// <summary>
         /// Метод, обрабатывающий случай, когда у сотрудника недостаточно полномочий для обновления записи
         /// </summary>
         protected virtual void HasNotPermissionsForUpdate() => AddHasNoPermissionsError(OperationType.Update);
+
         /// <summary>
         /// Метод осуществляет проверку модели представления при обновлении записи
         /// </summary>
         /// <param name="viewModel"></param>
         /// <returns></returns>
         protected virtual bool TryUpdatePrepare(TViewModel viewModel) => true;
+
         protected virtual void FailureUpdateHandler(TViewModel viewModel) { }
+
         /// <summary>
         /// Метод выполняется при добавлении ошибок в модель
         /// </summary>
@@ -265,31 +281,42 @@ namespace GSCrm.Repository
         #region Delete Record
         public bool TryDelete(string id, ModelStateDictionary modelState, User currentUser = null)
         {
+            // Создание транзакции
             this.currentUser = currentUser ?? this.currentUser;
-            transaction = viewModelsTransactionFactory.Create(this.currentUser.Id, OperationType.Delete, id);
+            transaction = viewModelsTF.Create(this.currentUser.Id, OperationType.Delete, id);
+
+            // Попытка распарсить id
             if (TryParseId(id, out Guid guid))
             {
+                // Получение удаляемой сущности
                 TDataModel entityToDelete = dbSet.FirstOrDefault(i => i.Id == guid);
                 if (entityToDelete == null)
                     errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
                 else
                 {
-                    // Иначе проверка полномочий и попытка удаления
-                    recordToRemove = entityToDelete;
-                    transaction.AddParameter("RecordToRemove", recordToRemove);
+                    RecordToRemove = entityToDelete;
+                    transaction.AddParameter("RecordToRemove", RecordToRemove);
+
+                    // Обновление кеша в случае необходимости
+                    UpdateCacheOnDelete(entityToDelete);
+
+                    // Проверка полномочий
                     if (RespsIsCorrectOnDelete(entityToDelete))
                     {
                         // Выполнение подготовительных действий
                         if (TryDeletePrepare(entityToDelete))
                         {
+                            // Попытка закоммитить
                             transaction.AddChange(entityToDelete, EntityState.Deleted);
-                            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+                            if (viewModelsTF.TryCommit(transaction, errors))
                             {
-                                viewModelsTransactionFactory.Close(transaction);
+                                viewModelsTF.Close(transaction);
                                 return true;
                             }
                         }
                     }
+
+                    // Обработка отсутствующия полномочий
                     else HasNotPermissionsForDelete();
                 }
             }
@@ -299,7 +326,7 @@ namespace GSCrm.Repository
                 modelState.AddModelError(error.Key, error.Value);
 
             // Закрытие транзакции
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -311,23 +338,30 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryDelete(TDataModel entityToDelete)
         {
-            transaction = dataModelsTransactionFactory.Create(currentUser.Id, OperationType.Delete, entityToDelete);
+            transaction = dataModelsTF.Create(currentUser.Id, OperationType.Delete, entityToDelete);
 
             // Выполнение подготовительных действий
             if (TryDeletePrepare(entityToDelete))
             {
                 transaction.AddChange(entityToDelete, EntityState.Deleted);
-                if (dataModelsTransactionFactory.TryCommit(transaction, errors))
+                if (dataModelsTF.TryCommit(transaction, errors))
                 {
-                    dataModelsTransactionFactory.Close(transaction);
+                    dataModelsTF.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции
-            dataModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            dataModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
+
+        /// <summary>
+        /// Метод вызывается перед проверкой полномочий на удаление методом <see cref="HasNotPermissionsForDelete"/> и после получения сущности, подлежащей удалению
+        /// Можно переопределить, если необходимо обновить кеш перед операцией удаления сущности
+        /// </summary>
+        /// <param name="dataModel"></param>
+        protected virtual void UpdateCacheOnDelete(TDataModel dataModel) { }
 
         /// <summary>
         /// Метод проверяет возожность у сотрудника на удаление записи
@@ -359,17 +393,48 @@ namespace GSCrm.Repository
             cachService.SetViewInfo(currentUser.Id, viewName, viewInfo);
         }
 
+        public void SetViewInfo(string recordId, string viewName, int pageNumber)
+            => SetViewInfo(Guid.Parse(recordId), viewName, pageNumber);
+
+        public void SetViewInfo(Guid recordId, string viewName, int pageNumber)
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, recordId, viewName);
+            viewInfo.CurrentPageNumber = pageNumber <= DEFAULT_MIN_PAGE_NUMBER ? DEFAULT_MIN_PAGE_NUMBER : pageNumber;
+            viewInfo.SkipSteps = viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP;
+            cachService.SetViewInfo(currentUser.Id, recordId, viewName, viewInfo);
+        }
+
         /// <summary>
-        /// Метод возвращает ограниченный список данных для отображения
+        /// Метод ограничивает список элементов представления
         /// </summary>
         /// <typeparam name="TItemsListType"></typeparam>
-        /// <param name="viewName"></param>
-        /// <param name="itemsToLimit"></param>
+        /// <param name="viewName">Название представления</param>
+        /// <param name="itemsToLimit">Список элементов представления для ограничения</param>
         /// <returns></returns>
-        protected void LimitListByPageNumber<TItemsListType>(string viewName, ref List<TItemsListType> itemsToLimit)
+        protected void LimitViewItemsByPageNumber<TItemsListType>(string viewName, ref List<TItemsListType> itemsToLimit)
             where TItemsListType : class
         {
             ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, viewName);
+            LimitListByPageNumber(viewInfo, ref itemsToLimit);
+        }
+
+        /// <summary>
+        /// Метод ограничивает список элементов представления
+        /// </summary>
+        /// <typeparam name="TPartialViewItemType"></typeparam>
+        /// <param name="recordId">Id записи</param>
+        /// <param name="viewName">Название представления</param>
+        /// <param name="itemsToLimit">Список элементов представления для ограничения</param>
+        protected void LimitViewItemsByPageNumber<TPartialViewItemType>(Guid recordId, string viewName, ref List<TPartialViewItemType> itemsToLimit)
+            where TPartialViewItemType : class
+        {
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, recordId, viewName);
+            LimitListByPageNumber(viewInfo, ref itemsToLimit);
+        }
+
+        private void LimitListByPageNumber<TItemsListType>(ViewInfo viewInfo, ref List<TItemsListType> itemsToLimit)
+            where TItemsListType : class
+        {
             List<TItemsListType> limitedItems = itemsToLimit.Skip(viewInfo.SkipSteps * viewInfo.ItemsCount).Take(viewInfo.ItemsCount).ToList();
             if (limitedItems.Count == 0)
             {
@@ -380,6 +445,8 @@ namespace GSCrm.Repository
             }
             itemsToLimit = limitedItems;
         }
+
+        public virtual TViewModel LoadView(TDataModel dataModel) => map.DataToViewModel(dataModel);
 
         /// <summary>
         /// Метод пытается преобразовать строковое проедставление id в Guid и найти запись

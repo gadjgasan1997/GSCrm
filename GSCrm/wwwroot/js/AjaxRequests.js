@@ -18,6 +18,15 @@
         });
     }
 
+    JsonDeleteRequest(url) {
+        return $.ajax({
+            type: "Delete",
+            contentType: "application/json",
+            dataType: "json",
+            url: url
+        });
+    }
+
     CommonPostRequest(url, data) {
         return $.ajax({
             type: "POST",
@@ -32,15 +41,6 @@
             type: "Get",
             contentType: "application/json",
             url: url
-        });
-    }
-
-    CommonHtmlRequest(url) {
-        return $.ajax({
-            type: "Get",
-            contentType: "application/json",
-            url: url,
-            dataType: "html"
         });
     }
 

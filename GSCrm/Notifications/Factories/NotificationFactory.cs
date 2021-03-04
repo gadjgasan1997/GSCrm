@@ -1,12 +1,15 @@
-﻿using GSCrm.Data;
+﻿using System;
+using GSCrm.Data;
 using GSCrm.Factories;
 using GSCrm.Localization;
 using GSCrm.Models;
 using GSCrm.Notifications.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
-using System;
+using Microsoft.Extensions.DependencyInjection;
 using Task = System.Threading.Tasks.Task;
 
 namespace GSCrm.Notifications.Factories
@@ -14,9 +17,7 @@ namespace GSCrm.Notifications.Factories
     public abstract class NotificationFactory<TNotificationParams>
         where TNotificationParams : INotificationParams
     {
-        /// <summary>
-        /// Менеджер ресурсов для доступа к переводам
-        /// </summary>
+        #region Declarations
         protected readonly IResManager resManager;
         protected readonly IServiceProvider serviceProvider;
         protected readonly ApplicationDbContext context;
@@ -42,17 +43,27 @@ namespace GSCrm.Notifications.Factories
         /// Хелпер для работы с урлами
         /// </summary>
         protected readonly IUrlHelper urlHelper;
+        #endregion
 
         protected NotificationFactory(IServiceProvider serviceProvider, ApplicationDbContext context, TNotificationParams notificationParams)
         {
+            // Вспомогательные сервисы
+            IUserContextFactory userContextServices = serviceProvider.GetService<IUserContextFactory>();
+            IActionContextAccessor actionAccessor = serviceProvider.GetService<IActionContextAccessor>();
+            IUrlHelperFactory urlHelperFactory = serviceProvider.GetService<IUrlHelperFactory>();
+
+            // ActionContext может быть null, если этот конструткор будет вызываться из компонентов MiddleWare
+            httpContext = userContextServices.HttpContext;
+            if (actionAccessor.ActionContext != null)
+                urlHelper = urlHelperFactory.GetUrlHelper(actionAccessor.ActionContext);
+
+            // Прочее
+            resManager = serviceProvider.GetService<IResManager>();
+            configuration = serviceProvider.GetService<IConfiguration>();
             this.serviceProvider = serviceProvider;
             this.context = context;
-            resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
             this.notificationParams = notificationParams;
-            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
-            httpContext = userContextServices.HttpContext;
-            configuration = serviceProvider.GetService(typeof(IConfiguration)) as IConfiguration;
-            urlHelper = serviceProvider.GetService(typeof(IUrlHelper)) as IUrlHelper;
+
         }
 
         /// <summary>

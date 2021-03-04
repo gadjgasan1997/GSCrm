@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Linq;
 using GSCrm.Data;
-using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications.Params.EmpUpdate;
 using GSCrm.Notifications.Factories.OrgNotFactories.EmpUpdate;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
 namespace GSCrm.Transactions.Factories
@@ -15,28 +12,11 @@ namespace GSCrm.Transactions.Factories
     {
         public EmployeeContactTF(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context) { }
 
-        protected override void CreateHandler(OperationType operationType, EmployeeContactViewModel contactViewModel)
-        {
-            if (operationType.IsInList(baseOperationTypes))
-            {
-                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                    transaction.AddParameter("CurrentOrganization", currentOrganization);
-                Employee employee = context.Employees.AsNoTracking().FirstOrDefault(emp => emp.Id == Guid.Parse(contactViewModel.EmployeeId));
-                transaction.AddParameter("Employee", employee);
-            }
-        }
-
-        protected override void CreateHandler(OperationType operationType, string recordId)
-        {
-            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
-        }
-
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
             if (transactionStatus == TransactionStatus.Success)
             {
-                Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+                Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
                 switch (operationType)
                 {
                     case OperationType.Create:
@@ -58,7 +38,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="currentOrganization"></param>
         private void SendContactCreateNotifications(Organization currentOrganization)
         {
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             EmployeeContact employeeContact = (EmployeeContact)transaction.GetParameterValue("NewRecord");
             AddContactParams addContactParams = new AddContactParams()
             {
@@ -76,7 +56,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="currentOrganization"></param>
         private void SendContactUpdateNotifications(Organization currentOrganization)
         {
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             EmployeeContact contactBeforeChange = (EmployeeContact)transaction.GetParameterValue("RecordToChange");
             EmployeeContact contactAfterChange = (EmployeeContact)transaction.GetParameterValue("ChangedRecord");
             UpdateContactParams updateContactParams = new UpdateContactParams()
@@ -96,8 +76,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="currentOrganization"></param>
         private void SendContactDeleteNotifications(Organization currentOrganization)
         {
-            EmployeeContact employeeContact = (EmployeeContact)transaction.GetParameterValue("RecordToRemove");
-            Employee employee = context.Employees.AsNoTracking().FirstOrDefault(emp => emp.Id == employeeContact.EmployeeId);
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             DeleteContactParams deleteContactParams = new DeleteContactParams()
             {
                 ChangedEmployee = employee,

@@ -15,6 +15,10 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware
         /// </summary>
         public RouteValueDictionary RouteValues { get; set; }
         /// <summary>
+        /// Присланная форма запроса
+        /// </summary>
+        public IFormCollection Form { get; set; }
+        /// <summary>
         /// Название вызываемого действия
         /// </summary>
         public string ActionName { get; set; }
@@ -25,5 +29,9 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware
         /// Необходимо ли прервать выполнение запроса
         /// </summary>
         public bool NeedBreakRequest { get; set; }
+        /// <summary>
+        /// Обработчик, вызываемый при прерывании запроса
+        /// </summary>
+        public Action ErrorHandler { get; set; }
     }
 }

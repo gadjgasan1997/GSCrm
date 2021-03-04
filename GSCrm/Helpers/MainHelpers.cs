@@ -116,5 +116,24 @@ namespace GSCrm.Helpers
                 NavigateDirection.Backward => viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP,
                 _ => 0
             };
+
+        /// <summary>
+        /// Метод возвращает форму из запроса
+        /// </summary>
+        /// <param name="httpContext"></param>
+        /// <returns></returns>
+        public static IFormCollection GetForm(this HttpContext httpContext)
+        {
+            if (httpContext.Request.Method != "POST")
+                return null;
+            try
+            {
+                return httpContext.Request.Form;
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
     }
 }

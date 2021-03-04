@@ -235,6 +235,7 @@ class AccountManagement {
      */
     GetAllEmployeesSearchData() {
         return {
+            Id: $("#accountId").val(),
             OrganizationId: $("#organizationId").val(),
             SearchAllManagersName: $("#SearchAllManagersName").val(),
             SearchAllManagersDivision: $("#SearchAllManagersDivision").val(),
@@ -267,6 +268,7 @@ class AccountManagement {
      */
     GetSelectedEmployeesSearchData() {
         return {
+            Id: $("#accountId").val(),
             OrganizationId: $("#organizationId").val(),
             SearchSelectedManagersName: $("#SearchSelectedManagersName").val(),
             SearchSelectedManagersPosition: $("#SearchSelectedManagersPosition").val(),
@@ -317,10 +319,10 @@ class AccountManagement {
      * @param {*} response Ответ, пришедший с сервера с данными для фильтра
      */
     RenderSelectedEmployeesFilterFields(response) {
-        let teamSelectedEmployeesVM = response["teamSelectedEmployeesVM"];
-        $("#SearchSelectedManagersName").val(teamSelectedEmployeesVM["searchSelectedManagersName"]);
-        $("#SearchSelectedManagersPosition").val(teamSelectedEmployeesVM["searchSelectedManagersPosition"]);
-        $("#SearchSelectedManagersPhone").val(teamSelectedEmployeesVM["searchSelectedManagersPhone"]);
+        let accountViewModel = response["accountViewModel"];
+        $("#SearchSelectedManagersName").val(accountViewModel["searchSelectedManagersName"]);
+        $("#SearchSelectedManagersPosition").val(accountViewModel["searchSelectedManagersPosition"]);
+        $("#SearchSelectedManagersPhone").val(accountViewModel["searchSelectedManagersPhone"]);
     }
 
     /**
@@ -328,10 +330,10 @@ class AccountManagement {
      * @param {*} response Ответ, пришедший с сервера с данными для фильтра
      */
     RenderAllEmployeesFilterFields(response) {
-        let teamAllEmployeesVM = response["teamAllEmployeesVM"];
-        $("#SearchAllManagersName").val(teamAllEmployeesVM["searchAllManagersName"]);
-        $("#SearchAllManagersDivision").val(teamAllEmployeesVM["searchAllManagersDivision"]);
-        $("#SearchAllManagersPosition").val(teamAllEmployeesVM["searchAllManagersPosition"]);
+        let accountViewModel = response["accountViewModel"];
+        $("#SearchAllManagersName").val(accountViewModel["searchAllManagersName"]);
+        $("#SearchAllManagersDivision").val(accountViewModel["searchAllManagersDivision"]);
+        $("#SearchAllManagersPosition").val(accountViewModel["searchAllManagersPosition"]);
     }
 
     /**
@@ -480,7 +482,7 @@ class AccountManagement {
     ClearAccTeamManagementSearch() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let clearAccTeamSearchUrl = LocalizationManager.GetUri("clearAccTeamSearch");
+            let clearAccTeamSearchUrl = $("#clearAccTeamManagementSearch").val();
             request.CommonGetRequest(clearAccTeamSearchUrl)
                 .fail(() => reject(error))
                 .done(() => resolve())
@@ -505,7 +507,6 @@ class AccountManagement {
             let syncAccTeamUrl = $(event.currentTarget).attr("data-href");
             let syncAccTeamData = this.SynchronizeAccTeamGetData();
             let request = new AjaxRequests();
-            console.log("SynchronizeAccTeam");
 
             request.JsonPostRequest(syncAccTeamUrl, syncAccTeamData)
                 .fail(response => {
@@ -528,6 +529,7 @@ class AccountManagement {
      */
     SynchronizeAccTeamGetData() {
         return {
+            Id: $("#accountId").val(),
             PrimaryManagerId: AccountManagement.primaryManagerIdCash,
             ManagersToAdd: AccountManagement.managersToAdd,
             ManagersToRemove: AccountManagement.managersToRemove

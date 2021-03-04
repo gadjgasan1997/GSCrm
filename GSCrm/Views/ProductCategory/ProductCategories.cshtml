@@ -5,16 +5,18 @@
 @using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model ProductCategoriesViewModel
 @{
     IEnumerable<ProductCategoryViewModel> prodCatViewModels = Model.ProductCategoryViewModels;
     User currentUser = User.GetUserModel(context);
-    ViewInfo prodCatsView = cachService.GetViewInfo(currentUser.Id, PROD_CATS);
-    ViewInfo orgView = cachService.GetViewInfo(currentUser.Id, ORGANIZATIONS);
+    ViewInfo orgViewInfo = cachService.GetViewInfo(currentUser.Id, ORGANIZATIONS);
+    ViewInfo prodCatsViewInfo = cachService.GetViewInfo(currentUser.Id, Model.OrganizationId, PROD_CATS);
+    int previousPageNumber = prodCatsViewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP;
+    int nextPageNumber = prodCatsViewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP;
 }
 
 @* // Хлебные крошки *@
@@ -22,12 +24,12 @@
     <ol class="breadcrumb one-line-crumbs">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
         <li class="breadcrumb-item">
-            <a asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+            <a asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgViewInfo.CurrentPageNumber">
                 @resManager.GetString(ORGANIZATIONS)
             </a>
         </li>
         <li class="breadcrumb-item">
-            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATION" asp-route-id="@Model.OrganizationViewModel.Id">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATION" asp-route-id="@Model.OrganizationId">
                 @resManager.GetString(ORGANIZATION): @Model.OrganizationViewModel.Name
             </a>
         </li>
@@ -35,7 +37,7 @@
     </ol>
 </nav>
 
-<div id="productCategoriesForm" class="mt-3">
+<div id="productCategoriesForm" data-href="@Url.Content($"/{ORGANIZATION}/{Model.OrganizationId}/GetProductCategoriesData/{DEFAULT_MIN_PAGE_NUMBER}/")" class="mt-3">
     @* // Создание категории *@
     @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/CreateCategory.cshtml"); }
     @* // Создание продукта *@
@@ -45,13 +47,14 @@
     @* // Изменение продукта *@
     @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/UpdateProduct.cshtml"); }
 
-    <input id="organizationId" value="@Model.OrganizationViewModel.Id" hidden="hidden" />
+    <input id="organizationId" value="@Model.OrganizationId" hidden="hidden" />
     <div class="text-center">
         <p class="label-md">
             @resManager.GetString("OrganizationProducts") @Model.OrganizationViewModel.Name
         </p>
     </div>
-    <form id="productCategoriesFilter" class="mt-3" asp-controller="@PROD_CAT" asp-action="Search">
+    <form id="productCategoriesFilter" class="mt-3" asp-controller="@ORGANIZATION" asp-action="SearchProductCategories">
+        <input asp-for="OrganizationId" hidden="hidden" />
         <div class="row justify-content-around">
             <div class="col-lg mb-4 mb-lg-0">
                 <input asp-for="SearchProductCategoryName" class="form-control" placeholder="@resManager.GetString("CategoryName")" />
@@ -83,7 +86,8 @@
                 <input id="prodsSearch" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
             </div>
             <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
-                <a id="clearProdsSearch" asp-controller="@PROD_CAT" asp-action="ClearSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                <a id="clearProdsSearch" asp-controller="@ORGANIZATION" asp-action="ProductCategoriesClearSearch" asp-route-id="@Model.OrganizationId"
+                   type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
             </div>
             <div class="col-auto text-center flex-grow-0">
                 <input id="addRootCategory" data-toggle="modal" data-target="#addCategoryModal" type="button" class="btn btn-outline-primary" value="@resManager.GetString("AddCategory")" />
@@ -94,14 +98,14 @@
     <div class="list-nav row no-gutters justify-content-center mt-3">
         <div class="col">
             <div class="nav-previous">
-                <div class="nav-url" data-href="@Url.Action("PreviousRecords", PROD_CAT)">
+                <div class="nav-url" data-href="@Url.Content($"/{ORGANIZATION}/{Model.OrganizationId}/GetProductCategoriesData/{previousPageNumber}/")">
                     <span class="icon-chevron-thin-left"></span>
                 </div>
             </div>
         </div>
         <div class="col">
             <div class="nav-next">
-                <div class="nav-url" data-href="@Url.Action("NextRecords", PROD_CAT)">
+                <div class="nav-url" data-href="@Url.Content($"/{ORGANIZATION}/{Model.OrganizationId}/GetProductCategoriesData/{nextPageNumber}/")">
                     <span class="icon-chevron-thin-right"></span>
                 </div>
             </div>

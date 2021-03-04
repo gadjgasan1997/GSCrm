@@ -5,9 +5,9 @@
 @using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model OrganizationViewModel
 @{
@@ -115,6 +115,15 @@
                 @{ await Html.RenderPartialAsync($"{ORG_VIEWS_REL_PATH}Partial/EmployeesList.cshtml"); }
             </div>
         </div>
+        <div id="orgSettingsMenu" class="settings-menu d-none">
+            <ul>
+                <li>
+                    <form method="get" action="@Url.Content($"/{ORGANIZATION}/{Model.Id}/{PROD_CATS}/")">
+                        <input id="goToProductModel" type="submit" class="label-sm" value="@resManager.GetString("ProductModel")" />
+                    </form>
+                </li>
+            </ul>
+        </div>
     }
     else
     {
@@ -127,22 +136,13 @@
                 <p class="label-md label-non-select text-center m-0">@resManager.GetString("YouHasBeenInvited")</p>
             </div>
             <div id="inviteActionsForm" class="row mt-4">
-                <form class="col text-center" asp-controller="@ORGANIZATION" asp-action="AcceptInvite" asp-route-id="@Model.Id">
+                <form class="col text-center" action="@Url.Content($"/{ORGANIZATION}/{Model.Id}/AcceptInvite/")">
                     <input id="acceptInvite" type="submit" class="btn btn-outline-dark" value="@resManager.GetString("AcceptInvite")" />
                 </form>
-                <form class="col mt-3 mt-sm-0 text-center" asp-controller="@ORGANIZATION" asp-action="RejectInvite" asp-route-id="@Model.Id">
+                <form class="col mt-3 mt-sm-0 text-center" action="@Url.Content($"/{ORGANIZATION}/{Model.Id}/RejectInvite/")">
                     <input id="rejectInvite" type="submit" class="btn btn-outline-danger" value="@resManager.GetString("RejectInvite")" />
                 </form>
             </div>
         </div>
     }
-</div>
-<div id="orgSettingsMenu" class="settings-menu d-none">
-    <ul>
-        <li>
-            <form method="get" asp-controller="@ORGANIZATION" asp-action="@PROD_CATS" asp-route-id="@Model.Id">
-                <input id="goToProductModel" type="submit" class="label-sm" value="@resManager.GetString("ProductModel")" />
-            </form>
-        </li>
-    </ul>
 </div>

@@ -10,15 +10,21 @@ class EmployeePositionsManagement {
      */
     InitializePositions() {
         return new Promise((resolve, reject) => {
-            let request = new AjaxRequests();
-            let getPositionsUrl = $("#initializePositionsUrl").attr("href");
-
-            request.JsonGetRequest(getPositionsUrl)
-                .catch(error => reject(error))
-                .then(response => {
-                    this.InitializePositionFields(response);
-                    resolve(response);
-                })
+            // ¬начале осуществл€етс€ очистка всех примененных фильтров
+            this.ClearPositionManagementSearch().then(() => {
+                let request = new AjaxRequests();
+                let getPositionsUrl = $("#initializePositionsUrl").attr("href");
+    
+                // ѕолучение и рендерниг списка должностей
+                request.JsonGetRequest(getPositionsUrl)
+                    .catch(error => reject(error))
+                    .then(response => {
+                        this.InitializePositionFields(response);
+                        this.RenderAllPositionsFilterFields(response);
+                        this.RenderSelectedPositionsFilterFields(response);
+                        resolve(response);
+                    })
+            })
         })
     }
 
@@ -180,7 +186,8 @@ class EmployeePositionsManagement {
         let primaryPositionName = EmployeePositionsManagement.primaryPositionName == "" ? $(checkmark).closest("tr").find(".position-name").text() : EmployeePositionsManagement.primaryPositionName;
 
         return {
-            EmployeeId: $("#employeeId").val(),
+            Id: $("#employeeId").val(),
+            OrganizationId: $("#OrganizationId").val(),
             PrimaryPositionName: primaryPositionName,
             PositionsToAdd: EmployeePositionsManagement.positionsToAdd,
             PositionsToRemove: EmployeePositionsManagement.positionsToRemove
@@ -198,7 +205,7 @@ class EmployeePositionsManagement {
             let allPositionsSearchData = this.AllPositionsSearchGetData();
 
             request.CommonPostRequest(allPositionsUrl, allPositionsSearchData).done(response => {
-                this.RenderPositionsFilterFields(response);
+                this.RenderAllPositionsFilterFields(response);
                 this.RenderAllPositionsList(response["allPositions"]);
                 resolve();
             });
@@ -225,7 +232,7 @@ class EmployeePositionsManagement {
     ClearAllPositionsSearch(event) {
         return new Promise((resolve, reject) => {
             this.GetRecords(event).then(response => {
-                this.RenderPositionsFilterFields(response);
+                this.RenderAllPositionsFilterFields(response);
                 this.RenderAllPositionsList(response["allPositions"]);
                 resolve();
             });
@@ -243,7 +250,7 @@ class EmployeePositionsManagement {
             let selectedPositionsSearchData = this.SelectedPositionsSearchGetData();
 
             request.CommonPostRequest(selectedPositionsUrl, selectedPositionsSearchData).done(response => {
-                this.RenderPositionsFilterFields(response);
+                this.RenderSelectedPositionsFilterFields(response);
                 this.RenderSelectedPositionsList(response["selectedPositions"]);
                 resolve();
             });
@@ -270,7 +277,7 @@ class EmployeePositionsManagement {
     ClearSelectedPositionsSearch(event) {
         return new Promise((resolve, reject) => {
             this.GetRecords(event).then(response => {
-                this.RenderPositionsFilterFields(response);
+                this.RenderSelectedPositionsFilterFields(response);
                 this.RenderSelectedPositionsList(response["selectedPositions"]);
                 resolve();
             });
@@ -278,16 +285,23 @@ class EmployeePositionsManagement {
     }
 
     /**
-     * «аполн€ет пол€ фильтров по спискам должностей значени€ми(в модальном окне урпавлени€ должност€ми)
+     * «аполн€ет пол€ фильтров по списку всех должностей организации значени€ми(в модальном окне урпавлени€ должност€ми)
      * @param {*} response 
      */
-    RenderPositionsFilterFields(response) {
-        let allPositionsVM = response["allPositionsVM"];
-        let selectedPositionsVM = response["selectedPositionsVM"];
-        $("#SearchAllPosName").val(allPositionsVM["searchAllPosName"]);
-        $("#SearchAllParentPosName").val(allPositionsVM["searchAllParentPosName"]);
-        $("#SearchSelectedPosName").val(selectedPositionsVM["searchSelectedPosName"]);
-        $("#SearchSelectedParentPosName").val(selectedPositionsVM["searchSelectedParentPosName"]);
+    RenderAllPositionsFilterFields(response) {
+        let employeeViewModel = response["employeeViewModel"];
+        $("#SearchAllPosName").val(employeeViewModel["searchAllPosName"]);
+        $("#SearchAllParentPosName").val(employeeViewModel["searchAllParentPosName"]);
+    }
+
+    /**
+     * «аполн€ет пол€ фильтров по списку выбранных должностей сотрудника значени€ми(в модальном окне урпавлени€ должност€ми)
+     * @param {*} response 
+     */
+    RenderSelectedPositionsFilterFields(response) {
+        let employeeViewModel = response["employeeViewModel"];
+        $("#SearchSelectedPosName").val(employeeViewModel["searchSelectedPosName"]);
+        $("#SearchSelectedParentPosName").val(employeeViewModel["searchSelectedParentPosName"]);
     }
 
     /**
@@ -490,18 +504,14 @@ class EmployeePositionsManagement {
             // «апрос подтверждени€ на закрытие, в случае успеха обнуление переменных и закрытие окна
             Swal.fire(MessageManager.Invoke("PositionModalClosedConfirmation")).then(dialogResult => {
                 if (dialogResult.value) {
-                    this.ClearPositionManagementSearch().then(() => {
-                        this.ClearPositionChangesHistory();
-                        $(event.currentTarget).modal("hide");
-                    });
+                    this.ClearPositionChangesHistory();
+                    $(event.currentTarget).modal("hide");
                 }
             });
         }
 
         // »наче осуществл€етс€ перезагрузка страницы
-        else {
-            this.ClearPositionManagementSearch().then(() => location.reload());
-        }
+        else location.reload();
     }
 
     /**
@@ -539,8 +549,7 @@ class EmployeePositionsManagement {
     ClearPositionManagementSearch() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let clearPositionSearchUrl = LocalizationManager.GetUri("clearPositionSearch");
-
+            let clearPositionSearchUrl = $("#clearPositionManagementSearch").val();
             request.CommonGetRequest(clearPositionSearchUrl)
                 .fail(() => reject(error))
                 .done(() => resolve())

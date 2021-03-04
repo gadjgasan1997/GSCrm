@@ -30,6 +30,7 @@ class EmployeeContact {
             contactType = "None";
         }
         return {
+            OrganizationId: $("#OrganizationId").val(),
             EmployeeId: $("#employeeId").val(),
             ContactType: contactType,
             PhoneNumber: $("#createEmpContactPhone").val(),
@@ -69,12 +70,18 @@ class EmployeeContact {
             let request = new AjaxRequests();
             let editItemBtn = $(event.currentTarget).closest(".edit-item-btn");
             let getContactUrl = $(editItemBtn).find(".edit-item-url a").attr("href");
-            
+            let hasErrors = false;
             request.JsonGetRequest(getContactUrl)
-                .catch(() => reject())
+                .catch(response => {
+                    hasErrors = true;
+                    Utils.DefaultErrorHandling(response["responseJSON"]);
+                })
                 .then(response => {
-                    this.InitializeFields(response);
-                    resolve();
+                    if (!hasErrors) {
+                        this.InitializeFields(response);
+                        $("#empContactUpdateModal").modal("show");
+                        resolve();
+                    }
                 })
         })
     }
@@ -130,6 +137,7 @@ class EmployeeContact {
         }
         return {
             Id: $("#empContactId").val(),
+            OrganizationId: $("#OrganizationId").val(),
             EmployeeId: $("#employeeId").val(),
             ContactType: contactType,
             PhoneNumber: $("#updateEmpContactPhone").val(),

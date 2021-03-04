@@ -1,10 +1,9 @@
-﻿using GSCrm.Helpers;
-using GSCrm.Models;
-using GSCrm.Models.ViewModels;
-using System;
-using System.Linq;
+﻿using System;
 using GSCrm.Data;
+using GSCrm.Models;
+using GSCrm.Helpers;
 using GSCrm.Models.Enums;
+using GSCrm.Models.ViewModels;
 
 namespace GSCrm.Mapping
 {
@@ -32,11 +31,12 @@ namespace GSCrm.Mapping
         public override AccountAddress OnModelCreate(AccountAddressViewModel addressViewModel)
         {
             base.OnModelCreate(addressViewModel);
-            AccountAddress accountAddress = (AccountAddress)transaction.GetParameterValue("AccountAddress");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
+            AddressType addressType = (AddressType)transaction.GetParameterValue("AddressType");
             return new AccountAddress()
             {
-                AccountId = accountAddress.Account.Id,
-                AddressType = accountAddress.AddressType,
+                AccountId = account.Id,
+                AddressType = addressType,
                 Country = addressViewModel.Country,
                 Region = addressViewModel.Region,
                 City = addressViewModel.City,

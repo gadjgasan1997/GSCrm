@@ -15,15 +15,6 @@ namespace GSCrm.Transactions.Factories
     {
         public SyncAccountsTF(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context) { }
 
-        protected override void CreateHandler(OperationType operationType, SyncAccountViewModel entity)
-        {
-            if (operationType == OperationType.AccountTeamManagement)
-            {
-                if (cachService.TryGetEntityCache(currentUser, out Account currentAccount))
-                    transaction.AddParameter("CurrentAccount", currentAccount);
-            }
-        }
-
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
             if (transactionStatus == TransactionStatus.Success)
@@ -38,7 +29,7 @@ namespace GSCrm.Transactions.Factories
         /// </summary>
         private void SendNotifications()
         {
-            Account account = (Account)transaction.GetParameterValue("Account");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             Organization ownerOrg = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == account.OrganizationId);
             Dictionary<Guid, AccTeamManagementNotType> managersNotTypes = (Dictionary<Guid, AccTeamManagementNotType>)transaction.GetParameterValue("ManagersNotTypes");
 

@@ -24,7 +24,7 @@
                     let request = new AjaxRequests();
                     let removeDivUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
                     
-                    request.CommonDeleteRequest(removeDivUrl)
+                    request.JsonDeleteRequest(removeDivUrl)
                         .fail(response => {
                             Utils.DefaultErrorHandling(response["responseJSON"]);
                             reject();

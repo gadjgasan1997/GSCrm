@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
+using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
@@ -24,38 +25,29 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("InitializeAccTeam")]
-        public IActionResult InitializeAccTeam()
+        [HttpGet("{accountId}/GetManagers")]
+        public IActionResult GetManagers()
         {
-            if (cachService.TryGetEntityCache(currentUser, out Account account))
-            {
-                // Получение моделей с информацией об установленных для пользователя условиях поиска по менеджерам
-                if (!cachService.TryGetEntityCache(currentUser, out AccountViewModel allAccManagersCash, ACC_TEAM_ALL_EMPLOYEES))
-                    allAccManagersCash = new AccountViewModel();
-                if (!cachService.TryGetEntityCache(currentUser, out AccountViewModel selectedAccManagersCash, ACC_TEAM_SELECTED_EMPLOYEES))
-                    selectedAccManagersCash = new AccountViewModel();
+            AccountViewModel accountViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
 
-                // Получение списка со всеми сотрудниками организации и команды по клиенту
-                AccountManagerRepository accountManagerRepository = new AccountManagerRepository(serviceProvider, context);
-                List<Employee> teamAllEmployees = accountManagerRepository.GetTeamAllEmployees(account, allAccManagersCash);
-                List<AccountManager> teamSelectedEmployees = accountManagerRepository.GetTeamSelectedEmployees(account, selectedAccManagersCash);
-                List<EmployeeViewModel> teamAllEmployeesVMs = teamAllEmployees.GetViewModelsFromData(new EmployeeMap(serviceProvider, context));
-                List<AccountManagerViewModel> teamSelectedEmployeesVMs = teamSelectedEmployees.GetViewModelsFromData(new AccountManagerMap(serviceProvider, context));
+            // Получение списка со всеми сотрудниками организации и команды по клиенту
+            AccountManagerRepository accountManagerRepository = new AccountManagerRepository(serviceProvider, context);
+            List<Employee> teamAllEmployees = accountManagerRepository.GetTeamAllEmployees(accountViewModel);
+            List<AccountManager> teamSelectedEmployees = accountManagerRepository.GetTeamSelectedEmployees(accountViewModel);
+            List<EmployeeViewModel> teamAllEmployeesVMs = teamAllEmployees.GetViewModelsFromData(new EmployeeMap(serviceProvider, context));
+            List<AccountManagerViewModel> teamSelectedEmployeesVMs = teamSelectedEmployees.GetViewModelsFromData(new AccountManagerMap(serviceProvider, context));
 
-                // Возврат результата
-                Dictionary<string, object> result = new Dictionary<string, object>()
+            // Возврат результата
+            Dictionary<string, object> result = new Dictionary<string, object>()
                 {
                     { "teamAllEmployees", teamAllEmployeesVMs },
                     { "teamSelectedEmployees", teamSelectedEmployeesVMs },
-                    { "teamAllEmployeesVM", allAccManagersCash },
-                    { "teamSelectedEmployeesVM", selectedAccManagersCash }
+                    { "accountViewModel", accountViewModel }
                 };
-                return Json(result);
-            }
-            return Json("");
+            return Json(result);
         }
 
-        [HttpGet("ClearAccTeamManagementSearch")]
+        [HttpGet("{accountId}/ClearAccTeamManagementSearch")]
         public IActionResult ClearAccTeamManagementSearch()
         {
             new AccountManagerRepository(serviceProvider, context).ClearAllManagersSearch();
@@ -66,68 +58,50 @@ namespace GSCrm.Controllers
         [HttpPost("SearchAllManagers")]
         public IActionResult SearchAllManagers(AccountViewModel accountViewModel)
         {
-            cachService.AddOrUpdate(currentUser, ACC_TEAM_ALL_EMPLOYEES, accountViewModel);
-            return RedirectToAction("InitializeAccTeam", ACC_MANAGER);
+            new AccountManagerRepository(serviceProvider, context).SearchAllManagers(accountViewModel);
+            return Redirect($"/{ACC_MANAGER}/{accountViewModel.Id}/GetManagers/");
         }
 
-        [HttpGet("ClearAllManagersSearch")]
-        public IActionResult ClearAllManagersSearch()
+        [HttpGet("{accountId}/ClearAllManagersSearch")]
+        public IActionResult ClearAllManagersSearch(string accountId)
         {
             new AccountManagerRepository(serviceProvider, context).ClearAllManagersSearch();
-            return RedirectToAction("InitializeAccTeam", ACC_MANAGER);
+            return Redirect($"/{ACC_MANAGER}/{accountId}/GetManagers/");
         }
 
         [HttpPost("SearchSelectedManagers")]
         public IActionResult SearchSelectedManagers(AccountViewModel accountViewModel)
         {
-            cachService.AddOrUpdate(currentUser, ACC_TEAM_SELECTED_EMPLOYEES, accountViewModel);
-            return RedirectToAction("InitializeAccTeam", ACC_MANAGER);
+            new AccountManagerRepository(serviceProvider, context).SearchSelectedManagers(accountViewModel);
+            return Redirect($"/{ACC_MANAGER}/{accountViewModel.Id}/GetManagers/");
         }
 
-        [HttpGet("ClearSelectedManagersSearch")]
-        public IActionResult ClearSelectedManagersSearch()
+        [HttpGet("{accountId}/ClearSelectedManagersSearch")]
+        public IActionResult ClearSelectedManagersSearch(string accountId)
         {
             new AccountManagerRepository(serviceProvider, context).ClearSelectedManagersSearch();
-            return RedirectToAction("InitializeAccTeam", ACC_MANAGER);
+            return Redirect($"/{ACC_MANAGER}/{accountId}/GetManagers/");
         }
 
-        [HttpGet("NextAllRecords")]
+        [HttpGet("{accountId}/NextAllRecords")]
         public IActionResult NextAllRecords()
         {
-            if (cachService.TryGetEntityCache(currentUser, out Account account))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
-                if (!cachService.TryGetEntityCache(currentUser, out AccountViewModel allAccManagersCash, ACC_TEAM_ALL_EMPLOYEES))
-                    allAccManagersCash = new AccountViewModel();
-                AccountManagerRepository accountManagerRepository = new AccountManagerRepository(serviceProvider, context);
-                List<Employee> teamAllEmployees = accountManagerRepository.GetTeamAllEmployees(account, allAccManagersCash, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                List<EmployeeViewModel> teamAllEmployeesVMs = teamAllEmployees.GetViewModelsFromData(new EmployeeMap(serviceProvider, context));
-                return Json(teamAllEmployeesVMs);
-            }
-            return Json("");
+            AccountManagerRepository accountManagerRepository = new AccountManagerRepository(serviceProvider, context);
+            return Json(accountManagerRepository.NavigateGetAllRecords(NavigateDirection.Forward));
         }
 
-        [HttpGet("PreviousAllRecords")]
+        [HttpGet("{accountId}/PreviousAllRecords")]
         public IActionResult PreviousAllRecords()
         {
-            if (cachService.TryGetEntityCache(currentUser, out Account account))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
-                if (!cachService.TryGetEntityCache(currentUser, out AccountViewModel selectedAccManagersCash, ACC_TEAM_SELECTED_EMPLOYEES))
-                    selectedAccManagersCash = new AccountViewModel();
-                AccountManagerRepository accountManagerRepository = new AccountManagerRepository(serviceProvider, context);
-                List<Employee> teamAllEmployees = accountManagerRepository.GetTeamAllEmployees(account, selectedAccManagersCash, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                List<EmployeeViewModel> teamAllEmployeesVMs = teamAllEmployees.GetViewModelsFromData(new EmployeeMap(serviceProvider, context));
-                return Json(teamAllEmployeesVMs);
-            }
-            return Json("");
+            AccountManagerRepository accountManagerRepository = new AccountManagerRepository(serviceProvider, context);
+            return Json(accountManagerRepository.NavigateGetAllRecords(NavigateDirection.Backward));
         }
 
         [HttpPost("Synchronize")]
         public IActionResult Synchronize(SyncAccountViewModel syncViewModel)
         {
             if (new AccountManagerRepository(serviceProvider, context).TrySyncAccTeam(syncViewModel, out Dictionary<string, string> syncErrors))
-                return RedirectToAction("InitializeAccTeam", ACC_MANAGER);
+                return Redirect($"/{ACC_MANAGER}/{syncViewModel.Id}/GetManagers/");
 
             ModelStateDictionary modelState = ModelState;
             AddErrorsToModel(modelState, syncErrors);

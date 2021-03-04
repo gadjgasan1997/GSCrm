@@ -7,8 +7,8 @@ using GSCrm.Helpers;
 using GSCrm.Mapping;
 using GSCrm.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using static GSCrm.Utils.CollectionsUtils;
 using static GSCrm.CommonConsts;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
@@ -43,6 +43,7 @@ namespace GSCrm.Repository
 
         protected override bool TryCreatePrepare(ProductCategoryViewModel prodCatViewModel)
         {
+            prodCatViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CommonChecks(prodCatViewModel),
@@ -58,12 +59,18 @@ namespace GSCrm.Repository
 
         protected override bool TryUpdatePrepare(ProductCategoryViewModel prodCatViewModel)
         {
+            prodCatViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CommonChecks(prodCatViewModel),
                 () => CheckCategoryNotExistsOnUpdate(prodCatViewModel)
             });
             return !errors.Any();
+        }
+
+        protected override void UpdateCacheOnDelete(ProductCategory dataModel)
+        {
+            base.UpdateCacheOnDelete(dataModel);
         }
 
         protected override bool RespsIsCorrectOnDelete(ProductCategory entityToDelete)
@@ -73,18 +80,15 @@ namespace GSCrm.Repository
         #endregion
 
         #region Attach Categories
-        public void AttachProductCategories(ref ProductCategoriesViewModel prodCatsViewModel)
-        {
-            ProductCategoriesViewModel viewModel = prodCatsViewModel;
-            viewModel.ProductCategoryViewModels = context.GetOrgProdCats(prodCatsViewModel.OrganizationViewModel.Id)
-                .MapToViewModels(map, prodCats => GetLimitedProdCatsList(prodCats, viewModel));
-            prodCatsViewModel = viewModel;
-        }
+        public void AttachProductCategories(ProductCategoriesViewModel prodCatsViewModel)
+            => prodCatsViewModel.ProductCategoryViewModels = context.GetOrgProdCats(prodCatsViewModel.OrganizationId)
+                .MapToViewModels(map, prodCats => GetLimitedProdCatsList(prodCats, prodCatsViewModel));
 
         private List<ProductCategory> GetLimitedProdCatsList(List<ProductCategory> allProdCats, ProductCategoriesViewModel prodCatsViewModel)
         {
+            prodCatsViewModel.NormalizeSearch();
             LimitByCategoryName(ref allProdCats, prodCatsViewModel);
-            LimitByPageNumber(ref allProdCats);
+            LimitByPageNumber(ref allProdCats, prodCatsViewModel);
             LimitProducts(ref allProdCats, prodCatsViewModel);
             return allProdCats.OrderBy(n => n.Name).ToList();
         }
@@ -97,7 +101,7 @@ namespace GSCrm.Repository
         private void LimitByCategoryName(ref List<ProductCategory> allProdCats, ProductCategoriesViewModel prodCatsViewModel)
         {
             // Применение фильтрации если необходимо
-            string searchSpec = prodCatsViewModel.SearchProductCategoryName?.ToLower().TrimStartAndEnd();
+            string searchSpec = prodCatsViewModel.SearchProductCategoryName;
             if (!string.IsNullOrEmpty(searchSpec))
             {
                 List<ProductCategory> limitedProdCats = new List<ProductCategory>();
@@ -159,11 +163,12 @@ namespace GSCrm.Repository
         /// Ограничение списка категорий продуктов по номеру страницы
         /// </summary>
         /// <param name="allProdCats"></param>
-        private void LimitByPageNumber(ref List<ProductCategory> allProdCats)
+        /// <param name="prodCatsViewModel"></param>
+        private void LimitByPageNumber(ref List<ProductCategory> allProdCats, ProductCategoriesViewModel prodCatsViewModel)
         {
             // Поиск корневых директорий и ограничение их по количеству отображаемых
             List<ProductCategory> rootProdCats = allProdCats.Where(prodCat => prodCat.ParentProductCategoryId == null).ToList();
-            LimitListByPageNumber(PROD_CATS, ref rootProdCats);
+            LimitViewItemsByPageNumber(prodCatsViewModel.Id, PROD_CATS, ref rootProdCats);
 
             // В результате должны остаться только категории, являющиеся дочерними по отношению к отобранным корневым
             Func<ProductCategory, bool> predicate = prodCat => prodCat.RootCategoryId != null &&
@@ -220,34 +225,22 @@ namespace GSCrm.Repository
         #endregion
 
         #region Searching
-        /// <summary>
-        /// Метод выполняет поиск по продуктам и категориям
-        /// </summary>
         public void Search(ProductCategoriesViewModel prodCatsViewModel)
         {
-            if (cachService.TryGetEntityCache(currentUser, out ProductCategoriesViewModel prodCatsCache, PROD_CATS))
-            {
-                prodCatsCache.SearchProductCategoryName = prodCatsViewModel.SearchProductCategoryName;
-                prodCatsCache.SearchProductName = prodCatsViewModel.SearchProductName;
-                prodCatsCache.MinConst = prodCatsViewModel.MinConst;
-                prodCatsCache.MaxConst = prodCatsViewModel.MaxConst;
-                cachService.AddOrUpdate(currentUser, PROD_CATS, prodCatsCache);
-            }
+            ProductCategoriesViewModel cachedViewModel = cachService.GetCachedCurrentEntity<ProductCategoriesViewModel>(currentUser);
+            cachedViewModel.SearchProductCategoryName = prodCatsViewModel.SearchProductCategoryName;
+            cachedViewModel.SearchProductName = prodCatsViewModel.SearchProductName;
+            cachedViewModel.MinConst = prodCatsViewModel.MinConst;
+            cachedViewModel.MaxConst = prodCatsViewModel.MaxConst;
         }
 
-        /// <summary>
-        /// Метод очищает поиск по продуктам и категориям
-        /// </summary>
         public void ClearSearch()
         {
-            if (cachService.TryGetEntityCache(currentUser, out ProductCategoriesViewModel prodCatsCache, PROD_CATS))
-            {
-                prodCatsCache.SearchProductCategoryName = default;
-                prodCatsCache.SearchProductName = default;
-                prodCatsCache.MinConst = default;
-                prodCatsCache.MaxConst = default;
-                cachService.AddOrUpdate(currentUser, PROD_CATS, prodCatsCache);
-            }
+            ProductCategoriesViewModel cachedViewModel = cachService.GetCachedCurrentEntity<ProductCategoriesViewModel>(currentUser);
+            cachedViewModel.SearchProductCategoryName = default;
+            cachedViewModel.SearchProductName = default;
+            cachedViewModel.MinConst = default;
+            cachedViewModel.MaxConst = default;
         }
         #endregion
 
@@ -258,7 +251,7 @@ namespace GSCrm.Repository
         /// <param name="prodCatViewModel"></param>
         private void CheckCategoryNotExistsOnCreate(ProductCategoryViewModel prodCatViewModel)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             List<ProductCategory> productCategories = currentOrganization.GetProductCategories(context);
 
             // Проверка в случае, если создается корневая директория
@@ -282,7 +275,7 @@ namespace GSCrm.Repository
         /// <param name="prodCatViewModel"></param>
         private void CheckCategoryNotExistsOnUpdate(ProductCategoryViewModel prodCatViewModel)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             List<ProductCategory> productCategories = currentOrganization.GetProductCategories(context);
             ProductCategory changedProductCategory = (ProductCategory)transaction.GetParameterValue("RecordToChange");
 
@@ -341,14 +334,8 @@ namespace GSCrm.Repository
 
         private void CommonChecks(ProductCategoryViewModel prodCatViewModel)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
-            prodCatViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
-                () => {
-                    if (currentOrganization == null)
-                        errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
-                },
                 () => {
                     if (string.IsNullOrEmpty(prodCatViewModel.Name) || prodCatViewModel.Name.Length < MIN_PROD_CAT_NAME_LENGTH)
                         errors.Add("ProductCategoryLength", resManager.GetString("ProductCategoryLength")

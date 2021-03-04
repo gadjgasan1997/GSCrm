@@ -9,7 +9,7 @@ using System.Linq;
 namespace GSCrm.Notifications.Factories
 {
     /// <summary>
-    /// Фабрика для рассылки уведомлений, внутри организации
+    /// Фабрика для рассылки уведомлений внутри организации
     /// </summary>
     public abstract class OrgNotificationFactory<TNotificationParams> : NotificationFactory<TNotificationParams>
         where TNotificationParams : INotificationParams

@@ -20,13 +20,6 @@ namespace GSCrm.Controllers
 
         [HttpGet("{id}")]
         public IActionResult Invoice()
-        {
-            if (cachService.TryGetValue(currentUser, $"{PC}{ACC_INVOICE}", out bool isCorrectCheck) && isCorrectCheck)
-            {
-                cachService.TryGetEntityCache(currentUser, out AccountInvoice accountInvoice);
-                return Json(map.DataToViewModel(accountInvoice));
-            }
-            return Json("");
-        }
+            => Json(cachService.GetCachedCurrentEntity<AccountInvoiceViewModel>(currentUser));
     }
 }

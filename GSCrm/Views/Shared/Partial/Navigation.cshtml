@@ -4,9 +4,20 @@
     {
         <div class="col">
             <div class="nav-previous">
-                <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP })">
-                    <span class="icon-chevron-thin-left"></span>
-                </div>
+                @if (Model.Id != Guid.Empty)
+                {
+                    <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new {
+                                              id = Model.Id,
+                                              pageNumber = Model.ViewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP })">
+                        <span class="icon-chevron-thin-left"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP })">
+                        <span class="icon-chevron-thin-left"></span>
+                    </div>
+                }
             </div>
         </div>
     }
@@ -24,9 +35,20 @@
     {
         <div class="col">
             <div class="nav-next">
-                <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP })">
-                    <span class="icon-chevron-thin-right"></span>
-                </div>
+                @if (Model.Id != Guid.Empty)
+                {
+                    <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new {
+                                              id = Model.Id,
+                                              pageNumber = Model.ViewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP })">
+                        <span class="icon-chevron-thin-right"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="nav-url" href="@Url.Action((string)Model.ActionName, (string)Model.ControllerName, new { pageNumber = Model.ViewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP })">
+                        <span class="icon-chevron-thin-right"></span>
+                    </div>
+                }
             </div>
         </div>
     }

@@ -87,7 +87,7 @@
                     let request = new AjaxRequests();
                     let removeEmpUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
 
-                    request.CommonDeleteRequest(removeEmpUrl)
+                    request.JsonDeleteRequest(removeEmpUrl)
                         .fail(response => {
                             Utils.DefaultErrorHandling(response["responseJSON"]);
                             reject();

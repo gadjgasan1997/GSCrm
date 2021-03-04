@@ -1,7 +1,6 @@
 ﻿using System;
 using GSCrm.Data;
 using GSCrm.Models;
-using GSCrm.Helpers;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications.Params;
 using GSCrm.Notifications.Factories.OrgNotFactories;
@@ -16,21 +15,6 @@ namespace GSCrm.Transactions.Factories
     public class PositionTF : TransactionFactory<PositionViewModel>
     {
         public PositionTF(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context) { }
-
-        protected override void CreateHandler(OperationType operationType, PositionViewModel positionViewModel)
-        {
-            if (operationType.IsInList(baseOperationTypes.With(OperationType.ChangePositionDivision, OperationType.UnlockPosition)))
-            {
-                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                    transaction.AddParameter("CurrentOrganization", currentOrganization);
-            }
-        }
-
-        protected override void CreateHandler(OperationType operationType, string recordId)
-        {
-            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
-        }
 
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
@@ -59,7 +43,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="position">Удаленная должность</param>
         private void SendPosDeletedNotifications(Position position)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             List<EmployeePosition> employeePositions = (List<EmployeePosition>)transaction.GetParameterValue("PosEmployees");
 
             // Для каждого сотрудника необходимо сделать новое уведомление, так как признак "IsPrimary" везде разный
@@ -92,37 +76,40 @@ namespace GSCrm.Transactions.Factories
         /// </summary>
         private void SendPosUpdatedNotifications()
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
-            Position position = (Position)transaction.GetParameterValue("ChangedRecord");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            Position currentPosition = cachService.GetCachedCurrentEntity<Position>(currentUser);
             PosUpdateParams posUpdateParams = new PosUpdateParams()
             {
-                ChangedPosition = position,
+                ChangedPosition = currentPosition,
                 DivisionChanged = false,
                 Organization = currentOrganization
             };
             PosUpdateNotFactory posUpdateNotFactory = new PosUpdateNotFactory(serviceProvider, context, posUpdateParams);
             List<Employee> employees = context.EmployeePositions.AsNoTracking()
                 .Include(empPos => empPos.Employee)
-                .Where(pos => pos.PositionId == position.Id)
+                .Where(pos => pos.PositionId == currentPosition.Id)
                 .Select(emp => emp.Employee).ToList();
             posUpdateNotFactory.Send(currentOrganization.Id, employees);
         }
 
+        /// <summary>
+        /// Метод отсылает уведомления всем пользователям, занимающим должность о смене подразделения
+        /// </summary>
         private void SendPosChangedDivNotifications()
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            Position currentPosition = cachService.GetCachedCurrentEntity<Position>(currentUser);
             List<EmployeePosition> employeePositions = (List<EmployeePosition>)transaction.GetParameterValue("PosEmployees");
-            Position position = (Position)transaction.GetParameterValue("ChangedPosition");
 
             // Для каждого сотрудника необходимо сделать новое уведомление, так как признак "IsPrimary" везде разный
             employeePositions.ForEach(employeePosition =>
             {
                 PosUpdateParams posUpdateParams = new PosUpdateParams()
                 {
-                    ChangedPosition = position,
+                    ChangedPosition = currentPosition,
                     DivisionChanged = true,
                     Organization = currentOrganization,
-                    IsPrimary = employeePosition.Employee.PrimaryPositionId == position.Id
+                    IsPrimary = employeePosition.Employee.PrimaryPositionId == currentPosition.Id
                 };
                 PosUpdateNotFactory posUpdateNotFactory = new PosUpdateNotFactory(serviceProvider, context, posUpdateParams);
                 posUpdateNotFactory.Send(currentOrganization.Id, new List<Employee>() { employeePosition.Employee });

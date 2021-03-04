@@ -57,7 +57,7 @@
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
                 ItemsCount = subordinatesCount,
-                ViewInfo = cachService.GetViewInfo(currentUserId, EMP_SUBS),
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, EMP_SUBS),
                 ControllerName = EMPLOYEE,
                 ActionName = SUBORDINATES
             });

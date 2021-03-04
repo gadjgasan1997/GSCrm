@@ -223,21 +223,15 @@
         "account": "/Account/",
         "responsibility": "/Responsibility/",
         "deleteResponsibility": "/Responsibility/Delete?id=",
-        "clearPositionSearch": "/EmployeePosition/ClearPositionManagementSearch/",
         "deleteEmployeePosition": "/EmployeePosition/Delete?id=",
         "clearOrgSearch": "/Organization/ClearSearch/",
         "orgsList": "/Organization/ListOfOrganizations/",
         "clearAccTeamSearch": "/AccountManager/ClearAccTeamManagementSearch/",
-        "hasAccNotLegalAddress": "/Account/HasAccNotLegalAddress/",
-        "clearEmpRespSearch": "/EmployeeResponsibility/ClearResponsibilityManagementSearch/",
-        "commitOrgSettingsPath": "/CommitOrgSettings/",
-        "commitUserSettingsPath": "/CommitUserSettings/",
         "setOrgNotSettingsToDefaultPath": "/SetOrgNotSettingsToDefault/",
         "setUserNotSettingsToDefaultPath": "/SetUserNotSettingsToDefault/",
         "makeNotHasReed": "/MakeHasReed/",
         "makeNotHasNoReed": "/MakeHasNoReed/",
         "initalizeAppDataUrl": "/AppData/InitalizeAppData/",
-        "productCategories": "/ProductCategory/ProductCategories/",
-        "initalizeProductCategory": "/ProductCategory/Initalize/"
+        "initalizeProductCategory": "/ProductCategory/{id}/Initialize/"
     }
 }

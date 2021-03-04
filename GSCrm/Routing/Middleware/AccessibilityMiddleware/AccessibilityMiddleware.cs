@@ -3,9 +3,10 @@ using GSCrm.Data;
 using GSCrm.Factories;
 using GSCrm.Helpers;
 using GSCrm.Models;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Task = System.Threading.Tasks.Task;
 
 namespace GSCrm.Routing.Middleware.AccessibilityMiddleware
@@ -34,12 +35,13 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware
                     routeValues.TryGetValue("action", out object actionName))
                 {
                     // В зависимости от того, на какой контроллер был осуществлен запрос
-                    IAccessibilityHandlerFactory accessibilityHandlerFactory = serviceProvider.GetService(typeof(IAccessibilityHandlerFactory)) as IAccessibilityHandlerFactory;
+                    IAccessibilityHandlerFactory accessibilityHandlerFactory = serviceProvider.GetService<IAccessibilityHandlerFactory>();
                     BaseAccessibilityHandler accessibilityHandler = accessibilityHandlerFactory.GetAccessibilityHandler(controllerName.ToString());
                     if (accessibilityHandler != null)
                     {
                         AccessibilityHandlerData accessibilityHandlerData = new AccessibilityHandlerData()
                         {
+                            Form = httpContext.GetForm(),
                             ActionName = actionName.ToString(),
                             Context = context,
                             HttpContext = httpContext,
@@ -47,12 +49,20 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware
                             ServiceProvider = serviceProvider
                         };
                         accessibilityHandler.Handle(accessibilityHandlerData);
-                        if (accessibilityHandlerData.NeedBreakRequest) return;
+                        if (accessibilityHandlerData.NeedBreakRequest)
+                        {
+                            accessibilityHandlerData.ErrorHandler?.Invoke();
+                            return;
+                        }
                     }
                 }
 
                 // Проставление кода "Не найдено"
-                else httpContext.Response.StatusCode = 404;
+                else
+                {
+                    httpContext.Response.StatusCode = 404;
+                    return;
+                }
             }
 
             if (!httpContext.Response.HasStarted)

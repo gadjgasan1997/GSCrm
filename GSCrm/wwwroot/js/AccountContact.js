@@ -142,6 +142,7 @@ class AccountContact {
         }
         return {
             Id: $("#accContactId").val(),
+            AccountId: $("#accountId").val(),
             FirstName: $("#updateAccContactFName").val(),
             LastName: $("#updateAccContactLName").val(),
             MiddleName: $("#updateAccContactMName").val(),
@@ -330,6 +331,7 @@ class AccountContact {
 
         // Возврат
         return {
+            Id: $("#accountId").val(),
             PrimaryContactId: primaryContactId
         }
     }

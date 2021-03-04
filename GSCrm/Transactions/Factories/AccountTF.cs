@@ -8,8 +8,8 @@ using GSCrm.Notifications.Auxiliary;
 using GSCrm.Notifications.Params.AccUpdate;
 using GSCrm.Notifications.Factories.OrgNotFactories;
 using GSCrm.Notifications.Factories.OrgNotFactories.AccUpdate;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GSCrm.Transactions.Factories
@@ -25,6 +25,9 @@ namespace GSCrm.Transactions.Factories
         }
 
         protected override void CreateHandler(OperationType operationType, string recordId)
+            => transaction.RememberAccountCommonParams(cachService, context, currentUser);
+
+        protected override void CreateHandler(OperationType operationType)
             => transaction.RememberAccountCommonParams(cachService, context, currentUser);
 
         protected override void BeforeCommit(OperationType operationType)
@@ -107,7 +110,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="ownerOrg"></param>
         private void SendAccUpdateNotifications(Organization ownerOrg)
         {
-            Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             List<Employee> managers = account.GetManagers(context);
             if (managers.Count > 0)
             {

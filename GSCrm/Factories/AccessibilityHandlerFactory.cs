@@ -18,7 +18,11 @@ namespace GSCrm.Factories
                 "AccountContact" => new AccountContactAccessibilityHandler(),
                 "AccountAddress" => new AccountAddressAccessibilityHandler(),
                 "Root" => new RootAccessibilityHandler(),
-                //"AccountManager" => new AccountManagerAccessibilityHandler(),
+                "EmployeeContact" => new EmployeeContactAccessibilityHandler(),
+                "Division" => new DivisionAccessibilityHandler(),
+                "EmployeePosition" => new EmployeePositionAccessibilityHandler(),
+                "EmployeeResponsibility" => new EmployeeResponsibilityAccessibilityHandler(),
+                "AccountManager" => new AccountManagerAccessibilityHandler(),
                 _ => null
             };
     }

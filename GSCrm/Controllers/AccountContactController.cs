@@ -20,13 +20,6 @@ namespace GSCrm.Controllers
 
         [HttpGet("{id}")]
         public IActionResult Contact()
-        {
-            if (cachService.TryGetValue(currentUser, $"{PC}{ACC_CONTACT}", out bool isCorrectCheck) && isCorrectCheck)
-            {
-                cachService.TryGetEntityCache(currentUser, out AccountContact accountContact);
-                return Json(map.DataToViewModel(accountContact));
-            }
-            return Json("");
-        }
+            => Json(cachService.GetCachedCurrentEntity<AccountContactViewModel>(currentUser));
     }
 }

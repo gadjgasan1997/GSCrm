@@ -1,12 +1,11 @@
-﻿using GSCrm.Data;
-using GSCrm.Helpers;
-using GSCrm.Models;
-using GSCrm.Models.Enums;
-using GSCrm.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GSCrm.Data;
+using GSCrm.Helpers;
+using GSCrm.Models;
+using GSCrm.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace GSCrm.Transactions.Factories
 {
@@ -15,30 +14,12 @@ namespace GSCrm.Transactions.Factories
         public ProductCategoryTF(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context)
         { }
 
-        protected override void CreateHandler(OperationType operationType, ProductCategoryViewModel prodCatViewModel)
-        {
-            if (operationType.IsInList(baseOperationTypes))
-            {
-                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                    transaction.AddParameter("CurrentOrganization", currentOrganization);
-            }
-        }
-
-        protected override void CreateHandler(OperationType operationType, string recordId)
-        {
-            if (operationType == OperationType.Delete)
-            {
-                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                    transaction.AddParameter("CurrentOrganization", currentOrganization);
-            }
-        }
-
         protected override void BeforeCommit(OperationType operationType)
         {
             if (operationType == OperationType.Delete)
             {
+                Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
                 ProductCategory productCategory = (ProductCategory)transaction.GetParameterValue("RecordToRemove");
-                Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
                 List<ProductCategory> allProductCategories = currentOrganization.GetProductCategories(context);
                 DeleteChildCategories(productCategory, allProductCategories);
             }

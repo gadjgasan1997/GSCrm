@@ -1,5 +1,4 @@
-﻿@using static GSCrm.CommonConsts
-@inject ResManager resManager
+﻿@inject ResManager resManager
 @model AccountsViewModel
 
 <div id="currentAccountsFilter">
@@ -14,7 +13,7 @@
             </div>
 
             <div id="collapseCurrentAccounts" class="collapse" aria-labelledby="headingCurrentAccounts" data-parent="#currentAccountsAccordin">
-                <form class="card-body" method="post" asp-controller="@ACCOUNT" asp-action="SearchCurrentAccounts">
+                <form class="card-body" method="post" asp-controller="Root" asp-action="SearchCurrentAccounts">
                     <input asp-for="Id" hidden="hidden" />
                     <div class="row justify-content-around form-group mb-lg-4">
                         <div class="col-xl mb-4 mb-xl-0">
@@ -37,7 +36,7 @@
                             <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
                         </div>
                         <div class="col-auto text-center flex-grow-0">
-                            <a asp-controller="@ACCOUNT" asp-action="ClearCurrentAccountsSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                            <a asp-controller="Root" asp-action="ClearCurrentAccountsSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
                         </div>
                     </div>
                 </form>

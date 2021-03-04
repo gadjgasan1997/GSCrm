@@ -2,21 +2,19 @@
     Layout = "_Layout";
 }
 @using GSCrm.Data
+@using GSCrm.Helpers
+@using GSCrm.Data.Cash
+@using GSCrm.Notifications
 @using GSCrm.Models.ViewModels
 @using GSCrm.Models.ViewModels.Notifications
 @using static GSCrm.CommonConsts
-@using GSCrm.Helpers
-@using GSCrm.Notifications
-@using GSCrm.Notifications.Auxiliary
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model UserNotificationsViewModel
 @{
     IEnumerable<UserNotificationViewModel> userNotViewModels = Model.UserNotificationViewModels;
-    User currentUser = User.GetUserModel(context);
-    string currentUserId = currentUser.Id;
+    string currentUserId = User.GetUserModel(context).Id;
 }
 @* // Хлебные крошки *@
 <nav aria-label="breadcrumb">
@@ -29,7 +27,7 @@
 <div class="mt-3">
     <div id="notificationsList" class="mt-3">
         <div class="text-center">
-            <a class="label-md" asp-area="" asp-controller="Root" asp-action="@NOT_SETTING">@resManager.GetString(NOT_SETTINGS)</a>
+            <a class="label-md" asp-area="" asp-controller="Root" asp-action="@NOTS_SETTINGS">@resManager.GetString(NOTS_SETTINGS)</a>
         </div>
         @if (userNotViewModels.Count() > 0)
         {
@@ -71,7 +69,7 @@
                 {
                     ItemsCount = userNotViewModels.Count(),
                     ViewInfo = cachService.GetViewInfo(currentUserId, USER_NOTS),
-                    ControllerName = USER_NOT,
+                    ControllerName = "Root",
                     ActionName = USER_NOTS
                 });
             }

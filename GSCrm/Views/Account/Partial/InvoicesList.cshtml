@@ -1,11 +1,10 @@
-﻿@using GSCrm.Data.ApplicationInfo
-@using GSCrm.Models.ViewModels
-@using static GSCrm.CommonConsts
+﻿@using GSCrm.Models.ViewModels
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
+@using static GSCrm.CommonConsts
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model AccountViewModel
 @{
@@ -84,8 +83,9 @@
     @{
         await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
         {
+            Id = Model.Id,
             ItemsCount = invoicesCount,
-            ViewInfo = cachService.GetViewInfo(currentUserId, ACC_INVOICES),
+            ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, ACC_INVOICES),
             ControllerName = ACCOUNT,
             ActionName = INVOICES
         });

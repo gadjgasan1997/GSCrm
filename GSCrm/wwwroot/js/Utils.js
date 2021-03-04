@@ -204,4 +204,11 @@ class Utils {
         })
         return isEqual;
     }
+
+    static GetTestInfo() {
+        let request = new AjaxRequests();
+        request.CommonGetRequest("/AppData/GetTestInfo/").then(info => {
+            console.log(info);
+        })
+    }
 }

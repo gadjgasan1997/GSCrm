@@ -1,22 +1,18 @@
-﻿using GSCrm.Mapping;
-using GSCrm.Helpers;
+﻿using System;
+using System.Text;
+using System.Linq;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Models;
+using GSCrm.Helpers;
+using GSCrm.Mapping;
+using GSCrm.Models.Enums;
+using GSCrm.Transactions;
 using GSCrm.Models.ViewModels;
-using GSCrm.Models.ViewTypes;
-using GSCrm.Validators;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
-using GSCrm.Data;
-using System.Text;
-using GSCrm.Transactions;
-using GSCrm.Models.Enums;
 
 namespace GSCrm.Repository
 {
@@ -24,10 +20,6 @@ namespace GSCrm.Repository
     {
         #region Declarations
         private const int POSITION_NAME_MIN_LENGTH = 3;
-        /// <summary>
-        /// Все типы представлений, связанные с должностями
-        /// </summary>
-        public static PositionViewType[] PosAllViewTypes => new PositionViewType[] { PositionViewType.POS_EMPLOYEES, PositionViewType.POS_SUB_POSS };
         #endregion
 
         #region Constructs
@@ -38,16 +30,32 @@ namespace GSCrm.Repository
 
         #region Override Methods
         public override bool HasPermissionsForSeeItem(Position position)
+            => new OrganizationRepository(serviceProvider, context).HasPermissionsForSeeOrgItem();
+
+        public override PositionViewModel LoadView(Position position)
         {
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            return organizationRepository.HasPermissionsForSeeOrgItem();
+            PositionViewModel positionViewModel = cachService.GetCachedCurrentEntity<PositionViewModel>(currentUser);
+
+            // Прикрепление всех сущностей
+            if (positionViewModel.PositionStatus == PositionStatus.Active)
+            {
+                AttachEmployees(positionViewModel);
+                AttachSubPositions(positionViewModel);
+            }
+
+            // Кеширование результата
+            cachService.SetCurrentView(currentUser.Id, POSITION);
+            cachService.CacheEntity(currentUser, positionViewModel);
+            cachService.CacheCurrentEntity(currentUser, positionViewModel);
+            return positionViewModel;
         }
 
         protected override bool RespsIsCorrectOnCreate(PositionViewModel positionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate");
 
         protected override bool TryCreatePrepare(PositionViewModel positionViewModel)
         {
+            positionViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckPositionLength(positionViewModel),
@@ -69,10 +77,11 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(PositionViewModel positionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate");
 
         protected override bool TryUpdatePrepare(PositionViewModel positionViewModel)
         {
+            positionViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckDivisionLength(positionViewModel),
@@ -110,19 +119,18 @@ namespace GSCrm.Repository
             return !errors.Any();
         }
 
-        protected override bool RespsIsCorrectOnDelete(Position position)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate", transaction);
-
-        protected override void FailureUpdateHandler(PositionViewModel positionViewModel)
+        protected override void UpdateCacheOnDelete(Position position)
         {
-            if (TryGetItemById(positionViewModel.Id, out Position position))
+            if (cachService.TryGetCachedEntity(currentUser, position.OrganizationId, out Organization organization) &&
+                cachService.TryGetCachedEntity(currentUser, position.OrganizationId, out OrganizationViewModel organizationViewModel))
             {
-                positionViewModel = map.DataToViewModel(position);
-                positionViewModel = new PositionMap(serviceProvider, context).Refresh(positionViewModel, currentUser, PosAllViewTypes);
-                AttachEmployees(positionViewModel);
-                AttachSubPositions(positionViewModel);
+                cachService.CacheCurrentEntity(currentUser, organization);
+                cachService.CacheCurrentEntity(currentUser, organizationViewModel);
             }
         }
+
+        protected override bool RespsIsCorrectOnDelete(Position position)
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosCreate");
 
         protected override bool TryDeletePrepare(Position position)
         {
@@ -134,29 +142,32 @@ namespace GSCrm.Repository
         #endregion
 
         #region Searching
-        /// <summary>
-        /// Метод очищает поиск по сотрудникам
-        /// </summary>
-        public void ClearSearchEmployee()
+        public void SearchEmployee(PositionViewModel positionViewModel)
         {
-            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_EMPLOYEES))
-            {
-                posViewModelModelCash.SearchEmployeeInitialName = default;
-                cachService.AddOrUpdate(currentUser, POS_EMPLOYEES, posViewModelModelCash);
-            }
+            positionViewModel.NormalizeSearch();
+            PositionViewModel cachedViewModel = cachService.GetCachedCurrentEntity<PositionViewModel>(currentUser);
+            cachedViewModel.SearchEmployeeInitialName = positionViewModel.SearchEmployeeInitialName;
         }
 
-        /// <summary>
-        /// Метод очищает поиск по дочерним должностям
-        /// </summary>
+        public void ClearSearchEmployee()
+        {
+            PositionViewModel cachedViewModel = cachService.GetCachedCurrentEntity<PositionViewModel>(currentUser);
+            cachedViewModel.SearchEmployeeInitialName = default;
+        }
+        
+        public void SearchSubPosition(PositionViewModel positionViewModel)
+        {
+            positionViewModel.NormalizeSearch();
+            PositionViewModel cachedViewModel = cachService.GetCachedCurrentEntity<PositionViewModel>(currentUser);
+            cachedViewModel.SearchSubPositionName = positionViewModel.SearchSubPositionName;
+            cachedViewModel.SearchSubPositionPrimaryEmployee = positionViewModel.SearchSubPositionPrimaryEmployee;
+        }
+
         public void ClearSearchSubPosition()
         {
-            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_SUB_POSS))
-            {
-                posViewModelModelCash.SearchSubPositionName = default;
-                posViewModelModelCash.SearchSubPositionPrimaryEmployee = default;
-                cachService.AddOrUpdate(currentUser, POS_SUB_POSS, posViewModelModelCash);
-            }
+            PositionViewModel cachedViewModel = cachService.GetCachedCurrentEntity<PositionViewModel>(currentUser);
+            cachedViewModel.SearchSubPositionName = default;
+            cachedViewModel.SearchSubPositionPrimaryEmployee = default;
         }
         #endregion
 
@@ -166,17 +177,15 @@ namespace GSCrm.Repository
         /// </summary>
         /// <param name="positionViewModel"></param>
         public void AttachEmployees(PositionViewModel positionViewModel)
-        {
-            positionViewModel.PositionEmployees = positionViewModel.GetEmployees(context)
-                .MapToViewModels(new EmployeeMap(serviceProvider, context), GetLimitedEmployeesList);
-        }
+            => positionViewModel.PositionEmployees = positionViewModel.GetEmployees(context)
+                .MapToViewModels(positionViewModel, new EmployeeMap(serviceProvider, context), (positionViewModel, employees) =>
+                    GetLimitedEmployeesList(positionViewModel, employees));
 
-        private List<Employee> GetLimitedEmployeesList(List<Employee> employees)
+        private List<Employee> GetLimitedEmployeesList(PositionViewModel positionViewModel, List<Employee> employees)
         {
             List<Employee> limitedEmployees = employees;
-            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_EMPLOYEES))
-                LimitEmployeesByName(posViewModelModelCash, ref limitedEmployees);
-            LimitListByPageNumber(POS_EMPLOYEES, ref limitedEmployees);
+            LimitEmployeesByName(positionViewModel, ref limitedEmployees);
+            LimitViewItemsByPageNumber(positionViewModel.Id, POS_EMPLOYEES, ref limitedEmployees);
             return limitedEmployees;
         }
 
@@ -198,20 +207,16 @@ namespace GSCrm.Repository
         /// </summary>
         /// <param name="positionViewModel"></param>
         public void AttachSubPositions(PositionViewModel positionViewModel)
-        {
-            positionViewModel.SubPositions = positionViewModel.GetSubPositions(context)
-                .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedSubPositionsList);
-        }
+            => positionViewModel.SubPositions = positionViewModel.GetSubPositions(context)
+                .MapToViewModels(positionViewModel, new PositionMap(serviceProvider, context), (positionViewModel, positions) =>
+                    GetLimitedSubPositionsList(positionViewModel, positions));
 
-        private List<Position> GetLimitedSubPositionsList(List<Position> positions)
+        private List<Position> GetLimitedSubPositionsList(PositionViewModel positionViewModel, List<Position> positions)
         {
             List<Position> limitedPositions = positions;
-            if (cachService.TryGetEntityCache(currentUser, out PositionViewModel posViewModelModelCash, POS_SUB_POSS))
-            {
-                LimitSubPositionsByName(posViewModelModelCash, ref limitedPositions);
-                LimitSubPositionsByPrimaryEmployee(posViewModelModelCash, ref limitedPositions);
-            }
-            LimitListByPageNumber(POS_SUB_POSS, ref limitedPositions);
+            LimitSubPositionsByName(positionViewModel, ref limitedPositions);
+            LimitSubPositionsByPrimaryEmployee(positionViewModel, ref limitedPositions);
+            LimitViewItemsByPageNumber(positionViewModel.Id, POS_SUB_POSS, ref limitedPositions);
             return limitedPositions;
         }
 
@@ -253,7 +258,6 @@ namespace GSCrm.Repository
         /// <param name="positionViewModel"></param>
         private void CheckDivisionLength(PositionViewModel positionViewModel)
         {
-            positionViewModel.DivisionName = positionViewModel.DivisionName.TrimStartAndEnd();
             if (string.IsNullOrEmpty(positionViewModel.DivisionName) || positionViewModel.DivisionName.Length < POSITION_NAME_MIN_LENGTH)
                 errors.Add("DivisionNameLength", resManager.GetString("DivisionNameLength"));
         }
@@ -264,7 +268,6 @@ namespace GSCrm.Repository
         /// <param name="positionViewModel"></param>
         private void CheckPositionLength(PositionViewModel positionViewModel)
         {
-            positionViewModel.Name = positionViewModel.Name.TrimStartAndEnd();
             if (string.IsNullOrEmpty(positionViewModel.Name) || positionViewModel.Name.Length < POSITION_NAME_MIN_LENGTH)
                 errors.Add("PositionNameLength", resManager.GetString("PositionNameLength"));
         }
@@ -275,7 +278,7 @@ namespace GSCrm.Repository
         /// <param name="positionViewModel"></param>
         private bool DivisionExists(PositionViewModel positionViewModel)
         {
-            Organization organization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization organization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             Division division = organization.GetDivisions(context).FirstOrDefault(n => n.Name == positionViewModel.DivisionName);
             if (division == null)
             {
@@ -338,13 +341,14 @@ namespace GSCrm.Repository
                 errors.Add("EmployeeNotExists", resManager.GetString("EmployeeNotExists"));
                 return;
             }
+
             Employee primaryEmployee = positionViewModel.GetPrimaryEmployee(context);
-            // Если не был найден сотрудник по id
             if (primaryEmployee == null)
             {
                 errors.Add("EmployeeNotExists", resManager.GetString("EmployeeNotExists"));
                 return;
             }
+
             // Если инициалы найденного по id сотрудника не совпадают инциалами, принятыми с фронта
             // (например, если сотрудник был выбран, а затем часть имени была стерта, но id выбранного сотрудника при этом остался)
             if (primaryEmployee.GetIntialsFullName() != positionViewModel.PrimaryEmployeeInitialName)
@@ -391,20 +395,19 @@ namespace GSCrm.Repository
         /// Методы выполняет валидацию модели при смене подразделения
         /// </summary>
         /// <param name="positionViewModel"></param>
-        /// <param name="modelState"></param>
         /// <returns></returns>
         private bool TryChangeDivisionValidate(PositionViewModel positionViewModel)
         {
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosChangeDiv", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosChangeDiv"))
                          AddHasNoPermissionsError(OperationType.ChangePositionDivision);
                 },
                 () => CheckDivisionLength(positionViewModel),
                 () => {
                     if (DivisionExists(positionViewModel))
-                        CheckDivisionsNotCompare(positionViewModel);
+                        CheckDivisionsNotCompare();
                 }
             });
             return !errors.Any();
@@ -414,10 +417,10 @@ namespace GSCrm.Repository
         /// Метод проверяет, что выбрано отличное от текущего подразделение
         /// </summary>
         /// <param name="positionViewModel"></param>
-        private void CheckDivisionsNotCompare(PositionViewModel positionViewModel)
+        private void CheckDivisionsNotCompare()
         {
             Division newDivision = (Division)transaction.GetParameterValue("Division");
-            Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionViewModel.Id);
+            Position position = cachService.GetCachedCurrentEntity<Position>(currentUser);
             if (position.DivisionId == newDivision.Id)
                 errors.Add("ThisPositionDivisionIsAlreadySelect", resManager.GetString("ThisPositionDivisionIsAlreadySelect"));
         }
@@ -432,7 +435,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {   
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosUnlock", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("PosUnlock"))
                          AddHasNoPermissionsError(OperationType.UnlockPosition);
                 },
                 () => CheckDivisionLength(positionViewModel),
@@ -451,24 +454,24 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryChangeDivision(PositionViewModel positionViewModel, out Dictionary<string, string> errors)
         {
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangePositionDivision, positionViewModel);
+            positionViewModel.Normalize();
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.ChangePositionDivision, positionViewModel);
             if (TryChangeDivisionValidate(positionViewModel))
             {
-                Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionViewModel.Id);
-                transaction.AddParameter("ChangedPosition", position);
+                Position position = cachService.GetCachedCurrentEntity<Position>(currentUser);
                 CheckEmployeePositions(position);
                 ResetParentPositionForChilds(position);
                 
                 // Маппинг и попытка сделать коммит
                 new PositionMap(serviceProvider, context).ChangeDivision(position, positionViewModel);
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     errors = this.errors;
                     return true;
                 }
             }
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -485,8 +488,8 @@ namespace GSCrm.Repository
             while (true)
             {
                 if (position?.ParentPositionId == null) break;
-                Position parentPosition = position.GetParentPosition(context);
-                if (parentPosition == null) break;
+                if (position.GetParentPosition(context) is not Position parentPosition) break;
+
                 positionsHierarchy.Add(parentPosition);
 
                 // Если передан ограничитель и id родительской должности равен ограничителю
@@ -561,8 +564,10 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryUnlock(ref PositionViewModel positionViewModel, out Dictionary<string, string> errors)
         {
-            // Получение сотрудника из бд
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockPosition, positionViewModel);
+            positionViewModel.Normalize();
+
+            // Получение должности из бд
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.UnlockPosition, positionViewModel);
             Guid positionId = positionViewModel.Id;
             Position position = context.Positions.AsNoTracking().FirstOrDefault(i => i.Id == positionId);
 
@@ -574,9 +579,9 @@ namespace GSCrm.Repository
                     if (TryUnlockValidate(positionViewModel))
                     {
                         new PositionMap(serviceProvider, context).UnlockOnDivisionAbsent(position);
-                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                        if (viewModelsTF.TryCommit(transaction, this.errors))
                         {
-                            viewModelsTransactionFactory.Close(transaction);
+                            viewModelsTF.Close(transaction);
                             errors = this.errors;
                             return true;
                         }
@@ -587,7 +592,7 @@ namespace GSCrm.Repository
             // Иначе данные из бд преобразуются в данные для отображения без прикрепления контактов и должностей
             errors = this.errors;
             positionViewModel = map.DataToViewModel(position);
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
         #endregion

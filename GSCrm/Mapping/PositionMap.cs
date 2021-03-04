@@ -68,7 +68,8 @@ namespace GSCrm.Mapping
             return positionViewModel;
         }
 
-        public PositionViewModel Refresh(PositionViewModel positionViewModel, User currentUser, PositionViewType[] positionViewTypes)
+        /*  TO DELETE
+         * public PositionViewModel Refresh(PositionViewModel positionViewModel, User currentUser, PositionViewType[] positionViewTypes)
         {
             positionViewTypes.ToList().ForEach(positionViewType =>
             {
@@ -76,13 +77,13 @@ namespace GSCrm.Mapping
                 {
                     // Восстановление данных поиска по сотрудникам
                     case PositionViewType.POS_EMPLOYEES:
-                        if (cachService.TryGetEntityCache(currentUser, out PositionViewModel positionEmployeesCash, POS_EMPLOYEES))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out PositionViewModel positionEmployeesCash, POS_EMPLOYEES))
                             positionViewModel.SearchEmployeeInitialName = positionEmployeesCash.SearchEmployeeInitialName;
                         break;
 
                     // Восстановление данных поиска по дочерним должностям
                     case PositionViewType.POS_SUB_POSS:
-                        if (cachService.TryGetEntityCache(currentUser, out PositionViewModel positionSubPositionsCash, POS_SUB_POSS))
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out PositionViewModel positionSubPositionsCash, POS_SUB_POSS))
                         {
                             positionViewModel.SearchSubPositionName = positionSubPositionsCash.SearchSubPositionName;
                             positionViewModel.SearchSubPositionPrimaryEmployee = positionSubPositionsCash.SearchSubPositionPrimaryEmployee;
@@ -94,7 +95,7 @@ namespace GSCrm.Mapping
                 }
             });
             return positionViewModel;
-        }
+        }*/
 
         /// <summary>
         /// Метод меняет подразделение у долнжости

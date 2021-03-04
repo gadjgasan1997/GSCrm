@@ -60,14 +60,14 @@
                             <div id="allEmployeesNav" class="list-nav row no-gutters justify-content-center mt-3">
                                 <div class="col">
                                     <div class="nav-previous">
-                                        <div class="nav-url" data-href="@Url.Action("PreviousAllRecords", ACC_MANAGER)">
+                                        <div class="nav-url" data-href="@Url.Action("PreviousAllRecords", ACC_MANAGER, new { accountId = Model.Id })">
                                             <span class="icon-chevron-thin-left"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="nav-next">
-                                        <div class="nav-url" data-href="@Url.Action("NextAllRecords", ACC_MANAGER)">
+                                        <div class="nav-url" data-href="@Url.Action("NextAllRecords", ACC_MANAGER, new { accountId = Model.Id })">
                                             <span class="icon-chevron-thin-right"></span>
                                         </div>
                                     </div>
@@ -93,7 +93,7 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="selectedEmployeesSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchSelectedManagers", ACC_MANAGER)" />
+                                               data-href="@Url.Action("SearchSelectedManagers", ACC_MANAGER, new { accountId = Model.Id })" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearSelectedEmployeesSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"

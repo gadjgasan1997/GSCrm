@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using GSCrm.Data.ApplicationInfo;
 using static GSCrm.CommonConsts;
+using GSCrm.Models.ViewModels;
+using System.Collections.Generic;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GSCrm.Controllers
 {
@@ -50,12 +53,43 @@ namespace GSCrm.Controllers
                     cachService.AddOrUpdate(currentUser, "NotsCount", notsCount);
                 }
             }
+            else
+            {
+                notsCount = context.UserNotifications.AsNoTracking().Where(userNot => userNot.UserId == currentUser.Id && !userNot.HasRead).Count();
+                cachService.AddOrUpdate(currentUser, "NotsCount", notsCount);
+            }
             AppData appData = new AppData()
             {
                 NotsCount = Convert.ToInt32(notsCount),
                 ViewInfo = cachService.GetCurrentViewInfo(currentUser.Id)
             };
             return Json(appData);
+        }
+
+        [HttpGet("GetTestInfo")]
+        public IActionResult GetTestInfo()
+        {
+            Dictionary<string, MemoryCache> cashItems = cachService.GetCashItems();
+            Dictionary<string, Dictionary<string, ViewInfo>> cashViews = cachService.GetCashViews();
+            cashItems.TryGetValue(currentUser.Id, out MemoryCache memoryCache);
+            memoryCache.TryGetValue("CurrentOrganization", out object org);
+            memoryCache.TryGetValue("CurrentPosition", out object pos);
+            memoryCache.TryGetValue("CurrentEmployee", out object emp);
+            memoryCache.TryGetValue("CurrentResponsibility", out object resp);
+            memoryCache.TryGetValue("CurrentEmployeeContact", out object empCont);
+            memoryCache.TryGetValue("CurrentProductCategory", out object prodCat);
+            Dictionary<string, object> result = new Dictionary<string, object>()
+            {
+                { "CacheData._cashItems", cashItems },
+                { "CacheData._cashViews", cashViews },
+                { "CacheData.CurrentOrganization", org },
+                { "CacheData.CurrentPosition", pos },
+                { "CacheData.CurrentEmployee", emp },
+                { "CacheData.CurrentResponsibility", resp },
+                { "CacheData.CurrentEmployeeContact", empCont },
+                { "CacheData.CurrentProductCategory", prodCat },
+            };
+            return Json(result);
         }
     }
 }

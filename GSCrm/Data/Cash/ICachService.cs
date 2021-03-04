@@ -1,65 +1,70 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using GSCrm.Data.ApplicationInfo;
 using GSCrm.Models;
+using GSCrm.Data.ApplicationInfo;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GSCrm.Data.Cash
 {
     public interface ICachService
     {
         #region Base
-        /// <summary>
-        /// Метод чистит кеш пользователя
-        /// </summary>
-        /// <param name="userId"></param>
-        void RemoveUserCache(string userId);
+        Dictionary<string, MemoryCache> GetCashItems();
+        Dictionary<string, Dictionary<string, ViewInfo>> GetCashViews();
         #endregion
 
         #region Objects
         bool TryGetValue(User user, string itemName, out object itemValue);
-        bool TryGetValue(User user, string itemName, out bool itemValue);
         bool TryGetValue(User user, string itemName, out int itemValue);
         void AddOrUpdate(User user, string itemName, object itemValue);
-        void AddOrUpdate(User user, string itemName, bool itemValue);
         void AddOrUpdate(User user, string itemName, int itemValue);
         #endregion
 
         #region Generic Entities
         /// <summary>
-        /// Метод возвращает кеш сущности
+        /// Метод кеширует модель по ее названию
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="user"></param>
-        /// <param name="entityCache">Кеш сущности</param>
-        /// <param name="cachedEntityName">Необязательное название, которым кешировалась сущность</param>
-        /// <returns></returns>
-        bool TryGetEntityCache<TEntity>(User user, out TEntity entityCache, string cachedEntityName = null)
-            where TEntity : class, IMainEntity;
+        /// <param name="entity">Модель</param>
+        /// <param name="entityName">Название представления</param>
+        void CacheEntity<TEntity>(User user, TEntity entity, string entityName = null) where TEntity : IMainEntity;
         /// <summary>
-        /// Метод возвращает кеш списка сущностей
+        /// Метод кеширует модель как текущую, на которой находится пользователь по ее названию
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="user"></param>
-        /// <param name="entitiesCache">Кеш сущностей</param>
-        /// <param name="cachedEntityName">Необязательное название, которым кешировался список сущностей</param>
-        /// <returns></returns>
-        bool TryGetEntitiesCache<TEntity>(User user, out List<TEntity> entitiesCache, string cachedEntityName = null)
-            where TEntity : class, IMainEntity;
+        /// <param name="entity">Модель</param>
+        /// <param name="entityName">Название представления</param>
+        void CacheCurrentEntity<TEntity>(User user, TEntity entity, string entityName = null) where TEntity : IMainEntity;
         /// <summary>
-        /// Метод возвращает id закешированной сущности
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        Guid GetEntityId<TEntity>(User user, string cachedEntityName = null) where TEntity : class, IMainEntity;
-        /// <summary>
-        /// Метод кеширует сущность
+        /// Метод пытается вернуть закешированную модель по id записи и ее названию
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="user"></param>
-        /// <param name="entity">Сущность, которую необходимо кешировать</param>
-        /// <param name="entityName">Необязательное название</param>
-        void AddOrUpdateEntity<TEntity>(User user, TEntity entity, string entityName = null) where TEntity : IMainEntity;
+        /// <param name="recordId">Id записи</param>
+        /// <param name="entity">Модель</param>
+        /// <param name="entityName">Название представления</param>
+        /// <returns></returns>
+        bool TryGetCachedEntity<TEntity>(User user, Guid recordId, out TEntity entity, string entityName = null) where TEntity : class, IMainEntity;
+        /// <summary>
+        /// Метод пытается вернуть закешированную модель по id записи и ее названию
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="user"></param>
+        /// <param name="recordId">Id записи</param>
+        /// <param name="entity">Модель</param>
+        /// <param name="entityName">Название представления</param>
+        /// <returns></returns>
+        bool TryGetCachedEntity<TEntity>(User user, string recordId, out TEntity entity, string entityName = null) where TEntity : class, IMainEntity;
+        /// <summary>
+        /// Метод возвращает закешированную модель сущности, на которой в данный момент находится пользователь по ее названию
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="user"></param>
+        /// <param name="entityName">Название представления</param>
+        /// <returns></returns>
+        TEntity GetCachedCurrentEntity<TEntity>(User user, string entityName = null) where TEntity : class, IMainEntity;
         #endregion
 
         #region ViewInfo
@@ -71,12 +76,28 @@ namespace GSCrm.Data.Cash
         /// <param name="viewInfo"></param>
         void SetViewInfo(string userId, string viewName, ViewInfo viewInfo);
         /// <summary>
+        /// Метод устанавливает информацию о представлении, кешируя его по составному ключу из id записи и названия представления
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="recordId">Id записи</param>
+        /// <param name="viewName">Название представления</param>
+        /// <param name="viewInfo"></param>
+        void SetViewInfo(string userId, Guid recordId, string viewName, ViewInfo viewInfo);
+        /// <summary>
         /// Метод возвращает информацию о представлении
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="viewName"></param>
         /// <returns></returns>
         ViewInfo GetViewInfo(string userId, string viewName);
+        /// <summary>
+        /// Метод возвращает информацию о представлении по составному ключу из id записи и названия представления
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="recordId">Id записи</param>
+        /// <param name="viewName">Название представления</param>
+        /// <returns></returns>
+        ViewInfo GetViewInfo(string userId, Guid recordId, string viewName);
         /// <summary>
         /// Метод устанавливает текущее представление, на котором находится пользователь
         /// </summary>

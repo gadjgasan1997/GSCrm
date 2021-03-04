@@ -12,15 +12,6 @@ namespace GSCrm.Transactions.Factories
     {
         public SyncRespsTF(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context) { }
 
-        protected override void CreateHandler(OperationType operationType, SyncRespsViewModel respsViewModel)
-        {
-            if (operationType == OperationType.EmployeeResponsibilitiesManagement)
-            {
-                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                    transaction.AddParameter("CurrentOrganization", currentOrganization);
-            }
-        }
-
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
             if (transactionStatus == TransactionStatus.Success && operationType == OperationType.EmployeeResponsibilitiesManagement)
@@ -32,8 +23,8 @@ namespace GSCrm.Transactions.Factories
         /// </summary>
         private void SendNotifications()
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             SyncRespsParams syncRespsParams = new SyncRespsParams()
             {
                 Organization = currentOrganization,

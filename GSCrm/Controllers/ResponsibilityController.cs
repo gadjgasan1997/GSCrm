@@ -1,11 +1,7 @@
 ﻿using System;
 using GSCrm.Data;
-using GSCrm.Data.ApplicationInfo;
-using GSCrm.Mapping;
 using GSCrm.Models;
-using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
-using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -22,61 +18,21 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("HasNoPermissionsForSee")]
-        public IActionResult HasNoPermissionsForSee()
-            => View($"{RESP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new ResponsibilityViewModel());
-
         [HttpGet("{id}")]
-        public ViewResult Responsibility()
-        {
-            if (cachService.TryGetEntityCache(currentUser, out Responsibility responsibility))
-            {
-                ResponsibilityViewModel respViewModel = new ResponsibilityMap(serviceProvider, context).DataToViewModel(responsibility);
-                cachService.SetCurrentView(currentUser.Id, RESPONSIBILITY);
-                cachService.AddOrUpdateEntity(currentUser, responsibility);
-                cachService.AddOrUpdateEntity(currentUser, respViewModel);
-                return View(RESPONSIBILITY, respViewModel);
-            }
-            return View("Error");
-        }
+        public IActionResult Responsibility() => GetResponsibility();
 
         protected override IActionResult DeleteSuccessHandler()
         {
-            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModel))
-            {
-                OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.AttachResponsibilities(orgViewModel);
-                return Json(orgViewModel.Responsibilities);
-            }
-            return Json("");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            return Json($"/{ORGANIZATION}/{currentOrganization.Id}/GetResponsibilities/");
         }
 
-        [HttpGet("NextResponsibilities")]
-        public IActionResult NextResponsibilities()
+        #region Addition Methods
+        private IActionResult GetResponsibility()
         {
-            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModel))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
-                OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.SetViewInfo(RESPONSIBILITIES, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                organizationRepository.AttachResponsibilities(orgViewModel);
-                return Json(orgViewModel.Responsibilities);
-            }
-            return BadRequest();
+            Responsibility responsibility = cachService.GetCachedCurrentEntity<Responsibility>(currentUser);
+            return View(RESPONSIBILITY, repository.LoadView(responsibility));
         }
-
-        [HttpGet("PreviousResponsibilities")]
-        public IActionResult PreviousResponsibilities()
-        {
-            if (cachService.TryGetEntityCache(currentUser, out OrganizationViewModel orgViewModel))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, RESPONSIBILITIES);
-                OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-                organizationRepository.SetViewInfo(RESPONSIBILITIES, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                organizationRepository.AttachResponsibilities(orgViewModel);
-                return Json(orgViewModel.Responsibilities);
-            }
-            return BadRequest();
-        }
+        #endregion
     }
 }

@@ -18,11 +18,7 @@ namespace GSCrm.Controllers
         { }
 
         [HttpGet("{id}")]
-        public IActionResult Contact(string id)
-        {
-            if (!repository.TryGetItemById(id, out EmployeeContact employeeContact))
-                return View("Error");
-            return Json(map.DataToViewModel(employeeContact));
-        }
+        public IActionResult Contact()
+            => Json(cachService.GetCachedCurrentEntity<EmployeeContactViewModel>(currentUser));
     }
 }

@@ -4,7 +4,9 @@ using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using System.Collections.Generic;
+using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
+using GSCrm.Helpers;
 
 namespace GSCrm.Repository
 {
@@ -18,16 +20,23 @@ namespace GSCrm.Repository
 
         #region Override Methods
         public override bool HasPermissionsForSeeItem(Responsibility responsibility)
+            => new OrganizationRepository(serviceProvider, context).HasPermissionsForSeeOrgItem();
+
+        public override ResponsibilityViewModel LoadView(Responsibility responsibility)
         {
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            return organizationRepository.HasPermissionsForSeeOrgItem();
+            ResponsibilityViewModel respViewModel = cachService.GetCachedCurrentEntity<ResponsibilityViewModel>(currentUser);
+            cachService.SetCurrentView(currentUser.Id, RESPONSIBILITY);
+            cachService.CacheEntity(currentUser, respViewModel);
+            cachService.CacheCurrentEntity(currentUser, respViewModel);
+            return respViewModel;
         }
 
         protected override bool RespsIsCorrectOnCreate(ResponsibilityViewModel responsibilityViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespCreate");
 
         protected override bool TryCreatePrepare(ResponsibilityViewModel responsibilityViewModel)
         {
+            responsibilityViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckName(responsibilityViewModel),
@@ -41,10 +50,11 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(ResponsibilityViewModel responsibilityViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespUpdate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespUpdate");
 
         protected override bool TryUpdatePrepare(ResponsibilityViewModel responsibilityViewModel)
         {
+            responsibilityViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckName(responsibilityViewModel),
@@ -57,8 +67,18 @@ namespace GSCrm.Repository
             return !errors.Any();
         }
 
+        protected override void UpdateCacheOnDelete(Responsibility responsibility)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, responsibility.OrganizationId, out Organization organization) &&
+                cachService.TryGetCachedEntity(currentUser, responsibility.OrganizationId, out OrganizationViewModel organizationViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, organization);
+                cachService.CacheCurrentEntity(currentUser, organizationViewModel);
+            }
+        }
+
         protected override bool RespsIsCorrectOnDelete(Responsibility responsibility)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("RespDelete");
         #endregion
 
         #region Validations

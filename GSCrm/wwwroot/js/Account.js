@@ -1,4 +1,5 @@
 class Account {
+    //#region Create
     /** Создание клиента */
     Create() {
         return new Promise((resolve, reject) => {
@@ -112,17 +113,9 @@ class Account {
             Account.SetDefaultTab();
         }, 150);
     }
+    //#endregion
 
-    /** Изменение сайта клиента */
-    ChangeSite(event) {
-        let siteInput = $(event.currentTarget).closest(".input-group").find(".form-control-url a");
-        let changeSiteUrl = $(event.currentTarget).find(".icon-pencil").attr("href");
-        Swal.fire(MessageManager.Invoke("NewSiteMessage", {
-            "siteInput": siteInput,
-            "changeSiteUrl": changeSiteUrl
-        }));
-    }
-
+    //#region Change Legal Address
     /**
      * Метод открывает модальное окно с изменением юридического адреса клиента
      * @param {*} event 
@@ -164,8 +157,7 @@ class Account {
      */
     HasAccNotLegalAddress() {
         return new Promise((resolve, reject) => {
-            let accountId = $("#accountId").val();
-            let getAddressesUrl = LocalizationManager.GetUri("hasAccNotLegalAddress") + accountId;
+            let getAddressesUrl = $("#hasAccNotLegalAddress").val();
             let request = new AjaxRequests();
             request.JsonGetRequest(getAddressesUrl)
                 .catch(error => reject(error))
@@ -192,6 +184,9 @@ class Account {
                 // Если оно было открыто с формы клиента, необходимо сразу изменить юридический адрес клиента
                 case "accountForm":
                     this.ChangeLegalAddressFromAccountForm();
+                    break;
+
+                default:
                     break;
             }
             
@@ -276,28 +271,9 @@ class Account {
             }
         });
     }
+    //#endregion
 
-    /** Удаляет клиента, если пользователь дал согласие */
-    Remove(event) {
-        return new Promise((resolve, reject) => {
-            Swal.fire(MessageManager.Invoke("RemoveAccountConfirmation")).then(result => {
-                if (result["value"]) {
-                    let removeAccUrl = $(event.currentTarget).attr("href");
-                    let request = new AjaxRequests();
-                    request.CommonDeleteRequest(removeAccUrl)
-                        .fail(response => {
-                            Utils.DefaultErrorHandling(response["responseJSON"]);
-                            reject();
-                        })
-                        .done(() => {
-                            let accountsBackUrl = $("#accountsBackUrl a").attr("href");
-                            location.replace(location.origin + accountsBackUrl);
-                        });
-                }
-            })
-        })
-    }
-
+    //#region Update
     /**
      * Обновление клиента
      * @param {*} event 
@@ -335,6 +311,16 @@ class Account {
         }
     }
 
+    /** Изменение сайта клиента */
+    ChangeSite(event) {
+        let siteInput = $(event.currentTarget).closest(".input-group").find(".form-control-url a");
+        let changeSiteUrl = $(event.currentTarget).find(".icon-pencil").attr("href");
+        Swal.fire(MessageManager.Invoke("NewSiteMessage", {
+            "siteInput": siteInput,
+            "changeSiteUrl": changeSiteUrl
+        }));
+    }
+
     AddAccManager(event) {
         return new Promise((resolve, reject) => {
             Utils.ClearErrors();
@@ -358,6 +344,28 @@ class Account {
             Id: $("#accountId").val(),
             NewPrimaryManagerId: $("#accManagerId").val()
         }
+    }
+    //#endregion
+
+    /** Удаляет клиента, если пользователь дал согласие */
+    Remove(event) {
+        return new Promise((resolve, reject) => {
+            Swal.fire(MessageManager.Invoke("RemoveAccountConfirmation")).then(result => {
+                if (result["value"]) {
+                    let removeAccUrl = $(event.currentTarget).attr("href");
+                    let request = new AjaxRequests();
+                    request.CommonDeleteRequest(removeAccUrl)
+                        .fail(response => {
+                            Utils.DefaultErrorHandling(response["responseJSON"]);
+                            reject();
+                        })
+                        .done(() => {
+                            let accountsBackUrl = $("#accountsBackUrl a").attr("href");
+                            location.replace(location.origin + accountsBackUrl);
+                        });
+                }
+            })
+        })
     }
 
     /**

@@ -1,5 +1,4 @@
-﻿using GSCrm.Mapping;
-using GSCrm.Models;
+﻿using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -8,9 +7,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
 using GSCrm.Data;
-using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
-using static GSCrm.Repository.EmployeeRepository;
 
 namespace GSCrm.Controllers
 {
@@ -22,49 +19,20 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("HasNoPermissionsForSee")]
-        public IActionResult HasNoPermissionsForSee()
-            => View($"{EMP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new EmployeeViewModel());
-
         [HttpGet("{id}")]
-        public ViewResult Employee()
-        {
-            if (cachService.TryGetEntityCache(currentUser, out Employee employee))
-            {
-                EmployeeMap employeeMap = new EmployeeMap(serviceProvider, context);
-                EmployeeViewModel empViewModel = employeeMap.DataToViewModel(employee);
-                empViewModel = new EmployeeMap(serviceProvider, context).Refresh(empViewModel, currentUser, EmpBaseViewTypes);
-                if (employee.EmployeeStatus == EmployeeStatus.Active)
-                {
-                    EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
-                    employeeRepository.AttachPositions(empViewModel);
-                    employeeRepository.AttachContacts(empViewModel);
-                    employeeRepository.AttachSubordinates(empViewModel);
-                }
-                cachService.SetCurrentView(currentUser.Id, EMPLOYEE);
-                cachService.AddOrUpdateEntity(currentUser, employee);
-                cachService.AddOrUpdateEntity(currentUser, empViewModel);
-                return View(EMPLOYEE, empViewModel);
-            }
-            return View("Error");
-        }
+        public IActionResult Employee(string id) => GetEmployee(id);
 
+        #region Child Entities
         /// <summary>
         /// Получение списка подчиненных сотрудника
         /// </summary>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        [HttpGet("Subordinates/{pageNumber}")]
-        public IActionResult Subordinates(int pageNumber)
+        [HttpGet("{id}/Subordinates/{pageNumber}")]
+        public IActionResult Subordinates(string id, int pageNumber)
         {
-            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModel))
-            {
-                EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
-                employeeRepository.SetViewInfo(EMP_SUBS, pageNumber);
-                employeeRepository.AttachSubordinates(employeeViewModel);
-                return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
-            }
-            return View("Error");
+            repository.SetViewInfo(id, EMP_SUBS, pageNumber);
+            return GetEmployee(id);
         }
 
         /// <summary>
@@ -72,19 +40,15 @@ namespace GSCrm.Controllers
         /// </summary>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        [HttpGet("Contacts/{pageNumber}")]
-        public IActionResult Contacts(int pageNumber)
+        [HttpGet("{id}/Contacts/{pageNumber}")]
+        public IActionResult Contacts(string id, int pageNumber)
         {
-            if (cachService.TryGetEntityCache(currentUser, out EmployeeViewModel employeeViewModel))
-            {
-                EmployeeRepository employeeRepository = new EmployeeRepository(serviceProvider, context);
-                employeeRepository.SetViewInfo(EMP_CONTACTS, pageNumber);
-                employeeRepository.AttachContacts(employeeViewModel);
-                return View($"{EMP_VIEWS_REL_PATH}{EMPLOYEE}.cshtml", employeeViewModel);
-            }
-            return View("Error");
+            repository.SetViewInfo(id, EMP_CONTACTS, pageNumber);
+            return GetEmployee(id);
         }
+        #endregion
 
+        #region Actions
         [HttpPost("ChangeDivision")]
         public IActionResult ChangeDivision(EmployeeViewModel employeeViewModel)
         {
@@ -108,47 +72,45 @@ namespace GSCrm.Controllers
             }
             return Json("");
         }
+        #endregion
 
-        [HttpPost("SearchPosition")]
-        public IActionResult SearchPosition(EmployeeViewModel employeeViewModel)
-        {
-            cachService.AddOrUpdate(currentUser, EMP_POSITIONS, employeeViewModel);
-            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = cachService.GetEntityId<EmployeeViewModel>(currentUser) });
-        }
-
-        [HttpGet("ClearPositionSearch")]
-        public IActionResult ClearPositionSearch()
-        {
-            new EmployeeRepository(serviceProvider, context).ClearPositionSearch();
-            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = cachService.GetEntityId<EmployeeViewModel>(currentUser) });
-        }
-
+        #region Searching
         [HttpPost("SearchContact")]
         public IActionResult SearchContact(EmployeeViewModel employeeViewModel)
         {
-            cachService.AddOrUpdate(currentUser, EMP_CONTACTS, employeeViewModel);
-            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = cachService.GetEntityId<EmployeeViewModel>(currentUser) });
+            new EmployeeRepository(serviceProvider, context).SearchContact(employeeViewModel);
+            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = employeeViewModel.Id });
         }
 
-        [HttpGet("ClearContactSearch")]
-        public IActionResult ClearContactSearch()
+        [HttpGet("{id}/ClearContactSearch")]
+        public IActionResult ClearContactSearch(string id)
         {
             new EmployeeRepository(serviceProvider, context).ClearContactSearch();
-            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = cachService.GetEntityId<EmployeeViewModel>(currentUser) });
+            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id });
         }
 
         [HttpPost("SearchSubordinate")]
         public IActionResult SearchSubordinate(EmployeeViewModel employeeViewModel)
         {
-            cachService.AddOrUpdate(currentUser, EMP_SUBS, employeeViewModel);
-            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = cachService.GetEntityId<EmployeeViewModel>(currentUser) });
+            new EmployeeRepository(serviceProvider, context).SearchSubordinate(employeeViewModel);
+            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = employeeViewModel.Id });
         }
 
-        [HttpGet("ClearSubordinateSearch")]
-        public IActionResult ClearSubordinateSearch()
+        [HttpGet("{id}/ClearSubordinateSearch")]
+        public IActionResult ClearSubordinateSearch(string id)
         {
             new EmployeeRepository(serviceProvider, context).ClearSubordinateSearch();
-            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id = cachService.GetEntityId<EmployeeViewModel>(currentUser) });
+            return RedirectToAction(EMPLOYEE, EMPLOYEE, new { id });
         }
+        #endregion
+
+        #region Addition Methods
+        private IActionResult GetEmployee(string employeeId)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, employeeId, out Employee employee))
+                return View(EMPLOYEE, repository.LoadView(employee));
+            return View("Error");
+        }
+        #endregion
     }
 }

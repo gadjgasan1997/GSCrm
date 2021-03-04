@@ -16,21 +16,6 @@ namespace GSCrm.Transactions.Factories
     {
         public DivisionTF(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context) { }
 
-        protected override void CreateHandler(OperationType operationType, DivisionViewModel divisionViewModel)
-        {
-            if (operationType.IsInList(baseOperationTypes))
-            {
-                if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                    transaction.AddParameter("CurrentOrganization", currentOrganization);
-            }
-        }
-
-        protected override void CreateHandler(OperationType operationType, string recordId)
-        {
-            if (cachService.TryGetEntityCache(currentUser, out Organization currentOrganization))
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
-        }
-
         /// <summary>
         /// Перед попыткой коммита на удаление необходимо заблокировать должности и сотрудников
         /// </summary>
@@ -39,12 +24,13 @@ namespace GSCrm.Transactions.Factories
             if (operationType == OperationType.Delete)
             {
                 Division division = (Division)transaction.GetParameterValue("RecordToRemove");
+
                 // Необходимо запомнить список сотрудников, находящихся в удаляемом подразделении до выполнения коммита
                 // Так как после коммита у всех сотрудников подразделения будет очищен DivisionId и их невозможно будет найти
                 List<Employee> divEmployees = context.Employees.AsNoTracking().Where(div => div.DivisionId == division.Id).ToList();
                 transaction.AddParameter("DivEmployees", divEmployees);
 
-                // блокировка должностей и сотрудников
+                // Блокировка должностей и сотрудников
                 LockPositions(division);
                 LockEmployees(division);
             }
@@ -96,7 +82,7 @@ namespace GSCrm.Transactions.Factories
         /// </summary>
         private void SendNotifications()
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             Division division = (Division)transaction.GetParameterValue("RecordToRemove");
             DivDeleteParams divDeleteParams = new DivDeleteParams()
             {

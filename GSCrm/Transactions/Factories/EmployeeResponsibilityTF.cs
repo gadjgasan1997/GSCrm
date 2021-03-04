@@ -1,7 +1,6 @@
-﻿using GSCrm.Models.ViewModels;
-using System;
+﻿using System;
 using GSCrm.Data;
-using GSCrm.Models;
+using GSCrm.Models.ViewModels;
 
 namespace GSCrm.Transactions.Factories
 {

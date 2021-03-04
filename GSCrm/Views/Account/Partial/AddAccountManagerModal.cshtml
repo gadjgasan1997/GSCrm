@@ -13,6 +13,7 @@
             </div>
             <div class="modal-body">
                 <form method="post" asp-controller="@ACCOUNT" asp-action="UnlockAccount">
+                    <input asp-for="Id" hidden="hidden" />
                     <div class="mt-3">
                         <input id="accManagerId" hidden="hidden" />
                         <div id="accManager" class="autocomplete default-autocomplete" data-autocomplite-type="Accounts" data-autocomplite-name="AccountManager">

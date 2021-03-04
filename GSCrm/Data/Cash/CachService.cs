@@ -10,15 +10,11 @@ namespace GSCrm.Data.Cash
     public class CachService : ICachService
     {
         #region Base
-        public void RemoveUserCache(string userId)
-        {
-            if (CacheData._cashItems.ContainsKey(userId))
-                CacheData._cashItems.Remove(userId);
-            if (CacheData._cashViews.ContainsKey(userId))
-                CacheData._cashViews.Remove(userId);
-            if (CacheData._currentViews.ContainsKey(userId))
-                CacheData._currentViews.Remove(userId);
-        }
+        public Dictionary<string, MemoryCache> GetCashItems()
+            => CacheData._cashItems;
+
+        public Dictionary<string, Dictionary<string, ViewInfo>> GetCashViews()
+            => CacheData._cashViews;
         #endregion
 
         #region Objects
@@ -31,18 +27,6 @@ namespace GSCrm.Data.Cash
                 return true;
             }
             itemValue = null;
-            return false;
-        }
-
-        public bool TryGetValue(User user, string itemName, out bool itemValue)
-        {
-            InitCacheItems(user);
-            if (CacheData._cashItems[user.Id].TryGetValue(itemName, out bool item))
-            {
-                itemValue = item;
-                return true;
-            }
-            itemValue = false;
             return false;
         }
 
@@ -64,12 +48,6 @@ namespace GSCrm.Data.Cash
             CacheData._cashItems[user.Id].Set(itemName, itemValue);
         }
 
-        public void AddOrUpdate(User user, string itemName, bool itemValue)
-        {
-            InitCacheItems(user);
-            CacheData._cashItems[user.Id].Set(itemName, itemValue);
-        }
-
         public void AddOrUpdate(User user, string itemName, int itemValue)
         {
             InitCacheItems(user);
@@ -78,43 +56,44 @@ namespace GSCrm.Data.Cash
         #endregion
             
         #region Generic Entities
-        public bool TryGetEntityCache<TEntity>(User user, out TEntity entity, string cachedEntityName = null)
+        public void CacheEntity<TEntity>(User user, TEntity entity, string entityName = null)
+            where TEntity : IMainEntity
+            => AddOrUpdate(user, entityName ?? GetCachedViewKey(entity.Id, typeof(TEntity).Name), entity);
+
+        public void CacheCurrentEntity<TEntity>(User user, TEntity entity, string entityName = null)
+            where TEntity : IMainEntity
+            => AddOrUpdate(user, entityName ?? $"Current{typeof(TEntity).Name}", entity);
+
+        public bool TryGetCachedEntity<TEntity>(User user, Guid recordId, out TEntity entity, string entityName = null)
             where TEntity : class, IMainEntity
         {
-            if (TryGetValue(user, cachedEntityName ?? $"Current{typeof(TEntity).Name}", out object item))
+            if (TryGetValue(user, entityName ?? GetCachedViewKey(recordId, typeof(TEntity).Name), out object entityValue))
             {
-                entity = (TEntity)item;
-                return entity != null;
+                entity = (TEntity)entityValue;
+                return true;
             }
             entity = null;
             return false;
         }
 
-        public bool TryGetEntitiesCache<TEntity>(User user, out List<TEntity> entities, string cachedEntitiesName = null)
+        public bool TryGetCachedEntity<TEntity>(User user, string recordId, out TEntity entity, string entityName = null)
             where TEntity : class, IMainEntity
         {
-            if (TryGetValue(user, cachedEntitiesName ?? $"ListOf{typeof(TEntity).Name}", out object items))
+            if (Guid.TryParse(recordId, out Guid guid) && TryGetCachedEntity(user, guid, out TEntity entityValue, entityName))
             {
-                entities = (List<TEntity>)items;
-                return entities != null;
+                entity = entityValue;
+                return true;
             }
-            entities = null;
+            entity = null;
             return false;
         }
 
-        public Guid GetEntityId<TEntity>(User user, string cachedEntityName = null)
+        public TEntity GetCachedCurrentEntity<TEntity>(User user, string entityName = null)
             where TEntity : class, IMainEntity
         {
-            if (TryGetEntityCache(user, out TEntity entity, cachedEntityName))
-                return entity.Id;
-            return Guid.Empty;
-        }
-
-        public void AddOrUpdateEntity<TEntity>(User user, TEntity entity, string entityName = null)
-            where TEntity : IMainEntity
-        {
-            InitCacheItems(user);
-            CacheData._cashItems[user.Id].Set(entityName ?? $"Current{typeof(TEntity).Name}", entity);
+            if (TryGetValue(user, entityName ?? $"Current{typeof(TEntity).Name}", out object itemValue))
+                return (TEntity)itemValue;
+            return null;
         }
         #endregion
 
@@ -135,6 +114,12 @@ namespace GSCrm.Data.Cash
             else CacheData._currentViews[userId] = viewInfo;
         }
 
+        public void SetViewInfo(string userId, Guid recordId, string viewName, ViewInfo viewInfo)
+        {
+            string cachedItemKey = GetCachedViewKey(recordId, viewName);
+            SetViewInfo(userId, cachedItemKey, viewInfo);
+        }
+
         public ViewInfo GetViewInfo(string userId, string viewName)
         {
             if (new[] { userId, viewName }.IsNullOrEmpty())
@@ -143,6 +128,17 @@ namespace GSCrm.Data.Cash
             if (!CacheData._cashViews[userId].ContainsKey(viewName))
                 return new ViewInfo(viewName);
             return CacheData._cashViews[userId][viewName];
+        }
+
+        public ViewInfo GetViewInfo(string userId, Guid recordId, string viewName)
+        {
+            string cachedItemKey = GetCachedViewKey(recordId, viewName);
+            if (new[] { userId, cachedItemKey }.IsNullOrEmpty())
+                return new ViewInfo(cachedItemKey, viewName);
+            InitCacheViews(userId);
+            if (!CacheData._cashViews[userId].ContainsKey(cachedItemKey))
+                return new ViewInfo(cachedItemKey, viewName);
+            return CacheData._cashViews[userId][cachedItemKey];
         }
 
         public void SetCurrentView(string userId, string currentViewName)
@@ -164,25 +160,28 @@ namespace GSCrm.Data.Cash
         #endregion
 
         #region Addition Methods
-        private void InitCacheItems(User user)
+        private static void InitCacheItems(User user)
         {
             if (!CacheData._cashItems.ContainsKey(user.Id))
                 CacheData._cashItems.Add(user.Id, new MemoryCache(new MemoryCacheOptions()));
         }
 
-        private void InitCacheListItems(User user)
-        {
-            if (!CacheData._cashListItems.ContainsKey(user.Id))
-                CacheData._cashListItems.Add(user.Id, new MemoryCache(new MemoryCacheOptions()));
-        }
-
-        private void InitCacheViews(string userId)
+        private static void InitCacheViews(string userId)
         {
             if (!CacheData._cashViews.ContainsKey(userId))
                 CacheData._cashViews.Add(userId, new Dictionary<string, ViewInfo>());
             if (!CacheData._currentViews.ContainsKey(userId))
                 CacheData._currentViews.Add(userId, null);
         }
+
+        /// <summary>
+        /// Метод возвращает ключ, которым кешируется представление
+        /// </summary>
+        /// <param name="recordId">Id сущности</param>
+        /// <param name="viewName">Название представления</param>
+        /// <returns></returns>
+        private static string GetCachedViewKey(Guid recordId, string viewName)
+            => $"{recordId}_{viewName}";
         #endregion
 
         class CacheData

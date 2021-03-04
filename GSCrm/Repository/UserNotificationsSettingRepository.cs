@@ -26,7 +26,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool SetNotSettingsToDefault(ModelStateDictionary modelState)
         {
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.InitNotSetting);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.InitNotSetting);
 
             // Инициализация настроек уведомлений значениями по умолчанию
             UserNotificationsSetting userNotSetting = context.UserNotificationsSettings.AsNoTracking().FirstOrDefault(i => i.UserId == currentUser.Id);
@@ -34,16 +34,16 @@ namespace GSCrm.Repository
             transaction.AddChange(userNotSetting, EntityState.Modified);
 
             // Попытка сделать коммит
-            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+            if (viewModelsTF.TryCommit(transaction, errors))
             {
-                viewModelsTransactionFactory.Close(transaction);
+                viewModelsTF.Close(transaction);
                 return true;
             }
 
             // Добавление ошибок при неудаче
             foreach (KeyValuePair<string, string> error in errors)
                 modelState.AddModelError(error.Key, error.Value);
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
         #endregion

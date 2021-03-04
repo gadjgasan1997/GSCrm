@@ -3,9 +3,9 @@ class ProductCategory {
     Initialize() {
         return new Promise((resolve, reject) => {
             let sourceId = $("#prodCatSettingsMenu").attr("data-source-id");
-            let getCategoryUrl = LocalizationManager.GetUri("initalizeProductCategory") + sourceId;
+            let getCategoryUrl = LocalizationManager.GetUri("initalizeProductCategory").replace("{id}", sourceId);
             let request = new AjaxRequests();
-            request.CommonGetRequest(getCategoryUrl).then(response => {
+            request.JsonGetRequest(getCategoryUrl).then(response => {
 
                 // Простановка пришедших параметров
                 if (!Utils.IsNullOrEmpty(response)) {
@@ -38,6 +38,7 @@ class ProductCategory {
 
     CreateGetRootData() {
         return {
+            OrganizationId: $("#organizationId").val(),
             Name: $("#createProdCatName").val(),
             Description: $("#createProdCatDesc").val()
         }
@@ -101,6 +102,7 @@ class ProductCategory {
     UpdateGetData() {
         return {
             Id: $("#prodCatSettingsMenu").attr("data-source-id"),
+            OrganizationId: $("#organizationId").val(),
             Name: $("#updateProdCatName").val(),
             Description: $("#updateProdCatDesc").val()
         }
@@ -184,30 +186,22 @@ class ProductCategory {
         let request = new AjaxRequests();
         
         // Запрос на применение поиска
-        request.CommonPostRequest(searchUrl, searchData).then(response => {
-
-            // Перерендеринг представления
-            let renderer = new ProductCategoriesRender();
-            renderer.RenderCategories(response["ProductCategoryViewModels"]).then(() => {
-
-                // Поиск названий категорий, содержащих введенное в поиск значение
-                // let searchProductCategoryName = $("#SearchProductCategoryName").val();
-                // if (!Utils.IsNullOrEmpty(searchProductCategoryName)) {
-
-                //     // Подсветка категорий цветом
-                //     $(".category-name").each((index, item) => {
-                //         let currentCategoryName = $(item).find(".label-md").text();
-                //         if (currentCategoryName.includes(searchProductCategoryName)) {
-                //             $(item).addClass("searched-category-name");
-                //         }
-                //     });
-                // }
+        request.CommonPostRequest(searchUrl, searchData)
+            .catch(response => {
+                Utils.DefaultErrorHandling(response["responseJSON"]);  
             })
-        })
+            .then(response => {
+
+                // Перерендеринг представления
+                let renderer = new ProductCategoriesRender();
+                renderer.RenderCategories(response["ProductCategoryViewModels"]);
+            })
     }
 
     SearchGetData() {
         return {
+            Id: $("#OrganizationId").val(),
+            OrganizationId: $("#OrganizationId").val(),
             SearchProductCategoryName: $("#SearchProductCategoryName").val(),
             SearchProductName: $("#SearchProductName").val(),
             MinConst: $("#prodMinCost").val(),

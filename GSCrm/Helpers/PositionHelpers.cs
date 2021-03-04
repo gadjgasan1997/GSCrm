@@ -1,12 +1,11 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
-using GSCrm.Repository;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace GSCrm.Helpers
 {
@@ -50,6 +49,7 @@ namespace GSCrm.Helpers
             => context.Positions.AsNoTracking().Where(pos => pos.ParentPositionId == positionViewModel.Id).ToList();
         #endregion
 
+        #region Actions
         public static void Lock(this Position position, PositionLockReason lockReason = PositionLockReason.None)
         {
             position.PositionStatus = PositionStatus.Lock;
@@ -61,5 +61,32 @@ namespace GSCrm.Helpers
             position.PositionStatus = PositionStatus.Active;
             position.PositionLockReason = PositionLockReason.None;
         }
+
+        public static PositionViewModel Refresh(this PositionViewModel positionViewModel, PositionViewModel cachedViewModel)
+        {
+            if (cachedViewModel == null)
+                return positionViewModel;
+
+            positionViewModel.SearchEmployeeInitialName = cachedViewModel.SearchEmployeeInitialName;
+            positionViewModel.SearchSubPositionName = cachedViewModel.SearchSubPositionName;
+            positionViewModel.SearchSubPositionPrimaryEmployee = cachedViewModel.SearchSubPositionPrimaryEmployee;
+            return positionViewModel;
+        }
+
+        public static void Normalize(this PositionViewModel positionViewModel)
+        {
+            positionViewModel.Name = positionViewModel.Name?.TrimStartAndEnd();
+            positionViewModel.ParentPositionName = positionViewModel.ParentPositionName?.TrimStartAndEnd();
+            positionViewModel.DivisionName = positionViewModel.DivisionName?.TrimStartAndEnd();
+            positionViewModel.PrimaryEmployeeInitialName = positionViewModel.PrimaryEmployeeInitialName?.TrimStartAndEnd();
+        }
+
+        public static void NormalizeSearch(this PositionViewModel positionViewModel)
+        {
+            positionViewModel.SearchEmployeeInitialName = positionViewModel.SearchEmployeeInitialName?.ToLower().TrimStartAndEnd();
+            positionViewModel.SearchSubPositionName = positionViewModel.SearchSubPositionName?.ToLower().TrimStartAndEnd();
+            positionViewModel.SearchSubPositionPrimaryEmployee = positionViewModel.SearchSubPositionPrimaryEmployee?.ToLower().TrimStartAndEnd();
+        }
+        #endregion
     }
 }

@@ -58,7 +58,7 @@
                                     <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SearchAddress")" />
                                 </div>
                                 <div class="col mb-3">
-                                    <a asp-controller="@ACCOUNT" asp-action="ClearAddressSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                                    <a asp-controller="@ACCOUNT" asp-action="ClearAddressSearch" asp-route-id="@Model.Id" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
                                 </div>
                                 <div class="col mb-3">
                                     <input type="button" data-toggle="modal" data-target="#accAddressCreateModal" class="btn btn-outline-primary" value="@resManager.GetString("CreateAccountAddress")" />

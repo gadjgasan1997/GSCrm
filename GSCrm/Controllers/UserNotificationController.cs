@@ -1,12 +1,12 @@
-﻿using GSCrm.Models;
+﻿using System;
+using System.Collections.Generic;
+using GSCrm.Data;
+using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System;
-using GSCrm.Data;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using static GSCrm.CommonConsts;
 
@@ -18,10 +18,6 @@ namespace GSCrm.Controllers
     {
         public UserNotificationController(ApplicationDbContext context, IServiceProvider serviceProvider) : base(context, serviceProvider)
         { }
-
-        [HttpGet("HasNoPermissionsForSee")]
-        public IActionResult HasNoPermissionsForSee()
-            => View($"{USER_NOT_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new UserNotificationsSettingViewModel());
 
         #region HasReedSign
         [HttpGet("MakeHasReed/{id}")]

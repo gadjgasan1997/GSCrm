@@ -61,6 +61,8 @@ else
         <div asp-validation-summary="All"></div>
         @if (Model.AccountStatus != AccountStatus.Lock)
         {
+            <input id="clearAccTeamManagementSearch" value="@Url.Content($"~/{ACC_MANAGER}/{Model.Id}/ClearAccTeamManagementSearch")" hidden="hidden" />
+            <input id="hasAccNotLegalAddress" value="@Url.Content($"~/{ACCOUNT}/{Model.Id}/HasAccNotLegalAddress")" hidden="hidden" />
             <div class="row">
                 <div class="col-xl form-group flex-grow-1 mb-0">
                     <input asp-for="AccountType" hidden="hidden" />
@@ -154,7 +156,7 @@ else
                                     </div>
                                     <div class="input-group-append change-url-btn">
                                         <div class="input-group-text">
-                                            <span class="icon-pencil" href="@Url.Content($"~/{ACCOUNT}/ChangeSite/{Model.Id}/")"></span>
+                                            <span class="icon-pencil" href="@Url.Content($"~/{ACCOUNT}/{Model.Id}/ChangeSite/")"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -222,7 +224,7 @@ else
                                     </div>
                                     <div class="input-group-append change-url-btn">
                                         <div class="input-group-text">
-                                            <span class="icon-pencil" href="@Url.Content($"~/{ACCOUNT}/ChangeSite/{Model.Id}/")"></span>
+                                            <span class="icon-pencil" href="@Url.Content($"~/{ACCOUNT}/{Model.Id}/ChangeSite/")"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -268,7 +270,7 @@ else
                     </div>
                     <div class="col text-center mt-3">
                         <input id="accTeamManagementBtn" type="button" data-toggle="modal" data-target="#accTeamManagementModal" class="btn btn-outline-primary" value="@resManager.GetString("TeamManagement")" />
-                        <input id="accTeamManagementUrl" hidden="hidden" href="@Url.Content($"~/{ACC_MANAGER}/InitializeAccTeam/")" />
+                        <input id="accTeamManagementUrl" hidden="hidden" href="@Url.Content($"~/{ACC_MANAGER}/{Model.Id}/GetManagers/")" />
                     </div>
                 </div>
             </div>

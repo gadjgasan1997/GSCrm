@@ -1,6 +1,5 @@
 ﻿using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Data;
 
 namespace GSCrm.Mapping
 {
@@ -23,7 +22,7 @@ namespace GSCrm.Mapping
         TDataModel OnModelUpdate(TViewModel viewModel);
 
         /// <summary>
-        /// Преобразует модель представления в модель данных
+        /// Преобразует модель данных в модель представления
         /// </summary>
         /// <param name="dataModel"></param>
         /// <returns></returns>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace GSCrm.Models.ViewModels
 {
@@ -9,6 +10,7 @@ namespace GSCrm.Models.ViewModels
         public Dictionary<string, List<ProductViewModel>> CategoriesProducts { get; set; }
             = new Dictionary<string, List<ProductViewModel>>() { };
 
+        public Guid OrganizationId { get; set; }
         public string SearchProductCategoryName { get; set; }
         public string SearchProductName { get; set; }
         public string MinConst { get; set; }

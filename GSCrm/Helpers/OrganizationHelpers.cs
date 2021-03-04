@@ -41,5 +41,47 @@ namespace GSCrm.Helpers
         public static List<ProductCategory> GetProductCategories(this Organization organization, ApplicationDbContext context)
             => context.ProductCategories.AsNoTracking().Where(prodCat => prodCat.OrganizationId == organization.Id).ToList();
         #endregion
+
+        public static OrganizationViewModel Refresh(this OrganizationViewModel orgViewModel, OrganizationViewModel cachedViewModel = null)
+        {
+            if (cachedViewModel == null)
+                return orgViewModel;
+
+            orgViewModel.SearchDivName = cachedViewModel.SearchDivName;
+            orgViewModel.SearchParentDivName = cachedViewModel.SearchParentDivName;
+            orgViewModel.SearchPosName = cachedViewModel.SearchPosName;
+            orgViewModel.SeacrhPositionDivName = cachedViewModel.SeacrhPositionDivName;
+            orgViewModel.SearchParentPosName = cachedViewModel.SearchParentPosName;
+            orgViewModel.SearchPrimaryEmployeeName = cachedViewModel.SearchPrimaryEmployeeName;
+            orgViewModel.SearchEmployeeName = cachedViewModel.SearchEmployeeName;
+            orgViewModel.SeacrhEmployeeDivName = cachedViewModel.SeacrhEmployeeDivName;
+            orgViewModel.SearchEmployeePrimaryPosName = cachedViewModel.SearchEmployeePrimaryPosName;
+            orgViewModel.SeacrhResponsibilityName = cachedViewModel.SeacrhResponsibilityName;
+            return orgViewModel;
+        }
+
+        public static void NormalizeSearch(this OrganizationsViewModel organizationsViewModel)
+        {
+            organizationsViewModel.SearchName = organizationsViewModel.SearchName?.ToLower().TrimStartAndEnd();
+        }
+
+        public static void Normalize(this OrganizationViewModel organizationViewModel)
+        {
+            organizationViewModel.Name = organizationViewModel.Name?.TrimStartAndEnd();
+        }
+
+        public static void NormalizeSearch(this OrganizationViewModel organizationViewModel)
+        {
+            organizationViewModel.SearchDivName = organizationViewModel.SearchDivName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SearchParentDivName = organizationViewModel.SearchParentDivName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SearchPosName = organizationViewModel.SearchPosName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SeacrhPositionDivName = organizationViewModel.SeacrhPositionDivName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SearchParentPosName = organizationViewModel.SearchParentPosName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SearchPrimaryEmployeeName = organizationViewModel.SearchPrimaryEmployeeName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SearchEmployeeName = organizationViewModel.SearchEmployeeName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SearchEmployeePrimaryPosName = organizationViewModel.SearchEmployeePrimaryPosName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SeacrhEmployeeDivName = organizationViewModel.SeacrhEmployeeDivName?.ToLower().TrimStartAndEnd();
+            organizationViewModel.SeacrhResponsibilityName = organizationViewModel.SeacrhResponsibilityName?.ToLower().TrimStartAndEnd();
+        }
     }
 }
