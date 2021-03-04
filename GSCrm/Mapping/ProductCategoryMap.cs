@@ -22,7 +22,7 @@ namespace GSCrm.Mapping
         public override ProductCategory OnModelCreate(ProductCategoryViewModel prodCatViewModel)
         {
             base.OnModelCreate(prodCatViewModel);
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             ProductCategory parentProductCategory = (ProductCategory)transaction.GetParameterValue("ParentProductCategory");
             return new ProductCategory()
             {

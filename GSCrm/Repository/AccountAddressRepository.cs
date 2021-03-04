@@ -24,7 +24,7 @@ namespace GSCrm.Repository
 
         #region Override Methods
         protected override bool RespsIsCorrectOnCreate(AccountAddressViewModel addressViewModel)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccAddressCreate", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccAddressCreate");
 
         protected override bool TryCreatePrepare(AccountAddressViewModel addressViewModel)
         {
@@ -37,7 +37,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(AccountAddressViewModel addressViewModel)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccAddressUpdate", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccAddressUpdate");
 
         protected override bool TryUpdatePrepare(AccountAddressViewModel addressViewModel)
         {
@@ -54,7 +54,17 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(AccountAddress accountAddress)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccAddressDelete", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccAddressDelete");
+
+        protected override void UpdateCacheOnDelete(AccountAddress accountAddress)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, accountAddress.AccountId, out Account account) &&
+                cachService.TryGetCachedEntity(currentUser, accountAddress.AccountId, out AccountViewModel accountViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, account);
+                cachService.CacheCurrentEntity(currentUser, accountViewModel);
+            }
+        }
 
         protected override bool TryDeletePrepare(AccountAddress accountAddress)
         {
@@ -126,12 +136,16 @@ namespace GSCrm.Repository
         /// <param name="addressViewModel"></param>
         private void CheckTypeOnCreate(AccountAddressViewModel addressViewModel)
         {
-            if (!TryCheckType(addressViewModel)) return;
-            AccountAddress accountAddress = (AccountAddress)transaction.GetParameterValue("AccountAddress");
-            if (accountAddress.AddressType == AddressType.Legal && !TryCheckLegalAddressUnique(accountAddress.Account))
+            if (TryCheckType(addressViewModel, out AddressType addressType))
             {
-                errors.Add("LegalAddressNotUnique", resManager.GetString("LegalAddressNotUnique"));
-                return;
+                // В случае, если тип создаваемого адреса является юридическим, и под клиентом уже есть юридический адрес, выводится ошибка уникальности
+                Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
+                if (addressType == AddressType.Legal && !TryCheckLegalAddressUnique(account))
+                {
+                    errors.Add("LegalAddressNotUnique", resManager.GetString("LegalAddressNotUnique"));
+                    return;
+                }
+                transaction.AddParameter("AddressType", addressType);
             }
         }
 
@@ -141,65 +155,32 @@ namespace GSCrm.Repository
         /// <param name="addressViewModel"></param>
         private void CheckTypeOnUpdate(AccountAddressViewModel addressViewModel)
         {
-            if (!TryCheckType(addressViewModel)) return;
-
-            // В случае, если тип изменяемого адреса является юридическим, и под клиентом уже есть юридический адрес, выводится ошибка уникальности
-            AccountAddress accountAddress = (AccountAddress)transaction.GetParameterValue("AccountAddress");
-            if (accountAddress.AddressType == AddressType.Legal && !TryCheckLegalAddressUnique(accountAddress.Account, addressViewModel.Id))
+            if (TryCheckType(addressViewModel, out AddressType addressType))
             {
-                errors.Add("LegalAddressNotUnique", resManager.GetString("LegalAddressNotUnique"));
-                return;
+                // В случае, если тип изменяемого адреса является юридическим, и под клиентом уже есть юридический адрес, выводится ошибка уникальности
+                Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
+                if (addressType == AddressType.Legal && !TryCheckLegalAddressUnique(account, addressViewModel.Id))
+                {
+                    errors.Add("LegalAddressNotUnique", resManager.GetString("LegalAddressNotUnique"));
+                    return;
+                }
+                transaction.AddParameter("NewAddressType", addressType);
             }
-            transaction.AddParameter("NewAddressType", accountAddress.AddressType);
         }
 
         /// <summary>
         /// Метод проверяет тип адреса
         /// </summary>
         /// <param name="addressViewModel"></param>
-        private bool TryCheckType(AccountAddressViewModel addressViewModel)
+        private bool TryCheckType(AccountAddressViewModel addressViewModel, out AddressType addressType)
         {
-            Guid accountId = Guid.Empty;
-            Account account = null;
-            AddressType? addressType = null;
-            InvokeIntermittinActions(errors, new List<Action>()
+            addressType = AddressType.None;
+            if (!Enum.TryParse(typeof(AddressType), addressViewModel.AddressType, out object type))
             {
-                () => {
-                    if (string.IsNullOrEmpty(addressViewModel.AccountId) || !Guid.TryParse(addressViewModel.AccountId, out Guid guid))
-                        errors.Add("AccountNotFound", resManager.GetString("AccountNotFound"));
-                    else accountId = guid;
-                },
-                () => {
-                    account = context.Accounts.AsNoTracking().Include(addr => addr.AccountAddresses).FirstOrDefault(i => i.Id == accountId);
-                    if (account == null)
-                        errors.Add("AccountNotFound", resManager.GetString("AccountNotFound"));
-                },
-                () => {
-                    if (!TryGetAddressType(addressViewModel.AddressType, ref addressType))
-                        errors.Add("AddressTypeWrong", resManager.GetString("AddressTypeWrong"));
-                }
-            });
-            if (errors.Any())
+                errors.Add("AddressTypeWrong", resManager.GetString("AddressTypeWrong"));
                 return false;
-            transaction.AddParameter("AccountAddress", new AccountAddress()
-            {
-                Account = account,
-                AddressType = (AddressType)addressType
-            });
-            return true;
-        }
-
-        /// <summary>
-        /// Метод пытается получить тип адреса из его строкого представления
-        /// </summary>
-        /// <param name="addressTypeString"></param>
-        /// <param name="addressTypeEnum"></param>
-        /// <returns></returns>
-        private bool TryGetAddressType(string addressTypeString, ref AddressType? addressTypeEnum)
-        {
-            if (!Enum.TryParse(typeof(AddressType), addressTypeString, out object addressType))
-                return false;
-            addressTypeEnum = (AddressType)addressType;
+            }
+            addressType = (AddressType)type;
             return true;
         }
 
@@ -230,12 +211,6 @@ namespace GSCrm.Repository
             Guid newLegalAddressId = default;
             InvokeIntermittinActions(errors, new List<Action>()
             {
-                // Поиск клиента
-                () => {
-                    if (!new AccountRepository(serviceProvider, context).TryGetItemById(addressViewModel.AccountId, out Account account))
-                        errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
-                    else transaction.AddParameter("Account", account);
-                },
                 // Попытка распарсить новый тип изменяемого адреса
                 () => {
                     if (!Enum.TryParse(typeof(AddressType), addressViewModel.CurrentAddressNewType, out object type))
@@ -260,7 +235,7 @@ namespace GSCrm.Repository
                     if (newLegalAddress == null)
                         errors.Add("AddressNotFound", resManager.GetString("AddressNotFound"));
                     else transaction.AddParameter("NewLegalAddress", newLegalAddress);
-                },
+                }
             });
             return !errors.Any();
         }
@@ -283,7 +258,7 @@ namespace GSCrm.Repository
                 transaction.AddChange(newLegalAddress, EntityState.Modified);
                 return true;
             }
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -296,17 +271,17 @@ namespace GSCrm.Repository
         public bool TryChangeLegalAddress(AccountAddressViewModel addressViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangeAccountLegalAddress, addressViewModel);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.ChangeAccountLegalAddress, addressViewModel);
 
             // Проверка полномочий
-            if (!new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccUpdate", transaction))
+            if (!new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccUpdate"))
                 AddHasNoPermissionsError(OperationType.ChangeAccountLegalAddress);
 
             // Валидация
             else if (TryChangeLegalAddressValidate(addressViewModel))
             {
                 // Изменение типа текущего юридического адреса
-                Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+                Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
                 AccountAddress oldLegalAddress = account.GetAddresses(context).FirstOrDefault(add => add.AddressType == AddressType.Legal);
                 oldLegalAddress.AddressType = (AddressType)transaction.GetParameterValue("NewAddressType");
                 transaction.AddChange(oldLegalAddress, EntityState.Modified);
@@ -317,15 +292,15 @@ namespace GSCrm.Repository
                 transaction.AddChange(newLegalAddress, EntityState.Modified);
 
                 // Попытка закоммитить
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return !errors.Any();
         }

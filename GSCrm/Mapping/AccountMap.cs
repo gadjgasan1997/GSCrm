@@ -1,15 +1,12 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Models.ViewTypes;
-using System;
-using System.Linq;
-using static GSCrm.CommonConsts;
-using Microsoft.EntityFrameworkCore;
 using GSCrm.Transactions;
 using GSCrm.Models.Enums;
-using System.Collections.Generic;
 
 namespace GSCrm.Mapping
 {
@@ -115,34 +112,6 @@ namespace GSCrm.Mapping
             return account;
         }
 
-        /// <summary>
-        /// Метод инициализирует поля модели списка клиентов
-        /// </summary>
-        /// <param name="accountsViewModel"></param>
-        public void InitializeAccountsViewModel(AccountsViewModel accountsViewModel)
-        {
-            // Проставление списка всех организаций, в которых состоит пользователь
-            List<Organization> organizations = context.UserOrganizations
-                .AsNoTracking().Include(org => org.Organization)
-                .Where(userOrg => userOrg.UserId == currentUser.Id && userOrg.Accepted)
-                .Select(org => org.Organization).ToList();
-            accountsViewModel.UserOrganizations = organizations.GetViewModelsFromData(new OrganizationMap(serviceProvider, context));
-
-            // Проставление основной организации
-            Organization primaryOrganization = organizations.FirstOrDefault(i => i.Id == currentUser.PrimaryOrganizationId);
-            if (primaryOrganization != null)
-                accountsViewModel.PrimaryOrganization = new OrganizationMap(serviceProvider, context).DataToViewModel(primaryOrganization);
-
-
-            // Проставление значений в поля фильтров
-            AccountsViewModel allAccsViewModel = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, ALL_ACCS);
-            AccountsViewModel currentAccsViewModel = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, CURRENT_ACCS);
-            accountsViewModel.AllAccountsSearchName = allAccsViewModel.AllAccountsSearchName;
-            accountsViewModel.AllAccountsSearchType = allAccsViewModel.AllAccountsSearchType;
-            accountsViewModel.CurrentAccountsSearchName = currentAccsViewModel.CurrentAccountsSearchName;
-            accountsViewModel.CurrentAccountsSearchType = currentAccsViewModel.CurrentAccountsSearchType;
-        }
-
         public override AccountViewModel DataToViewModel(Account account)
         {
             Organization organization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == account.OrganizationId);
@@ -166,89 +135,12 @@ namespace GSCrm.Mapping
         }
 
         /// <summary>
-        /// Метод обновляет данные клиента из кеша
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        /// <param name="currentUser"></param>
-        /// <param name="accountViewTypes"></param>
-        /// <returns></returns>
-        public AccountViewModel Refresh(AccountViewModel accountViewModel, User currentUser, params AccountViewType[] accountViewTypes)
-        {
-            accountViewTypes.ToList().ForEach(accountViewType =>
-            {
-                switch (accountViewType)
-                {
-                    // Восстановление данных поиска по контактам
-                    case AccountViewType.ACC_CONTACTS:
-                        AccountViewModel accContactsCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_CONTACTS);
-                        accountViewModel.SearchContactFullName = accContactsCash.SearchContactFullName;
-                        accountViewModel.SearchContactType = accContactsCash.SearchContactType;
-                        accountViewModel.SearchContactPhoneNumber = accContactsCash.SearchContactPhoneNumber;
-                        accountViewModel.SearchContactEmail = accContactsCash.SearchContactEmail;
-                        accountViewModel.SearchContactPrimary = accContactsCash.SearchContactPrimary;
-                        break;
-
-                    // Восстановление данных поиска по адресам
-                    case AccountViewType.ACC_ADDRESSES:
-                        AccountViewModel accAddressesCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_ADDRESSES);
-                        accountViewModel.SearchAddressCountry = accAddressesCash.SearchAddressCountry;
-                        accountViewModel.SearchAddressRegion = accAddressesCash.SearchAddressRegion;
-                        accountViewModel.SearchAddressCity = accAddressesCash.SearchAddressCity;
-                        accountViewModel.SearchAddressStreet = accAddressesCash.SearchAddressStreet;
-                        accountViewModel.SearchAddressHouse = accAddressesCash.SearchAddressHouse;
-                        accountViewModel.SearchAddressType = accAddressesCash.SearchAddressType;
-                        break;
-
-                    // Восстановление данных поиска по банковским реквизитам
-                    case AccountViewType.ACC_INVOICES:
-                        AccountViewModel accInvoicesCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_INVOICES);
-                        accountViewModel.SearchInvoiceBankName = accInvoicesCash.SearchInvoiceBankName;
-                        accountViewModel.SearchInvoiceCity = accInvoicesCash.SearchInvoiceCity;
-                        accountViewModel.SearchInvoiceCheckingAccount = accInvoicesCash.SearchInvoiceCheckingAccount;
-                        accountViewModel.SearchInvoiceCorrespondentAccount = accInvoicesCash.SearchInvoiceCorrespondentAccount;
-                        accountViewModel.SearchInvoiceBIC = accInvoicesCash.SearchInvoiceBIC;
-                        accountViewModel.SearchInvoiceSWIFT = accInvoicesCash.SearchInvoiceSWIFT;
-                        break;
-
-                    // Восстановление данных поиска по сделкам
-                    case AccountViewType.ACC_QUOTES:
-                        AccountViewModel accQuotesCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_QUOTES);
-                        break;
-
-                    // Восстановление данных поиска по документам
-                    case AccountViewType.ACC_DOCS:
-                        AccountViewModel accDocumentsCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_DOCS);
-                        break;
-
-                    // Восстановление данных поиска по менеджерам
-                    // На данный момент поиск по менеджерам отсутсвует
-                    case AccountViewType.ACC_MANAGERS:
-                        break;
-
-                    // Восстановление данных поиска по списку всех сотрудников организации, создавшей клиента
-                    case AccountViewType.ACC_TEAM_ALL_EMPLOYEES:
-                        AccountViewModel accountAllManagersCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
-                        break;
-
-                    // Восстановление данных поиска для команды по клиенту
-                    case AccountViewType.ACC_TEAM_SELECTED_EMPLOYEES:
-                        AccountViewModel accountSelectedManagersCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
-                        break;
-
-                    default:
-                        break;
-                }
-            });
-            return accountViewModel;
-        }
-
-        /// <summary>
         /// Метод разлочивает клиента, принимая на вход сотрудника, выбранного как основного менеджера по клиенту
         /// </summary>
         public void UnlockAccount(Employee newManager)
         {
             SetTransaction(OperationType.UnlockAccount);
-            Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             AccountManager accountManager = account.GetAccTeam(context).FirstOrDefault(i => i.ManagerId == newManager.Id);
 
             // Если произошло так, что у клиента был в списке этот менеджер, но не был основным, то его не надо добавлять.

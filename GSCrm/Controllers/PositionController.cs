@@ -1,17 +1,13 @@
-﻿using GSCrm.Mapping;
+﻿using System;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
-using System.Collections.Generic;
 using static GSCrm.CommonConsts;
-using static GSCrm.Repository.PositionRepository;
-using GSCrm.Data;
-using GSCrm.Models.Enums;
-using GSCrm.Helpers;
 
 namespace GSCrm.Controllers
 {
@@ -24,40 +20,36 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("ListOfPositions/{pageNumber}")]
-        public IActionResult Positions(int pageNumber)
-        {
-            OrganizationViewModel orgViewModel = (OrganizationViewModel)cachService.GetMainEntity(currentUser, MainEntityType.OrganizationView);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            organizationRepository.SetViewInfo(POSITIONS, pageNumber);
-            organizationRepository.AttachPositions(orgViewModel);
-            return View($"{ORG_VIEWS_REL_PATH}{ORGANIZATION}.cshtml", orgViewModel);
-        }
-
         [HttpGet("{id}")]
-        public ViewResult Position(string id)
-        {
-            // Проверки на наличие должности и доступа к ней у пользователя
-            PositionRepository positionRepository = new PositionRepository(serviceProvider, context);
-            OrganizationRepository organizationRepository = new OrganizationRepository(serviceProvider, context);
-            if (!positionRepository.TryGetItemById(id, out Position position))
-                return View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel());
-            if (!organizationRepository.HasPermissionsForSeeItem(position.GetOrganization(context)))
-                return View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel());
-            if (!positionRepository.HasPermissionsForSeeItem(position))
-                return View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel());
+        public IActionResult Position(string id) => GetPosition(id);
 
-            // Если должность и доступ имеются
-            PositionMap positionMap = new PositionMap(serviceProvider, context);
-            PositionViewModel posViewModel = positionMap.DataToViewModelExt(position);
-            posViewModel = positionMap.Refresh(posViewModel, currentUser, PosAllViewTypes);
-            positionRepository.AttachEmployees(posViewModel);
-            positionRepository.AttachSubPositions(posViewModel);
-            cachService.SetCurrentView(currentUser.Id, POSITION);
-            cachService.CachePosition(currentUser, position, posViewModel);
-            return View(POSITION, posViewModel);
+        #region Child Entities
+        /// <summary>
+        /// Получение списка дочерних должностей
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/PositionSubPositions/{pageNumber}")]
+        public IActionResult PositionSubPositions(string id, int pageNumber)
+        {
+            repository.SetViewInfo(id, POS_SUB_POSS, pageNumber);
+            return GetPosition(id);
         }
 
+        /// <summary>
+        /// Получение списка сотрудников, занимающих должность
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/PositionEmployees/{pageNumber}")]
+        public IActionResult PositionEmployees(string id, int pageNumber)
+        {
+            repository.SetViewInfo(id, POS_EMPLOYEES, pageNumber);
+            return GetPosition(id);
+        }
+        #endregion
+
+        #region Actions
         [HttpPost("ChangeDivision")]
         public IActionResult ChangeDivision(PositionViewModel positionViewModel)
         {
@@ -81,33 +73,45 @@ namespace GSCrm.Controllers
             }
             return Json("");
         }
+        #endregion
 
+        #region Searching
         [HttpPost("SearchEmployee")]
         public IActionResult SearchEmployee(PositionViewModel positionViewModel)
         {
-            cachService.CacheItem(currentUser.Id, POS_EMPLOYEES, positionViewModel);
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            new PositionRepository(serviceProvider, context).SearchEmployee(positionViewModel);
+            return RedirectToAction(POSITION, POSITION, new { id = positionViewModel.Id });
         }
 
-        [HttpGet("ClearSearchEmployee")]
-        public IActionResult ClearSearchEmployee()
+        [HttpGet("{id}/ClearSearchEmployee")]
+        public IActionResult ClearSearchEmployee(string id)
         {
             new PositionRepository(serviceProvider, context).ClearSearchEmployee();
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            return RedirectToAction(POSITION, POSITION, new { id });
         }
 
         [HttpPost("SearchSubPosition")]
         public IActionResult SearchSubPosition(PositionViewModel positionViewModel)
         {
-            cachService.CacheItem(currentUser.Id, POS_SUB_POSS, positionViewModel);
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            new PositionRepository(serviceProvider, context).SearchSubPosition(positionViewModel);
+            return RedirectToAction(POSITION, POSITION, new { id = positionViewModel.Id });
         }
 
-        [HttpGet("ClearSearchSubPosition")]
-        public IActionResult ClearSearchSubPosition()
+        [HttpGet("{id}/ClearSearchSubPosition")]
+        public IActionResult ClearSearchSubPosition(string id)
         {
             new PositionRepository(serviceProvider, context).ClearSearchSubPosition();
-            return RedirectToAction(POSITION, POSITION, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.PositionView) });
+            return RedirectToAction(POSITION, POSITION, new { id });
         }
+        #endregion
+
+        #region Addition Methods
+        private IActionResult GetPosition(string positionId)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, positionId, out Position position))
+                return View(POSITION, repository.LoadView(position));
+            return View("Error");
+        }
+        #endregion
     }
 }

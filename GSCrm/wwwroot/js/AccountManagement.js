@@ -224,7 +224,7 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamAllEmployees(response["teamAllEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderAllEmployeesFilterFields(response);
                     resolve();
                 })
         });
@@ -235,6 +235,7 @@ class AccountManagement {
      */
     GetAllEmployeesSearchData() {
         return {
+            Id: $("#accountId").val(),
             OrganizationId: $("#organizationId").val(),
             SearchAllManagersName: $("#SearchAllManagersName").val(),
             SearchAllManagersDivision: $("#SearchAllManagersDivision").val(),
@@ -256,7 +257,7 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamSelectedEmployees(response["teamSelectedEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderSelectedEmployeesFilterFields(response);
                     resolve();
                 })
         });
@@ -267,6 +268,7 @@ class AccountManagement {
      */
     GetSelectedEmployeesSearchData() {
         return {
+            Id: $("#accountId").val(),
             OrganizationId: $("#organizationId").val(),
             SearchSelectedManagersName: $("#SearchSelectedManagersName").val(),
             SearchSelectedManagersPosition: $("#SearchSelectedManagersPosition").val(),
@@ -287,7 +289,7 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamAllEmployees(response["teamAllEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderAllEmployeesFilterFields(response);
                     resolve();
                 })
         });
@@ -306,25 +308,32 @@ class AccountManagement {
                 .fail(error => reject(error))
                 .done(response => {
                     this.RenderTeamSelectedEmployees(response["teamSelectedEmployees"]);
-                    this.RenderEmployeesFilterFields(response);
+                    this.RenderSelectedEmployeesFilterFields(response);
                     resolve();
                 })
         });
     }
 
     /**
-     * Метод заполняет поля фильтров значениями, пришедшими с сервера
-     * @param {*} response Ответ, пришедший с сервера с данными для фильтров
+     * Метод заполняет значениями, пришедшими с сервера, поля фильтра по добавленным в команду по клиенту сотрудникам
+     * @param {*} response Ответ, пришедший с сервера с данными для фильтра
      */
-    RenderEmployeesFilterFields(response) {
-        let teamAllEmployeesVM = response["teamAllEmployeesVM"];
-        let teamSelectedEmployeesVM = response["teamSelectedEmployeesVM"];
-        $("#SearchAllManagersName").val(teamAllEmployeesVM["searchAllManagersName"]);
-        $("#SearchAllManagersDivision").val(teamAllEmployeesVM["searchAllManagersDivision"]);
-        $("#SearchAllManagersPosition").val(teamAllEmployeesVM["searchAllManagersPosition"]);
-        $("#SearchSelectedManagersName").val(teamSelectedEmployeesVM["searchSelectedManagersName"]);
-        $("#SearchSelectedManagersPosition").val(teamSelectedEmployeesVM["searchSelectedManagersPosition"]);
-        $("#SearchSelectedManagersPhone").val(teamSelectedEmployeesVM["searchSelectedManagersPhone"]);
+    RenderSelectedEmployeesFilterFields(response) {
+        let accountViewModel = response["accountViewModel"];
+        $("#SearchSelectedManagersName").val(accountViewModel["searchSelectedManagersName"]);
+        $("#SearchSelectedManagersPosition").val(accountViewModel["searchSelectedManagersPosition"]);
+        $("#SearchSelectedManagersPhone").val(accountViewModel["searchSelectedManagersPhone"]);
+    }
+
+    /**
+     * Метод заполняет значениями, пришедшими с сервера, поля фильтра по всем сотрудникам организации
+     * @param {*} response Ответ, пришедший с сервера с данными для фильтра
+     */
+    RenderAllEmployeesFilterFields(response) {
+        let accountViewModel = response["accountViewModel"];
+        $("#SearchAllManagersName").val(accountViewModel["searchAllManagersName"]);
+        $("#SearchAllManagersDivision").val(accountViewModel["searchAllManagersDivision"]);
+        $("#SearchAllManagersPosition").val(accountViewModel["searchAllManagersPosition"]);
     }
 
     /**
@@ -473,7 +482,7 @@ class AccountManagement {
     ClearAccTeamManagementSearch() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let clearAccTeamSearchUrl = LocalizationManager.GetUri("clearAccTeamSearch");
+            let clearAccTeamSearchUrl = $("#clearAccTeamManagementSearch").val();
             request.CommonGetRequest(clearAccTeamSearchUrl)
                 .fail(() => reject(error))
                 .done(() => resolve())
@@ -520,7 +529,7 @@ class AccountManagement {
      */
     SynchronizeAccTeamGetData() {
         return {
-            AccountId: $("#accountId").val(),
+            Id: $("#accountId").val(),
             PrimaryManagerId: AccountManagement.primaryManagerIdCash,
             ManagersToAdd: AccountManagement.managersToAdd,
             ManagersToRemove: AccountManagement.managersToRemove

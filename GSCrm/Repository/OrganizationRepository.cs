@@ -1,19 +1,18 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Mapping;
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
-using GSCrm.Models.ViewTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Transactions;
 using GSCrm.Models.Enums;
+using GSCrm.Notifications;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.CollectionsUtils;
-using GSCrm.Notifications;
 
 namespace GSCrm.Repository
 {
@@ -21,11 +20,6 @@ namespace GSCrm.Repository
     {
         #region Declarations
         private const int ORGANIZATION_NAME_MIN_LENGTH = 3;
-        /// <summary>
-        /// Все типы представлений, связанные с организацией
-        /// </summary>
-        public static OrganizationViewType[] OrgAllViewTypes => new OrganizationViewType[] {
-            OrganizationViewType.DIVISIONS, OrganizationViewType.POSITIONS, OrganizationViewType.EMPLOYEES, OrganizationViewType.RESPONSIBILITIES };
         #endregion
 
         #region Constructs
@@ -38,9 +32,9 @@ namespace GSCrm.Repository
         public override bool HasPermissionsForSeeItem(Organization organization)
         {
             if (organization == null) return false;
-            cachService.CacheItem(currentUser.Id, $"{PC}Organization", organization);
+            cachService.AddOrUpdate(currentUser, $"{PC}Organization", organization);
             List<UserOrganization> userOrganizations = context.UserOrganizations.Where(userOrg => userOrg.UserId == currentUser.Id).ToList();
-            cachService.CacheItems(currentUser.Id, $"{PC}UserOrganizations", userOrganizations);
+            cachService.AddOrUpdate(currentUser, $"{PC}UserOrganizations", userOrganizations);
             return userOrganizations.Select(userOrg => userOrg.OrganizationId).Contains(organization.Id);
         }
 
@@ -48,6 +42,7 @@ namespace GSCrm.Repository
 
         protected override bool TryCreatePrepare(OrganizationViewModel orgViewModel)
         {
+            orgViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckOrganizationLength(orgViewModel),
@@ -59,64 +54,109 @@ namespace GSCrm.Repository
         protected override bool RespsIsCorrectOnDelete(Organization organization) => organization.OwnerId == currentUser.Id;
 
         protected override void HasNotPermissionsForDelete()
-            => errors.Add("AnotherOrgIsReadonly", resManager.GetString("AnotherOrgIsReadonly").Replace("&OrgName", recordToRemove.Name));
+            => errors.Add("AnotherOrgIsReadonly", resManager.GetString("AnotherOrgIsReadonly").Replace("&OrgName", RecordToRemove.Name));
+
+        public OrganizationsViewModel LoadOrganizationsView()
+        {
+            OrganizationsViewModel orgsViewModel = cachService.GetCachedCurrentEntity<OrganizationsViewModel>(currentUser);
+            AttachOrganizations(orgsViewModel);
+            return orgsViewModel;
+        }
+
+        public override OrganizationViewModel LoadView(Organization organization)
+        {
+            OrganizationViewModel orgViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+
+            // Прикрепление всех сущностей
+            AttachDivisions(orgViewModel);
+            AttachPositions(orgViewModel);
+            AttachEmployees(orgViewModel);
+            AttachResponsibilities(orgViewModel);
+
+            // Кеширование модели
+            cachService.SetCurrentView(currentUser.Id, ORGANIZATION);
+            cachService.CacheEntity(currentUser, orgViewModel);
+            cachService.CacheCurrentEntity(currentUser, orgViewModel);
+            return orgViewModel;
+        }
         #endregion
 
         #region Searching
-        /// <summary>
-        /// Метод очищает поиск по организациям
-        /// </summary>
+        public void Search(OrganizationsViewModel organizationsViewModel)
+        {
+            organizationsViewModel.NormalizeSearch();
+            OrganizationsViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationsViewModel>(currentUser);
+            cachedViewModel.SearchName = organizationsViewModel.SearchName;
+        }
+
         public void ClearSearch()
         {
-            OrganizationsViewModel orgsViewModelCash = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
-            orgsViewModelCash.SearchName = default;
-            cachService.CacheItem(currentUser.Id, ORGANIZATIONS, orgsViewModelCash);
+            OrganizationsViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationsViewModel>(currentUser);
+            cachedViewModel.SearchName = default;
         }
 
-        /// <summary>
-        /// Метод очищает кеш для модели с подразделениями
-        /// </summary>
+        public void SearchDivision(OrganizationViewModel orgViewModel)
+        {
+            orgViewModel.NormalizeSearch();
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SearchDivName = orgViewModel.SearchDivName;
+            cachedViewModel.SearchParentDivName = orgViewModel.SearchParentDivName;
+        }
+
         public void ClearDivisionSearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, DIVISIONS);
-            orgViewModelCash.SearchDivName = default;
-            orgViewModelCash.SearchParentDivName = default;
-            cachService.CacheItem(currentUser.Id, DIVISIONS, orgViewModelCash);
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SearchDivName = default;
+            cachedViewModel.SearchParentDivName = default;
         }
 
-        /// <summary>
-        /// Метод очищает кеш для модели с должностями
-        /// </summary>
+        public void SearchPosition(OrganizationViewModel orgViewModel)
+        {
+            orgViewModel.NormalizeSearch();
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SearchPosName = orgViewModel.SearchPosName;
+            cachedViewModel.SeacrhPositionDivName = orgViewModel.SeacrhPositionDivName;
+            cachedViewModel.SearchParentPosName = orgViewModel.SearchParentPosName;
+            cachedViewModel.SearchPrimaryEmployeeName = orgViewModel.SearchPrimaryEmployeeName;
+        }
+
         public void ClearPositionSearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, POSITIONS);
-            orgViewModelCash.SearchPosName = default;
-            orgViewModelCash.SeacrhPositionDivName = default;
-            orgViewModelCash.SearchPrimaryEmployeeName = default;
-            orgViewModelCash.SearchParentPosName = default;
-            cachService.CacheItem(currentUser.Id, POSITIONS, orgViewModelCash);
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SearchPosName = default;
+            cachedViewModel.SeacrhPositionDivName = default;
+            cachedViewModel.SearchPrimaryEmployeeName = default;
+            cachedViewModel.SearchParentPosName = default;
         }
 
-        /// <summary>
-        /// Метод очищает кеш для модели с сотрудниками
-        /// </summary>
+        public void SearchEmployee(OrganizationViewModel orgViewModel)
+        {
+            orgViewModel.NormalizeSearch();
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SearchEmployeeName = orgViewModel.SearchEmployeeName;
+            cachedViewModel.SeacrhEmployeeDivName = orgViewModel.SeacrhEmployeeDivName;
+            cachedViewModel.SearchEmployeePrimaryPosName = orgViewModel.SearchEmployeePrimaryPosName;
+        }
+
         public void ClearEmployeeSearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, EMPLOYEES);
-            orgViewModelCash.SearchEmployeeName = default;
-            orgViewModelCash.SearchEmployeePrimaryPosName = default;
-            orgViewModelCash.SeacrhEmployeeDivName = default;
-            cachService.CacheItem(currentUser.Id, EMPLOYEES, orgViewModelCash);
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SearchEmployeeName = default;
+            cachedViewModel.SearchEmployeePrimaryPosName = default;
+            cachedViewModel.SeacrhEmployeeDivName = default;
         }
 
-        /// <summary>
-        /// Метод очищает кеш для модели с полномочиями
-        /// </summary>
+        public void SearchResponsibility(OrganizationViewModel orgViewModel)
+        {
+            orgViewModel.NormalizeSearch();
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SeacrhResponsibilityName = orgViewModel.SeacrhResponsibilityName;
+        }
+
         public void ClearResponsibilitySearch()
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, RESPONSIBILITIES);
-            orgViewModelCash.SeacrhResponsibilityName = default;
-            cachService.CacheItem(currentUser.Id, RESPONSIBILITIES, orgViewModelCash);
+            OrganizationViewModel cachedViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
+            cachedViewModel.SeacrhResponsibilityName = default;
         }
         #endregion
 
@@ -125,29 +165,27 @@ namespace GSCrm.Repository
         /// Метод добавляет список моделей представления организаций
         /// </summary>
         /// <param name="orgsViewModel"></param>
-        public void AttachOrganizations(ref OrganizationsViewModel orgsViewModel)
-        {
-            orgsViewModel.OrganizationViewModels = context.GetOrganizations(currentUser)
-                .MapToViewModels(new OrganizationMap(serviceProvider, context), GetLimitedList);
-        }
+        public void AttachOrganizations(OrganizationsViewModel orgsViewModel)
+            => orgsViewModel.OrganizationViewModels = context.GetOrganizations(currentUser)
+                .MapToViewModels(orgsViewModel, new OrganizationMap(serviceProvider, context), (orgsViewModel, organizations) =>
+                    GetLimitedList(organizations, orgsViewModel));
 
         /// <summary>
         /// Метод ограничивает список организаций по существующему фильтру
         /// </summary>
         /// <param name="organizations"></param>
         /// <returns></returns>
-        private List<Organization> GetLimitedList(List<Organization> organizations)
+        private List<Organization> GetLimitedList(List<Organization> organizations, OrganizationsViewModel orgsViewModel)
         {
-            List<Organization> limitedOrgs = GetLimitedOrgsList(organizations);
-            LimitListByPageNumber(ORGANIZATIONS, ref limitedOrgs);
+            List<Organization> limitedOrgs = GetLimitedOrgsList(organizations, orgsViewModel);
+            LimitViewItemsByPageNumber(ORGANIZATIONS, ref limitedOrgs);
             return limitedOrgs;
         }
 
-        private List<Organization> GetLimitedOrgsList(List<Organization> orgsToLimit)
+        private List<Organization> GetLimitedOrgsList(List<Organization> orgsToLimit, OrganizationsViewModel orgsViewModel)
         {
-            OrganizationsViewModel orgsViewModelCash = cachService.GetCachedItem<OrganizationsViewModel>(currentUser.Id, ORGANIZATIONS);
-            if (!string.IsNullOrEmpty(orgsViewModelCash.SearchName))
-                orgsToLimit = orgsToLimit.Where(n => n.Name.ToLower().Contains(orgsViewModelCash.SearchName)).ToList();
+            if (!string.IsNullOrEmpty(orgsViewModel.SearchName))
+                orgsToLimit = orgsToLimit.Where(n => n.Name.ToLower().Contains(orgsViewModel.SearchName)).ToList();
             return orgsToLimit;
         }
         #endregion
@@ -158,18 +196,16 @@ namespace GSCrm.Repository
         /// </summary>
         /// <returns></returns>
         public void AttachDivisions(OrganizationViewModel orgViewModel)
-        {
-            orgViewModel.Divisions = orgViewModel.GetDivisions(context)
-                .MapToViewModels(new DivisionMap(serviceProvider, context), GetLimitedDivisionsList);
-        }
+            => orgViewModel.Divisions = orgViewModel.GetDivisions(context)
+                .MapToViewModels(orgViewModel, new DivisionMap(serviceProvider, context), (orgViewModel, divisions) =>
+                    GetLimitedDivisionsList(orgViewModel, divisions));
 
-        private List<Division> GetLimitedDivisionsList(List<Division> divisions)
+        private List<Division> GetLimitedDivisionsList(OrganizationViewModel orgViewModel, List<Division> divisions)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, DIVISIONS);
             List<Division> limitedDivisions = divisions;
-            LimitDivByName(orgViewModelCash, ref limitedDivisions);
-            LimitDivByParent(orgViewModelCash, divisions, ref limitedDivisions);
-            LimitListByPageNumber(DIVISIONS, ref limitedDivisions);
+            LimitDivByName(orgViewModel, ref limitedDivisions);
+            LimitDivByParent(orgViewModel, divisions, ref limitedDivisions);
+            LimitViewItemsByPageNumber(orgViewModel.Id, DIVISIONS, ref limitedDivisions);
             return limitedDivisions;
         }
 
@@ -211,27 +247,18 @@ namespace GSCrm.Repository
         /// </summary>
         /// <returns></returns>
         public void AttachPositions(OrganizationViewModel orgViewModel)
-        {
-            try
-            {
-                orgViewModel.Positions = orgViewModel.GetAllPositions(context)
-                    .MapToViewModels(new PositionMap(serviceProvider, context), GetLimitedPositionsList);
-            }
-            catch(Exception ex)
-            {
-                var test = ex;
-            }
-        }
+            => orgViewModel.Positions = orgViewModel.GetAllPositions(context)
+                .MapToViewModels(orgViewModel, new PositionMap(serviceProvider, context), (orgViewModel, positions) =>
+                    GetLimitedPositionsList(orgViewModel, positions));
 
-        private List<Position> GetLimitedPositionsList(List<Position> positions)
+        private List<Position> GetLimitedPositionsList(OrganizationViewModel orgViewModel, List<Position> positions)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, POSITIONS);
             List<Position> limitedPositions = positions;
-            LimitPosByName(orgViewModelCash, ref limitedPositions);
-            LimitPosByDivision(orgViewModelCash, ref limitedPositions);
-            LimitPosByPrimaryEmployee(orgViewModelCash, ref limitedPositions);
-            LimitPosByParent(orgViewModelCash, ref limitedPositions);
-            LimitListByPageNumber(POSITIONS, ref limitedPositions);
+            LimitPosByName(orgViewModel, ref limitedPositions);
+            LimitPosByDivision(orgViewModel, ref limitedPositions);
+            LimitPosByPrimaryEmployee(orgViewModel, ref limitedPositions);
+            LimitPosByParent(orgViewModel, ref limitedPositions);
+            LimitViewItemsByPageNumber(orgViewModel.Id, POSITIONS, ref limitedPositions);
             return limitedPositions;
         }
 
@@ -307,19 +334,17 @@ namespace GSCrm.Repository
         /// </summary>
         /// <returns></returns>
         public void AttachEmployees(OrganizationViewModel orgViewModel)
-        {
-            orgViewModel.Employees = orgViewModel.GetAllEmployees(context)
-                .MapToViewModels(new EmployeeMap(serviceProvider, context), GetLimitedEmployeesList);
-        }
+            => orgViewModel.Employees = orgViewModel.GetAllEmployees(context)
+                .MapToViewModels(orgViewModel, new EmployeeMap(serviceProvider, context), (orgViewModel, employees) =>
+                    GetLimitedEmployeesList(orgViewModel, employees));
 
-        private List<Employee> GetLimitedEmployeesList(List<Employee> employees)
+        private List<Employee> GetLimitedEmployeesList(OrganizationViewModel orgViewModel, List<Employee> employees)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, EMPLOYEES);
             List<Employee> limitedEmployees = employees;
-            LimitEmpByName(orgViewModelCash, ref limitedEmployees);
-            LimitEmpByPrimaryPosition(orgViewModelCash, ref limitedEmployees);
-            LimitEmpByDivision(orgViewModelCash, ref limitedEmployees);
-            LimitListByPageNumber(EMPLOYEES, ref limitedEmployees);
+            LimitEmpByName(orgViewModel, ref limitedEmployees);
+            LimitEmpByPrimaryPosition(orgViewModel, ref limitedEmployees);
+            LimitEmpByDivision(orgViewModel, ref limitedEmployees);
+            LimitViewItemsByPageNumber(orgViewModel.Id, EMPLOYEES, ref limitedEmployees);
             return limitedEmployees;
         }
 
@@ -377,17 +402,15 @@ namespace GSCrm.Repository
         /// </summary>
         /// <returns></returns>
         public void AttachResponsibilities(OrganizationViewModel orgViewModel)
-        {
-            orgViewModel.Responsibilities = orgViewModel.GetResponsibilities(context)
-                .MapToViewModels(new ResponsibilityMap(serviceProvider, context), GetLimitedResponsibilitiesList);
-        }
+            => orgViewModel.Responsibilities = orgViewModel.GetResponsibilities(context)
+                .MapToViewModels(orgViewModel, new ResponsibilityMap(serviceProvider, context), (orgViewModel, responsibilities) =>
+                    GetLimitedResponsibilitiesList(orgViewModel, responsibilities));
 
-        private List<Responsibility> GetLimitedResponsibilitiesList(List<Responsibility> responsibilities)
+        private List<Responsibility> GetLimitedResponsibilitiesList(OrganizationViewModel orgViewModel, List<Responsibility> responsibilities)
         {
-            OrganizationViewModel orgViewModelCash = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, RESPONSIBILITIES);
             List<Responsibility> limitedResponsibilities = responsibilities;
-            LimitRespByName(orgViewModelCash, ref limitedResponsibilities);
-            LimitListByPageNumber(RESPONSIBILITIES, ref limitedResponsibilities);
+            LimitRespByName(orgViewModel, ref limitedResponsibilities);
+            LimitViewItemsByPageNumber(orgViewModel.Id, RESPONSIBILITIES, ref limitedResponsibilities);
             return limitedResponsibilities;
         }
 
@@ -401,7 +424,6 @@ namespace GSCrm.Repository
             if (!string.IsNullOrEmpty(orgViewModelCash.SeacrhResponsibilityName))
                 responsibilitiesToLimit = responsibilitiesToLimit.Where(n => n.Name.ToLower().Contains(orgViewModelCash.SeacrhResponsibilityName)).ToList();
         }
-
         #endregion
 
         #region Validations
@@ -412,7 +434,7 @@ namespace GSCrm.Repository
         /// <param name="orgViewModel"></param>
         private void CheckOrganizationLength(OrganizationViewModel orgViewModel)
         {
-            orgViewModel.Name = orgViewModel.Name.TrimStartAndEnd();
+            orgViewModel.Name = orgViewModel.Name;
             if (string.IsNullOrEmpty(orgViewModel.Name) || orgViewModel.Name.Length < ORGANIZATION_NAME_MIN_LENGTH)
                 errors.Add("OrganizationNameLength", resManager.GetString("OrganizationNameLength"));
         }
@@ -423,7 +445,7 @@ namespace GSCrm.Repository
         /// <param name="orgViewModel"></param>
         private void CheckOrganizationNotExists(OrganizationViewModel orgViewModel)
         {
-            string orgName = orgViewModel.Name.TrimStartAndEnd().ToLower();
+            string orgName = orgViewModel.Name;
             if (context.Organizations.AsNoTracking().FirstOrDefault(org => org.OwnerId == currentUser.Id && org.Name == orgName) != null)
                 errors.Add("OrganizationAlreadyExists", resManager.GetString("OrganizationAlreadyExists"));
         }
@@ -450,6 +472,7 @@ namespace GSCrm.Repository
                     userOrganization = context.UserOrganizations.AsNoTracking()
                         .Include(org => org.Organization)
                         .FirstOrDefault(userOrg => userOrg.UserId == currentUser.Id && userOrg.OrganizationId == organizationId);
+
                     // Ошибка если не найдена
                     if (userOrganization == null)
                         errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
@@ -463,6 +486,7 @@ namespace GSCrm.Repository
                 // Поиск сотрудника в организации
                 () => {
                     currentEmployee = context.GetCurrentEmployee(userOrganization.Organization, Guid.Parse(currentUser.Id));
+
                     // Ошибка если не найден
                     if (currentEmployee == null)
                         errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
@@ -506,14 +530,17 @@ namespace GSCrm.Repository
         /// Метод проверяет, имеет ли сотрудник разрешение на выполнение поданной на вход операции для всех сущностей, относящихся к организации
         /// </summary>
         /// <param name="actionName"></param>
-        /// <param name="transaction"></param>
         /// <returns></returns>
-        public bool CheckPermissionForOrgGroup(string actionName, ITransaction transaction)
+        public bool CheckPermissionForOrgGroup(string actionName)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
-            if (!currentUser.NeedCheckResps(currentOrganization)) return true;
-            Employee currentEmployee = context.GetCurrentEmployee(currentOrganization, Guid.Parse(currentUser.Id));
-            return currentEmployee != null && currentEmployee.HasPermissionFor(actionName, context);
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            if (currentOrganization != null)
+            {
+                if (!currentUser.NeedCheckResps(currentOrganization)) return true;
+                Employee currentEmployee = context.GetCurrentEmployee(currentOrganization, Guid.Parse(currentUser.Id));
+                return currentEmployee != null && currentEmployee.HasPermissionFor(actionName, context);
+            }
+            return false;
         }
 
         /// <summary>
@@ -524,7 +551,7 @@ namespace GSCrm.Repository
         public bool TryChangePrimaryOrg(string newPrimaryOrgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangePrimaryOrganization);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.ChangePrimaryOrganization);
 
             // Проверки
             CheckOrganizationExists(newPrimaryOrgId);
@@ -532,15 +559,15 @@ namespace GSCrm.Repository
             {
                 currentUser.PrimaryOrganizationId = (Guid)transaction.GetParameterValue("Organiztionid");
                 transaction.AddChange(currentUser, EntityState.Modified);
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакрции и выход
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -554,7 +581,7 @@ namespace GSCrm.Repository
         public bool TryLeaveOrg(string orgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.LeaveOrganization);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.LeaveOrganization);
 
             // Вызов всех проверок
             if (TryLeaveOrgValidate(orgId))
@@ -591,16 +618,16 @@ namespace GSCrm.Repository
                 }
 
                 // Попытка коммита
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
             errors = this.errors;
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -613,7 +640,7 @@ namespace GSCrm.Repository
         public bool TryAcceptInvite(string orgId, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.AcceptInvite);
 
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
@@ -633,18 +660,18 @@ namespace GSCrm.Repository
                 CreateOrgNotificationsSetting(transaction);
 
                 // Попытка коммита
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
                     // Удаление уведомления в случае успеха
                     RemoveOrgIniteNot();
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     return true;
                 }
             }
 
             // Закрытие транзакции и выход
             errors = this.errors;
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -655,7 +682,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public void RejectInvite(string orgId)
         {
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.AcceptInvite);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.AcceptInvite);
 
             // Вызов всех проверок
             CheckOrganizationExists(orgId);
@@ -673,8 +700,8 @@ namespace GSCrm.Repository
             RemoveOrgIniteNot();
 
             // Попытка сделать коммит и закрытие транзакции
-            viewModelsTransactionFactory.TryCommit(transaction, errors);
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Success);
+            viewModelsTF.TryCommit(transaction, errors);
+            viewModelsTF.Close(transaction, TransactionStatus.Success);
         }
 
         /// <summary>
@@ -718,9 +745,12 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool HasPermissionsForSeeOrgItem()
         {
-            Organization organization = cachService.GetCachedItem<Organization>(currentUser.Id, $"{PC}Organization");
-            List<UserOrganization> userOrganizations = cachService.GetCachedItems<UserOrganization>(currentUser.Id, $"{PC}UserOrganizations");
-            return userOrganizations.Where(userOrg => userOrg.Accepted).Select(userOrg => userOrg.OrganizationId).Contains(organization.Id);
+            if (cachService.TryGetValue(currentUser, $"{PC}Organization", out object orgValue) && orgValue is Organization organization &&
+                cachService.TryGetValue(currentUser, $"{PC}UserOrganizations", out object userOrgsValue) && userOrgsValue is List<UserOrganization> userOrganizations)
+            {
+                return userOrganizations.Where(userOrg => userOrg.Accepted).Select(userOrg => userOrg.OrganizationId).Contains(organization.Id);
+            }
+            return false;
         }
         #endregion
     }

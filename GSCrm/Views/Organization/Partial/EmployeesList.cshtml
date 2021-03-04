@@ -70,9 +70,10 @@
         @{
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
+                Id = Model.Id,
                 ItemsCount = employeesCount,
-                ViewInfo = cachService.GetViewInfo(currentUserId, EMPLOYEES),
-                ControllerName = EMPLOYEE,
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, EMPLOYEES),
+                ControllerName = ORGANIZATION,
                 ActionName = EMPLOYEES
             });
         }

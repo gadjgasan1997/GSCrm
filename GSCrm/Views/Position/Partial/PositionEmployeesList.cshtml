@@ -1,11 +1,10 @@
 ﻿@using static GSCrm.CommonConsts
-@using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
 @inject ApplicationDbContext context
 @inject ResManager resManager
 @model PositionViewModel
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @{
     int positionEmployeesCount = Model.PositionEmployees.Count;
@@ -51,9 +50,10 @@
         @{
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
-                ItemsCount = Model.PositionEmployees.Count(),
-                ViewInfo = cachService.GetViewInfo(currentUserId, POS_EMPLOYEES),
-                ControllerName = POS_EMPLOYEE,
+                Id = Model.Id,
+                ItemsCount = positionEmployeesCount,
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, POS_EMPLOYEES),
+                ControllerName = POSITION,
                 ActionName = POS_EMPLOYEES
             });
         }

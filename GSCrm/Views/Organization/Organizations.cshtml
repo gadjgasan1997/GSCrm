@@ -36,7 +36,7 @@
         <input id="PrimaryOrganizationId" hidden="hidden" value="@currentUser.PrimaryOrganizationId" />
     </div>
 
-    <form id="createOrgForm" method="post" asp-controller="@ORGANIZATION" asp-action="Search">
+    <form id="createOrgForm" method="post" asp-controller="Root" asp-action="SearchOrganizations">
         <div class="row justify-content-around">
             <div class="col-lg mb-4 mb-lg-0 flex-grow-1">
                 <div class="input-group">
@@ -54,7 +54,7 @@
                 <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("Search")" />
             </div>
             <div class="col-auto col-lg mb-4 mb-lg-0 text-center text-lg-right flex-grow-0">
-                <a asp-controller="@ORGANIZATION" asp-action="ClearSearch" id="clearOrgSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                <a asp-controller="Root" asp-action="ClearOrganizationsSearch" id="clearOrgSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
             </div>
             <div class="col-auto col-lg mb-4 mb-lg-0 text-center text-lg-right flex-grow-0">
                 <input type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#organizationModal" value="@resManager.GetString("CreateOrganizationLabel")" />
@@ -131,7 +131,7 @@
         {
             ItemsCount = organizations.Count(),
             ViewInfo = cachService.GetViewInfo(currentUserId, ORGANIZATIONS),
-            ControllerName = ORGANIZATION,
+            ControllerName = "Root",
             ActionName = ORGANIZATIONS
         });
     }

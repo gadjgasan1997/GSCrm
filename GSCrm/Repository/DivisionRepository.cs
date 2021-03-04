@@ -21,21 +21,33 @@ namespace GSCrm.Repository
 
         #region Override Methods
         protected override bool RespsIsCorrectOnCreate(DivisionViewModel divisionViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("DivCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("DivCreate");
 
         protected override bool TryCreatePrepare(DivisionViewModel divisionViewModel)
         {
+            divisionViewModel.Normalize();
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckDivisionLength(divisionViewModel),
-                () => CheckParentDivisionExists(divisionViewModel),
-                () => CheckDivisionNotExists(divisionViewModel)
+                () => CheckParentDivisionExists(divisionViewModel, currentOrganization),
+                () => CheckDivisionNotExists(divisionViewModel, currentOrganization)
             });
             return !errors.Any();
         }
 
+        protected override void UpdateCacheOnDelete(Division division)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, division.OrganizationId, out Organization organization) &&
+                cachService.TryGetCachedEntity(currentUser, division.OrganizationId, out OrganizationViewModel organizationViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, organization);
+                cachService.CacheCurrentEntity(currentUser, organizationViewModel);
+            }
+        }
+
         protected override bool RespsIsCorrectOnDelete(Division division)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("DivDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("DivDelete");
         #endregion
 
         #region Validations
@@ -45,7 +57,6 @@ namespace GSCrm.Repository
         /// <param name="divisionViewModel"></param>
         private void CheckDivisionLength(DivisionViewModel divisionViewModel)
         {
-            divisionViewModel.Name = divisionViewModel.Name.TrimStartAndEnd();
             if (string.IsNullOrEmpty(divisionViewModel.Name) || divisionViewModel.Name.Length < DIVISION_NAME_MIN_LENGTH)
                 errors.Add("DivisionNameLength", resManager.GetString("DivisionNameLength"));
         }
@@ -54,9 +65,9 @@ namespace GSCrm.Repository
         /// Проверка на наличие подразделения с таким же названием в этой организации
         /// </summary>
         /// <param name="divisionViewModel"></param>
-        private void CheckDivisionNotExists(DivisionViewModel divisionViewModel)
+        /// <param name="currentOrganization"></param>
+        private void CheckDivisionNotExists(DivisionViewModel divisionViewModel, Organization currentOrganization)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             List<Division> divisions = currentOrganization.GetDivisions(context);
 
             // Если у нового подразделения есть родительское, ограничение списка по id родителя
@@ -76,9 +87,9 @@ namespace GSCrm.Repository
         /// Проверка, что в организации существует подразделение с таким названием
         /// </summary>
         /// <param name="divisionViewModel"></param>
-        private void CheckParentDivisionExists(DivisionViewModel divisionViewModel)
+        /// <param name="currentOrganization"></param>
+        private void CheckParentDivisionExists(DivisionViewModel divisionViewModel, Organization currentOrganization)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             Division parentDivision = currentOrganization.GetDivisions(context).FirstOrDefault(n => n.Name == divisionViewModel.ParentDivisionName);
             if (!string.IsNullOrEmpty(divisionViewModel.ParentDivisionName) && parentDivision == null)
             {

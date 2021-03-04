@@ -5,15 +5,23 @@ class EmployeeResponsibilityManagement {
     /** ћетод инициализирует попап управлени€ полномочи€ми сотрудника */
     InitializeResps() {
         return new Promise((resolve, reject) => {
-            let empRespsUrl = $("#employeeForm").find("#initializeRespsUrl").attr("href");
-            let request = new AjaxRequests();
-            request.CommonGetRequest(empRespsUrl)
-                .fail(error => reject(error))
-                .done(response => {
-                    this.ResetLists();
-                    this.Render(response);
-                    resolve(response);
-                });
+            
+            // очистка фильтрации в модельном окне
+            this.ClearEmpRespManagementSearch().then(() => {
+
+                // ѕолучение и рендеринг списка полномочий
+                let empRespsUrl = $("#employeeForm").find("#initializeRespsUrl").attr("href");
+                let request = new AjaxRequests();
+                request.CommonGetRequest(empRespsUrl)
+                    .fail(error => reject(error))
+                    .done(response => {
+                        this.ResetLists();
+                        this.Render(response);
+                        this.RenderAllSearchFields(response);
+                        this.RenderSelectedSearchFields(response);
+                        resolve(response);
+                    });
+            })
         });
     }
 
@@ -59,14 +67,21 @@ class EmployeeResponsibilityManagement {
     }
 
     /**
-     * ћетод заполн€ет пол€ фильтров пришедшими с сервера значени€ми
+     * ћетод заполн€ет пол€ фильтров по всем полномочи€м организации пришедшими с сервера значени€ми
      * @param {*} response 
      */
-    RenderSearchFields(response) {
-        let allRespsModel = response["allResponsibilitiesVM"];
-        let selectedRespsModel = response["selectedResponsibilitiesVM"];
-        $("#SearchAllRespName").val(allRespsModel["searchAllRespName"]);
-        $("#SearchSelectedRespName").val(selectedRespsModel["searchSelectedRespName"]);
+    RenderAllSearchFields(response) {
+        let employeeViewModel = response["employeeViewModel"];
+        $("#SearchAllRespName").val(employeeViewModel["searchAllRespName"]);
+    }
+
+    /**
+     * ћетод заполн€ет пол€ фильтров по выбранным полномочи€м сотрудника пришедшими с сервера значени€ми
+     * @param {*} response 
+     */
+    RenderSelectedSearchFields(response) {
+        let employeeViewModel = response["employeeViewModel"];
+        $("#SearchSelectedRespName").val(employeeViewModel["searchSelectedRespName"]);
     }
 
     /**
@@ -154,7 +169,7 @@ class EmployeeResponsibilityManagement {
                 .done(response => {
                     $("#allResps tbody").empty();
                     this.RenderAllResps(response["allResponsibilitiesVMs"]);
-                    this.RenderSearchFields(response);
+                    this.RenderAllSearchFields(response);
                     resolve();
                 })
         });
@@ -163,6 +178,7 @@ class EmployeeResponsibilityManagement {
     /** ¬озвращает данные, необходимые при поиске по всем полномочи€м организации */
     GetAllRespsSearchData() {
         return {
+            Id: $("#employeeId").val(),
             SearchAllRespName: $("#SearchAllRespName").val()
         }
     }
@@ -181,7 +197,7 @@ class EmployeeResponsibilityManagement {
                 .done(response => {
                     $("#allResps tbody").empty();
                     this.RenderAllResps(response["allResponsibilitiesVMs"]);
-                    this.RenderSearchFields(response);
+                    this.RenderAllSearchFields(response);
                     resolve();
                 })
         });
@@ -202,6 +218,7 @@ class EmployeeResponsibilityManagement {
                 .done(response => {
                     $("#selectedResps tbody").empty();
                     this.RenderSelectedResps(response["selectedResponsibilitiesVMs"]);
+                    this.RenderSelectedSearchFields(response);
                     resolve();
                 })
         });
@@ -210,6 +227,7 @@ class EmployeeResponsibilityManagement {
     /** ¬озвращает данные, необходимые при поиске по выбранным полномочи€м сотрудника */
     GetSelectedRespsSearchData() {
         return {
+            Id: $("#employeeId").val(),
             SearchSelectedRespName: $("#SearchSelectedRespName").val()
         }
     }
@@ -228,7 +246,7 @@ class EmployeeResponsibilityManagement {
                 .done(response => {
                     $("#selectedResps tbody").empty();
                     this.RenderSelectedResps(response["selectedResponsibilitiesVMs"]);
-                    this.RenderSearchFields(response);
+                    this.RenderSelectedSearchFields(response);
                     resolve();
                 })
         });
@@ -267,7 +285,7 @@ class EmployeeResponsibilityManagement {
     ClearEmpRespManagementSearch() {
         return new Promise((resolve, reject) => {
             let request = new AjaxRequests();
-            let clearEmpRespSearch = LocalizationManager.GetUri("clearEmpRespSearch");
+            let clearEmpRespSearch = $("#clearResponsibilityManagementSearch").val();
             request.CommonGetRequest(clearEmpRespSearch)
                 .fail(() => reject(error))
                 .done(() => resolve())
@@ -328,18 +346,14 @@ class EmployeeResponsibilityManagement {
             // «апрос подтверждени€ на закрытие, в случае успеха обнуление переменных и закрытие окна
             Swal.fire(MessageManager.Invoke("NotCommitModalClosedConfirmation")).then(dialogResult => {
                 if (dialogResult.value) {
-                    this.ClearEmpRespManagementSearch().then(() => {
-                        this.ClearEmpRespsChangesHistory();
-                        $(event.currentTarget).modal("hide");
-                    });
+                    this.ClearEmpRespsChangesHistory();
+                    $(event.currentTarget).modal("hide");
                 }
             });
         }
 
         // »наче осуществл€етс€ перезагрузка страницы
-        else {
-            this.ClearEmpRespManagementSearch().then(() => location.reload());
-        }
+        else location.reload();
     }
 
     /**
@@ -369,7 +383,8 @@ class EmployeeResponsibilityManagement {
     /** ћетод возвращает данные, необходимые при синхронизации полномочий */
     SynchronizeRespsGetData() {
         return {
-            EmployeeId: $("#employeeId").val(),
+            Id: $("#employeeId").val(),
+            OrganizationId: $("#OrganizationId").val(),
             ResponsibilitiesToAdd: EmployeeResponsibilityManagement.responsibilitiesToAdd,
             ResponsibilitiesToRemove: EmployeeResponsibilityManagement.responsibilitiesToRemove
         }

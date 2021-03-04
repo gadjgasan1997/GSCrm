@@ -1,8 +1,7 @@
-﻿using GSCrm.Models;
+﻿using System;
+using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
-using static GSCrm.CommonConsts;
 
 namespace GSCrm.Repository
 {
@@ -10,14 +9,9 @@ namespace GSCrm.Repository
         where TDataModel : BaseDataModel, new()
         where TViewModel : BaseViewModel, new()
     {
-        /// <summary>
-        /// Новая созданная запись
-        /// </summary>
         TDataModel NewRecord { get; }
-        /// <summary>
-        /// Измененная запись
-        /// </summary>
         TDataModel ChangedRecord { get; }
+        TDataModel RecordToRemove { get; }
         /// <summary>
         /// Метод проверяет, имеет ли текущий пользователь право на просмотр выбранного элемента
         /// </summary>
@@ -46,12 +40,31 @@ namespace GSCrm.Repository
         /// <returns></returns>
         bool TryDelete(string id, ModelStateDictionary modelState, User currentUser = null);
         /// <summary>
-        /// Устанавливает константы, отвечающие за номер страницы(currentPageNumber), 
-        /// количество отображдаемых элементов(skipItemsCount)
-        /// и количество шагов для пропуска элементов(skipSteps)
-        /// <param name="viewName"></param>
-        /// <param name="pageNumber"></param>
+        /// Метод устанавливает информацию о представлении
+        /// </summary>
+        /// <param name="viewName">Название представления</param>
+        /// <param name="pageNumber">Номер страницы</param>
         void SetViewInfo(string viewName, int pageNumber);
+        /// <summary>
+        /// Метод устанавливает информацию о частичном представлении
+        /// </summary>
+        /// <param name="mainRecordId">Id записи основной сущности</param>
+        /// <param name="partialViewName">Название частичного представления</param>
+        /// <param name="pageNumber">Номер страницы</param>
+        void SetViewInfo(Guid mainRecordId, string partialViewName, int pageNumber);
+        /// <summary>
+        /// Метод устанавливает информацию о частичном представлении
+        /// </summary>
+        /// <param name="mainRecordId">Id записи основной сущности</param>
+        /// <param name="partialViewName">Название частичного представления</param>
+        /// <param name="pageNumber">Номер страницы</param>
+        void SetViewInfo(string mainRecordId, string partialViewName, int pageNumber);
+        /// <summary>
+        /// Метод выполняет все необходимые подготовление и загружает представление
+        /// </summary>
+        /// <param name="dataModel"></param>
+        /// <returns></returns>
+        TViewModel LoadView(TDataModel dataModel);
         /// <summary>
         /// Методы пытаются найти сущность и, в случае успеха, возвращают ее
         /// </summary>

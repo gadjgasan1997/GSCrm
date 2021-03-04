@@ -20,5 +20,11 @@ namespace GSCrm.Helpers
             prodCatViewModel.Name = prodCatViewModel.Name?.TrimStartAndEnd();
             prodCatViewModel.Description = prodCatViewModel.Description?.TrimStartAndEnd();
         }
+
+        public static void NormalizeSearch(this ProductCategoriesViewModel prodCatsViewModel)
+        {
+            prodCatsViewModel.SearchProductName = prodCatsViewModel.SearchProductName?.ToLower().TrimStartAndEnd();
+            prodCatsViewModel.SearchProductCategoryName = prodCatsViewModel.SearchProductCategoryName?.ToLower().TrimStartAndEnd();
+        }
     }
 }

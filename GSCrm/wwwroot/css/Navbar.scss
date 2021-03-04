@@ -149,62 +149,6 @@
     }
 }
 
-.register-form {
-    position: relative;
-    width: 800px;
-    margin-right: auto;
-    margin-left: auto;
-
-    .register-nav {
-        .nav-item {
-            cursor: pointer;
-            user-select: none;
-            width: 50%;
-            text-align: center;
-
-            a {
-                color: black
-            }
-        }
-    }
-
-    .login-body {
-        border: 1px solid lightgray;
-        border-top: none;
-        padding: 20px;
-        min-height: 400px;
-
-        #login {
-            .user-avatar {
-                text-align: center;
-                color: grey;
-                font-size: 120px;
-                text-align: center
-            }
-        }
-
-        #login, #signup {
-            form {
-                .form-group:last-of-type .col:last-child {
-                    text-align: right;
-                }
-
-                .form-group {
-                    .under-field-error {
-                        overflow-wrap: break-word;
-                        margin-top: 20px;
-                        margin-left: -10px
-                    }
-
-                    .col {
-                        width: 50%;
-                    }
-                }
-            }
-        }
-    }
-}
-
 .main-nav {
     justify-content: flex-end;
 

@@ -15,5 +15,11 @@ namespace GSCrm.Helpers
             => context.Positions.AsNoTracking().Where(divId => divId.DivisionId == division.Id).ToList();
         public static List<Employee> GetEmployees(this Division division, ApplicationDbContext context)
             => context.Employees.AsNoTracking().Where(divId => divId.DivisionId == division.Id).ToList();
+
+        public static void Normalize(this DivisionViewModel divisionViewModel)
+        {
+            divisionViewModel.Name = divisionViewModel.Name?.TrimStartAndEnd();
+            divisionViewModel.ParentDivisionName = divisionViewModel.ParentDivisionName?.TrimStartAndEnd();
+        }
     }
 }

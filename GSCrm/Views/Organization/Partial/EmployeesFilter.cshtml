@@ -30,7 +30,7 @@
                             <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")" />
                         </div>
                         <div class="col-auto text-center flex-grow-0">
-                            <a asp-controller="@ORGANIZATION" asp-action="ClearEmployeeSearch" id="clearEmpSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                            <a asp-controller="@ORGANIZATION" asp-action="ClearEmployeeSearch" asp-route-id="@Model.Id" id="clearEmpSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
                         </div>
                     </div>
                 </form>

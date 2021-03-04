@@ -93,7 +93,7 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="selectedEmployeesSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchSelectedManagers", ACC_MANAGER)" />
+                                               data-href="@Url.Action("SearchSelectedManagers", ACC_MANAGER, new { accountId = Model.Id })" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearSelectedEmployeesSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"

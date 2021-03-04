@@ -59,11 +59,10 @@ namespace GSCrm.Helpers
         }
 
         /// <summary>
-        /// Методы преобразует список моделей уровня данных в список моделей отображения, предварительно ограничивая их делегатом "limitingFunc"
+        /// Метод преобразует список моделей уровня данных в список моделей отображения, предварительно ограничивая их делегатом <paramref name="limitingFunc"/>
         /// </summary>
         /// <typeparam name="TViewModel">Тип списка моделей уровня представления</typeparam>
         /// <typeparam name="TDataModel">Тип списка моделей уровня данных</typeparam>
-        /// <typeparam name="TMap">Тип преобразователя между уровнем данных и уровнем уотображения</typeparam>
         /// <param name="dataModels">Список моделей уровня данных</param>
         /// <param name="limitingFunc">Действие, ограничивающее коллекцию уровня данных перед ее преобразованием в коллекцию уровня отображения</param>
         /// <returns name="viewModels">Список моделей уровня отображения</returns>
@@ -78,9 +77,36 @@ namespace GSCrm.Helpers
             if (dataModels?.Count > 0)
             {
                 limitingFunc(dataModels).ForEach(dataModel =>
-                {
-                    viewModels.Add(map.DataToViewModel(dataModel));
-                });
+                    viewModels.Add(map.DataToViewModel(dataModel)));
+            }
+            return viewModels;
+        }
+
+        /// <summary>
+        /// Метод преобразует список моделей уровня данных в список моделей отображения, предварительно ограничивая их делегатом <paramref name="limitingFunc"/>
+        /// </summary>
+        /// <typeparam name="TDataModel">Тип списка моделей уровня данных</typeparam>
+        /// <typeparam name="TViewModel">Тип списка моделей уровня представления</typeparam>
+        /// <typeparam name="TParentViewModel">Тип списка моделей уровня представления, являющийся родительским по отношению к <typeparamref name="TViewModel"/></typeparam>
+        /// <param name="dataModels">Список моделей уровня данных</param>
+        /// <param name="parentEntity">Родительской для списка элементов <paramref name="dataModels"/> сущность</param>
+        /// <param name="limitingFunc">Действие, ограничивающее коллекцию уровня данных перед ее преобразованием в коллекцию уровня отображения</param>
+        /// <returns name="viewModels">Список моделей уровня отображения</returns>
+        /// <returns></returns>
+        public static List<TViewModel> MapToViewModels<TDataModel, TViewModel, TParentViewModel>(
+            this List<TDataModel> dataModels,
+            TParentViewModel parentEntity,
+            IMap<TDataModel, TViewModel> map,
+            Func<TParentViewModel, List<TDataModel>, List<TDataModel>> limitingFunc)
+                where TDataModel : BaseDataModel, new()
+                where TViewModel : BaseViewModel, new()
+                where TParentViewModel : BaseViewModel, new()
+        {
+            List<TViewModel> viewModels = new List<TViewModel>();
+            if (dataModels?.Count > 0)
+            {
+                limitingFunc(parentEntity, dataModels).ForEach(dataModel =>
+                    viewModels.Add(map.DataToViewModel(dataModel)));
             }
             return viewModels;
         }
@@ -96,9 +122,7 @@ namespace GSCrm.Helpers
             if (dataModels?.Count > 0)
             {
                 dataModels.Where(limitingFunc).ToList().ForEach(dataModel =>
-                {
-                    viewModels.Add(map.DataToViewModel(dataModel));
-                });
+                    viewModels.Add(map.DataToViewModel(dataModel)));
             }
             return viewModels;
         }
@@ -120,9 +144,7 @@ namespace GSCrm.Helpers
             if (dataModels?.Count > 0)
             {
                 dataModels.ForEach(dataModel =>
-                {
-                    viewModels.Add(map.DataToViewModel(dataModel));
-                });
+                    viewModels.Add(map.DataToViewModel(dataModel)));
             }
             return viewModels;
         }

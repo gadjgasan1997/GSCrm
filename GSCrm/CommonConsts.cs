@@ -13,9 +13,8 @@
         public const string PROD_CAT_VIEWS_REL_PATH = "~/Views/" + PROD_CAT + "/";
         public const string ACC_VIEWS_REL_PATH = "~/Views/" + ACCOUNT + "/";
         public const string QT_VIEWS_REL_PATH = "~/Views/" + QUOTE + "/";
-        public const string NOT_VIEWS_REL_PATH = "~/Views/" + NOTIFICATION + "/";
         public const string USER_NOT_VIEWS_REL_PATH = "~/Views/" + USER_NOT + "/";
-        public const string NOT_SETTING_VIEWS_REL_PATH = "~/Views/" + NOT_SETTING + "/";
+        public const string NOT_SETTING_VIEWS_REL_PATH = "~/Views/" + NOTS_SETTING + "/";
         public const string AUTH = "Auth";
         public const string USER = "User";
 
@@ -96,12 +95,14 @@
         // Уведомление
         public const string USER_NOT = "UserNotification";
         public const string USER_NOTS = "UserNotifications";
-        public const string NOTIFICATION = "Notification";
         public const string NOTIFICATIONS = "Notifications";
-        public const string NOT_SETTING = "NotificationsSetting";
-        public const string NOT_SETTINGS = "NotificationsSettings";
-        public const string USER_NOT_SETTING = "UserNotificationsSetting";
-        public const string USER_NOT_SETTINGS = "UsersNotificationsSettings";
+        public const string NOTS_SETTING = "NotificationsSetting";
+        public const string NOTS_SETTINGS = "NotificationsSettings";
+        public const string USER_NOTS_SETTING = "UserNotificationsSetting";
+        public const string USER_NOTS_SETTINGS = "UsersNotificationsSettings";
+        public const string ORG_NOTS_SETTING = "OrgNotificationsSetting";
+        public const string ORG_NOTS_SETTINGS = "OrgNotificationsSettings";
+        public const string ORGS_NOTS_SETTINGS = "OrgsNotificationsSettings";
 
         // Прочие
         public const string REGION_KEY = "Region";
@@ -114,6 +115,5 @@
         public const int DEFAULT_ITEMS_COUNT = 10;
         public const int DEFAULT_MIN_PAGE_NUMBER = 1;
         public const int DEFAULT_PAGE_STEP = 1;
-        public const int DEFAULT_BREAK_COUNTER = 5;
     }
 }

@@ -510,6 +510,7 @@
         [
             ["AccountManagerNotFound",
             "EmployeeNotExists",
+            "EmployeeAlreadyAdded",
             "AccountManagerIsLocked",
             "AccountManagerIsNonActive"],
             {

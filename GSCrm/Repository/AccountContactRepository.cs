@@ -1,13 +1,12 @@
-﻿using GSCrm.Models;
-using GSCrm.Models.ViewModels;
-using System;
-using GSCrm.Data;
-using System.Collections.Generic;
-using static GSCrm.Utils.CollectionsUtils;
-using GSCrm.Validators;
+﻿using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using GSCrm.Data;
+using GSCrm.Models;
+using GSCrm.Validators;
 using GSCrm.Models.Enums;
+using GSCrm.Models.ViewModels;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
@@ -19,32 +18,33 @@ namespace GSCrm.Repository
 
         #region Override Methods
         protected override bool RespsIsCorrectOnCreate(AccountContactViewModel contactViewModel)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccContactCreate", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccContactCreate");
 
         protected override bool TryCreatePrepare(AccountContactViewModel contactViewModel) => CommonChecks(contactViewModel);
 
         protected override bool RespsIsCorrectOnUpdate(AccountContactViewModel contactViewModel)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccContactUpdate", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccContactUpdate");
 
         protected override bool TryUpdatePrepare(AccountContactViewModel contactViewModel) => CommonChecks(contactViewModel);
 
         protected override bool RespsIsCorrectOnDelete(AccountContact accountContact)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccContactDelete", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccContactDelete");
+
+        protected override void UpdateCacheOnDelete(AccountContact accountContact)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, accountContact.AccountId, out Account account) &&
+                cachService.TryGetCachedEntity(currentUser, accountContact.AccountId, out AccountViewModel accountViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, account);
+                cachService.CacheCurrentEntity(currentUser, accountViewModel);
+            }
+        }
 
         protected override bool TryDeletePrepare(AccountContact accountContact)
         {
-            Account account = context.Accounts.AsNoTracking().FirstOrDefault(i => i.Id == accountContact.AccountId);
-            InvokeIntermittinActions(errors, new List<Action>()
-            {
-                () => {
-                    if (account == null)
-                        errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
-                },
-                () => {
-                    if (account.PrimaryContactId == accountContact.Id && account.AccountType == AccountType.Individual)
-                        errors.Add("PrimaryIndividualContactIsReadonly", resManager.GetString("PrimaryIndividualContactIsReadonly"));
-                }
-            });
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
+            if (account.PrimaryContactId == accountContact.Id && account.AccountType == AccountType.Individual)
+                errors.Add("PrimaryIndividualContactIsReadonly", resManager.GetString("PrimaryIndividualContactIsReadonly"));
             return !errors.Any();
         }
         #endregion

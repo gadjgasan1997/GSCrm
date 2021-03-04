@@ -1,4 +1,7 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Mapping;
 using GSCrm.Models;
@@ -6,9 +9,6 @@ using GSCrm.Models.ViewModels;
 using GSCrm.Transactions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using static GSCrm.CommonConsts;
 
 namespace GSCrm.Repository
@@ -45,21 +45,6 @@ namespace GSCrm.Repository
         protected override void UpdateAddErrors(ModelStateDictionary modelState) { }
         #endregion
 
-        #region Attach Settings
-        public void AttachSettings(ref AllNotificationsSettingsViewModel settingsViewModel)
-        {
-            settingsViewModel.OrgNotificationsSettingViewModels = context.GetNotificationsSettings(currentUser)
-                .MapToViewModels(map, GetLimitList);
-        }
-
-        private List<OrgNotificationsSetting> GetLimitList(List<OrgNotificationsSetting> settings)
-        {
-            List<OrgNotificationsSetting> limitedSettings = settings;
-            LimitListByPageNumber(NOT_SETTINGS, ref limitedSettings);
-            return limitedSettings;
-        }
-        #endregion
-
         #region Other
         /// <summary>
         /// Метод обновляет настройки уведомлений для организаций
@@ -71,7 +56,6 @@ namespace GSCrm.Repository
         {
             if (notificationsSettings.OrgNotificationsSettingViewModels != null)
             {
-
                 // Обновление настроек уведомлений у всех организаций в цикле
                 foreach (OrgNotificationsSettingViewModel notificationsSetting in notificationsSettings.OrgNotificationsSettingViewModels)
                 {
@@ -95,7 +79,7 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool SetNotSettingsToDefault(ModelStateDictionary modelState)
         {
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.InitNotSetting);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.InitNotSetting);
 
             // Инициализация настроек уведомлений значениями по умолчанию
             context.GetNotificationsSettings(currentUser).ForEach(orgNotSetting =>
@@ -105,17 +89,24 @@ namespace GSCrm.Repository
             });
 
             // Попытка сделать коммит
-            if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+            if (viewModelsTF.TryCommit(transaction, errors))
             {
-                viewModelsTransactionFactory.Close(transaction);
+                viewModelsTF.Close(transaction);
                 return true;
             }
 
             // Добавление ошибок при неудаче
             foreach (KeyValuePair<string, string> error in errors)
                 modelState.AddModelError(error.Key, error.Value);
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
+        }
+
+        public List<OrgNotificationsSetting> GetLimitList(List<OrgNotificationsSetting> settings)
+        {
+            List<OrgNotificationsSetting> limitedSettings = settings;
+            LimitViewItemsByPageNumber(ORGS_NOTS_SETTINGS, ref limitedSettings);
+            return limitedSettings;
         }
         #endregion
     }

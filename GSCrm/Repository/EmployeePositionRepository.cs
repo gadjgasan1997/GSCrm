@@ -5,10 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GSCrm.CommonConsts;
-using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Data;
 using GSCrm.Transactions;
+using GSCrm.Models.Enums;
+using GSCrm.Data.ApplicationInfo;
+using GSCrm.Mapping;
+using static GSCrm.CommonConsts;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
@@ -52,26 +55,32 @@ namespace GSCrm.Repository
         #endregion
 
         #region Searching
-        /// <summary>
-        /// Метод очищает поиск по всем должностям
-        /// </summary>
-        public void ClearAllPositionSearch()
+        public void SearchAllPositions(EmployeeViewModel employeeViewModel)
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
-            employeeViewModelCash.SearchAllPosName = default;
-            employeeViewModelCash.SearchAllParentPosName = default;
-            cachService.CacheItem(currentUser.Id, ALL_EMP_POSS, employeeViewModelCash);
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchAllPosName = employeeViewModel.SearchAllPosName;
+            cachedViewModel.SearchAllParentPosName = employeeViewModel.SearchAllParentPosName;
         }
 
-        /// <summary>
-        /// Метод очищает поиск по выбранным должностям
-        /// </summary>
+        public void ClearAllPositionSearch()
+        {
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchAllPosName = default;
+            cachedViewModel.SearchAllParentPosName = default;
+        }
+
+        public void SearchSelectedPositions(EmployeeViewModel employeeViewModel)
+        {
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchSelectedPosName = employeeViewModel.SearchSelectedPosName;
+            cachedViewModel.SearchSelectedParentPosName = employeeViewModel.SearchSelectedParentPosName;
+        }
+
         public void ClearSelectedPositionSearch()
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
-            employeeViewModelCash.SearchSelectedPosName = default;
-            employeeViewModelCash.SearchSelectedParentPosName = default;
-            cachService.CacheItem(currentUser.Id, SELECTED_EMP_POSS, employeeViewModelCash);
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchSelectedPosName = default;
+            cachedViewModel.SearchSelectedParentPosName = default;
         }
         #endregion
 
@@ -79,25 +88,25 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список всех должностей исходя из подразделения основной должности сотрудника
         /// </summary>
-        /// <param name="employeeId"></param>
+        /// <param name="employee"></param>
+        /// <param name="employeeViewModelCash"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Position> AttachAllPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Position> GetAllPositions(Employee employee, EmployeeViewModel employeeViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            SetViewInfo(ALL_EMP_POSS, pageNumber);
+            SetViewInfo(employee.Id, ALL_EMP_POSS, pageNumber);
 
             // Получение списка всех должностей подразделения и исключение из него списка должностей сотрудника
-            List<Position> allPositions = GetAllPositions(employeeId);
-            List<EmployeePosition> employeePositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
+            List<Position> allPositions = GetAllPositions(employee.Id);
+            List<EmployeePosition> employeePositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employee.Id).ToList();
             List<Position> selectedPositions = employeePositions.GetPositionsFromEmployeePositions(context);
             allPositions = allPositions.Except(selectedPositions, new PositionEqualityComparer()).ToList();
             List<Position> allPositionsExceptSelected = new List<Position>(allPositions);
 
             // Ограничение списка должностей по фильтрам и номеру страницы
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_POSS);
             LimitAllPosByName(employeeViewModelCash, ref allPositions);
             LimitAllPosByParent(employeeViewModelCash, allPositionsExceptSelected, ref allPositions);
-            LimitListByPageNumber(ALL_EMP_POSS, ref allPositions);
+            LimitViewItemsByPageNumber(employee.Id, ALL_EMP_POSS, ref allPositions);
             return allPositions;
         }
 
@@ -136,18 +145,18 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список должностей сотрудника для модального окна с ограничением в 5 записей
         /// </summary>
-        /// <param name="employeeId"></param>
+        /// <param name="employee"></param>
+        /// <param name="employeeViewModelCash"></param>
         /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<EmployeePosition> AttachSelectedPositions(Guid employeeId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<EmployeePosition> GetSelectedPositions(Employee employee, EmployeeViewModel employeeViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
             // Ограничение списка должностей по фильтрам и номеру страницы
-            SetViewInfo(SELECTED_EMP_POSS, pageNumber);
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_POSS);
-            List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employeeId).ToList();
+            SetViewInfo(employee.Id, SELECTED_EMP_POSS, pageNumber);
+            List<EmployeePosition> selectedPositions = context.EmployeePositions.AsNoTracking().Where(empId => empId.EmployeeId == employee.Id).ToList();
             LimitSelectedPosByName(employeeViewModelCash, ref selectedPositions);
             LimitSelectedPosByParent(employeeViewModelCash, ref selectedPositions);
-            LimitListByPageNumber(SELECTED_EMP_POSS, ref selectedPositions);
+            LimitViewItemsByPageNumber(employee.Id, SELECTED_EMP_POSS, ref selectedPositions);
             return selectedPositions;
         }
 
@@ -233,22 +242,18 @@ namespace GSCrm.Repository
                 .AsNoTracking()
                 .Include(empPos => empPos.EmployeePositions)
                     .ThenInclude(pos => pos.Position)
-                .FirstOrDefault(i => i.Id == syncViewModel.EmployeeId);
+                .FirstOrDefault(i => i.Id == syncViewModel.Id);
             syncPossTransaction.AddParameter("Employee", employee);
 
             // Проверки
             InvokeIntermittinActions(this.errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpPossManagement", syncPossTransaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpPossManagement"))
                          AddHasNoPermissionsError(OperationType.EmployeePositionsManagement);
                 },
-                () => {
-                    FormAddPositinosList(syncViewModel.PositionsToAdd, employee);
-                },
-                () => {
-                    FormRemovePositionsList(syncViewModel, employee);
-                }
+                () => FormAddPositinosList(syncViewModel.PositionsToAdd, employee),
+                () => FormRemovePositionsList(syncViewModel, employee)
             });
 
             // Если не было ошибок, выполняется обновление списка должностей
@@ -371,6 +376,38 @@ namespace GSCrm.Repository
             EmployeePosition currentPrimaryPosition = employee.EmployeePositions.FirstOrDefault(i => i.PositionId == employee.PrimaryPositionId);
             employee.PrimaryPositionId = selectedPrimaryPosition.PositionId;
             syncPossTransaction.AddChange(employee, EntityState.Modified);
+        }
+
+        /// <summary>
+        /// Вызывается для пролистывания всех должностей
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="navigateDirection">Направление пролистывания</param>
+        /// <returns></returns>
+        public List<PositionViewModel> NavigateGetAllRecords(Employee employee, NavigateDirection navigateDirection)
+        {
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, cachedViewModel.Id, ALL_EMP_POSS);
+            int pageNumber = viewInfo.GetNewPageNumber(navigateDirection);
+            EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+            List<Position> allPositions = employeeRepository.GetAllPositions(employee, cachedViewModel, pageNumber);
+            return allPositions.GetViewModelsFromData(new PositionMap(serviceProvider, context));
+        }
+
+        /// <summary>
+        /// Вызывается для пролистывания выбранных должностей
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="navigateDirection">Направление пролистывания</param>
+        /// <returns></returns>
+        public List<EmployeePositionViewModel> NavigateGetSelectedRecords(Employee employee, NavigateDirection navigateDirection)
+        {
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, cachedViewModel.Id, SELECTED_EMP_POSS);
+            int pageNumber = viewInfo.GetNewPageNumber(navigateDirection);
+            EmployeePositionRepository employeeRepository = new EmployeePositionRepository(serviceProvider, context);
+            List<EmployeePosition> selectedPositions = employeeRepository.GetSelectedPositions(employee, cachedViewModel, pageNumber);
+            return selectedPositions.GetViewModelsFromData(map);
         }
         #endregion
     }

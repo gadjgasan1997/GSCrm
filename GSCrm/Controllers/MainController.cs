@@ -1,18 +1,20 @@
-﻿using GSCrm.Data;
-using GSCrm.Data.Cash;
+﻿using System;
+using System.Collections.Generic;
+using GSCrm.Data;
+using GSCrm.Models;
 using GSCrm.Mapping;
 using GSCrm.Helpers;
-using GSCrm.Localization;
-using GSCrm.Models;
-using GSCrm.Models.ViewModels;
+using GSCrm.Data.Cash;
+using GSCrm.Factories;
 using GSCrm.Repository;
+using GSCrm.Localization;
+using GSCrm.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
-using static GSCrm.Helpers.MainHelpers;
-using GSCrm.Factories;
-using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using static GSCrm.CommonConsts;
+using static GSCrm.Helpers.MainHelpers;
 
 namespace GSCrm.Controllers
 {
@@ -21,9 +23,6 @@ namespace GSCrm.Controllers
         where TViewModel : BaseViewModel, new()
     {
         #region Declarations
-        /// <summary>
-        /// Контекст приложения
-        /// </summary>
         protected readonly ApplicationDbContext context;
         protected readonly IServiceProvider serviceProvider;
         /// <summary>
@@ -37,15 +36,18 @@ namespace GSCrm.Controllers
         /// <summary>
         /// Преобразователь для маппинга
         /// </summary>
-        protected IMap<TDataModel, TViewModel> map;
+        protected readonly IMap<TDataModel, TViewModel> map;
         /// <summary>
         /// Репозиторий
         /// </summary>
-        protected IRepository<TDataModel, TViewModel> repository;
+        protected readonly IRepository<TDataModel, TViewModel> repository;
         /// <summary>
         /// Текущий пользователь
         /// </summary>
         protected readonly User currentUser;
+        /// <summary>
+        /// Настройки сериализации
+        /// </summary>
         protected readonly JsonSerializerSettings serializerSettings =
             new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         #endregion
@@ -53,23 +55,37 @@ namespace GSCrm.Controllers
         #region Constructs
         public MainController(ApplicationDbContext context, IServiceProvider serviceProvider)
         {
+            // Вспомогательные сервисы
+            IMapFactory mapFactory = serviceProvider.GetService<IMapFactory>();
+            IRepositoryFactory repositoryFactory = serviceProvider.GetService<IRepositoryFactory>();
+            IUserContextFactory userContextServices = serviceProvider.GetService<IUserContextFactory>();
+
+            // Прочее
             this.serviceProvider = serviceProvider;
             this.context = context;
-
-            IMapFactory mapFactory = serviceProvider.GetService(typeof(IMapFactory)) as IMapFactory;
-            IRepositoryFactory repositoryFactory = serviceProvider.GetService(typeof(IRepositoryFactory)) as IRepositoryFactory;
             map = mapFactory.GetMap<TDataModel, TViewModel>(serviceProvider, context);
             repository = repositoryFactory.GetRepository<TDataModel, TViewModel>(serviceProvider, context);
-            cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
-            resManager = serviceProvider.GetService(typeof(IResManager)) as IResManager;
-
-            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
+            cachService = serviceProvider.GetService<ICachService>();
+            resManager = serviceProvider.GetService<IResManager>();
             currentUser = userContextServices.HttpContext.GetCurrentUser(context);
         }
         #endregion
 
+        [HttpGet("HasNoPermissionsForSee")]
+        public ViewResult HasNoPermissionsForSee()
+            => typeof(TViewModel).Name switch
+            {
+                "OrganizationViewModel" => View($"{ORG_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new OrganizationViewModel()),
+                "PositionViewModel" => View($"{POS_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new PositionViewModel()),
+                "EmployeeViewModel" => View($"{EMP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new EmployeeViewModel()),
+                "ResponsibilityViewModel" => View($"{RESP_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new ResponsibilityViewModel()),
+                "AccountViewModel" => View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel()),
+                "UserNotificationsSettingViewModel" => View($"{USER_NOT_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new UserNotificationsSettingViewModel()),
+                _ => View("Error")
+            };
+
         [HttpPost("Create")]
-        public virtual IActionResult Create(TViewModel viewModel)
+        public IActionResult Create(TViewModel viewModel)
         {
             try
             {
@@ -91,7 +107,7 @@ namespace GSCrm.Controllers
         }
 
         [HttpPost("Update")]
-        public virtual IActionResult Update(TViewModel viewModel)
+        public IActionResult Update(TViewModel viewModel)
         {
             try
             {
@@ -114,7 +130,7 @@ namespace GSCrm.Controllers
 
         [HttpDelete("Delete")]
         [HttpDelete("Delete/{id}")]
-        public virtual IActionResult Delete(string id)
+        public IActionResult Delete(string id)
         {
             try
             {

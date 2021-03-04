@@ -1,5 +1,4 @@
 ﻿using GSCrm.Data;
-using GSCrm.Factories;
 using GSCrm.Models;
 using GSCrm.Transactions;
 using Microsoft.AspNetCore.Builder;
@@ -8,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using GSCrm.Models.Enums;
+using GSCrm.Data.ApplicationInfo;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.AppUtils;
-using Microsoft.AspNetCore.Mvc;
 
 namespace GSCrm.Helpers
 {
@@ -45,29 +46,6 @@ namespace GSCrm.Helpers
             => context.Users.AsNoTracking().FirstOrDefault(n => n.UserName == User.Identity.Name);
 
         /// <summary>
-        /// Получение названия основной сущности по названию поданной на вход
-        /// </summary>
-        /// <param name="entityName"></param>
-        /// <returns></returns>
-        public static string GetMainEntityName(this string entityName)
-            => entityName switch
-            {
-                "ResponsibilityViewModel" => "OrganizationViewModel",
-                "PositionViewModel" => "OrganizationViewModel",
-                "EmployeeViewModel" => "OrganizationViewModel",
-                "DivisionViewModel" => "OrganizationViewModel",
-                "EmployeeResponsibilityViewModel" => "EmployeeViewModel",
-                "EmployeePositionViewModel" => "EmployeeViewModel",
-                "EmployeeContactViewModel" => "EmployeeViewModel",
-                "AccountQuoteViewModel" => "AccountViewModel",
-                "AccountManagerViewModel" => "AccountViewModel",
-                "AccountInvoiceViewModel" => "AccountViewModel",
-                "AccountContactViewModel" => "AccountViewModel",
-                "AccountAddressViewModel" => "AccountViewModel",
-                _ => entityName
-            };
-
-        /// <summary>
         /// Метод возвращает название действия для урла
         /// </summary>
         /// <param name="entityName"></param>
@@ -91,8 +69,8 @@ namespace GSCrm.Helpers
         public static string GetReturnUrl(this string entityName, IUrlHelper Url)
             => entityName switch
             {
-                "AccountViewModel" => Url.Action("ListOfOrganizations", ORGANIZATION, new { id = DEFAULT_MIN_PAGE_NUMBER }),
-                "OrganizationViewModel" => Url.Action("ListOfOrganizations", ORGANIZATION, new { id = DEFAULT_MIN_PAGE_NUMBER }),
+                "AccountViewModel" => Url.Action(ACCOUNTS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER }),
+                "OrganizationViewModel" => Url.Action(ORGANIZATIONS, "Root", new { pageNumber = DEFAULT_MIN_PAGE_NUMBER }),
                 _ => string.Empty
             };
 
@@ -105,5 +83,57 @@ namespace GSCrm.Helpers
         /// <param name="types"></param>
         /// <returns></returns>
         public static bool IsInList(this OperationType operationType, params OperationType[] types) => types.Contains(operationType);
+
+        /// <summary>
+        /// Метод задействует перенаправление на страницы в зависимостпи от кодов ошибок
+        /// </summary>
+        /// <param name="applicationBuilder"></param>
+        public static void UseStatusCodePagesRedirect(this IApplicationBuilder applicationBuilder)
+            => applicationBuilder.UseStatusCodePages(async codeContext => {
+                switch (codeContext.HttpContext.Response.StatusCode)
+                {
+                    case 400:
+                        codeContext.HttpContext.Response.Redirect($"/Shared/Error");
+                        break;
+                    case 404:
+                        codeContext.HttpContext.Response.Redirect($"/Shared/ViewNotFound");
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+        /// <summary>
+        /// Метод возвращает новый номер страницы исходя из направления прокрутки
+        /// </summary>
+        /// <param name="viewInfo"></param>
+        /// <param name="navigateDirection"></param>
+        /// <returns></returns>
+        public static int GetNewPageNumber(this ViewInfo viewInfo, NavigateDirection navigateDirection)
+            => navigateDirection switch
+            {
+                NavigateDirection.Forward => viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP,
+                NavigateDirection.Backward => viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP,
+                _ => 0
+            };
+
+        /// <summary>
+        /// Метод возвращает форму из запроса
+        /// </summary>
+        /// <param name="httpContext"></param>
+        /// <returns></returns>
+        public static IFormCollection GetForm(this HttpContext httpContext)
+        {
+            if (httpContext.Request.Method != "POST")
+                return null;
+            try
+            {
+                return httpContext.Request.Form;
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
     }
 }

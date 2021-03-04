@@ -59,7 +59,7 @@
                                     </div>
                                     <span class="icon-bin"></span>
                                 </td>
-                                <td class="edit-item-btn" data-toggle="modal" data-target="#empContactUpdateModal">
+                                <td class="edit-item-btn">
                                     <div class="edit-item-url" hidden="hidden">
                                         @Html.ActionLink(contactViewModel.Id.ToString(), CONTACT, EMP_CONTACT, new { id = contactViewModel.Id })"
                                     </div>
@@ -75,8 +75,8 @@
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
                 ItemsCount = contactsCount,
-                ViewInfo = cachService.GetViewInfo(currentUserId, EMP_CONTACTS),
-                ControllerName = EMP_CONTACT,
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, EMP_CONTACTS),
+                ControllerName = EMPLOYEE,
                 ActionName = CONTACTS
             });
         }

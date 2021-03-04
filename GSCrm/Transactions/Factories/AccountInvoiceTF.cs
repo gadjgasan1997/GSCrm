@@ -29,7 +29,7 @@ namespace GSCrm.Transactions.Factories
         {
             if (transactionStatus == TransactionStatus.Success)
             {
-                Account currentAccount = (Account)transaction.GetParameterValue("CurrentAccount");
+                Account currentAccount = cachService.GetCachedCurrentEntity<Account>(currentUser);
                 Organization ownerOrg = (Organization)transaction.GetParameterValue("OwnerOrg");
                 List<Employee> managers = currentAccount.GetManagers(context);
                 switch (operationType)

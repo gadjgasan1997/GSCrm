@@ -17,6 +17,6 @@ class Renderer {
     static CreateRenderInstanse(renderName) {
         return new Map([
             ['ProductCategoriesRender', new ProductCategoriesRender()]
-        ]).get(renderName)
+        ]).get(renderName);
     }
 }

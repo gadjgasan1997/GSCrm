@@ -47,7 +47,7 @@
                 {
                     <tr>
                         <td class="tooltip-cell-src tooltip-cell-link label-non-select account-item">
-                            @Html.ActionLink(account.Name, "GetAccount", ACCOUNT, new
+                            @Html.ActionLink(account.Name, "GoToAccount", ACCOUNT, new
                             {
                                 id = account.Id,
                                 selectedAccountsTab = CURRENT_ACCS
@@ -75,7 +75,7 @@
         {
             ItemsCount = currentAccountsCount,
             ViewInfo = cachService.GetViewInfo(currentUserId, CURRENT_ACCS),
-            ControllerName = ACCOUNT,
+            ControllerName = "Root",
             ActionName = CURRENT_ACCS
         });
     }

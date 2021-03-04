@@ -1,6 +1,6 @@
-﻿using GSCrm.Models.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using GSCrm.Models.Enums;
 
 namespace GSCrm.Models.ViewModels
 {

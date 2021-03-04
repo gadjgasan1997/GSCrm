@@ -1,8 +1,8 @@
-﻿using GSCrm.Models;
+﻿using System;
+using GSCrm.Models;
 using GSCrm.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
 
 namespace GSCrm.Data.EntityConfigurations
 {

@@ -42,7 +42,7 @@
                     let request = new AjaxRequests();
                     let removeOrgUrl = $("#removeOrgForm #orgUrl a").attr("href");
     
-                    request.CommonDeleteRequest(removeOrgUrl)
+                    request.JsonDeleteRequest(removeOrgUrl)
                         .fail(response => {
                             Utils.CommonErrosHandling(response["responseJSON"], ["RemoveOrg"]);
                             reject(response);
@@ -195,9 +195,11 @@
                     Utils.DefaultErrorHandling(response["responseJSON"]);
                     reject(response);
                 })
-                .done(responsibilities => {
-                    this.RednerResponsibilities(responsibilities);
-                    resolve();
+                .done(responsibilitiesUrl => {
+                    request.JsonGetRequest(responsibilitiesUrl).then(responsibilities => {
+                        this.RednerResponsibilities(responsibilities);
+                        resolve();
+                    });
                 });
         })
     }

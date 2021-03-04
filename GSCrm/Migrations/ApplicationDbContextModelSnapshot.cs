@@ -186,7 +186,8 @@ namespace GSCrm.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasAlternateKey("AccountId", "ManagerId")
+                        .HasName("ManagersUniqueKey");
 
                     b.HasIndex("ManagerId");
 
@@ -559,12 +560,6 @@ namespace GSCrm.Migrations
 
                     b.Property<int>("QuoteStatus")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Test")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("test2")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

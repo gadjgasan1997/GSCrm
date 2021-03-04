@@ -51,12 +51,7 @@
                     {
                         <tr>
                             <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">@division.Name</td>
-                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">
-                                @if (!string.IsNullOrEmpty(division.ParentDivisionName))
-                                {
-                                    @Html.ActionLink(division.ParentDivisionName, DIVISION, DIVISION, new { id = division.ParentDivisionId })
-                                }
-                            </td>
+                            <td class="tooltip-cell-src tooltip-cell-link label-non-select division-item">@division.ParentDivisionName</td>
                             <td class="remove-item-btn">
                                 <div class="remove-item-url" hidden="hidden">@Html.ActionLink(division.Name, "Delete", DIVISION, new { id = division.Id })"</div>
                                 <span class="icon-bin"></span>
@@ -69,9 +64,10 @@
         @{
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
+                Id = Model.Id,
                 ItemsCount = divisionsCount,
-                ViewInfo = cachService.GetViewInfo(currentUserId, DIVISIONS),
-                ControllerName = DIVISION,
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, DIVISIONS),
+                ControllerName = ORGANIZATION,
                 ActionName = DIVISIONS
             });
         }

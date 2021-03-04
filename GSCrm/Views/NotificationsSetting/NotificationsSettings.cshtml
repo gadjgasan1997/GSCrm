@@ -4,11 +4,11 @@
 @using GSCrm.Data
 @using GSCrm.Data.ApplicationInfo
 @using GSCrm.Models.ViewModels
-@using static GSCrm.CommonConsts
 @using GSCrm.Helpers
+@using GSCrm.Data.Cash
+@using static GSCrm.CommonConsts
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model AllNotificationsSettingsViewModel
 @{
@@ -22,16 +22,18 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
         <li class="breadcrumb-item">
-            <a asp-controller="@USER_NOT" asp-action="@USER_NOTS" asp-route-pageNumber="@notView.CurrentPageNumber">
+            <a asp-controller="Root" asp-action="@USER_NOTS" asp-route-pageNumber="@notView.CurrentPageNumber">
                 @resManager.GetString(NOTIFICATIONS)
             </a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(NOT_SETTING)</li>
+        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(NOTS_SETTING)</li>
     </ol>
 </nav>
 
 <div id="notSettingsForm">
-    <form class="text-center text-md-left" asp-controller="@NOT_SETTING" asp-action="">
+    <form class="text-center text-md-left" asp-controller="@NOTS_SETTING" asp-action="">
+        <input id="defaultOrgNotSettingsUrl" value="@Url.Content($"~/{ORG_NOTS_SETTING}/SetSettingsToDefault")" hidden="hidden" />
+        <input id="defaultUserNotSettingsUrl" value="@Url.Content($"~/{USER_NOTS_SETTING}/SetSettingsToDefault")" hidden="hidden" />
         <button id="setNotSettingsToDefault" class="btn btn-outline-dark">@resManager.GetString("SetNotSettingsToDefault")</button>
     </form>
 
@@ -69,7 +71,9 @@
     </div>
 
     @*Действия, которые можно выполнить с уведомлениями*@
-    <form id="notSettingsActions" class="mt-3" asp-controller="@NOT_SETTING" asp-action="">
+    <form id="notSettingsActions" class="mt-3">
+        <input id="commitOrgNotSettingsUrl" value="@Url.Content($"~/{ORG_NOTS_SETTING}/CommitSettings")" hidden="hidden" />
+        <input id="commitUserNotSettingsUrl" value="@Url.Content($"~/{USER_NOTS_SETTING}/CommitSettings")" hidden="hidden" />
         <div class="row justify-content-around mt-1 mb-3">
             <div class="col-xl text-center">
                 <button type="submit" class="update-not-setting btn btn-outline-dark">@resManager.GetString("CommitChanges")</button>

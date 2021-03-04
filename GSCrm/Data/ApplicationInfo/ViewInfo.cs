@@ -5,21 +5,47 @@ namespace GSCrm.Data.ApplicationInfo
 {
     public class ViewInfo
     {
+        /// <summary>
+        /// Конструктор для представлений с уникальным названием
+        /// </summary>
+        /// <param name="viewName"></param>
         public ViewInfo(string viewName)
         {
             Name = viewName;
-            ItemsCount = !ViewItemsCount.ContainsKey(viewName) ? 10 : ViewItemsCount[viewName];
+            Type = viewName;
+            ItemsCount = !ViewItemsCount.ContainsKey(viewName) ? DEFAULT_ITEMS_COUNT : ViewItemsCount[viewName];
             RenderName = !NeedJSRender() || !ViewRenderers.ContainsKey(viewName) ? string.Empty : ViewRenderers[viewName];
         }
 
+        /// <summary>
+        /// Конструктор для представлений, название которых не является уникальным
+        /// </summary>
+        /// <param name="viewName"></param>
+        /// <param name="viewType"></param>
+        public ViewInfo(string viewName, string viewType)
+        {
+            // Количество элементов и прочие настройки для этих представлений должны находиться по типу, а не названию, так как название каждый раз будет разное
+            Name = viewName;
+            Type = viewType;
+            ItemsCount = !ViewItemsCount.ContainsKey(viewType) ? DEFAULT_ITEMS_COUNT : ViewItemsCount[viewType];
+            RenderName = !NeedJSRender() || !ViewRenderers.ContainsKey(viewType) ? string.Empty : ViewRenderers[viewType];
+        }
+
+        /// <summary>
+        /// Уникальное название представления
+        /// </summary>
         public string Name { get; private set; }
+        /// <summary>
+        /// Неуникальный тип представления
+        /// </summary>
+        public string Type { get; private set; }
         public int CurrentPageNumber { get; set; } = DEFAULT_MIN_PAGE_NUMBER;
         public int SkipSteps { get; set; }
         public int ItemsCount { get; }
         public string RenderName { get; private set; }
 
         /// <summary>
-        /// Словарь с колиечством элементов в представлениях
+        /// Словарь с количеством элементов в представлениях
         /// </summary>
         private static Dictionary<string, int> ViewItemsCount
             => new Dictionary<string, int>()
@@ -47,7 +73,7 @@ namespace GSCrm.Data.ApplicationInfo
         /// Метод определяет, надо ли рендереить представление с помощью JS
         /// </summary>
         private bool NeedJSRender()
-            => Name switch
+            => Type switch
             {
                 PROD_CATS => true,
                 _ => false

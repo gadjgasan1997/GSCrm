@@ -39,7 +39,7 @@
                     let request = new AjaxRequests();
                     let removePosUrl = $(event.currentTarget).find(".remove-item-url a").attr("href");
         
-                    request.CommonDeleteRequest(removePosUrl)
+                    request.JsonDeleteRequest(removePosUrl)
                         .fail(response => {
                             Utils.DefaultErrorHandling(response["responseJSON"]);
                             reject();

@@ -12,5 +12,6 @@
         public string OldPassword { get; set; }
         public string AvatarPath { get; set; }
         public bool EmailConfirmed { get; set; }
+        public string ReturnUrl { get; set; }
     }
 }

@@ -3,7 +3,7 @@ class ProductCategoriesRender extends BaseProductCategoriesRender {
 
     //#region Rendering
     Render() {
-        let productCategoriesUrl = LocalizationManager.GetUri("productCategories");
+        let productCategoriesUrl = $("#productCategoriesForm").attr("data-href");
         this.RenderCategoriesRequest(productCategoriesUrl);
     }
 
@@ -13,14 +13,16 @@ class ProductCategoriesRender extends BaseProductCategoriesRender {
      */
     RenderCategoriesRequest(url) {
         let request = new AjaxRequests();
-        request.CommonGetRequest(url).then(response => {
+        request.JsonGetRequest(url)
+            .catch(response => Utils.DefaultErrorHandling(response["responseJSON"]))
+            .then(response => {
 
-            // Рендеринг категорий
-            let categories = response["ProductCategoryViewModels"];
-            if (!Utils.IsNullOrEmpty(categories)) {
-                this.RenderCategories(categories);
-            }
-        })
+                // Рендеринг категорий
+                let categories = response["ProductCategoryViewModels"];
+                if (!Utils.IsNullOrEmpty(categories)) {
+                    this.RenderCategories(categories);
+                }
+            })
     }
 
     /**

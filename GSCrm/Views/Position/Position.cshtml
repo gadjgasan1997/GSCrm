@@ -21,12 +21,12 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
         <li class="breadcrumb-item">
-            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
+            <a asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
                 @resManager.GetString(ORGANIZATIONS)
             </a>
         </li>
         <li class="breadcrumb-item">
-            <a asp-controller="@ORGANIZATION" asp-action="BackToOrganization" asp-route-orgId="@Model.OrganizationId">
+            <a asp-controller="@ORGANIZATION" asp-action="@ORGANIZATION" asp-route-id="@Model.OrganizationId">
                 @resManager.GetString(ORGANIZATION): @Model.OrganizationName
             </a>
         </li>

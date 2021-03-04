@@ -1,18 +1,15 @@
-﻿using GSCrm.Mapping;
+﻿using System;
+using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Repository;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
-using System;
-using System.Collections.Generic;
-using GSCrm.Data;
-using GSCrm.Models.Enums;
 using static GSCrm.CommonConsts;
-using static GSCrm.Repository.AccountRepository;
 
 namespace GSCrm.Controllers
 {
@@ -24,85 +21,86 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("ListOfAllAccounts/{pageNumber}")]
-        public ViewResult AllAccounts(int pageNumber)
-        {
-            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            AccountsViewModel accountsViewModel = new AccountsViewModel();
-            new AccountMap(serviceProvider, context).InitializeAccountsViewModel(accountsViewModel);
-            accountRepository.SetViewInfo(ALL_ACCS, pageNumber);
-            accountRepository.AttachAccounts(ref accountsViewModel);
-            return View(ACCOUNTS, accountsViewModel);
-        }
-
-        [HttpGet("ListOfCurrentAccounts/{pageNumber}")]
-        public ViewResult CurrentAccounts(int pageNumber)
-        {
-            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            AccountsViewModel accountsViewModel = new AccountsViewModel();
-            new AccountMap(serviceProvider, context).InitializeAccountsViewModel(accountsViewModel);
-            accountRepository.SetViewInfo(CURRENT_ACCS, pageNumber);
-            accountRepository.AttachAccounts(ref accountsViewModel);
-            return View(ACCOUNTS, accountsViewModel);
-        }
-
         [HttpGet("BackToAccounts")]
         public IActionResult BackToAccounts()
-            // Возврат назад в зависимости от того, на какой вкладке находился пользователь перед проваливанием в карточку
-            => cachService.GetCachedItem(currentUser.Id, "SelectedAccountsTab") switch
+        {
+            if (cachService.TryGetValue(currentUser, "SelectedAccountsTab", out object itemValue))
+            {
+                // Возврат назад в зависимости от того, на какой вкладке находился пользователь перед проваливанием в карточку
+                return itemValue.ToString() switch
                 {
                     // Проваливание со списка всех клиентов
-                    ALL_ACCS => RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = cachService.GetViewInfo(currentUser.Id, ALL_ACCS)?.CurrentPageNumber }),
+                    ALL_ACCS => RedirectToAction(ALL_ACCS, "Root", new { pageNumber = cachService.GetViewInfo(currentUser.Id, ALL_ACCS)?.CurrentPageNumber }),
 
                     // Проваливание со списка клиентов основной организации текущего пользователя
-                    _ => RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = cachService.GetViewInfo(currentUser.Id, CURRENT_ACCS)?.CurrentPageNumber }),
+                    _ => RedirectToAction(CURRENT_ACCS, "Root", new { pageNumber = cachService.GetViewInfo(currentUser.Id, CURRENT_ACCS)?.CurrentPageNumber }),
                 };
-        
-
-        [HttpGet("{id}")]
-        public ViewResult Account(string id)
-        {
-            // Проверки на наличие клиента и доступа к нему у пользователя
-            AccountRepository accountRepository = new AccountRepository(serviceProvider, context);
-            if (!accountRepository.TryGetItemById(id, out Account account))
-                return View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel());
-            if (!accountRepository.HasPermissionsForSeeItem(account))
-                return View($"{ACC_VIEWS_REL_PATH}Partial/HasNoPermissionsForSee.cshtml", new AccountViewModel());
-
-            // Если клиент и доступ имеются
-            AccountMap map = new AccountMap(serviceProvider, context);
-            AccountViewModel accountViewModel = map.DataToViewModel(account);
-            accountViewModel = map.Refresh(accountViewModel, currentUser, AccAllViewTypes);
-            accountRepository.AttachContacts(accountViewModel);
-            accountRepository.AttachAddresses(accountViewModel);
-            accountRepository.AttachInvoices(accountViewModel);
-            accountRepository.AttachQuotes(accountViewModel);
-            accountRepository.AttachManagers(accountViewModel);
-            cachService.SetCurrentView(currentUser.Id, ACCOUNT);
-            cachService.CacheAccount(currentUser, account, accountViewModel);
-            return View(ACCOUNT, accountViewModel);
+            }
+            return View("Error");
         }
 
-        [HttpGet("/GetAccount/{id}")]
-        public IActionResult GetAccount(string id, string selectedAccountsTab)
+        [HttpGet("{id}")]
+        public IActionResult Account(string id) => GetAccount(id);
+
+        #region Child Entities
+        /// <summary>
+        /// Получение списка контактов клиента
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/Contacts/{pageNumber}")]
+        public IActionResult Contacts(string id, int pageNumber)
         {
-            cachService.CacheItem(currentUser.Id, "SelectedAccountsTab", selectedAccountsTab);
+            repository.SetViewInfo(id, ACC_CONTACTS, pageNumber);
+            return GetAccount(id);
+        }
+
+        /// <summary>
+        /// Получение списка адресов клиента
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/Addresses/{pageNumber}")]
+        public IActionResult Addresses(string id, int pageNumber)
+        {
+            repository.SetViewInfo(id, ACC_ADDRESSES, pageNumber);
+            return GetAccount(id);
+        }
+
+        /// <summary>
+        /// Получение списка банковских реквизитов клиента
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/Invoices/{pageNumber}")]
+        public IActionResult Invoices(string id, int pageNumber)
+        {
+            repository.SetViewInfo(id, ACC_INVOICES, pageNumber);
+            return GetAccount(id);
+        }
+        #endregion
+
+        #region Actions
+        [HttpGet("/GoToAccount/{id}")]
+        public IActionResult GoToAccount(string id, string selectedAccountsTab)
+        {
+            cachService.AddOrUpdate(currentUser, "SelectedAccountsTab", selectedAccountsTab);
             return RedirectToAction(ACCOUNT, ACCOUNT, new { id });
         }
 
-        [HttpGet("HasAccNotLegalAddress/{id}")]
-        public IActionResult HasAccNotLegalAddress(string id)
+        [HttpGet("{id}/HasAccNotLegalAddress")]
+        public IActionResult HasAccNotLegalAddress()
         {
-            if (!repository.TryGetItemById(id, out Account account))
-                return Json(false);
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             return Json(account.GetAddresses(context).Count > 1);
         }
 
-        [HttpGet("ChangeSite/{accountId}/{newSite?}")]
-        public IActionResult ChangeSite(string accountId, string newSite = null)
+        [HttpGet("{id}/ChangeSite/{newSite?}")]
+        public IActionResult ChangeSite(string id, string newSite = null)
         {
             ModelStateDictionary modelState = ModelState;
-            if (!new AccountRepository(serviceProvider, context).TryChangeSite(accountId, out Dictionary<string, string> errors, newSite))
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
+            if (!new AccountRepository(serviceProvider, context).TryChangeSite(account, out Dictionary<string, string> errors, newSite))
             {
                 AddErrorsToModel(modelState, errors);
                 return BadRequest(modelState);
@@ -122,6 +120,18 @@ namespace GSCrm.Controllers
             return Json("");
         }
 
+        [HttpPost("ChangeLegalAddress")]
+        public IActionResult ChangeLegalAddress(AccountAddressViewModel addressViewModel)
+        {
+            ModelStateDictionary modelState = ModelState;
+            if (!new AccountAddressRepository(serviceProvider, context).TryChangeLegalAddress(addressViewModel, out Dictionary<string, string> errors))
+            {
+                AddErrorsToModel(modelState, errors);
+                return BadRequest(modelState);
+            }
+            return Json("");
+        }
+
         [HttpPost("UnlockAccount")]
         public IActionResult UnlockAccount(AccountViewModel accountViewModel)
         {
@@ -133,89 +143,64 @@ namespace GSCrm.Controllers
             }
             return Json("");
         }
+        #endregion
 
-        [HttpPost("SearchAllAccounts")]
-        public IActionResult SearchAllAccounts(AccountsViewModel accountsViewModel)
-        {
-            cachService.CacheItem(currentUser.Id, ALL_ACCS, accountsViewModel);
-            return RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
-        }
-
-        [HttpGet("ClearAllAccountsSearch")]
-        public IActionResult ClearAllAccountsSearch()
-        {
-            new AccountRepository(serviceProvider, context).ClearAllAccountsSearch();
-            return RedirectToAction(ALL_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
-        }
-
-        [HttpPost("SearchCurrentAccounts")]
-        public IActionResult SearchCurrentAccounts(AccountsViewModel accountsViewModel)
-        {
-            cachService.CacheItem(currentUser.Id, CURRENT_ACCS, accountsViewModel);
-            return RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
-        }
-
-        [HttpGet("ClearCurrentAccountsSearch")]
-        public IActionResult ClearCurrentAccountsSearch()
-        {
-            new AccountRepository(serviceProvider, context).ClearCurrentAccountsSearch();
-            return RedirectToAction(CURRENT_ACCS, ACCOUNT, new { pageNumber = DEFAULT_MIN_PAGE_NUMBER });
-        }
-
+        #region Search
         [HttpPost("SearchContact")]
         public IActionResult SearchContact(AccountViewModel accountViewModel)
         {
-            cachService.CacheItem(currentUser.Id, ACC_CONTACTS, accountViewModel);
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
+            new AccountRepository(serviceProvider, context).SearchContact(accountViewModel);
+            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = accountViewModel.Id });
         }
 
-        [HttpGet("ClearContactSearch")]
-        public IActionResult ClearContactSearch()
+        [HttpGet("{id}/ClearContactSearch")]
+        public IActionResult ClearContactSearch(string id)
         {
             new AccountRepository(serviceProvider, context).ClearContactSearch();
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
+            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id });
         }
 
         [HttpPost("SearchAddress")]
         public IActionResult SearchAddress(AccountViewModel accountViewModel)
         {
-            cachService.CacheItem(currentUser.Id, ACC_ADDRESSES, accountViewModel);
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
+            new AccountRepository(serviceProvider, context).SearchAddress(accountViewModel);
+            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = accountViewModel.Id });
         }
 
-        [HttpGet("ClearAddressSearch")]
-        public IActionResult ClearAddressSearch()
+        [HttpGet("{id}/ClearAddressSearch")]
+        public IActionResult ClearAddressSearch(string id)
         {
             new AccountRepository(serviceProvider, context).ClearAddressSearch();
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
+            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id });
         }
 
         [HttpPost("SearchInvoice")]
         public IActionResult SearchInvoice(AccountViewModel accountViewModel)
         {
-            cachService.CacheItem(currentUser.Id, ACC_INVOICES, accountViewModel);
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
+            new AccountRepository(serviceProvider, context).SearchInvoice(accountViewModel);
+            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = accountViewModel.Id });
         }
 
-        [HttpGet("ClearInvoiceSearch")]
-        public IActionResult ClearInvoiceSearch()
+        [HttpGet("{id}/ClearInvoiceSearch")]
+        public IActionResult ClearInvoiceSearch(string id)
         {
-            new AccountRepository(serviceProvider, context).ClearInvoiceSearch();
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
+            new AccountRepository(serviceProvider, context).ClearInvoicesSearch();
+            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id });
         }
+        #endregion
 
-        [HttpPost("SearchQuote")]
-        public IActionResult SearchQuote(AccountViewModel accountViewModel)
+        #region Addition Methods
+        /// <summary>
+        /// Метод загружает и возвращает клиента
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        private IActionResult GetAccount(string accountId)
         {
-            cachService.CacheItem(currentUser.Id, ACC_QUOTES, accountViewModel);
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
+            if (cachService.TryGetCachedEntity(currentUser, accountId, out Account account))
+                return View(ACCOUNT, repository.LoadView(account));
+            return View("Error");
         }
-
-        [HttpGet("ClearQuoteSearch")]
-        public IActionResult ClearQuoteSearch()
-        {
-            new AccountRepository(serviceProvider, context).ClearQuoteSearch();
-            return base.RedirectToAction(ACCOUNT, ACCOUNT, new { id = cachService.GetMainEntityId(currentUser, MainEntityType.AccountView) });
-        }
+        #endregion
     }
 }

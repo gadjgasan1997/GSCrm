@@ -1,15 +1,18 @@
 ﻿@using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
+@using static GSCrm.CommonConsts
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model OrganizationViewModel
-@using static GSCrm.CommonConsts
 @{
     int responsibilitiesCount = Model.Responsibilities.Count();
     string currentUserId = User.GetUserModel(context).Id;
+    ViewInfo viewInfo = cachService.GetViewInfo(currentUserId, Model.Id, RESPONSIBILITIES);
+    int previousPageNumber = viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP;
+    int nextPageNumber = viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP;
 }
 
 <div id="responsibilitiesManagmentModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
@@ -43,6 +46,7 @@
                 <div id="respsBlockMask"></div>
                 <div class="modal-body">
                     <form id="searchRespBlock" asp-controller="@ORGANIZATION" asp-action="SearchResponsibility">
+                        <input asp-for="Id" hidden="hidden" />
                         <div class="mb-3">
                             <input asp-for="SeacrhResponsibilityName" class="form-control" placeholder="@resManager.GetString("NameLabel")" />
                         </div>
@@ -51,7 +55,7 @@
                                 <input id="searchResps" type="submit" class="btn btn-outline-primary" value="@resManager.GetString("Search")" />
                             </div>
                             <div class="col text-center mb-3">
-                                <a id="clearSearchResps" asp-controller="@ORGANIZATION" asp-action="ClearResponsibilitySearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                                <a id="clearSearchResps" asp-controller="@ORGANIZATION" asp-action="ClearResponsibilitySearch" asp-route-id="@Model.Id" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
                             </div>
                         </div>
                     </form>
@@ -76,14 +80,14 @@
                     <div class="list-nav row no-gutters justify-content-center mt-3">
                         <div class="col">
                             <div class="nav-previous">
-                                <div class="nav-url" data-href="@Url.Action("PreviousResponsibilities", RESPONSIBILITY)">
+                                <div class="nav-url" data-href="@Url.Content($"~/{ORGANIZATION}/{Model.Id}/{RESPONSIBILITIES}/{previousPageNumber}/")">
                                     <span class="icon-chevron-thin-left"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="col">
                             <div class="nav-next">
-                                <div class="nav-url" data-href="@Url.Action("NextResponsibilities", RESPONSIBILITY)">
+                                <div class="nav-url" data-href="@Url.Content($"~/{ORGANIZATION}/{Model.Id}/{RESPONSIBILITIES}/{nextPageNumber}/")">
                                     <span class="icon-chevron-thin-right"></span>
                                 </div>
                             </div>

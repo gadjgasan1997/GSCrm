@@ -8,53 +8,56 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GSCrm.CommonConsts;
-using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Data;
 using GSCrm.Transactions;
-using GSCrm.Models.ViewTypes;
 using GSCrm.Models.Enums;
 using GSCrm.Notifications.Factories.UserNotFactories0;
 using GSCrm.Notifications.Params;
 using Microsoft.AspNetCore.Mvc;
+using static GSCrm.CommonConsts;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
     public class EmployeeRepository : BaseRepository<Employee, EmployeeViewModel>
     {
-        #region Declarations
-        private readonly UserManager<User> userManager;
-        /// <summary>
-        /// Все основные типы представлений, связанные с сотрудником
-        /// </summary>
-        public static EmployeeViewType[] EmpBaseViewTypes => new EmployeeViewType[] {
-            EmployeeViewType.EMP_POSITIONS, EmployeeViewType.EMP_CONTACTS, EmployeeViewType.EMP_SUBS };
-        #endregion
-
         #region Construts
-        public EmployeeRepository(IServiceProvider serviceProvider, ApplicationDbContext context, UserManager<User> userManager = null)
+        public EmployeeRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(serviceProvider, context)
-        {
-            this.userManager = serviceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
-        }
+        { }
         #endregion
 
         #region Override Methods
         public override bool HasPermissionsForSeeItem(Employee employee)
             => new OrganizationRepository(serviceProvider, context).HasPermissionsForSeeOrgItem();
 
+        public override EmployeeViewModel LoadView(Employee employee)
+        {
+            EmployeeViewModel employeeViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+
+            // Прикрепление всех сущностей
+            if (employee.EmployeeStatus == EmployeeStatus.Active)
+            {
+                AttachContacts(employeeViewModel);
+                AttachPositions(employeeViewModel);
+                AttachSubordinates(employeeViewModel);
+            }
+
+            // Кеширование результата
+            cachService.SetCurrentView(currentUser.Id, EMPLOYEE);
+            cachService.CacheEntity(currentUser, employeeViewModel);
+            cachService.CacheCurrentEntity(currentUser, employeeViewModel);
+            return employeeViewModel;
+        }
+
         protected override bool RespsIsCorrectOnCreate(EmployeeViewModel employeeViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpCreate");
 
         protected override bool TryCreatePrepare(EmployeeViewModel employeeViewModel)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            employeeViewModel.Normalize();
             InvokeIntermittinActions(errors, new List<Action>()
             {
-                () => {
-                    if (currentOrganization == null)
-                        errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
-                },
                 () => CheckEmployeeAccount(employeeViewModel),
                 () => {
                     new PersonValidator(resManager)
@@ -64,7 +67,10 @@ namespace GSCrm.Repository
                     new PersonValidator(resManager).CheckPersonEmail(employeeViewModel.Email, errors);
                 },
                 () => CheckDivisionLength(employeeViewModel),
-                () => DivisionExists(currentOrganization.GetDivisions(context), employeeViewModel.DivisionName),
+                () => {
+                    Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+                    DivisionExists(currentOrganization.GetDivisions(context), employeeViewModel.DivisionName);
+                },
                 () => CheckPositionLength(employeeViewModel),
                 () => CheckPositionExists(employeeViewModel),
                 () => TryPrepareEmployeeAccount(employeeViewModel),
@@ -78,49 +84,21 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(EmployeeViewModel employeeViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUpdate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUpdate");
 
         protected override bool TryUpdatePrepare(EmployeeViewModel employeeViewModel)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
-            InvokeIntermittinActions(errors, new List<Action>()
-            {
-                () => {
-                    if (currentOrganization == null)
-                        errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
-                },
-                () => {
-                    new PersonValidator(resManager).CheckPersonName(employeeViewModel.FirstName,
-                        employeeViewModel.LastName, employeeViewModel.MiddleName, ref errors);
-                }
-            });
+            employeeViewModel.Normalize();
+            new PersonValidator(resManager).CheckPersonName(employeeViewModel.FirstName,
+                employeeViewModel.LastName, employeeViewModel.MiddleName, ref errors);
             return !errors.Any();
         }
 
-        protected override void FailureUpdateHandler(EmployeeViewModel employeeViewModel)
-        {
-            if (TryGetItemById(employeeViewModel.Id, out Employee employee))
-            {
-                employeeViewModel = map.DataToViewModel(employee);
-                employeeViewModel = new EmployeeMap(serviceProvider, context).Refresh(employeeViewModel, currentUser, EmpBaseViewTypes);
-                AttachPositions(employeeViewModel);
-                AttachContacts(employeeViewModel);
-                AttachSubordinates(employeeViewModel);
-            }
-        }
-
         protected override bool RespsIsCorrectOnDelete(Employee employee)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpDelete");
 
         protected override bool TryDeletePrepare(Employee employee)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
-            if (currentOrganization == null)
-            {
-                errors.Add("OrganizationNotFound", resManager.GetString("OrganizationNotFound"));
-                return false;
-            }
-            
             CheckEmployeePositions(employee);
             RemoveUserOrganization(employee);
             new AccountRepository(serviceProvider, context).CheckAccountsForLock(employee, transaction);
@@ -129,37 +107,34 @@ namespace GSCrm.Repository
         #endregion
 
         #region Searching
-        /// <summary>
-        /// Метод очищает поиск по должностям
-        /// </summary>
-        public void ClearPositionSearch()
+        public void SearchContact(EmployeeViewModel employeeViewModel)
         {
-            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_POSITIONS);
-            empViewModelCash.SearchPosName = default;
-            empViewModelCash.SearchParentPosName = default;
-            cachService.CacheItem(currentUser.Id, EMP_POSITIONS, empViewModelCash);
+            employeeViewModel.NormalizeSearch();
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchContactType = employeeViewModel.SearchContactType;
+            cachedViewModel.SearchContactPhone = employeeViewModel.SearchContactPhone;
+            cachedViewModel.SearchContactEmail = employeeViewModel.SearchContactEmail;
         }
 
-        /// <summary>
-        /// Метод очищает поиск по должностям
-        /// </summary>
         public void ClearContactSearch()
         {
-            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_CONTACTS);
-            empViewModelCash.SearchContactType = default;
-            empViewModelCash.SearchContactPhone = default;
-            empViewModelCash.SearchContactEmail = default;
-            cachService.CacheItem(currentUser.Id, EMP_CONTACTS, empViewModelCash);
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchContactType = default;
+            cachedViewModel.SearchContactPhone = default;
+            cachedViewModel.SearchContactEmail = default;
         }
 
-        /// <summary>
-        /// Метод очищает поиск по подчиненным
-        /// </summary>
+        public void SearchSubordinate(EmployeeViewModel employeeViewModel)
+        {
+            employeeViewModel.NormalizeSearch();
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchSubordinateFullName = employeeViewModel.SearchSubordinateFullName;
+        }
+
         public void ClearSubordinateSearch()
         {
-            EmployeeViewModel empViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_SUBS);
-            empViewModelCash.SearchSubordinateFullName = default;
-            cachService.CacheItem(currentUser.Id, EMP_SUBS, empViewModelCash);
+            EmployeeViewModel cachedViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
+            cachedViewModel.SearchSubordinateFullName = default;
         }
         #endregion
 
@@ -169,18 +144,16 @@ namespace GSCrm.Repository
         /// </summary>
         /// <returns></returns>
         public void AttachPositions(EmployeeViewModel employeeViewModel)
-        {
-            employeeViewModel.EmployeePositionViewModels = employeeViewModel.GetPositions(context)
-                .MapToViewModels(new EmployeePositionMap(serviceProvider, context), GetLimitedPositionsList);
-        }
+            => employeeViewModel.EmployeePositionViewModels = employeeViewModel.GetPositions(context)
+                .MapToViewModels(employeeViewModel, new EmployeePositionMap(serviceProvider, context), (employeeViewModel, positions) =>
+                    GetLimitedPositionsList(employeeViewModel, positions));
 
-        private List<EmployeePosition> GetLimitedPositionsList(List<EmployeePosition> positions)
+        private List<EmployeePosition> GetLimitedPositionsList(EmployeeViewModel employeeViewModel, List<EmployeePosition> positions)
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_POSITIONS);
             List<EmployeePosition> limitedPositions = positions;
-            LimitPosByName(employeeViewModelCash, ref limitedPositions);
-            LimitPosByParent(employeeViewModelCash, ref limitedPositions);
-            LimitListByPageNumber(EMP_POSITIONS, ref limitedPositions);
+            LimitPosByName(employeeViewModel, ref limitedPositions);
+            LimitPosByParent(employeeViewModel, ref limitedPositions);
+            LimitViewItemsByPageNumber(employeeViewModel.Id, EMP_POSITIONS, ref limitedPositions);
             return limitedPositions;
         }
 
@@ -220,19 +193,17 @@ namespace GSCrm.Repository
         /// </summary>
         /// <returns></returns>
         public void AttachContacts(EmployeeViewModel employeeViewModel)
-        {
-            employeeViewModel.EmployeeContactViewModels = employeeViewModel.GetContacts(context)
-                .MapToViewModels(new EmployeeContactMap(serviceProvider, context), GetLimitedContactsList);
-        }
+            => employeeViewModel.EmployeeContactViewModels = employeeViewModel.GetContacts(context)
+                .MapToViewModels(employeeViewModel, new EmployeeContactMap(serviceProvider, context), (employeeViewModel, contacts) =>
+                    GetLimitedContactsList(employeeViewModel, contacts));
 
-        private List<EmployeeContact> GetLimitedContactsList(List<EmployeeContact> contacts)
+        private List<EmployeeContact> GetLimitedContactsList(EmployeeViewModel employeeViewModel, List<EmployeeContact> contacts)
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_CONTACTS);
             List<EmployeeContact> limitedContacts = contacts;
-            LimitContactsByType(employeeViewModelCash, ref limitedContacts);
-            LimitContactsByPhone(employeeViewModelCash, ref limitedContacts);
-            LimitContactsByEmail(employeeViewModelCash, ref limitedContacts);
-            LimitListByPageNumber(EMP_CONTACTS, ref limitedContacts);
+            LimitContactsByType(employeeViewModel, ref limitedContacts);
+            LimitContactsByPhone(employeeViewModel, ref limitedContacts);
+            LimitContactsByEmail(employeeViewModel, ref limitedContacts);
+            LimitViewItemsByPageNumber(employeeViewModel.Id, EMP_CONTACTS, ref limitedContacts);
             return limitedContacts;
         }
 
@@ -276,17 +247,15 @@ namespace GSCrm.Repository
         /// </summary>
         /// <returns></returns>
         public void AttachSubordinates(EmployeeViewModel employeeViewModel)
-        {
-            employeeViewModel.SubordinatesViewModels = employeeViewModel.GetSubordinates(context)
-                .MapToViewModels(new EmployeeMap(serviceProvider, context), GetLimitedSubordinatesList);
-        }
+            => employeeViewModel.SubordinatesViewModels = employeeViewModel.GetSubordinates(context)
+                .MapToViewModels(employeeViewModel, new EmployeeMap(serviceProvider, context), (employeeViewModel, subordinates) =>
+                    GetLimitedSubordinatesList(employeeViewModel, subordinates));
 
-        private List<Employee> GetLimitedSubordinatesList(List<Employee> employees)
+        private List<Employee> GetLimitedSubordinatesList(EmployeeViewModel employeeViewModel, List<Employee> employees)
         {
-            EmployeeViewModel employeeViewModelCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, EMP_SUBS);
             List<Employee> limitedSubordinates = employees;
-            LimitSubordinatesByFullName(employeeViewModelCash, ref limitedSubordinates);
-            LimitListByPageNumber(EMP_SUBS, ref limitedSubordinates);
+            LimitSubordinatesByFullName(employeeViewModel, ref limitedSubordinates);
+            LimitViewItemsByPageNumber(employeeViewModel.Id, EMP_SUBS, ref limitedSubordinates);
             return limitedSubordinates;
         }
 
@@ -339,7 +308,7 @@ namespace GSCrm.Repository
             else transaction.AddParameter("UserAccount", user);
 
             // Проверка, что пользователю уже не было выслано приглашение
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             if (user.UserOrganizations.FirstOrDefault(org => org.OrganizationId == currentOrganization.Id && !org.Accepted) != null)
             {
                 errors.Add("UserAlreadyHasInviteNotification", resManager.GetString("UserAlreadyHasInviteNotification"));
@@ -439,7 +408,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpChangeDiv", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpChangeDiv"))
                          AddHasNoPermissionsError(OperationType.ChangeEmployeeDivision);
                 },
                 () => CheckDivisionLength(employeeViewModel),
@@ -460,7 +429,7 @@ namespace GSCrm.Repository
         /// <param name="division"></param>
         private void CheckDivisionForSelected(EmployeeViewModel employeeViewModel)
         {
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             List<Division> allDivisions = (List<Division>)transaction.GetParameterValue("AllDivisions");
             Division currentDivision = allDivisions.FirstOrDefault(i => i.Id == employee.DivisionId);
             if (currentDivision.Name == employeeViewModel.DivisionName)
@@ -477,7 +446,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock"))
                          AddHasNoPermissionsError(OperationType.UnlockEmployee);
                 },
                 () => CheckDivisionLength(employeeViewModel),
@@ -497,11 +466,10 @@ namespace GSCrm.Repository
         /// <returns></returns>
         private bool TryUnlockValidateOnUserAccountAbsent(EmployeeViewModel employeeViewModel)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock"))
                          AddHasNoPermissionsError(OperationType.UnlockEmployee);
                 },
                 () => CheckEmployeeAccount(employeeViewModel),
@@ -519,11 +487,10 @@ namespace GSCrm.Repository
         /// <returns></returns>
         private bool TryUnlockValidateOnLockedEmployeeLeftOrg(EmployeeViewModel employeeViewModel)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock", transaction))
+                    if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpUnlock"))
                          AddHasNoPermissionsError(OperationType.UnlockEmployee);
                 },
                 () => CheckEmployeeAccount(employeeViewModel),
@@ -561,18 +528,19 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryChangeDivision(EmployeeViewModel employeeViewModel, out Dictionary<string, string> errors)
         {
+            employeeViewModel.Normalize();
             errors = new Dictionary<string, string>();
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangeEmployeeDivision, employeeViewModel);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.ChangeEmployeeDivision, employeeViewModel);
             if (TryChangeDivisionValidate(employeeViewModel))
             {
                 new EmployeeMap(serviceProvider, context).ChangeDivision(employeeViewModel);
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     return true;
                 }
             }
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -585,9 +553,11 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryUnlock(ref EmployeeViewModel employeeViewModel, out Dictionary<string, string> errors)
         {
+            employeeViewModel.Normalize();
+
             // Получение сотрудника из бд
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockEmployee, employeeViewModel);
-            Employee employee = (Employee)transaction.GetParameterValue("Employee");
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.UnlockEmployee, employeeViewModel);
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
 
             // В зависимости от причины, по которой был заблокирован сотрудник
             switch (employee.EmployeeLockReason)
@@ -601,9 +571,9 @@ namespace GSCrm.Repository
                         new EmployeeMap(serviceProvider, context).UnlockOnUserAccountAbsent(employeeViewModel.UserAccountExists);
 
                         // Попытка сделать коммит
-                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                        if (viewModelsTF.TryCommit(transaction, this.errors))
                         {
-                            viewModelsTransactionFactory.Close(transaction);
+                            viewModelsTF.Close(transaction);
                             if (employeeViewModel.UserAccountExists)
                                 SendOrgInvite();
                             OnUnlockSuccess(ref employeeViewModel, employee);
@@ -622,9 +592,9 @@ namespace GSCrm.Repository
                         new EmployeeMap(serviceProvider, context).UnlockOnPositionAbsent();
 
                         // Попытка сделать коммит
-                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                        if (viewModelsTF.TryCommit(transaction, this.errors))
                         {
-                            viewModelsTransactionFactory.Close(transaction);
+                            viewModelsTF.Close(transaction);
                             OnUnlockSuccess(ref employeeViewModel, employee);
                             errors = this.errors;
                             return true;
@@ -640,9 +610,9 @@ namespace GSCrm.Repository
                         new EmployeeMap(serviceProvider, context).UnlockOnLockedEmployeeLeftOrg(employeeViewModel.UserAccountExists);
 
                         // Попытка сделать коммит
-                        if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                        if (viewModelsTF.TryCommit(transaction, this.errors))
                         {
-                            viewModelsTransactionFactory.Close(transaction);
+                            viewModelsTF.Close(transaction);
                             if (employeeViewModel.UserAccountExists)
                                 SendOrgInvite();
                             OnUnlockSuccess(ref employeeViewModel, employee);
@@ -656,7 +626,7 @@ namespace GSCrm.Repository
             // Иначе данные из бд преобразуются в данные для отображения без прикрепления контактов и должностей
             errors = this.errors;
             employeeViewModel = map.DataToViewModel(employee);
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -739,7 +709,7 @@ namespace GSCrm.Repository
         private void CreateUserOrganization(bool acceptedFlag = true)
         {
             User userAccount = (User)transaction.GetParameterValue("UserAccount");
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             UserOrganization newUserOrganization = new UserOrganization()
             {
                 Accepted = acceptedFlag,
@@ -757,7 +727,7 @@ namespace GSCrm.Repository
         /// </summary>
         private void SendOrgInvite()
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             User existsUserAccount = (User)transaction.GetParameterValue("UserAccount");
             OrgInviteParams orgInviteParams = new OrgInviteParams()
             {

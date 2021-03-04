@@ -61,55 +61,5 @@ namespace GSCrm.Mapping
                 Accepted = userOrganization.Accepted
             };
         }
-
-        /// <summary>
-        /// Обновление модели из кеша
-        /// </summary>
-        /// <param name="currentUser"></param>
-        /// <param name="orgViewModel"></param>
-        /// <param name="organizationViewTypes"></param>
-        /// <returns></returns>
-        public OrganizationViewModel Refresh(OrganizationViewModel orgViewModel, User currentUser, OrganizationViewType[] organizationViewTypes)
-        {
-            organizationViewTypes.ToList().ForEach(organizationViewType =>
-            {
-                switch (organizationViewType)
-                {
-                    // Восстановление данных поиска по подразделениям
-                    case OrganizationViewType.DIVISIONS:
-                        OrganizationViewModel orgDivView = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, DIVISIONS);
-                        orgViewModel.SearchDivName = orgDivView.SearchDivName;
-                        orgViewModel.SearchParentDivName = orgDivView.SearchParentDivName;
-                        break;
-
-                    // Восстановление данных поиска по должностям
-                    case OrganizationViewType.POSITIONS:
-                        OrganizationViewModel orgPosView = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, POSITIONS);
-                        orgViewModel.SearchPosName = orgPosView.SearchPosName;
-                        orgViewModel.SeacrhPositionDivName = orgPosView.SeacrhPositionDivName;
-                        orgViewModel.SearchParentPosName = orgPosView.SearchParentPosName;
-                        orgViewModel.SearchPrimaryEmployeeName = orgPosView.SearchPrimaryEmployeeName;
-                        break;
-
-                    // Восстановление данных поиска по сотрудникам
-                    case OrganizationViewType.EMPLOYEES:
-                        OrganizationViewModel orgEmpView = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, EMPLOYEES);
-                        orgViewModel.SearchEmployeeName = orgEmpView.SearchEmployeeName;
-                        orgViewModel.SeacrhEmployeeDivName = orgEmpView.SeacrhEmployeeDivName;
-                        orgViewModel.SearchEmployeePrimaryPosName = orgEmpView.SearchEmployeePrimaryPosName;
-                        break;
-
-                    // Восстановление данных поиска по полномочиям
-                    case OrganizationViewType.RESPONSIBILITIES:
-                        OrganizationViewModel respEmpView = cachService.GetCachedItem<OrganizationViewModel>(currentUser.Id, RESPONSIBILITIES);
-                        orgViewModel.SeacrhResponsibilityName = respEmpView.SeacrhResponsibilityName;
-                        break;
-
-                    default:
-                        break;
-                }
-            });
-            return orgViewModel;
-        }
     }
 }

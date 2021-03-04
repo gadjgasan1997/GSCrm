@@ -1,10 +1,9 @@
 ﻿@using static GSCrm.CommonConsts
-@using GSCrm.Data.ApplicationInfo
 @using GSCrm.Helpers
 @using GSCrm.Data
+@using GSCrm.Data.Cash
 @inject ApplicationDbContext context
 @inject ResManager resManager
-@using GSCrm.Data.Cash
 @inject ICachService cachService
 @model OrganizationViewModel
 @{
@@ -79,9 +78,10 @@
         @{
             await Html.RenderPartialAsync("Partial/Navigation", new NavbarRenderSettings
             {
+                Id = Model.Id,
                 ItemsCount = positionsCount,
-                ViewInfo = cachService.GetViewInfo(currentUserId, POSITIONS),
-                ControllerName = POSITION,
+                ViewInfo = cachService.GetViewInfo(currentUserId, Model.Id, POSITIONS),
+                ControllerName = ORGANIZATION,
                 ActionName = POSITIONS
             });
         }

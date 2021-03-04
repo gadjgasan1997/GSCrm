@@ -8,22 +8,12 @@ using GSCrm.Notifications.Params;
 using GSCrm.Notifications.Auxiliary;
 using GSCrm.Notifications.Factories.OrgNotFactories;
 using Microsoft.EntityFrameworkCore;
-using GSCrm.Models.Enums;
 
 namespace GSCrm.Transactions.Factories
 {
     public class SyncAccountsTF : TransactionFactory<SyncAccountViewModel>
     {
         public SyncAccountsTF(IServiceProvider serviceProvider, ApplicationDbContext context) : base(serviceProvider, context) { }
-
-        protected override void CreateHandler(OperationType operationType, SyncAccountViewModel entity)
-        {
-            if (operationType == OperationType.AccountTeamManagement)
-            {
-                Account currentAccount = cachService.GetMainEntity(currentUser, MainEntityType.AccountData) as Account;
-                transaction.AddParameter("CurrentAccount", currentAccount);
-            }
-        }
 
         protected override void CloseHandler(TransactionStatus transactionStatus, OperationType operationType)
         {
@@ -39,7 +29,7 @@ namespace GSCrm.Transactions.Factories
         /// </summary>
         private void SendNotifications()
         {
-            Account account = (Account)transaction.GetParameterValue("Account");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             Organization ownerOrg = context.Organizations.AsNoTracking().FirstOrDefault(org => org.Id == account.OrganizationId);
             Dictionary<Guid, AccTeamManagementNotType> managersNotTypes = (Dictionary<Guid, AccTeamManagementNotType>)transaction.GetParameterValue("ManagersNotTypes");
 

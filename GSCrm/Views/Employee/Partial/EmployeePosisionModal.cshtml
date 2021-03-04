@@ -9,8 +9,6 @@
 @model EmployeeViewModel
 @{
     string currentUserId = User.GetUserModel(context).Id;
-    ViewInfo allPositionsView = cachService.GetViewInfo(currentUserId, ALL_EMP_POSS);
-    ViewInfo selectedPositionsView = cachService.GetViewInfo(currentUserId, SELECTED_EMP_POSS);
 }
 
 <div id="employeePosisionModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
@@ -25,6 +23,7 @@
             <div class="modal-body">
                 <ul id="syncPositionsErrors" class="under-field-error d-none"></ul>
                 <form method="post" asp-controller="@EMP_POSITION" asp-action="Synchronize">
+                    <input id="clearPositionManagementSearch" value="@Url.Content($"/{EMP_POSITION}/{Model.Id}/ClearPositionManagementSearch/")" hidden="hidden" />
                     <div class="row">
                         <div class="col-xl">
                             <div class="row justify-content-center">
@@ -42,11 +41,11 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="allPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchAllPosition", EMP_POSITION)" />
+                                               data-href="@Url.Content($"/{EMP_POSITION}/SearchAllPosition/")" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearAllPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
-                                               data-href="@Url.Action("ClearAllPositionSearch", EMP_POSITION)" />
+                                               data-href="@Url.Content($"/{EMP_POSITION}/{Model.Id}/ClearAllPositionSearch/")" />
                                     </div>
                                 </div>
                             </div>
@@ -68,14 +67,14 @@
                             <div id="allPositionsNav" class="list-nav row no-gutters justify-content-center mt-3">
                                 <div class="col">
                                     <div class="nav-previous">
-                                        <div class="nav-url" data-href="@Url.Action("PreviousAllRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_POSITION}/{Model.Id}/PreviousAllRecords/")">
                                             <span class="icon-chevron-thin-left"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="nav-next">
-                                        <div class="nav-url" data-href="@Url.Action("NextAllRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_POSITION}/{Model.Id}/NextAllRecords/")">
                                             <span class="icon-chevron-thin-right"></span>
                                         </div>
                                     </div>
@@ -99,11 +98,11 @@
                                     </div>
                                     <div class="col-auto mb-3 mb-sm-0 text-center flex-grow-0">
                                         <input id="selectedPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("ApplyFilter")"
-                                               data-href="@Url.Action("SearchSelectedPosition", EMP_POSITION)" />
+                                               data-href="@Url.Content($"/{EMP_POSITION}/SearchSelectedPosition/")" />
                                     </div>
                                     <div class="col-auto text-center flex-grow-0">
                                         <input id="clearSelectedPositionsSearch" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Clear")"
-                                               data-href="@Url.Action("ClearSelectedPositionSearch", EMP_POSITION)" />
+                                               data-href="@Url.Content($"/{EMP_POSITION}/{Model.Id}/ClearSelectedPositionSearch/")" />
                                     </div>
                                 </div>
                             </div>
@@ -126,14 +125,14 @@
                             <div id="selectedPositionsNav" class="list-nav row no-gutters justify-content-center mt-3">
                                 <div class="col">
                                     <div class="nav-previous">
-                                        <div class="nav-url" data-href="@Url.Action("PreviousSelectedRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_POSITION}/{Model.Id}/PreviousSelectedRecords/")">
                                             <span class="icon-chevron-thin-left"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="nav-next">
-                                        <div class="nav-url" data-href="@Url.Action("NextSelectedRecords", EMP_POSITION, new { employeeId = Model.Id })">
+                                        <div class="nav-url" data-href="@Url.Content($"/{EMP_POSITION}/{Model.Id}/NextSelectedRecords/")">
                                             <span class="icon-chevron-thin-right"></span>
                                         </div>
                                     </div>

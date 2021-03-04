@@ -11,22 +11,29 @@ using static GSCrm.CommonConsts;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using GSCrm.Data;
+using Microsoft.AspNetCore.Http.Extensions;
+using GSCrm.Data.Cash;
 
 namespace GSCrm.Controllers
 {
     //[Route(AUTH)]
     public class AuthController : Controller
     {
+        #region Declarations
         private readonly IServiceProvider serviceProvider;
         private readonly ApplicationDbContext context;
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
+        private readonly ICachService cachService;
+        #endregion
+
         public AuthController(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
             this.serviceProvider = serviceProvider;
             this.context = context;
             userManager = serviceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
             signInManager = serviceProvider.GetService(typeof(SignInManager<User>)) as SignInManager<User>;
+            cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
         }
 
         /// <summary>
@@ -104,8 +111,8 @@ namespace GSCrm.Controllers
             ModelStateDictionary modelState = ModelState;
             AuthRepository authRepository = new AuthRepository(serviceProvider, context);
             if (await authRepository.TryLogin(model, modelState))
-                return Json(Url.Action("Index", "Home"));
-            else return BadRequest(ModelState);
+                return Json(string.IsNullOrEmpty(model.ReturnUrl) ? Url.Action("Index", "Home") : model.ReturnUrl);
+            return BadRequest(ModelState);
         }
 
         /// <summary>

@@ -17,18 +17,34 @@ namespace GSCrm.Repository
         { }
 
         #region Attach Notifications
-        public void AttachNotifications(ref UserNotificationsViewModel userNotsViewModel)
+        public void AttachNotifications(UserNotificationsViewModel userNotsViewModel)
             => userNotsViewModel.UserNotificationViewModels = context.GetUserNotifications(currentUser).MapToViewModels(map, GetLimitedList);
 
         private List<UserNotification> GetLimitedList(List<UserNotification> userNots)
         {
             List<UserNotification> limitesUserNots = userNots;
-            LimitListByPageNumber(USER_NOTS, ref limitesUserNots);
+            LimitViewItemsByPageNumber(USER_NOTS, ref limitesUserNots);
             return limitesUserNots;
         }
         #endregion
 
         #region Override
+        public UserNotificationsViewModel LoadNotificationsView()
+        {
+            UserNotificationsViewModel userNotsViewModel = cachService.GetCachedCurrentEntity<UserNotificationsViewModel>(currentUser);
+
+            // Прикрепление всех сущностей
+            AttachNotifications(userNotsViewModel);
+            UserNotificationsSetting userNotSetting = context.UserNotificationsSettings.AsNoTracking().FirstOrDefault(u => u.UserId == currentUser.Id);
+            userNotsViewModel.UserNotificationsSettingId = userNotSetting.Id.ToString();
+
+            // Кеширование модели
+            cachService.SetCurrentView(currentUser.Id, USER_NOTS);
+            cachService.CacheEntity(currentUser, userNotsViewModel);
+            cachService.CacheCurrentEntity(currentUser, userNotsViewModel);
+            return userNotsViewModel;
+        }
+
         protected override bool RespsIsCorrectOnDelete(UserNotification entityToDelete) => true;
 
         protected override bool TryDeletePrepare(UserNotification userNot)
@@ -61,22 +77,23 @@ namespace GSCrm.Repository
             if (userNot != null)
             {
                 // Создание транзакции и изменние признака прочитанного уведомления
-                transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.Update);
+                transaction = viewModelsTF.Create(currentUser.Id, OperationType.Update);
                 userNot.HasRead = hasReed;
                 transaction.AddChange(userNot, EntityState.Modified);
 
                 // Попытка сделать коммит
-                if (viewModelsTransactionFactory.TryCommit(transaction, errors))
+                if (viewModelsTF.TryCommit(transaction, errors))
                 {
                     // Если успешно, закрытие транзакции и изменение счетчика уведомлений пользователя
-                    viewModelsTransactionFactory.Close(transaction);
-                    int.TryParse(cachService.GetCachedItem(currentUser.Id, "NotsCount"), out int notsCount);
-                    if (hasReed) notsCount--;
-                    else notsCount++;
-                    cachService.CacheItem(currentUser.Id, "NotsCount", notsCount.ToString());
-
+                    viewModelsTF.Close(transaction);
+                    if (cachService.TryGetValue(currentUser, "NotsCount", out int notsCount))
+                    {
+                        if (hasReed) notsCount--;
+                        else notsCount++;
+                        cachService.AddOrUpdate(currentUser, "NotsCount", notsCount);
+                    }
                 }
-                else viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+                else viewModelsTF.Close(transaction, TransactionStatus.Error);
             }
         }
 
@@ -95,9 +112,11 @@ namespace GSCrm.Repository
         public void OnUserNotAdded(User targetUser)
         {
             // Необходимо инкрементировать счетчик непрочитанных сообщений
-            int.TryParse(cachService.GetCachedItem(targetUser.Id, "NotsCount"), out int notsCount);
-            notsCount++;
-            cachService.CacheItem(targetUser.Id, "NotsCount", notsCount.ToString());
+            if (cachService.TryGetValue(targetUser, "NotsCount", out int notsCount))
+            {
+                notsCount++;
+                cachService.AddOrUpdate(targetUser, "NotsCount", notsCount);
+            }
         }
 
         /// <summary>
@@ -107,11 +126,10 @@ namespace GSCrm.Repository
         public void OnUserNotRemoved(UserNotification userNot)
         {
             // Необходимо уменьшить счетчик непрочитанных сообщений, если сообщение не было прочитано перед удалением
-            if (!userNot.HasRead)
+            if (!userNot.HasRead && cachService.TryGetValue(currentUser, "NotsCount", out int notsCount))
             {
-                int.TryParse(cachService.GetCachedItem(currentUser.Id, "NotsCount"), out int notsCount);
                 notsCount--;
-                cachService.CacheItem(currentUser.Id, "NotsCount", notsCount.ToString());
+                cachService.AddOrUpdate(currentUser, "NotsCount", notsCount);
             }
         }
         #endregion

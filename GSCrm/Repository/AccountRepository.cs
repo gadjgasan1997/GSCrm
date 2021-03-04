@@ -3,32 +3,25 @@ using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Models.ViewTypes;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using GSCrm.Data;
 using GSCrm.Transactions;
-using static GSCrm.CommonConsts;
-using static GSCrm.RegexConsts;
-using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Validators;
 using Newtonsoft.Json.Linq;
 using GSCrm.Utils;
 using GSCrm.Models.Enums;
+using static GSCrm.CommonConsts;
+using static GSCrm.RegexConsts;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
     public class AccountRepository : BaseRepository<Account, AccountViewModel>
     {
         #region Declarations
-        /// <summary>
-        /// Все типы представлений, связанные с клиентами
-        /// </summary>
-        public static AccountViewType[] AccAllViewTypes => new AccountViewType[] {
-            AccountViewType.ACC_CONTACTS, AccountViewType.ACC_ADDRESSES, AccountViewType.ACC_INVOICES,
-            AccountViewType.ACC_QUOTES, AccountViewType.ACC_DOCS, AccountViewType.ACC_MANAGERS };
         // Длины имени, фамилия и отчества
         private const int FIRST_NAME_MIN_LENGTH = 2;
         private const int FIRST_NAME_MAX_LENGTH = 300;
@@ -74,6 +67,43 @@ namespace GSCrm.Repository
             return userOrganizations.Select(userOrg => userOrg.OrganizationId).ToList().Contains(account.OrganizationId);
         }
 
+        public AccountsViewModel LoadView()
+        {
+            AccountsViewModel accountsViewModel = cachService.GetCachedCurrentEntity<AccountsViewModel>(currentUser);
+
+            // Проставление списка всех организаций, в которых состоит пользователь
+            List<Organization> organizations = context.UserOrganizations
+                .AsNoTracking().Include(org => org.Organization)
+                .Where(userOrg => userOrg.UserId == currentUser.Id && userOrg.Accepted)
+                .Select(org => org.Organization).ToList();
+            accountsViewModel.UserOrganizations = organizations.GetViewModelsFromData(new OrganizationMap(serviceProvider, context));
+
+            // Проставление основной организации
+            Organization primaryOrganization = organizations.FirstOrDefault(i => i.Id == currentUser.PrimaryOrganizationId);
+            if (primaryOrganization != null)
+                accountsViewModel.PrimaryOrganization = new OrganizationMap(serviceProvider, context).DataToViewModel(primaryOrganization);
+
+            AttachAccounts(accountsViewModel);
+            return accountsViewModel;
+        }
+
+        public override AccountViewModel LoadView(Account account)
+        {
+            AccountViewModel accountViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+
+            // Прикрепление всех сущностей
+            AttachContacts(accountViewModel);
+            AttachAddresses(accountViewModel);
+            AttachInvoices(accountViewModel);
+            AttachManagers(accountViewModel);
+
+            // Кеширование модели
+            cachService.SetCurrentView(currentUser.Id, ACCOUNT);
+            cachService.CacheEntity(currentUser, accountViewModel);
+            cachService.CacheCurrentEntity(currentUser, accountViewModel);
+            return accountViewModel;
+        }
+
         /// <summary>
         /// Возвращает true всегда, так как на текущий момент неизвестно, под какой организацией создается клиент
         /// </summary>
@@ -83,6 +113,8 @@ namespace GSCrm.Repository
 
         protected override bool TryCreatePrepare(AccountViewModel accountViewModel)
         {
+            accountViewModel.Normalize();
+
             // Проверка, что у пользователя id организации, под которой создается клиент не пустой 
             Guid organizationId = accountViewModel.OrganizationId != Guid.Empty ? accountViewModel.OrganizationId : currentUser.PrimaryOrganizationId;
             if (organizationId == Guid.Empty)
@@ -90,12 +122,12 @@ namespace GSCrm.Repository
             else
             {
                 // Установка организации, под которой создается клиент и ее Id
-                Organization currentOrganization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
+                Organization ownerOrganization = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == organizationId);
                 transaction.AddParameter("OrganizationId", organizationId);
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
+                transaction.AddParameter("CurrentOrganization", ownerOrganization);
 
                 // Проверка полномочий
-                if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("AccCreate", transaction))
+                if (!new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("AccCreate"))
                     AddHasNoPermissionsError(OperationType.Create);
 
                 // Остальные проверки
@@ -149,10 +181,12 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(AccountViewModel accountViewModel)
-            => CheckPermissionForAccountGroup("AccUpdate", transaction);
+            => CheckPermissionForAccountGroup("AccUpdate");
 
         protected override bool TryUpdatePrepare(AccountViewModel accountViewModel)
         {
+            accountViewModel.Normalize();
+
             if (TryCheckAccountType(accountViewModel))
             {
                 Account account = context.Accounts.AsNoTracking().FirstOrDefault(i => i.Id == accountViewModel.Id);
@@ -175,8 +209,7 @@ namespace GSCrm.Repository
                         InvokeIntermittinActions(errors, new List<Action>()
                         {
                             () => {
-                                string fullName = accountViewModel.Name.TrimStartAndEnd();
-                                if (account.Name != fullName)
+                                if (account.Name != accountViewModel.Name)
                                     errors.Add("IndividualNameIsReadonly", resManager.GetString("IndividualNameIsReadonly"));
                             },
                             () => CheckINNOnUpdate(accountViewModel)
@@ -207,44 +240,49 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnDelete(Account account)
-            => CheckPermissionForAccountGroup("AccDelete", transaction);
-
-        protected override void FailureUpdateHandler(AccountViewModel accountViewModel)
-        {
-            if (TryGetItemById(accountViewModel.Id, out Account account))
-            {
-                accountViewModel = map.DataToViewModel(account);
-                accountViewModel = new AccountMap(serviceProvider, context).Refresh(accountViewModel, currentUser, AccAllViewTypes);
-                AttachContacts(accountViewModel);
-                AttachAddresses(accountViewModel);
-                AttachInvoices(accountViewModel);
-                AttachQuotes(accountViewModel);
-                AttachManagers(accountViewModel);
-            }
-        }
+            => CheckPermissionForAccountGroup("AccDelete");
         #endregion
 
         #region Searching
-        /// <summary>
-        /// Метод очищает поиск по всем клиентам
-        /// </summary>
-        public void ClearAllAccountsSearch()
+        public void SearchAllAccounts(AccountsViewModel accountsViewModel)
         {
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, ALL_ACCS);
-            accountsViewModelCash.AllAccountsSearchName = default;
-            accountsViewModelCash.AllAccountsSearchType = default;
-            cachService.CacheItem(currentUser.Id, ALL_ACCS, accountsViewModelCash);
+            accountsViewModel.NormalizeSearch();
+            AccountsViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountsViewModel>(currentUser);
+            cachedViewModel.AllAccountsSearchName = accountsViewModel.AllAccountsSearchName;
+            cachedViewModel.AllAccountsSearchType = accountsViewModel.AllAccountsSearchType;
         }
 
-        /// <summary>
-        /// Метод очищает поиск по клиентам основной организации пользователя
-        /// </summary>
+        public void ClearAllAccountsSearch()
+        {
+            AccountsViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountsViewModel>(currentUser);
+            cachedViewModel.AllAccountsSearchName = default;
+            cachedViewModel.AllAccountsSearchType = default;
+        }
+
+        public void SearchCurrentAccounts(AccountsViewModel accountsViewModel)
+        {
+            accountsViewModel.NormalizeSearch();
+            AccountsViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountsViewModel>(currentUser);
+            cachedViewModel.CurrentAccountsSearchName = accountsViewModel.CurrentAccountsSearchName;
+            cachedViewModel.CurrentAccountsSearchType = accountsViewModel.CurrentAccountsSearchType;
+        }
+
         public void ClearCurrentAccountsSearch()
         {
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, CURRENT_ACCS);
-            accountsViewModelCash.CurrentAccountsSearchName = default;
-            accountsViewModelCash.CurrentAccountsSearchType = default;
-            cachService.CacheItem(currentUser.Id, CURRENT_ACCS, accountsViewModelCash);
+            AccountsViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountsViewModel>(currentUser);
+            cachedViewModel.CurrentAccountsSearchName = default;
+            cachedViewModel.CurrentAccountsSearchType = default;
+        }
+
+        public void SearchContact(AccountViewModel accountViewModel)
+        {
+            accountViewModel.NormalizeSearch();
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchContactFullName = accountViewModel.SearchContactFullName;
+            cachedViewModel.SearchContactType = accountViewModel.SearchContactType;
+            cachedViewModel.SearchContactEmail = accountViewModel.SearchContactEmail;
+            cachedViewModel.SearchContactPhoneNumber = accountViewModel.SearchContactPhoneNumber;
+            cachedViewModel.SearchContactPrimary = accountViewModel.SearchContactPrimary;
         }
 
         /// <summary>
@@ -252,13 +290,24 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearContactSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_CONTACTS);
-            accountViewModelCash.SearchContactFullName = default;
-            accountViewModelCash.SearchContactType = default;
-            accountViewModelCash.SearchContactEmail = default;
-            accountViewModelCash.SearchContactPhoneNumber = default;
-            accountViewModelCash.SearchContactPrimary = default;
-            cachService.CacheItem(currentUser.Id, ACC_CONTACTS, accountViewModelCash);
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchContactFullName = default;
+            cachedViewModel.SearchContactType = default;
+            cachedViewModel.SearchContactEmail = default;
+            cachedViewModel.SearchContactPhoneNumber = default;
+            cachedViewModel.SearchContactPrimary = default;
+        }
+
+        public void SearchAddress(AccountViewModel accountViewModel)
+        {
+            accountViewModel.NormalizeSearch();
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchAddressType = accountViewModel.SearchAddressType;
+            cachedViewModel.SearchAddressCountry = accountViewModel.SearchAddressCountry;
+            cachedViewModel.SearchAddressRegion = accountViewModel.SearchAddressRegion;
+            cachedViewModel.SearchAddressCity = accountViewModel.SearchAddressCity;
+            cachedViewModel.SearchAddressStreet = accountViewModel.SearchAddressStreet;
+            cachedViewModel.SearchAddressHouse = accountViewModel.SearchAddressHouse;
         }
 
         /// <summary>
@@ -266,40 +315,40 @@ namespace GSCrm.Repository
         /// </summary>
         public void ClearAddressSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_ADDRESSES);
-            accountViewModelCash.SearchAddressType = default;
-            accountViewModelCash.SearchAddressCountry = default;
-            accountViewModelCash.SearchAddressRegion = default;
-            accountViewModelCash.SearchAddressCity = default;
-            accountViewModelCash.SearchAddressStreet = default;
-            accountViewModelCash.SearchAddressHouse = default;
-            cachService.CacheItem(currentUser.Id, ACC_ADDRESSES, accountViewModelCash);
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchAddressType = default;
+            cachedViewModel.SearchAddressCountry = default;
+            cachedViewModel.SearchAddressRegion = default;
+            cachedViewModel.SearchAddressCity = default;
+            cachedViewModel.SearchAddressStreet = default;
+            cachedViewModel.SearchAddressHouse = default;
+        }
+
+        public void SearchInvoice(AccountViewModel accountViewModel)
+        {
+            accountViewModel.NormalizeSearch();
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchInvoiceBankName = accountViewModel.SearchInvoiceBankName;
+            cachedViewModel.SearchInvoiceCity = accountViewModel.SearchInvoiceCity;
+            cachedViewModel.SearchInvoiceCheckingAccount = accountViewModel.SearchInvoiceCheckingAccount;
+            cachedViewModel.SearchInvoiceCorrespondentAccount = accountViewModel.SearchInvoiceCorrespondentAccount;
+            cachedViewModel.SearchInvoiceBIC = accountViewModel.SearchInvoiceBIC;
+            cachedViewModel.SearchInvoiceSWIFT = accountViewModel.SearchInvoiceSWIFT;
         }
 
         /// <summary>
         /// Очистка поиска по банкосвким реквизитам клиента
         /// </summary>
-        public void ClearInvoiceSearch()
+        public void ClearInvoicesSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_INVOICES);
-            accountViewModelCash.SearchInvoiceBankName = default;
-            accountViewModelCash.SearchInvoiceCity = default;
-            accountViewModelCash.SearchInvoiceCheckingAccount = default;
-            accountViewModelCash.SearchInvoiceCorrespondentAccount = default;
-            accountViewModelCash.SearchInvoiceBIC = default;
-            accountViewModelCash.SearchInvoiceSWIFT = default;
-            cachService.CacheItem(currentUser.Id, ACC_INVOICES, accountViewModelCash);
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchInvoiceBankName = default;
+            cachedViewModel.SearchInvoiceCity = default;
+            cachedViewModel.SearchInvoiceCheckingAccount = default;
+            cachedViewModel.SearchInvoiceCorrespondentAccount = default;
+            cachedViewModel.SearchInvoiceBIC = default;
+            cachedViewModel.SearchInvoiceSWIFT = default;
         }
-
-        /// <summary>
-        /// Очистка поиска по сделкам клиента
-        /// </summary>
-        public void ClearQuoteSearch()
-        {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_QUOTES);
-            cachService.CacheItem(currentUser.Id, ACC_QUOTES, accountViewModelCash);
-        }
-
         #endregion
 
         #region Attaching Accounts
@@ -308,7 +357,7 @@ namespace GSCrm.Repository
         /// Метод добавляет список моделей отображения клиента к модели "AccountsViewModel"
         /// </summary>
         /// <param name="accountsViewModel"></param>
-        public void AttachAccounts(ref AccountsViewModel accountsViewModel)
+        public void AttachAccounts(AccountsViewModel accountsViewModel)
         {
             List<Account> allAccounts = context.GetAllAccounts(currentUser);
             List<Account> currentAccounts = new List<Account>(allAccounts);
@@ -324,10 +373,10 @@ namespace GSCrm.Repository
         private List<Account> GetLimitedAllAccountsList(List<Account> accounts)
         {
             List<Account> limitedAccounts = accounts;
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, ALL_ACCS);
-            LimitAllAccsBySearchName(ref limitedAccounts, accountsViewModelCash);
-            LimitAllAccsBySearchType(ref limitedAccounts, accountsViewModelCash);
-            LimitListByPageNumber(ALL_ACCS, ref limitedAccounts);
+            AccountsViewModel accountsViewModel = cachService.GetCachedCurrentEntity<AccountsViewModel>(currentUser);
+            LimitAllAccsBySearchName(ref limitedAccounts, accountsViewModel);
+            LimitAllAccsBySearchType(ref limitedAccounts, accountsViewModel);
+            LimitViewItemsByPageNumber(ALL_ACCS, ref limitedAccounts);
             return limitedAccounts;
         }
 
@@ -360,10 +409,10 @@ namespace GSCrm.Repository
         private List<Account> GetLimitedCurrentAccountsList(List<Account> accounts)
         {
             List<Account> limitedAccounts = accounts.Where(orgId => orgId.OrganizationId == currentUser.PrimaryOrganizationId).ToList();
-            AccountsViewModel accountsViewModelCash = cachService.GetCachedItem<AccountsViewModel>(currentUser.Id, CURRENT_ACCS);
-            LimitCurrentAccsBySearchName(ref limitedAccounts, accountsViewModelCash);
-            LimitCurrentAccsBySearchType(ref limitedAccounts, accountsViewModelCash);
-            LimitListByPageNumber(CURRENT_ACCS, ref limitedAccounts);
+            AccountsViewModel accountsViewModel = cachService.GetCachedCurrentEntity<AccountsViewModel>(currentUser);
+            LimitCurrentAccsBySearchName(ref limitedAccounts, accountsViewModel);
+            LimitCurrentAccsBySearchType(ref limitedAccounts, accountsViewModel);
+            LimitViewItemsByPageNumber(CURRENT_ACCS, ref limitedAccounts);
             return limitedAccounts;
         }
 
@@ -397,21 +446,19 @@ namespace GSCrm.Repository
         /// </summary>
         /// <param name="accountViewModel"></param>
         public void AttachContacts(AccountViewModel accountViewModel)
-        {
-            accountViewModel.AccountContacts = accountViewModel.GetContacts(context)
-                .MapToViewModels(new AccountContactMap(serviceProvider, context), GetLimitedAccContactsList);
-        }
+            => accountViewModel.AccountContacts = accountViewModel.GetContacts(context)
+                .MapToViewModels(accountViewModel, new AccountContactMap(serviceProvider, context), (accountViewModel, accountContacts) =>
+                    GetLimitedAccContactsList(accountViewModel, accountContacts));
 
-        private List<AccountContact> GetLimitedAccContactsList(List<AccountContact> accountContacts)
+        private List<AccountContact> GetLimitedAccContactsList(AccountViewModel accountViewModel, List<AccountContact> accountContacts)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_CONTACTS);
             List<AccountContact> limitedAccContacts = accountContacts;
-            LimitContactsByFullName(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByType(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByPhoneNumber(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByEmail(ref limitedAccContacts, accountViewModelCash);
-            LimitContactsByPrimarySign(ref limitedAccContacts, accountViewModelCash);
-            LimitListByPageNumber(ACC_CONTACTS, ref limitedAccContacts);
+            LimitContactsByFullName(ref limitedAccContacts, accountViewModel);
+            LimitContactsByType(ref limitedAccContacts, accountViewModel);
+            LimitContactsByPhoneNumber(ref limitedAccContacts, accountViewModel);
+            LimitContactsByEmail(ref limitedAccContacts, accountViewModel);
+            LimitContactsByPrimarySign(ref limitedAccContacts, accountViewModel);
+            LimitViewItemsByPageNumber(accountViewModel.Id, ACC_CONTACTS, ref limitedAccContacts);
             return limitedAccContacts;
         }
 
@@ -464,7 +511,7 @@ namespace GSCrm.Repository
         /// <param name="accountContactsToLimit"></param>
         private void LimitContactsByPrimarySign(ref List<AccountContact> accountContactsToLimit, AccountViewModel accountViewModel)
         {
-            Account account = context.Accounts.FirstOrDefault(i => i.Id == accountViewModel.Id);
+            Account account = context.Accounts.AsNoTracking().FirstOrDefault(i => i.Id == accountViewModel.Id);
             if (accountViewModel.SearchContactPrimary)
                 accountContactsToLimit = accountContactsToLimit.Where(i => i.Id == account.PrimaryContactId).ToList();
         }
@@ -472,7 +519,6 @@ namespace GSCrm.Repository
         #endregion
 
         #region Attaching Addresses
-
         /// <summary>
         /// Добавляет адреса к клиенту
         /// </summary>
@@ -481,22 +527,22 @@ namespace GSCrm.Repository
         {
             List<AccountAddress> accountAddresses = accountViewModel.GetAddresses(context);
             accountViewModel.AccountAddresses = accountAddresses.MapToViewModels(
-                    map: new AccountAddressMap(serviceProvider, context),
-                    limitingFunc: GetLimitedAccAddressesList);
+                parentEntity: accountViewModel,
+                map: new AccountAddressMap(serviceProvider, context),
+                limitingFunc: (accountViewModel, accountAddresses) => GetLimitedAccAddressesList(accountViewModel, accountAddresses));
             accountViewModel.AllAccountAddresses = accountAddresses.GetViewModelsFromData(new AccountAddressMap(serviceProvider, context));
         }
 
-        private List<AccountAddress> GetLimitedAccAddressesList(List<AccountAddress> accountAddresses)
+        private List<AccountAddress> GetLimitedAccAddressesList(AccountViewModel accountViewModel, List<AccountAddress> accountAddresses)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_ADDRESSES);
             List<AccountAddress> limitedAccAddresses = accountAddresses;
-            LimitAddressesByCountry(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByRegion(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByCity(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByStreet(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByHouse(ref limitedAccAddresses, accountViewModelCash);
-            LimitAddressesByType(ref limitedAccAddresses, accountViewModelCash);
-            LimitListByPageNumber(ACC_ADDRESSES, ref limitedAccAddresses);
+            LimitAddressesByCountry(ref limitedAccAddresses, accountViewModel);
+            LimitAddressesByRegion(ref limitedAccAddresses, accountViewModel);
+            LimitAddressesByCity(ref limitedAccAddresses, accountViewModel);
+            LimitAddressesByStreet(ref limitedAccAddresses, accountViewModel);
+            LimitAddressesByHouse(ref limitedAccAddresses, accountViewModel);
+            LimitAddressesByType(ref limitedAccAddresses, accountViewModel);
+            LimitViewItemsByPageNumber(accountViewModel.Id, ACC_ADDRESSES, ref limitedAccAddresses);
             return limitedAccAddresses;
         }
 
@@ -579,22 +625,20 @@ namespace GSCrm.Repository
         /// </summary>
         /// <param name="accountViewModel"></param>
         public void AttachInvoices(AccountViewModel accountViewModel)
-        {
-            accountViewModel.AccountInvoices = accountViewModel.GetInvoices(context)
-                .MapToViewModels(new AccountInvoiceMap(serviceProvider, context), GetLimitedAccInvoicesList);
-        }
+            => accountViewModel.AccountInvoices = accountViewModel.GetInvoices(context)
+                .MapToViewModels(accountViewModel, new AccountInvoiceMap(serviceProvider, context), (accountViewModel, accountInvoices) =>
+                    GetLimitedAccInvoicesList(accountViewModel, accountInvoices));
 
-        private List<AccountInvoice> GetLimitedAccInvoicesList(List<AccountInvoice> accountInvoices)
+        private List<AccountInvoice> GetLimitedAccInvoicesList(AccountViewModel accountViewModel, List<AccountInvoice> accountInvoices)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_INVOICES);
             List<AccountInvoice> limitedAccInvoices = accountInvoices;
-            LimitInvoicesByBankName(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByCity(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByCheckingAccount(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByCorrespondentAccount(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesByBIC(ref limitedAccInvoices, accountViewModelCash);
-            LimitInvoicesBySWIFT(ref limitedAccInvoices, accountViewModelCash);
-            LimitListByPageNumber(ACC_INVOICES, ref limitedAccInvoices);
+            LimitInvoicesByBankName(ref limitedAccInvoices, accountViewModel);
+            LimitInvoicesByCity(ref limitedAccInvoices, accountViewModel);
+            LimitInvoicesByCheckingAccount(ref limitedAccInvoices, accountViewModel);
+            LimitInvoicesByCorrespondentAccount(ref limitedAccInvoices, accountViewModel);
+            LimitInvoicesByBIC(ref limitedAccInvoices, accountViewModel);
+            LimitInvoicesBySWIFT(ref limitedAccInvoices, accountViewModel);
+            LimitViewItemsByPageNumber(accountViewModel.Id, ACC_INVOICES, ref limitedAccInvoices);
             return limitedAccInvoices;
         }
 
@@ -617,7 +661,7 @@ namespace GSCrm.Repository
         private void LimitInvoicesByCity(ref List<AccountInvoice> accountInvoicesToLimit, AccountViewModel accountViewModel)
         {
             if (!string.IsNullOrEmpty(accountViewModel.SearchInvoiceCity))
-                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.BankName.ToLower().Contains(accountViewModel.SearchInvoiceCity)).ToList();
+                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.City.ToLower().Contains(accountViewModel.SearchInvoiceCity)).ToList();
         }
 
         /// <summary>
@@ -628,7 +672,7 @@ namespace GSCrm.Repository
         private void LimitInvoicesByCheckingAccount(ref List<AccountInvoice> accountInvoicesToLimit, AccountViewModel accountViewModel)
         {
             if (!string.IsNullOrEmpty(accountViewModel.SearchInvoiceCheckingAccount))
-                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.BankName.ToLower().Contains(accountViewModel.SearchInvoiceCheckingAccount)).ToList();
+                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.CheckingAccount.ToLower().Contains(accountViewModel.SearchInvoiceCheckingAccount)).ToList();
         }
 
         /// <summary>
@@ -639,7 +683,7 @@ namespace GSCrm.Repository
         private void LimitInvoicesByCorrespondentAccount(ref List<AccountInvoice> accountInvoicesToLimit, AccountViewModel accountViewModel)
         {
             if (!string.IsNullOrEmpty(accountViewModel.SearchInvoiceCorrespondentAccount))
-                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.BankName.ToLower().Contains(accountViewModel.SearchInvoiceCorrespondentAccount)).ToList();
+                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.CorrespondentAccount.ToLower().Contains(accountViewModel.SearchInvoiceCorrespondentAccount)).ToList();
         }
 
         /// <summary>
@@ -650,7 +694,7 @@ namespace GSCrm.Repository
         private void LimitInvoicesByBIC(ref List<AccountInvoice> accountInvoicesToLimit, AccountViewModel accountViewModel)
         {
             if (!string.IsNullOrEmpty(accountViewModel.SearchInvoiceBIC))
-                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.BankName.ToLower().Contains(accountViewModel.SearchInvoiceBIC)).ToList();
+                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.BIC.ToLower().Contains(accountViewModel.SearchInvoiceBIC)).ToList();
         }
 
         /// <summary>
@@ -661,28 +705,7 @@ namespace GSCrm.Repository
         private void LimitInvoicesBySWIFT(ref List<AccountInvoice> accountInvoicesToLimit, AccountViewModel accountViewModel)
         {
             if (!string.IsNullOrEmpty(accountViewModel.SearchInvoiceSWIFT))
-                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.BankName.ToLower().Contains(accountViewModel.SearchInvoiceSWIFT)).ToList();
-        }
-
-        #endregion
-
-        #region Attaching Quotes
-
-        /// <summary>
-        /// Добавляет сделки к клиенту
-        /// </summary>
-        /// <param name="accountViewModel"></param>
-        public void AttachQuotes(AccountViewModel accountViewModel)
-        {
-
-        }
-
-        private List<AccountQuote> GetLimitedAccQuotesList(List<AccountQuote> accountQuotes)
-        {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_QUOTES);
-            List<AccountQuote> limitedAccQuotes = accountQuotes;
-            LimitListByPageNumber(ACC_QUOTES, ref limitedAccQuotes);
-            return limitedAccQuotes;
+                accountInvoicesToLimit = accountInvoicesToLimit.Where(acc => acc.SWIFT.ToLower().Contains(accountViewModel.SearchInvoiceSWIFT)).ToList();
         }
 
         #endregion
@@ -694,10 +717,8 @@ namespace GSCrm.Repository
         /// </summary>
         /// <param name="accountViewModel"></param>
         public void AttachManagers(AccountViewModel accountViewModel)
-        {
-            accountViewModel.AccountManagers = accountViewModel.GetAccTeam(context).GetViewModelsFromData
-                <AccountManager, AccountManagerViewModel>(new AccountManagerMap(serviceProvider, context));
-        }
+            => accountViewModel.AccountManagers = accountViewModel.GetAccTeam(context)
+                .GetViewModelsFromData(new AccountManagerMap(serviceProvider, context));
 
         #endregion
 
@@ -709,7 +730,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         private void CheckINNOnCreate(AccountViewModel accountViewModel)
         {
-            string inn = accountViewModel.INN.TrimStartAndEnd();
+            string inn = accountViewModel.INN;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckINN(inn),
@@ -723,7 +744,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         private void CheckINNOnUpdate(AccountViewModel accountViewModel)
         {
-            string inn = accountViewModel.INN.TrimStartAndEnd();
+            string inn = accountViewModel.INN;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckINN(inn),
@@ -874,7 +895,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         private void CheckKPPOnCreate(AccountViewModel accountViewModel)
         {
-            string kpp = accountViewModel.KPP.TrimStartAndEnd();
+            string kpp = accountViewModel.KPP;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckKPP(kpp),
@@ -888,7 +909,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         private void CheckKPPOnUpdate(AccountViewModel accountViewModel)
         {
-            string kpp = accountViewModel.KPP.TrimStartAndEnd();
+            string kpp = accountViewModel.KPP;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckKPP(kpp),
@@ -950,7 +971,7 @@ namespace GSCrm.Repository
         /// <param name="okpo"></param>
         private void CheckOKPOOnCreate(AccountViewModel accountViewModel)
         {
-            string okpo = accountViewModel.OKPO?.TrimStartAndEnd();
+            string okpo = accountViewModel.OKPO;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckOKPO(okpo),
@@ -964,7 +985,7 @@ namespace GSCrm.Repository
         /// <param name="okpo"></param>
         private void CheckOKPOOnUpdate(AccountViewModel accountViewModel)
         {
-            string okpo = accountViewModel.OKPO?.TrimStartAndEnd();
+            string okpo = accountViewModel.OKPO;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckOKPO(okpo),
@@ -1075,7 +1096,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         private void CheckOGRNOnCreate(AccountViewModel accountViewModel)
         {
-            string ogrn = accountViewModel.OGRN?.TrimStartAndEnd();
+            string ogrn = accountViewModel.OGRN;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckOGRN(ogrn),
@@ -1089,7 +1110,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         private void CheckOGRNOnUpdate(AccountViewModel accountViewModel)
         {
-            string ogrn = accountViewModel.OGRN?.TrimStartAndEnd();
+            string ogrn = accountViewModel.OGRN;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CheckOGRN(ogrn),
@@ -1187,7 +1208,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (string.IsNullOrEmpty(accountViewModel.Name.TrimStartAndEnd()))
+                    if (string.IsNullOrEmpty(accountViewModel.Name))
                         errors.Add("IENameLength", resManager.GetString("IENameLength"));
                 },
                 () => CheckIENameNotExistsOnCreate(accountViewModel)
@@ -1203,7 +1224,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (string.IsNullOrEmpty(accountViewModel.Name.TrimStartAndEnd()))
+                    if (string.IsNullOrEmpty(accountViewModel.Name))
                         errors.Add("IENameLength", resManager.GetString("IENameLength"));
                 },
                 () => CheckIENameNotExistsOnUpdate(accountViewModel)
@@ -1217,7 +1238,7 @@ namespace GSCrm.Repository
         private void CheckIENameNotExistsOnCreate(AccountViewModel accountViewModel)
         {
             List<Account> orgAccounts = context.GetOrgAccounts(currentUser.PrimaryOrganizationId);
-            Account ieWithSameName = orgAccounts.FirstOrDefault(n => n.Name == accountViewModel.Name.TrimStartAndEnd());
+            Account ieWithSameName = orgAccounts.FirstOrDefault(n => n.Name == accountViewModel.Name);
             if (ieWithSameName != null)
                 errors.Add("AccountAlreadyExists", resManager.GetString("AccountAlreadyExists"));
         }
@@ -1230,7 +1251,7 @@ namespace GSCrm.Repository
         {
             // Список всех клиентов, созданных организацией, к которой относится обновляемый клиент
             List<Account> orgAccounts = context.GetOrgAccounts(accountViewModel.OrganizationId);
-            Account ieWithSameName = orgAccounts.FirstOrDefault(acc => acc.Name == accountViewModel.Name.TrimStartAndEnd() && acc.Id != accountViewModel.Id);
+            Account ieWithSameName = orgAccounts.FirstOrDefault(acc => acc.Name == accountViewModel.Name && acc.Id != accountViewModel.Id);
             if (ieWithSameName != null)
                 errors.Add("AccountAlreadyExists", resManager.GetString("AccountAlreadyExists"));
         }
@@ -1244,7 +1265,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (string.IsNullOrEmpty(accountViewModel.Name.TrimStartAndEnd()))
+                    if (string.IsNullOrEmpty(accountViewModel.Name))
                         errors.Add("LENameLength", resManager.GetString("LENameLength"));
                 },
                 () => CheckLENameNotExistsOnCreate(accountViewModel)
@@ -1260,7 +1281,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (string.IsNullOrEmpty(accountViewModel.Name.TrimStartAndEnd()))
+                    if (string.IsNullOrEmpty(accountViewModel.Name))
                         errors.Add("LENameLength", resManager.GetString("LENameLength"));
                 },
                 () => CheckLENameNotExistsOnUpdate(accountViewModel)
@@ -1274,7 +1295,7 @@ namespace GSCrm.Repository
         private void CheckLENameNotExistsOnCreate(AccountViewModel accountViewModel)
         {
             List<Account> orgAccounts = context.GetOrgAccounts(currentUser.PrimaryOrganizationId);
-            Account leWithSameName = orgAccounts.FirstOrDefault(n => n.Name == accountViewModel.Name.TrimStartAndEnd());
+            Account leWithSameName = orgAccounts.FirstOrDefault(n => n.Name == accountViewModel.Name);
             if (leWithSameName != null)
                 errors.Add("AccountAlreadyExists", resManager.GetString("AccountAlreadyExists"));
         }
@@ -1287,7 +1308,7 @@ namespace GSCrm.Repository
         {
             // Список всех клиентов, созданных организацией, к которой относится обновляемый клиент
             List<Account> orgAccounts = context.GetOrgAccounts(accountViewModel.OrganizationId);
-            Account leWithSameName = orgAccounts.FirstOrDefault(acc => acc.Name == accountViewModel.Name.TrimStartAndEnd() && acc.Id != accountViewModel.Id);
+            Account leWithSameName = orgAccounts.FirstOrDefault(acc => acc.Name == accountViewModel.Name && acc.Id != accountViewModel.Id);
             if (leWithSameName != null)
                 errors.Add("AccountAlreadyExists", resManager.GetString("AccountAlreadyExists"));
         }
@@ -1298,7 +1319,7 @@ namespace GSCrm.Repository
         /// <param name="accountViewModel"></param>
         private void CheckCountry(AccountViewModel accountViewModel)
         {
-            string country = accountViewModel.Country.TrimStartAndEnd();
+            string country = accountViewModel.Country;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
@@ -1316,7 +1337,7 @@ namespace GSCrm.Repository
         private void CheckCountryExists(string country)
         {
             JArray countries = AppUtils.GetCountries(currentUser.DefaultLanguage);
-            Func<JToken, bool> predicate = n => n.ToString().ToLower() == country.ToLower().TrimStartAndEnd();
+            Func<JToken, bool> predicate = n => n.ToString().ToLower() == country.ToLower();
             JToken findCountry = countries.FirstOrDefault(predicate);
             if (findCountry == null)
                 errors.Add("CountryNotExists", resManager.GetString("CountryNotExists"));
@@ -1331,7 +1352,7 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!accountViewModel.AppointMe && string.IsNullOrEmpty(accountViewModel.PrimaryManagerInitialName.TrimStartAndEnd()))
+                    if (!accountViewModel.AppointMe && string.IsNullOrEmpty(accountViewModel.PrimaryManagerInitialName))
                         errors.Add("PrimaryManagerNameLength", resManager.GetString("PrimaryManagerNameLength"));
                 },
                 () => CheckManagerExists(accountViewModel)
@@ -1351,7 +1372,7 @@ namespace GSCrm.Repository
             else
             {
                 List<Employee> orgEmployees = context.GetOrgEmployees(organizationId);
-                string initialManagerName = accountViewModel.PrimaryManagerInitialName.TrimStartAndEnd();
+                string initialManagerName = accountViewModel.PrimaryManagerInitialName;
                 manager = orgEmployees.FirstOrDefault(n => n.GetIntialsFullName().ToLower() == initialManagerName.ToLower());
             }
             if (manager == null)
@@ -1365,23 +1386,17 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод выполняет проверки, необходимые при изменении сайта
         /// </summary>
-        /// <param name="accountId"></param>
+        /// <param name="account"></param>
         /// <returns></returns>
-        private bool TryChangeSiteValidate(string accountId)
+        private bool TryChangeSiteValidate(Account account)
         {
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!CheckPermissionForAccountGroup("AccUpdate", transaction))
+                    if (!CheckPermissionForAccountGroup("AccUpdate"))
                         AddHasNoPermissionsError(OperationType.Update);
                 },
                 () => {
-                    if (!TryGetItemById(accountId, out Account account))
-                        errors.Add("AccountNotFound", resManager.GetString("AccountNotFound"));
-                    else transaction.AddParameter("Account", account);
-                },
-                () => {
-                    Account account = (Account)transaction.GetParameterValue("Account");
                     if (context.AccountManagers.AsNoTracking().FirstOrDefault(i => i.Id == account.PrimaryManagerId) == null)
                         errors.Add("AccountWithoutKMIsReadonly", resManager.GetString("AccountWithoutKMIsReadonly"));
                 }
@@ -1396,14 +1411,13 @@ namespace GSCrm.Repository
         /// <returns></returns>
         public bool TryChangePrimaryContactValidate(AccountViewModel accountViewModel)
         {
-            bool needStop = default;
-            Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             Guid primaryContactId = default;
-            InvokeIntermittinActions(errors, needStop, new List<Action>()
+            InvokeIntermittinActions(errors, new List<Action>()
             {
                 // Проверка полномочий
                 () => {
-                    if (!CheckPermissionForAccountGroup("AccUpdate", transaction))
+                    if (!CheckPermissionForAccountGroup("AccUpdate"))
                         AddHasNoPermissionsError(OperationType.ChangeAccountPrimaryContact);
                 },
                 // Для физических лиц основной контакт является обязательным
@@ -1413,26 +1427,31 @@ namespace GSCrm.Repository
                 },
                 // Для остальных типов клиентов основной контакт не является обязательным, поэтому осуществляется возврат из метода
                 () => {
-                    if (account.AccountType != AccountType.Individual && string.IsNullOrEmpty(accountViewModel.PrimaryContactId))
-                        needStop = true;
-                },
-                // Если не получается распарсить строку с контактом, возвращается ошибка
-                () => {
-                    if (!Guid.TryParse(accountViewModel.PrimaryContactId, out Guid guid))
-                        errors.Add("AccountContactNotFound", resManager.GetString("AccountContactNotFound"));
-                    else
+                    if (account.AccountType == AccountType.Individual || !string.IsNullOrEmpty(accountViewModel.PrimaryContactId))
                     {
-                        primaryContactId = guid;
-                        transaction.AddParameter("PrimaryContactId", primaryContactId);
+                        InvokeIntermittinActions(errors, new List<Action>()
+                        {
+                            // Если не получается распарсить строку с контактом, возвращается ошибка
+                            () => {
+                                if (!Guid.TryParse(accountViewModel.PrimaryContactId, out Guid guid))
+                                    errors.Add("AccountContactNotFound", resManager.GetString("AccountContactNotFound"));
+                                else
+                                {
+                                    primaryContactId = guid;
+                                    transaction.AddParameter("PrimaryContactId", primaryContactId);
+                                }
+                            },
+                            // Если контакт не найден, также возвращается ошибка
+                            () => {
+                                AccountContact accountContact = account.GetContacts(context).FirstOrDefault(i => i.Id == primaryContactId);
+                                if (accountContact == null)
+                                    errors.Add("AccountContactNotFound", resManager.GetString("AccountContactNotFound"));
+                                else transaction.AddParameter("AccountContact", accountContact);
+                            }
+                        });
                     }
                 },
-                // Если контакт не найден, также возвращается ошибка
-                () => {
-                    AccountContact accountContact = account.GetContacts(context).FirstOrDefault(i => i.Id == primaryContactId);
-                    if (accountContact == null)
-                        errors.Add("AccountContactNotFound", resManager.GetString("AccountContactNotFound"));
-                    else transaction.AddParameter("AccountContact", accountContact);
-                }
+                
             });
             return !errors.Any();
         }
@@ -1449,11 +1468,11 @@ namespace GSCrm.Repository
         public bool TryChangePrimaryContact(AccountViewModel accountViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.ChangeAccountPrimaryContact, accountViewModel);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.ChangeAccountPrimaryContact, accountViewModel);
             if (TryChangePrimaryContactValidate(accountViewModel))
             {
                 // В зависимости от типа клиента
-                Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+                Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
                 switch (account.AccountType)
                 {
                     // Для физических лиц основной контакт является обязательным
@@ -1465,50 +1484,51 @@ namespace GSCrm.Repository
                         break;
 
                     // Для остальных типов клиентов основной контакт может отсутствовать
+                    case AccountType.LegalEntity:
                     case AccountType.IndividualEntrepreneur:
-                        account.PrimaryContactId = (Guid)transaction.GetParameterValue("PrimaryContactId");
+                        Guid? guid = transaction.GetParameterValue("PrimaryContactId") as Guid?;
+                        account.PrimaryContactId = guid ?? Guid.Empty;
                         break;
                 }
                 transaction.AddChange(account, EntityState.Modified);
                 
                 // Попытка закоммитить
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     return true;
                 }
             }
 
             // Добавление ошибок, закрытие транзакции и выход
             errors = this.errors;
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
         /// <summary>
         /// Метод пытается изменить сайт
         /// </summary>
-        /// <param name="accountId">Id клиента, для которого надо изменить сайт</param>
+        /// <param name="account">Клиент, для которого надо изменить сайт</param>
         /// <param name="errors">Список ошибок, возникших в процессе</param>
         /// <param name="newSite">Новое название сайта</param>
         /// <returns></returns>
-        public bool TryChangeSite(string accountId, out Dictionary<string, string> errors, string newSite = null)
+        public bool TryChangeSite(Account account, out Dictionary<string, string> errors, string newSite = null)
         {
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.Update, accountId);
-            if (TryChangeSiteValidate(accountId))
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.Update);
+            if (TryChangeSiteValidate(account))
             {
-                Account account = (Account)transaction.GetParameterValue("Account");
                 account.Site = newSite;
                 transaction.AddParameter("ChangedRecord", account);
                 transaction.AddChange(account, EntityState.Modified);
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     errors = this.errors;
                     return true;
                 }
             }
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             errors = this.errors;
             return false;
         }
@@ -1522,13 +1542,13 @@ namespace GSCrm.Repository
         public bool TryUnlockAccount(AccountViewModel accountViewModel, out Dictionary<string, string> errors)
         {
             errors = this.errors;
-            transaction = viewModelsTransactionFactory.Create(currentUser.Id, OperationType.UnlockAccount, accountViewModel);
+            transaction = viewModelsTF.Create(currentUser.Id, OperationType.UnlockAccount, accountViewModel);
             Employee employee = default;
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 // Проверка полномочий
                 () => {
-                    if (!CheckPermissionForAccountGroup("AccUnlock", transaction))
+                    if (!CheckPermissionForAccountGroup("AccUnlock"))
                         AddHasNoPermissionsError(OperationType.UnlockAccount);
                 },
                 // Проверка, что существует такой сотрудник
@@ -1542,16 +1562,16 @@ namespace GSCrm.Repository
             if (!this.errors.Any())
             {
                 new AccountMap(serviceProvider, context).UnlockAccount(employee);
-                if (viewModelsTransactionFactory.TryCommit(transaction, this.errors))
+                if (viewModelsTF.TryCommit(transaction, this.errors))
                 {
-                    viewModelsTransactionFactory.Close(transaction);
+                    viewModelsTF.Close(transaction);
                     return true;
                 }
             }
 
             // Запись ошибок, закрытие транзакции и выход
             errors = this.errors;
-            viewModelsTransactionFactory.Close(transaction, TransactionStatus.Error);
+            viewModelsTF.Close(transaction, TransactionStatus.Error);
             return false;
         }
 
@@ -1584,11 +1604,10 @@ namespace GSCrm.Repository
         /// Метод проверяет, имеет ли сотрудник разрешение на выполнение поданной на вход операции для всех сущностей, относящихся к клиенту
         /// </summary>
         /// <param name="actionName"></param>
-        /// <param name="transaction"></param>
         /// <returns></returns>
-        public bool CheckPermissionForAccountGroup(string actionName, ITransaction transaction)
+        public bool CheckPermissionForAccountGroup(string actionName)
         {
-            Account currentAccount = (Account)transaction.GetParameterValue("CurrentAccount");
+            Account currentAccount = cachService.GetCachedCurrentEntity<Account>(currentUser);
             Organization accountOwnerOrg = context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == currentAccount.OrganizationId);
             if (accountOwnerOrg == null) return false;
             if (!currentUser.NeedCheckResps(accountOwnerOrg)) return true;

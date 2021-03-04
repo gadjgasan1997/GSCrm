@@ -6,10 +6,10 @@ using GSCrm.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static GSCrm.CommonConsts;
 using GSCrm.Data;
 using Microsoft.EntityFrameworkCore;
 using GSCrm.Transactions;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Mapping
 {
@@ -68,7 +68,8 @@ namespace GSCrm.Mapping
             return positionViewModel;
         }
 
-        public PositionViewModel Refresh(PositionViewModel positionViewModel, User currentUser, PositionViewType[] positionViewTypes)
+        /*  TO DELETE
+         * public PositionViewModel Refresh(PositionViewModel positionViewModel, User currentUser, PositionViewType[] positionViewTypes)
         {
             positionViewTypes.ToList().ForEach(positionViewType =>
             {
@@ -76,15 +77,17 @@ namespace GSCrm.Mapping
                 {
                     // Восстановление данных поиска по сотрудникам
                     case PositionViewType.POS_EMPLOYEES:
-                        PositionViewModel positionEmployeesCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_EMPLOYEES);
-                        positionViewModel.SearchEmployeeInitialName = positionEmployeesCash.SearchEmployeeInitialName;
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out PositionViewModel positionEmployeesCash, POS_EMPLOYEES))
+                            positionViewModel.SearchEmployeeInitialName = positionEmployeesCash.SearchEmployeeInitialName;
                         break;
 
                     // Восстановление данных поиска по дочерним должностям
                     case PositionViewType.POS_SUB_POSS:
-                        PositionViewModel positionSubPositionsCash = cachService.GetCachedItem<PositionViewModel>(currentUser.Id, POS_SUB_POSS);
-                        positionViewModel.SearchSubPositionName = positionSubPositionsCash.SearchSubPositionName;
-                        positionViewModel.SearchSubPositionPrimaryEmployee = positionSubPositionsCash.SearchSubPositionPrimaryEmployee;
+                        if (cachService.TryGetEntityCacheObsolete(currentUser, out PositionViewModel positionSubPositionsCash, POS_SUB_POSS))
+                        {
+                            positionViewModel.SearchSubPositionName = positionSubPositionsCash.SearchSubPositionName;
+                            positionViewModel.SearchSubPositionPrimaryEmployee = positionSubPositionsCash.SearchSubPositionPrimaryEmployee;
+                        }
                         break;
 
                     default:
@@ -92,7 +95,7 @@ namespace GSCrm.Mapping
                 }
             });
             return positionViewModel;
-        }
+        }*/
 
         /// <summary>
         /// Метод меняет подразделение у долнжости

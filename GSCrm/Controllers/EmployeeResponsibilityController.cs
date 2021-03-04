@@ -1,18 +1,15 @@
-﻿using GSCrm.Data.ApplicationInfo;
-using GSCrm.Mapping;
-using GSCrm.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Models;
-using GSCrm.Models.ViewModels;
+using GSCrm.Helpers;
+using GSCrm.Mapping;
 using GSCrm.Repository;
-using GSCrm.Validators;
+using GSCrm.Models.Enums;
+using GSCrm.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using static GSCrm.CommonConsts;
-using GSCrm.Data;
-using GSCrm.Models.ViewTypes;
-using GSCrm.Models.Enums;
 
 namespace GSCrm.Controllers
 {
@@ -25,94 +22,67 @@ namespace GSCrm.Controllers
             : base(context, serviceProvider)
         { }
 
-        [HttpGet("GetResponsibilities/{employeeId}")]
-        public IActionResult GetResponsibilities(string employeeId)
+        [HttpGet("{employeeId}/GetResponsibilities")]
+        public IActionResult GetResponsibilities()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
-            {
-                // Получение списка со всеми полномочиями организации и списка с полномочиями сотрудника
-                EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid);
-                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid);
-                List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
-                List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
+            EmployeeViewModel employeeViewModel = cachService.GetCachedCurrentEntity<EmployeeViewModel>(currentUser);
 
-                // Получение моделей с информацией об установленных для пользователя условиях поиска по полномочиям
-                EmployeeViewModel allEmployeeRespsCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, ALL_EMP_RESPS);
-                allEmployeeRespsCash = new EmployeeMap(serviceProvider, context).Refresh(allEmployeeRespsCash, currentUser, EmployeeViewType.ALL_EMP_RESPS);
-                EmployeeViewModel selectedEmployeeRespsCash = cachService.GetCachedItem<EmployeeViewModel>(currentUser.Id, SELECTED_EMP_RESPS);
-                selectedEmployeeRespsCash = new EmployeeMap(serviceProvider, context).Refresh(selectedEmployeeRespsCash, currentUser, EmployeeViewType.SELECTED_EMP_RESPS);
+            // Получение списка со всеми полномочиями организации и списка с полномочиями сотрудника
+            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
+            List<Responsibility> allResponsibilities = responsibilityRepository.GetAllResponsibilities(employee, employeeViewModel);
+            List<Responsibility> selectedResponsibilities = responsibilityRepository.GetSelectedResponsibilities(employee, employeeViewModel);
+            ResponsibilityMap responsibilityMap = new ResponsibilityMap(serviceProvider, context);
+            List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(responsibilityMap);
+            List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(responsibilityMap);
 
-                // Возврат результата
-                Dictionary<string, object> result = new Dictionary<string, object>()
+            // Возврат результата
+            Dictionary<string, object> result = new Dictionary<string, object>()
                 {
                     { "allResponsibilitiesVMs", allResponsibilityVMs },
                     { "selectedResponsibilitiesVMs", selectedResponsibilityVMs },
-                    { "allResponsibilitiesVM", allEmployeeRespsCash },
-                    { "selectedResponsibilitiesVM", selectedEmployeeRespsCash }
+                    { "employeeViewModel", employeeViewModel }
                 };
-                return Json(result);
-            }
-            else return BadRequest(resManager.GetString("ResponsibilitiesExtractError"));
+            return Json(result);
         }
 
-        [HttpGet("NextAllRecords/{employeeId}")]
-        public IActionResult NextAllRecords(string employeeId)
+        [HttpGet("{employeeId}/NextAllRecords")]
+        public IActionResult NextAllRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_RESPS);
-                EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
-                return Json(allResponsibilityVMs);
-            }
-            return BadRequest("NextAllRecords");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
+            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
+            List<ResponsibilityViewModel> allResponsibilityVMs = responsibilityRepository.NavigateGetAllRecords(employee, NavigateDirection.Forward);
+            return Json(allResponsibilityVMs);
         }
 
-        [HttpGet("PreviousAllRecords/{employeeId}")]
-        public IActionResult PreviousAllRecords(string employeeId)
+        [HttpGet("{employeeId}/PreviousAllRecords")]
+        public IActionResult PreviousAllRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, ALL_EMP_RESPS);
-                EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> allResponsibilities = responsibilityRepository.AttachAllResponsibilities(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                List<ResponsibilityViewModel> allResponsibilityVMs = allResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
-                return Json(allResponsibilityVMs);
-            }
-            return BadRequest("PreviousAllRecords");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
+            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
+            List<ResponsibilityViewModel> allResponsibilityVMs = responsibilityRepository.NavigateGetAllRecords(employee, NavigateDirection.Backward);
+            return Json(allResponsibilityVMs);
         }
 
-        [HttpGet("NextSelectedRecords/{employeeId}")]
-        public IActionResult NextSelectedRecords(string employeeId)
+        [HttpGet("{employeeId}/NextSelectedRecords")]
+        public IActionResult NextSelectedRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_RESPS);
-                EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid, viewInfo.CurrentPageNumber + DEFAULT_PAGE_STEP);
-                List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
-                return Json(selectedResponsibilityVMs);
-            }
-            return BadRequest("NextSelectedRecords");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
+            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
+            List<ResponsibilityViewModel> selectedResponsibilityVMs = responsibilityRepository.NavigateGetSelectedRecords(employee, NavigateDirection.Forward);
+            return Json(selectedResponsibilityVMs);
         }
 
-        [HttpGet("PreviousSelectedRecords/{employeeId}")]
-        public IActionResult PreviousSelectedRecords(string employeeId)
+        [HttpGet("{employeeId}/PreviousSelectedRecords")]
+        public IActionResult PreviousSelectedRecords()
         {
-            if (!string.IsNullOrEmpty(employeeId) && Guid.TryParse(employeeId, out Guid guid))
-            {
-                ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, SELECTED_EMP_RESPS);
-                EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-                List<Responsibility> selectedResponsibilities = responsibilityRepository.AttachSelectedResponsibilities(guid, viewInfo.CurrentPageNumber - DEFAULT_PAGE_STEP);
-                List<ResponsibilityViewModel> selectedResponsibilityVMs = selectedResponsibilities.GetViewModelsFromData(new ResponsibilityMap(serviceProvider, context));
-                return Json(selectedResponsibilityVMs);
-            }
-            return BadRequest("PreviousSelectedRecords");
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
+            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
+            List<ResponsibilityViewModel> selectedResponsibilityVMs = responsibilityRepository.NavigateGetSelectedRecords(employee, NavigateDirection.Backward);
+            return Json(selectedResponsibilityVMs);
         }
 
-        [HttpGet("ClearResponsibilityManagementSearch")]
+        [HttpGet("{employeeId}/ClearResponsibilityManagementSearch")]
         public IActionResult ClearResponsibilityManagementSearch()
         {
             EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
@@ -124,31 +94,29 @@ namespace GSCrm.Controllers
         [HttpPost("SearchAllResponsibilities")]
         public IActionResult SearchAllResponsibilities(EmployeeViewModel employeeViewModel)
         {
-            cachService.CacheItem(currentUser.Id, ALL_EMP_RESPS, employeeViewModel);
-            return RedirectToAction("GetResponsibilities", EMP_RESPONSIBILITY, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            new EmployeeResponsibilityRepository(serviceProvider, context).SearchAllResponsibilities(employeeViewModel);
+            return Redirect($"/{EMP_RESPONSIBILITY}/{employeeViewModel.Id}/GetResponsibilities/");
         }
 
-        [HttpGet("ClearAllResponsibilitiesSearch")]
-        public IActionResult ClearAllResponsibilitiesSearch()
+        [HttpGet("{employeeId}/ClearAllResponsibilitiesSearch")]
+        public IActionResult ClearAllResponsibilitiesSearch(string employeeId)
         {
-            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-            responsibilityRepository.ClearAllResponsibilitiesSearch();
-            return RedirectToAction("GetResponsibilities", EMP_RESPONSIBILITY, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            new EmployeeResponsibilityRepository(serviceProvider, context).ClearAllResponsibilitiesSearch();
+            return Redirect($"/{EMP_RESPONSIBILITY}/{employeeId}/GetResponsibilities/");
         }
 
         [HttpPost("SearchSelectedResponsibilities")]
         public IActionResult SearchSelectedResponsibilities(EmployeeViewModel employeeViewModel)
         {
-            cachService.CacheItem(currentUser.Id, ALL_EMP_RESPS, employeeViewModel);
-            return RedirectToAction("GetResponsibilities", EMP_RESPONSIBILITY, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            new EmployeeResponsibilityRepository(serviceProvider, context).SearchSelectedResponsibilities(employeeViewModel);
+            return Redirect($"/{EMP_RESPONSIBILITY}/{employeeViewModel.Id}/GetResponsibilities/");
         }
 
-        [HttpGet("ClearSelectedResponsibilitiesSearch")]
-        public IActionResult ClearSelectedResponsibilitiesSearch()
+        [HttpGet("{employeeId}/ClearSelectedResponsibilitiesSearch")]
+        public IActionResult ClearSelectedResponsibilitiesSearch(string employeeId)
         {
-            EmployeeResponsibilityRepository responsibilityRepository = new EmployeeResponsibilityRepository(serviceProvider, context);
-            responsibilityRepository.ClearSelectedResponsibilitiesSearch();
-            return RedirectToAction("GetResponsibilities", EMP_RESPONSIBILITY, new { employeeId = cachService.GetMainEntityId(currentUser, MainEntityType.EmployeeView) });
+            new EmployeeResponsibilityRepository(serviceProvider, context).ClearSelectedResponsibilitiesSearch();
+            return Redirect($"/{EMP_RESPONSIBILITY}/{employeeId}/GetResponsibilities/");
         }
 
         [HttpPost("Synchronize")]

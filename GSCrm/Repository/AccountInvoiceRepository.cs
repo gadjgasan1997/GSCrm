@@ -1,12 +1,12 @@
-﻿using GSCrm.Models;
-using GSCrm.Models.ViewModels;
-using System;
-using GSCrm.Data;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+using GSCrm.Data;
+using GSCrm.Models;
+using GSCrm.Helpers;
+using GSCrm.Models.ViewModels;
 using static GSCrm.RegexConsts;
 using static GSCrm.Utils.CollectionsUtils;
-using System.Linq;
-using GSCrm.Helpers;
 
 namespace GSCrm.Repository
 {
@@ -26,11 +26,11 @@ namespace GSCrm.Repository
 
         #region Override Methods
         protected override bool RespsIsCorrectOnCreate(AccountInvoiceViewModel invoiceViewModel)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccInvoiceCreate", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccInvoiceCreate");
 
         protected override bool TryCreatePrepare(AccountInvoiceViewModel invoiceViewModel)
         {
-            Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CommonChecks(invoiceViewModel),
@@ -47,11 +47,11 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(AccountInvoiceViewModel invoiceViewModel)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccInvoiceUpdate", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccInvoiceUpdate");
 
         protected override bool TryUpdatePrepare(AccountInvoiceViewModel invoiceViewModel)
         {
-            Account account = (Account)transaction.GetParameterValue("CurrentAccount");
+            Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => CommonChecks(invoiceViewModel),
@@ -69,8 +69,18 @@ namespace GSCrm.Repository
             return !errors.Any();
         }
 
+        protected override void UpdateCacheOnDelete(AccountInvoice accountInvoice)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, accountInvoice.AccountId, out Account account) &&
+                cachService.TryGetCachedEntity(currentUser, accountInvoice.AccountId, out AccountViewModel accountViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, account);
+                cachService.CacheCurrentEntity(currentUser, accountViewModel);
+            }
+        }
+
         protected override bool RespsIsCorrectOnDelete(AccountInvoice invoiceDataModel)
-            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccInvoiceDelete", transaction);
+            => new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccInvoiceDelete");
         #endregion
 
         #region Validations

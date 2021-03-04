@@ -56,5 +56,88 @@ namespace GSCrm.Helpers
         /// <returns></returns>
         public static string GetIndividualFullName(this AccountViewModel accountViewModel)
             => $"{accountViewModel.LastName} {accountViewModel.FirstName} {accountViewModel.MiddleName}";
+
+        public static AccountViewModel Refresh(this AccountViewModel accountViewModel, AccountViewModel cachedViewModel)
+        {
+            accountViewModel.SearchContactFullName = cachedViewModel.SearchContactFullName;
+            accountViewModel.SearchContactType = cachedViewModel.SearchContactType;
+            accountViewModel.SearchContactEmail = cachedViewModel.SearchContactEmail;
+            accountViewModel.SearchContactPhoneNumber = cachedViewModel.SearchContactPhoneNumber;
+            accountViewModel.SearchContactPrimary = cachedViewModel.SearchContactPrimary;
+            accountViewModel.SearchAddressCountry = cachedViewModel.SearchAddressCountry;
+            accountViewModel.SearchAddressRegion = cachedViewModel.SearchAddressRegion;
+            accountViewModel.SearchAddressCity = cachedViewModel.SearchAddressCity;
+            accountViewModel.SearchAddressStreet = cachedViewModel.SearchAddressStreet;
+            accountViewModel.SearchAddressHouse = cachedViewModel.SearchAddressHouse;
+            accountViewModel.SearchAddressType = cachedViewModel.SearchAddressType;
+            accountViewModel.SearchInvoiceBankName = cachedViewModel.SearchInvoiceBankName;
+            accountViewModel.SearchInvoiceCity = cachedViewModel.SearchInvoiceCity;
+            accountViewModel.SearchInvoiceCheckingAccount = cachedViewModel.SearchInvoiceCheckingAccount;
+            accountViewModel.SearchInvoiceCorrespondentAccount = cachedViewModel.SearchInvoiceCorrespondentAccount;
+            accountViewModel.SearchInvoiceBIC = cachedViewModel.SearchInvoiceBIC;
+            accountViewModel.SearchInvoiceSWIFT = cachedViewModel.SearchInvoiceSWIFT;
+            accountViewModel.SearchAllManagersName = cachedViewModel.SearchAllManagersName;
+            accountViewModel.SearchAllManagersDivision = cachedViewModel.SearchAllManagersDivision;
+            accountViewModel.SearchAllManagersPosition = cachedViewModel.SearchAllManagersPosition;
+            accountViewModel.SearchSelectedManagersName = cachedViewModel.SearchSelectedManagersName;
+            accountViewModel.SearchSelectedManagersPosition = cachedViewModel.SearchSelectedManagersPosition;
+            accountViewModel.SearchSelectedManagersPhone = cachedViewModel.SearchSelectedManagersPhone;
+            return accountViewModel;
+        }
+
+        public static AccountsViewModel Refresh(this AccountsViewModel accountsViewModel, AccountsViewModel cachedViewModel)
+        {
+            accountsViewModel.AllAccountsSearchName = cachedViewModel.AllAccountsSearchName;
+            accountsViewModel.CurrentAccountsSearchName = cachedViewModel.CurrentAccountsSearchName;
+            accountsViewModel.AllAccountsSearchType = cachedViewModel.AllAccountsSearchType;
+            accountsViewModel.CurrentAccountsSearchType = cachedViewModel.CurrentAccountsSearchType;
+            return accountsViewModel;
+        }
+
+        public static void Normalize(this AccountViewModel accountViewModel)
+        {
+            accountViewModel.Name = accountViewModel.Name?.TrimStartAndEnd();
+            accountViewModel.FirstName = accountViewModel.FirstName?.TrimStartAndEnd();
+            accountViewModel.LastName = accountViewModel.LastName?.TrimStartAndEnd();
+            accountViewModel.MiddleName = accountViewModel.MiddleName?.TrimStartAndEnd();
+            accountViewModel.Site = accountViewModel.Site?.TrimStartAndEnd();
+            accountViewModel.INN = accountViewModel.INN?.TrimStartAndEnd();
+            accountViewModel.KPP = accountViewModel.KPP?.TrimStartAndEnd();
+            accountViewModel.OKPO = accountViewModel.OKPO?.TrimStartAndEnd();
+            accountViewModel.OGRN = accountViewModel.OGRN?.TrimStartAndEnd();
+            accountViewModel.Country = accountViewModel.Country?.TrimStartAndEnd();
+            accountViewModel.LegalAddress = accountViewModel.LegalAddress?.TrimStartAndEnd();
+            accountViewModel.PrimaryManagerInitialName = accountViewModel.PrimaryManagerInitialName?.TrimStartAndEnd();
+        }
+
+        public static void NormalizeSearch(this AccountsViewModel accountsViewModel)
+        {
+            accountsViewModel.AllAccountsSearchName = accountsViewModel.AllAccountsSearchName?.ToLower().TrimStartAndEnd();
+            accountsViewModel.CurrentAccountsSearchName = accountsViewModel.CurrentAccountsSearchName?.ToLower().TrimStartAndEnd();
+        }
+
+        public static void NormalizeSearch(this AccountViewModel accountViewModel)
+        {
+            accountViewModel.SearchContactFullName = accountViewModel.SearchContactFullName?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchContactEmail = accountViewModel.SearchContactEmail?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchContactPhoneNumber = accountViewModel.SearchContactPhoneNumber?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAddressCountry = accountViewModel.SearchAddressCountry?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAddressRegion = accountViewModel.SearchAddressRegion?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAddressCity = accountViewModel.SearchAddressCity?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAddressStreet = accountViewModel.SearchAddressStreet?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAddressHouse = accountViewModel.SearchAddressHouse?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchInvoiceBankName = accountViewModel.SearchInvoiceBankName?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchInvoiceCity = accountViewModel.SearchInvoiceCity?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchInvoiceCheckingAccount = accountViewModel.SearchInvoiceCheckingAccount?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchInvoiceCorrespondentAccount = accountViewModel.SearchInvoiceCorrespondentAccount?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchInvoiceBIC = accountViewModel.SearchInvoiceBIC?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchInvoiceSWIFT = accountViewModel.SearchInvoiceSWIFT?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAllManagersName = accountViewModel.SearchAllManagersName?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAllManagersDivision = accountViewModel.SearchAllManagersDivision?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchAllManagersPosition = accountViewModel.SearchAllManagersPosition?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchSelectedManagersName = accountViewModel.SearchSelectedManagersName?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchSelectedManagersPosition = accountViewModel.SearchSelectedManagersPosition?.ToLower().TrimStartAndEnd();
+            accountViewModel.SearchSelectedManagersPhone = accountViewModel.SearchSelectedManagersPhone?.ToLower().TrimStartAndEnd();
+        }
     }
 }

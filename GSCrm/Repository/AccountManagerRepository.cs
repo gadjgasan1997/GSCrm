@@ -6,19 +6,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using static GSCrm.CommonConsts;
-using static GSCrm.Utils.CollectionsUtils;
 using GSCrm.Data;
 using GSCrm.Transactions;
 using GSCrm.Models.Enums;
 using GSCrm.Notifications.Auxiliary;
+using static GSCrm.CommonConsts;
+using static GSCrm.Utils.CollectionsUtils;
+using GSCrm.Data.ApplicationInfo;
+using GSCrm.Mapping;
 
 namespace GSCrm.Repository
 {
     public class AccountManagerRepository : BaseRepository<AccountManager, AccountManagerViewModel>
     {
-        #region Declarations
-        private readonly AccountRepository accountRepository;
+        #region Declarationsy;
         /// <summary>
         /// Транзакция для синхронизации команды по клиенту
         /// </summary>
@@ -26,7 +27,7 @@ namespace GSCrm.Repository
         /// <summary>
         /// Словарь с менеджерами и с типами уведомлений, адресованными им
         /// </summary>
-        private Dictionary<Guid, AccTeamManagementNotType> managersNotTypes = new Dictionary<Guid, AccTeamManagementNotType>();
+        private readonly Dictionary<Guid, AccTeamManagementNotType> managersNotTypes = new Dictionary<Guid, AccTeamManagementNotType>();
         private readonly ITransactionFactory<SyncAccountViewModel> syncRespsTransactionFactory;
         #endregion
 
@@ -34,34 +35,43 @@ namespace GSCrm.Repository
         public AccountManagerRepository(IServiceProvider serviceProvider, ApplicationDbContext context)
             : base(serviceProvider, context)
         {
-            accountRepository = new AccountRepository(serviceProvider, context);
             syncRespsTransactionFactory = TFFactory.GetTransactionFactory<SyncAccountViewModel>(serviceProvider, context);
         }
         #endregion
 
         #region Searching
-        /// <summary>
-        /// Метод сбрасывает фильтрацию для списка всех сотрудников организации, создавшей клиента
-        /// </summary>
-        public void ClearAllManagersSearch()
+        public void SearchAllManagers(AccountViewModel accountViewModel)
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
-            accountViewModelCash.SearchAllManagersName = default;
-            accountViewModelCash.SearchAllManagersDivision = default;
-            accountViewModelCash.SearchAllManagersPosition = default;
-            cachService.CacheItem(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES, accountViewModelCash);
+            accountViewModel.NormalizeSearch();
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchAllManagersName = accountViewModel.SearchAllManagersName;
+            cachedViewModel.SearchAllManagersDivision = accountViewModel.SearchAllManagersDivision;
+            cachedViewModel.SearchAllManagersPosition = accountViewModel.SearchAllManagersPosition;
         }
 
-        /// <summary>
-        /// Метод сбрасывает фильтрацию для команды по клиенту
-        /// </summary>
+        public void ClearAllManagersSearch()
+        {
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchAllManagersName = default;
+            cachedViewModel.SearchAllManagersDivision = default;
+            cachedViewModel.SearchAllManagersPosition = default;
+        }
+
+        public void SearchSelectedManagers(AccountViewModel accountViewModel)
+        {
+            accountViewModel.NormalizeSearch();
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchSelectedManagersName = accountViewModel.SearchSelectedManagersName;
+            cachedViewModel.SearchSelectedManagersPhone = accountViewModel.SearchSelectedManagersPhone;
+            cachedViewModel.SearchSelectedManagersPosition = accountViewModel.SearchSelectedManagersPosition;
+        }
+
         public void ClearSelectedManagersSearch()
         {
-            AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
-            accountViewModelCash.SearchSelectedManagersName = default;
-            accountViewModelCash.SearchSelectedManagersPhone = default;
-            accountViewModelCash.SearchSelectedManagersPosition = default;
-            cachService.CacheItem(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, accountViewModelCash);
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            cachedViewModel.SearchSelectedManagersName = default;
+            cachedViewModel.SearchSelectedManagersPhone = default;
+            cachedViewModel.SearchSelectedManagersPosition = default;
         }
         #endregion
 
@@ -69,22 +79,19 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список всех сотрудников организации для отображения в окне управления командой по клиенту
         /// </summary>
+        /// <param name="accountViewModelCash"></param>
+        /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<Employee> AttachTeamAllEmployees(string accountId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<Employee> GetTeamAllEmployees(AccountViewModel accountViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            if (accountRepository.TryGetItemById(accountId, out Account account))
-            {
-                SetViewInfo(ACC_TEAM_ALL_EMPLOYEES, pageNumber);
-                List<Employee> teamAllEmployees = context.GetOrgEmployees(account.OrganizationId);
-                AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_ALL_EMPLOYEES);
-                ExcludeSelectedEmployees(ref teamAllEmployees, account.Id);
-                LimitAllEmployeesByName(ref teamAllEmployees, accountViewModelCash);
-                LimitAllEmployeesByDivision(ref teamAllEmployees, accountViewModelCash);
-                LimitAllEmployeesByPosition(ref teamAllEmployees, accountViewModelCash);
-                LimitListByPageNumber(ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees);
-                return teamAllEmployees;
-            }
-            return new List<Employee>();
+            List<Employee> teamAllEmployees = context.GetOrgEmployees(accountViewModelCash.OrganizationId);
+            SetViewInfo(accountViewModelCash.Id, ACC_TEAM_ALL_EMPLOYEES, pageNumber);
+            ExcludeSelectedEmployees(ref teamAllEmployees, accountViewModelCash.Id);
+            LimitAllEmployeesByName(ref teamAllEmployees, accountViewModelCash);
+            LimitAllEmployeesByDivision(ref teamAllEmployees, accountViewModelCash);
+            LimitAllEmployeesByPosition(ref teamAllEmployees, accountViewModelCash);
+            LimitViewItemsByPageNumber(accountViewModelCash.Id, ACC_TEAM_ALL_EMPLOYEES, ref teamAllEmployees);
+            return teamAllEmployees;
         }
 
         /// <summary>
@@ -153,24 +160,19 @@ namespace GSCrm.Repository
         /// <summary>
         /// Метод возвращает список менеджеров клиента для отображения в окне управления командой
         /// </summary>
+        /// <param name="accountViewModelCash"></param>
+        /// <param name="pageNumber"></param>
         /// <returns></returns>
-        public List<AccountManager> GetTeamSelectedEmployees(string accountId, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
+        public List<AccountManager> GetTeamSelectedEmployees(AccountViewModel accountViewModelCash, int pageNumber = DEFAULT_MIN_PAGE_NUMBER)
         {
-            if (accountRepository.TryGetItemById(accountId, out Account account))
-            {
-                SetViewInfo(ACC_TEAM_SELECTED_EMPLOYEES, pageNumber);
-                AccountViewModel accountViewModelCash = cachService.GetCachedItem<AccountViewModel>(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES);
-                List<AccountManager> teamSelectedEmployees = context.AccountManagers
-                    .AsNoTracking()
-                    .Include(man => man.Manager)
-                    .Where(accId => accId.AccountId == account.Id).ToList();
-                LimitSelectedEmployeesByName(ref teamSelectedEmployees, accountViewModelCash);
-                LimitSelectedEmployeesByPosition(ref teamSelectedEmployees, accountViewModelCash);
-                LimitSelectedEmployeesByPhone(ref teamSelectedEmployees, accountViewModelCash);
-                //LimitListByPageNumber(currentUser.Id, ACC_TEAM_SELECTED_EMPLOYEES, ref teamSelectedEmployees, SELECTED_EMPLOYEES_COUNT);
-                return teamSelectedEmployees;
-            }
-            return new List<AccountManager>();
+            List<AccountManager> teamSelectedEmployees = context.AccountManagers
+                .AsNoTracking().Include(man => man.Manager)
+                .Where(accId => accId.AccountId == accountViewModelCash.Id).ToList();
+            SetViewInfo(accountViewModelCash.Id, ACC_TEAM_SELECTED_EMPLOYEES, pageNumber);
+            LimitSelectedEmployeesByName(ref teamSelectedEmployees, accountViewModelCash);
+            LimitSelectedEmployeesByPosition(ref teamSelectedEmployees, accountViewModelCash);
+            LimitSelectedEmployeesByPhone(ref teamSelectedEmployees, accountViewModelCash);
+            return teamSelectedEmployees;
         }
 
         /// <summary>
@@ -235,13 +237,8 @@ namespace GSCrm.Repository
             InvokeIntermittinActions(errors, new List<Action>()
             {
                 () => {
-                    if (!new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccTeamManagement", syncRespsTransaction))
+                    if (!new AccountRepository(serviceProvider, context).CheckPermissionForAccountGroup("AccTeamManagement"))
                         AddHasNoPermissionsError(OperationType.AccountTeamManagement);
-                },
-                () => {
-                    if (!accountRepository.TryGetItemById(syncViewModel.AccountId, out Account account))
-                        errors.Add("RecordNotFound", resManager.GetString("RecordNotFound"));
-                    else syncRespsTransaction.AddParameter("Account", account);
                 },
                 () => {
                     if (string.IsNullOrEmpty(syncViewModel.PrimaryManagerId) || !Guid.TryParse(syncViewModel.PrimaryManagerId, out Guid primaryManagerId))
@@ -267,8 +264,9 @@ namespace GSCrm.Repository
             if (TrySyncAccTeamValidate(syncViewModel))
             {
                 // Простановка основного менеджера
-                Account account = (Account)syncRespsTransaction.GetParameterValue("Account");
+                Account account = cachService.GetCachedCurrentEntity<Account>(currentUser);
                 account.PrimaryManagerId = (Guid)syncRespsTransaction.GetParameterValue("PrimaryManagerId");
+                syncRespsTransaction.AddChange(account, EntityState.Modified);
 
                 // Добавление менеджера на рассылку уведомлений
                 AccountManager primaryManager = context.AccountManagers.AsNoTracking().Include(accMan => accMan.Manager).FirstOrDefault(accMan => accMan.Id == account.PrimaryManagerId);
@@ -279,7 +277,7 @@ namespace GSCrm.Repository
                 if (syncViewModel.ManagersToAdd.Count > 0 || syncViewModel.ManagersToRemove.Count > 0)
                 {
                     foreach (string managerToAddId in syncViewModel.ManagersToAdd)
-                        if (!TryAddManagerToTeam(managerToAddId, account.Id)) break;
+                        if (!TryAddManagerToTeam(managerToAddId, account)) break;
                     if (!this.errors.Any())
                     {
                         foreach (string managerToRemoveId in syncViewModel.ManagersToRemove)
@@ -305,7 +303,7 @@ namespace GSCrm.Repository
         /// </summary>
         /// <param name="managerId">Id менеджера для добавления</param>
         /// <param name="accountId">Клиент</param>
-        private bool TryAddManagerToTeam(string managerId, Guid accountId)
+        private bool TryAddManagerToTeam(string managerId, Account account)
         {
             Guid employeeId = Guid.Empty;
             Employee employee = null;
@@ -321,6 +319,10 @@ namespace GSCrm.Repository
                     if (employee == null)
                         errors.Add("EmployeeNotExists", resManager.GetString("EmployeeNotExists"));
                 },
+                () => {
+                    if (account.GetAccTeam(context).FirstOrDefault(man => man.ManagerId == employee.Id) != null)
+                        errors.Add("EmployeeAlreadyAdded", resManager.GetString("EmployeeAlreadyAdded").Replace("{Name}", employee.GetFullName()));
+                },
                 () => CheckEmployeeStatus(employee)
             });
             if (errors.Any()) return false;
@@ -330,7 +332,7 @@ namespace GSCrm.Repository
             syncRespsTransaction.AddChange(new AccountManager()
             {
                 ManagerId = employee.Id,
-                AccountId = accountId
+                AccountId = account.Id
             }, EntityState.Added);
             return true;
         }
@@ -382,6 +384,21 @@ namespace GSCrm.Repository
             managersNotTypes.Add(accountManager.Manager.UserId, AccTeamManagementNotType.Removed);
             syncRespsTransaction.AddChange(accountManager, EntityState.Deleted);
             return true;
+        }
+
+        /// <summary>
+        /// Метод пролистывает список всех сотрудников организации в указанном направлении
+        /// </summary>
+        /// <param name="navigateDirection"></param>
+        /// <returns></returns>
+        public List<EmployeeViewModel> NavigateGetAllRecords(NavigateDirection navigateDirection)
+        {
+            AccountViewModel cachedViewModel = cachService.GetCachedCurrentEntity<AccountViewModel>(currentUser);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, cachedViewModel.Id, ACC_TEAM_ALL_EMPLOYEES);
+            int pageNumber = viewInfo.GetNewPageNumber(navigateDirection);
+            AccountManagerRepository accountManagerRepository = new AccountManagerRepository(serviceProvider, context);
+            List<Employee> allEmployees = accountManagerRepository.GetTeamAllEmployees(cachedViewModel, pageNumber);
+            return allEmployees.GetViewModelsFromData(new EmployeeMap(serviceProvider, context));
         }
         #endregion
     }

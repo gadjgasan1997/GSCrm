@@ -1,5 +1,8 @@
-﻿using GSCrm.Models;
+﻿using GSCrm.Data;
+using GSCrm.Models;
 using GSCrm.Models.Enums;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Text;
 using static GSCrm.CommonConsts;
 using static GSCrm.Utils.AppUtils;
@@ -29,5 +32,8 @@ namespace GSCrm.Helpers
                 AddressType.Postal => "Почтовый",
                 _ => string.Empty
             };
+
+        public static Account GetAccount(this AccountAddress accountAddress, ApplicationDbContext context)
+            => context.Accounts.AsNoTracking().FirstOrDefault(acc => acc.Id == accountAddress.AccountId);
     }
 }

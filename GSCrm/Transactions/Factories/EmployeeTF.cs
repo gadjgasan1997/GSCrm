@@ -1,7 +1,6 @@
 ﻿using GSCrm.Data;
 using GSCrm.Helpers;
 using GSCrm.Models;
-using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
 using GSCrm.Notifications.Params;
 using GSCrm.Notifications.Factories.OrgNotFactories;
@@ -10,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GSCrm.Notifications.Auxiliary;
 using GSCrm.Notifications.Factories.OrgNotFactories.EmpUpdate;
 using GSCrm.Notifications.Params.EmpUpdate;
 
@@ -26,22 +24,12 @@ namespace GSCrm.Transactions.Factories
 
         protected override void CreateHandler(OperationType operationType, EmployeeViewModel employeeViewModel)
         {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            if (operationType.IsInList(baseOperationTypes.With(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision)))
-                transaction.AddParameter("CurrentOrganization", currentOrganization);
             if (operationType.IsInList(OperationType.UnlockEmployee, OperationType.ChangeEmployeeDivision))
             {
+                Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
                 List<Division> allDivisions = currentOrganization.GetDivisions(context);
                 transaction.AddParameter("AllDivisions", allDivisions);
-                Employee employee = context.Employees.AsNoTracking().FirstOrDefault(i => i.Id == employeeViewModel.Id);
-                transaction.AddParameter("Employee", employee);
             }
-        }
-
-        protected override void CreateHandler(OperationType operationType, string recordId)
-        {
-            Organization currentOrganization = cachService.GetMainEntity(currentUser, MainEntityType.OrganizationData) as Organization;
-            transaction.AddParameter("CurrentOrganization", currentOrganization);
         }
 
         protected override void BeforeCommit(OperationType operationType)
@@ -50,7 +38,7 @@ namespace GSCrm.Transactions.Factories
             if (operationType == OperationType.Delete)
             {
                 Employee employee = (Employee)transaction.GetParameterValue("RecordToRemove");
-                Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+                Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
                 Func<UserOrganization, bool> predicate = userOrg => userOrg.UserId == employee.UserId.ToString() && userOrg.OrganizationId == currentOrganization.Id;
                 UserOrganization userOrganization = context.UserOrganizations.AsNoTracking().Include(userOrg => userOrg.OrgNotificationsSetting).FirstOrDefault(predicate);
                 transaction.AddParameter("OrgNotificationsSetting", userOrganization?.OrgNotificationsSetting);
@@ -62,10 +50,8 @@ namespace GSCrm.Transactions.Factories
             switch (transactionStatus)
             {
                 case TransactionStatus.Error:
-                    {
-                        User user = transaction.GetParameterValue("UserAccount") as User;
-                        if (user != null) userManager.DeleteAsync(user);
-                    }
+                    if (transaction.GetParameterValue("UserAccount") is User user)
+                        userManager.DeleteAsync(user);
                     break;
                 case TransactionStatus.Success:
                     {
@@ -92,7 +78,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="employee"></param>
         private void SendEmpUpdateNotifications(Employee employee)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             BaseUpdateParams baseUpdateParams = new BaseUpdateParams()
             {
                 Organization = currentOrganization,
@@ -109,7 +95,7 @@ namespace GSCrm.Transactions.Factories
         /// <param name="employee"></param>
         private void SendEmpChangeDivisionNotifications(Employee employee)
         {
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             ChangeDivisionParams changeDivisionParams = new ChangeDivisionParams()
             {
                 Organization = currentOrganization,
@@ -128,7 +114,7 @@ namespace GSCrm.Transactions.Factories
         private void SendEmpDeleteNotifications()
         {
             // TODO Сделать логику удаления уведомлений от лица организации удаленному сотруднику(чистка данных в бд)
-            Organization currentOrganization = (Organization)transaction.GetParameterValue("CurrentOrganization");
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             Employee employee = (Employee)transaction.GetParameterValue("RecordToRemove");
             EmpDeleteParams empDeleteParams = new EmpDeleteParams()
             {

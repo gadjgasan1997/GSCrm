@@ -56,7 +56,7 @@
                                     <input type="submit" class="btn btn-outline-primary" value="@resManager.GetString("SeacrhContact")" />
                                 </div>
                                 <div class="col mb-3">
-                                    <a asp-controller="@ACCOUNT" asp-action="ClearContactSearch" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
+                                    <a asp-controller="@ACCOUNT" asp-action="ClearContactSearch" asp-route-id="@Model.Id" type="button" class="btn btn-outline-primary">@resManager.GetString("Clear")</a>
                                 </div>
                                 <div class="col mb-3">
                                     <input type="button" data-toggle="modal" data-target="#accContactCreateModal" class="btn btn-outline-primary" value="@resManager.GetString("CreateAccountContact")" />

@@ -1,15 +1,14 @@
-﻿using GSCrm.Data;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using GSCrm.Data;
 using GSCrm.Data.Cash;
 using GSCrm.Factories;
 using GSCrm.Helpers;
 using GSCrm.Localization;
 using GSCrm.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace GSCrm.Transactions
 {

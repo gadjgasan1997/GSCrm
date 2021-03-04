@@ -1,14 +1,12 @@
 ﻿using GSCrm.Data;
-using GSCrm.Helpers;
 using GSCrm.Models;
 using GSCrm.Models.ViewModels;
 using GSCrm.Validators;
 using System;
-using static GSCrm.Utils.CollectionsUtils;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using GSCrm.Models.Enums;
+using static GSCrm.Utils.CollectionsUtils;
 
 namespace GSCrm.Repository
 {
@@ -20,7 +18,7 @@ namespace GSCrm.Repository
 
         #region Override Methods
         protected override bool RespsIsCorrectOnCreate(EmployeeContactViewModel contactViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactCreate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactCreate");
 
         protected override bool TryCreatePrepare(EmployeeContactViewModel contactViewModel)
         {
@@ -29,7 +27,7 @@ namespace GSCrm.Repository
         }
 
         protected override bool RespsIsCorrectOnUpdate(EmployeeContactViewModel contactViewModel)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactUpdate", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactUpdate");
 
         protected override bool TryUpdatePrepare(EmployeeContactViewModel contactViewModel)
         {
@@ -37,8 +35,22 @@ namespace GSCrm.Repository
             return !errors.Any();
         }
 
+        protected override void UpdateCacheOnDelete(EmployeeContact employeeContact)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, employeeContact.EmployeeId, out Employee employee) &&
+                cachService.TryGetCachedEntity(currentUser, employeeContact.EmployeeId, out EmployeeViewModel employeeViewModel) &&
+                cachService.TryGetCachedEntity(currentUser, employee.OrganizationId, out Organization organization) &&
+                cachService.TryGetCachedEntity(currentUser, employee.OrganizationId, out OrganizationViewModel organizationViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, employee);
+                cachService.CacheCurrentEntity(currentUser, employeeViewModel);
+                cachService.CacheCurrentEntity(currentUser, organization);
+                cachService.CacheCurrentEntity(currentUser, organizationViewModel);
+            }
+        }
+
         protected override bool RespsIsCorrectOnDelete(EmployeeContact employeeContact)
-            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactDelete", transaction);
+            => new OrganizationRepository(serviceProvider, context).CheckPermissionForOrgGroup("EmpContactDelete");
         #endregion
 
         #region Validations

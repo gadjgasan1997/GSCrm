@@ -1,0 +1,12 @@
+﻿@inject ResManager resManager
+@{
+    Layout = "_AuthLayout";
+}
+<div class="text-center">
+    <p class="label-lg">
+        @resManager.GetString("ViewError")
+    </p>
+</div>
+<div class="text-center mt-4">
+    <img src="~/img/page-not-found.svg" />
+</div>

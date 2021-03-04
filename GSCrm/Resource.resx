@@ -217,7 +217,10 @@
     <value>Клиент с таким именем уже существует</value>
   </data>
   <data name="AccountContactNotFound" xml:space="preserve">
-    <value>Контакт не найден</value>
+    <value>Контакт клиента не найден</value>
+  </data>
+  <data name="AccountInvoiceNotFound" xml:space="preserve">
+    <value>Реквизиты клиента не найдены</value>
   </data>
   <data name="AccountContactsManagement" xml:space="preserve">
     <value>Управление контактами</value>
@@ -717,6 +720,12 @@
   <data name="Employee" xml:space="preserve">
     <value>Работник</value>
   </data>
+  <data name="EmployeeAlreadyAdded" xml:space="preserve">
+    <value>Сотрудник {Name} уже есть в команде по клиенту</value>
+  </data>
+  <data name="EmployeeContactNotFound" xml:space="preserve">
+    <value>Контакт сотрудника не найден</value>
+  </data>
   <data name="EmployeeDeleteNot" xml:space="preserve">
     <value>Удаление  сотрудника</value>
   </data>
@@ -731,6 +740,9 @@
   </data>
   <data name="EmployeeNotExists" xml:space="preserve">
     <value>Работник не найден</value>
+  </data>
+  <data name="EmployeeNotFound" xml:space="preserve">
+    <value>Сотрудник не найден</value>
   </data>
   <data name="Employees" xml:space="preserve">
     <value>Сотрудники</value>
@@ -842,6 +854,9 @@
   </data>
   <data name="HasPermissionsForSeeEmployee" xml:space="preserve">
     <value>Сотрудник не найден или у вас нет прав на его просмотр</value>
+  </data>
+  <data name="HasPermissionsForSeeNotSetting" xml:space="preserve">
+    <value>Настройки уведомлений не найдены</value>
   </data>
   <data name="HasPermissionsForSeeOrganization" xml:space="preserve">
     <value>Организация не найдена или у вас нет прав на ее просмотр</value>
@@ -1230,6 +1245,9 @@
   <data name="PositionNotExists" xml:space="preserve">
     <value>Должность не найдена</value>
   </data>
+  <data name="PositionNotFound" xml:space="preserve">
+    <value>Должность не найдена</value>
+  </data>
   <data name="Positions" xml:space="preserve">
     <value>Должности</value>
   </data>
@@ -1311,8 +1329,14 @@
   <data name="PrivateNotSettings" xml:space="preserve">
     <value>Личные</value>
   </data>
+  <data name="ProductCategoriesUnhandledException" xml:space="preserve">
+    <value>Во время получения продуктовой модели произошло необработанное исключение</value>
+  </data>
   <data name="ProductCategoryLength" xml:space="preserve">
     <value>Название категории не может быть короче {min} и длиннее {max} символов</value>
+  </data>
+  <data name="ProductCategoryNotFound" xml:space="preserve">
+    <value>Категория не найдена</value>
   </data>
   <data name="ProductModel" xml:space="preserve">
     <value>Продуктовая модель</value>
@@ -1415,6 +1439,9 @@
   </data>
   <data name="ResponsibilityNameLength" xml:space="preserve">
     <value>Введите название полномочия</value>
+  </data>
+  <data name="ResponsibilityNotFound" xml:space="preserve">
+    <value>Полномочие не найдено</value>
   </data>
   <data name="RespUpdate" xml:space="preserve">
     <value>Изменения полномочия</value>
@@ -1569,6 +1596,12 @@
   <data name="UserResetPasswordSubject" xml:space="preserve">
     <value>Сброс пароля в системе GSCrm</value>
   </data>
+  <data name="ViewError" xml:space="preserve">
+    <value>Во время обработки вашего запроса произошло необработанное исключение</value>
+  </data>
+  <data name="ViewNotFound" xml:space="preserve">
+    <value>Запрашиваемая вами страница не найдена</value>
+  </data>
   <data name="Work" xml:space="preserve">
     <value>Рабочий</value>
   </data>
@@ -1598,5 +1631,8 @@
   </data>
   <data name="YourOrg" xml:space="preserve">
     <value>Принадлежит вам</value>
+  </data>
+  <data name="AccounNotFound" xml:space="preserve">
+    <value>Клиент не найден</value>
   </data>
 </root>
