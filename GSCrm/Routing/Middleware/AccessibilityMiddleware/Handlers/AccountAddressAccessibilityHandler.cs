@@ -33,7 +33,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             // Попытка закешировать клиента как текущего
                             User currentUser = accessibilityHandlerData.HttpContext.GetCurrentUser(accessibilityHandlerData.Context);
                             ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
-                            if (accessibilityHandlerData.TryCacheCurrentAccount(cachService, resManager, currentUser, accountAddress.AccountId))
+                            if (accessibilityHandlerData.TryCacheCurrentAccount(currentUser, cachService, accountAddress.AccountId))
                             {
                                 // Маппинг в модель отображения и ее кеширование
                                 AccountAddressMap accountAddressMap = new AccountAddressMap(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
@@ -70,7 +70,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         }
 
                         // Кеширование текущего клиента и адреса
-                        if (accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.Form, "accountId"))
+                        if (accessibilityHandlerData.TryCacheCurrentAccount(currentUser, cachService, accountAddress.AccountId))
                             CacheAccountAddress(cachService, currentUser, accountAddress, addressViewModel);
                     }
                     break;

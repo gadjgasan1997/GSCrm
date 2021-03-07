@@ -118,7 +118,7 @@
         <div id="orgSettingsMenu" class="settings-menu d-none">
             <ul>
                 <li>
-                    <form method="get" action="@Url.Content($"/{ORGANIZATION}/{Model.Id}/{PROD_CATS}/")">
+                    <form action="@Url.Content($"/{ORGANIZATION}/{Model.Id}/{PROD_CATS}")">
                         <input id="goToProductModel" type="submit" class="label-sm" value="@resManager.GetString("ProductModel")" />
                     </form>
                 </li>

@@ -25,8 +25,8 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         if (!string.IsNullOrEmpty(positionId))
                         {
                             // Проверки на наличие должности и доступа к ней у пользователя
-                            PositionRepository positionRepository = new PositionRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
-                            OrganizationRepository organizationRepository = new OrganizationRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                            PositionRepository positionRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                            OrganizationRepository organizationRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                             if (!positionRepository.TryGetItemById(positionId, out Position position))
                             {
                                 accessibilityHandlerData.Redirect($"/{POSITION}/HasNoPermissionsForSee");
@@ -34,14 +34,10 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             }
 
                             Organization organization = position.GetOrganization(accessibilityHandlerData.Context);
-                            if (!organizationRepository.HasPermissionsForSeeItem(organization))
+                            if (!organizationRepository.HasPermissionsForSeeItem(organization) ||
+                                !positionRepository.HasPermissionsForSeeItem(position))
                             {
-                                accessibilityHandlerData.Redirect($"/{POSITION}/HasNoPermissionsForSee");
-                                return;
-                            }
-                            if (!positionRepository.HasPermissionsForSeeItem(position))
-                            {
-                                accessibilityHandlerData.Redirect($"/{POSITION}/HasNoPermissionsForSee");
+                                accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
                                 return;
                             }
 

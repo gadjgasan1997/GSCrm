@@ -23,31 +23,32 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "Positions":
                 case "Employees":
                 case "Responsibilities":
-                    CheckPermissionsAndCache(accessibilityHandlerData);
+                    {
+                        User currentUser = accessibilityHandlerData.GetCurrentUser();
+                        ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
+                        TryCheckPermissions(cachService, currentUser, accessibilityHandlerData, out OrganizationViewModel _);
+                    }
                     break;
 
                 case "ProductCategories":
                     {
-                        CheckPermissionsAndCache(accessibilityHandlerData);
-
                         User currentUser = accessibilityHandlerData.GetCurrentUser();
                         ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
-
-                        // Если к организации есть доступ, то установка ее как текущей, на которой находится пользователь
-                        OrganizationViewModel orgViewModel = cachService.GetCachedCurrentEntity<OrganizationViewModel>(currentUser);
-
-                        // Простановка текущего представления
-                        ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
-                        ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, orgViewModel.Id, PROD_CATS);
-                        productCategoryRepository.SetViewInfo(orgViewModel.Id, PROD_CATS, viewInfo.CurrentPageNumber);
-                        ProductCategoriesViewModel productCategoriesViewModel = new ProductCategoriesViewModel()
+                        if (TryCheckPermissions(cachService, currentUser, accessibilityHandlerData, out OrganizationViewModel orgViewModel))
                         {
-                            Id = orgViewModel.Id,
-                            OrganizationViewModel = orgViewModel,
-                            OrganizationId = orgViewModel.Id
-                        };
-                        cachService.CacheEntity(currentUser, productCategoriesViewModel);
-                        cachService.CacheCurrentEntity(currentUser, productCategoriesViewModel);
+                            // Простановка текущего представления
+                            ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, orgViewModel.Id, PROD_CATS);
+                            productCategoryRepository.SetViewInfo(orgViewModel.Id, PROD_CATS, viewInfo.CurrentPageNumber);
+                            ProductCategoriesViewModel productCategoriesViewModel = new ProductCategoriesViewModel()
+                            {
+                                Id = orgViewModel.Id,
+                                OrganizationViewModel = orgViewModel,
+                                OrganizationId = orgViewModel.Id
+                            };
+                            cachService.CacheEntity(currentUser, productCategoriesViewModel);
+                            cachService.CacheCurrentEntity(currentUser, productCategoriesViewModel);
+                        }
                     }
                     break;
 
@@ -87,44 +88,49 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
             }
         }
 
-        private void CheckPermissionsAndCache(AccessibilityHandlerData accessibilityHandlerData)
+        private bool TryCheckPermissions(ICachService cachService, User currentUser, AccessibilityHandlerData accessibilityHandlerData, out OrganizationViewModel orgViewModel)
         {
             // Получение id организации из ссылки запроса
+            orgViewModel = default;
             string organizationId = accessibilityHandlerData.GetIdFromRequest(RequestSourceType.RouteValues, "id");
-            if (!string.IsNullOrEmpty(organizationId))
+            if (string.IsNullOrEmpty(organizationId))
             {
-                // Попытка получить организацию, на которую перешел пользователь и проверка прав на ее просмотр
-                OrganizationRepository organizationRepository = new OrganizationRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
-                if (!organizationRepository.TryGetItemById(organizationId, out Organization organization))
-                {
-                    accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
-                    return;
-                }
-
-                if (!organizationRepository.HasPermissionsForSeeItem(organization))
-                {
-                    accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
-                    return;
-                }
-
-                // Кеширование найденной организации
-                User currentUser = accessibilityHandlerData.GetCurrentUser();
-                ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
-                cachService.CacheEntity(currentUser, organization);
-                cachService.CacheCurrentEntity(currentUser, organization);
-
-                // Маппинг в модель отображения
-                OrganizationViewModel orgViewModel = new OrganizationMap(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context).DataToViewModel(organization);
-
-                // Обновление полей в модели из кеша, если он существует
-                if (cachService.TryGetCachedEntity(currentUser, orgViewModel.Id, out OrganizationViewModel cachedViewModel))
-                    orgViewModel.Refresh(cachedViewModel);
-
-                // Кеширование модели
-                cachService.CacheEntity(currentUser, orgViewModel);
-                cachService.CacheCurrentEntity(currentUser, orgViewModel);
+                accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
+                return false;
             }
-            else accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
+
+            // Попытка получить организацию, на которую перешел пользователь и проверка прав на ее просмотр
+            OrganizationRepository organizationRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+            if (!organizationRepository.TryGetItemById(organizationId, out Organization organization) ||
+                !organizationRepository.HasPermissionsForSeeItem(organization))
+            {
+                accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
+                return false;
+            }
+
+            // В случае, если переход осуществляется не на карточку организации и пользователь не принял в нее приглашение, необходимо прервать запрос
+            if (accessibilityHandlerData.ActionName != "Organization" && !organizationRepository.HasPermissionsForSeeOrgItem())
+            {
+                accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
+                return false;
+            }
+
+
+            // Кеширование найденной организации
+            cachService.CacheEntity(currentUser, organization);
+            cachService.CacheCurrentEntity(currentUser, organization);
+
+            // Маппинг в модель отображения
+            orgViewModel = new OrganizationMap(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context).DataToViewModel(organization);
+
+            // Обновление полей в модели из кеша, если он существует
+            if (cachService.TryGetCachedEntity(currentUser, orgViewModel.Id, out OrganizationViewModel cachedViewModel))
+                orgViewModel.Refresh(cachedViewModel);
+
+            // Кеширование модели
+            cachService.CacheEntity(currentUser, orgViewModel);
+            cachService.CacheCurrentEntity(currentUser, orgViewModel);
+            return true;
         }
     }
 }

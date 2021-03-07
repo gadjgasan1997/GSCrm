@@ -139,33 +139,53 @@ class ProductCategory {
 
     /** ћетод проставл€ет признак необходимости сохранить кеш категорий продуктов после перезагрузки страницы */
     SetSaveCategoriesCacheSign(needSave) {
-        let categoriesCash = JSON.parse(localStorage.getItem("ProductCategoriesCash"));
-        if (Utils.IsNullOrEmpty(categoriesCash)) {
-            categoriesCash = {
-                SaveCategoriesCache: needSave
+
+        // ѕолучение id “екущей организации
+        let organizationId = Utils.GetParamFromUrlByIndex(2);
+        if (!Utils.IsNullOrEmpty(organizationId)) {
+
+            // ѕопытка получить кеш категорий продуктов
+            let categoriesCash = JSON.parse(localStorage.getItem("ProductCategoriesCash"));
+            if (Utils.IsNullOrEmpty(categoriesCash)) {
+                categoriesCash = {
+                    organizationId: {
+                        SaveCategoriesCache: needSave
+                    }
+                }
             }
+            else {
+                // ѕопытка получить кеш организации
+                let organizationCach = categoriesCash[organizationId];
+                if (Utils.IsNullOrEmpty(organizationCach)) {
+                    categoriesCash[organizationId] = {
+                        SaveCategoriesCache: needSave
+                    }
+                }
+                else {
+                    organizationCach["SaveCategoriesCache"] = needSave;
+                }
+            }
+            localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
         }
-        else categoriesCash["SaveCategoriesCache"] = needSave;
-        localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
     }
 
     /** ћетод чистит лишний кеш при необходимости */
     ClearCache() {
-        let categoriesCash = JSON.parse(localStorage.getItem("ProductCategoriesCash"));
-        if (!Utils.IsNullOrEmpty(categoriesCash)) {
+        // let categoriesCash = JSON.parse(localStorage.getItem("ProductCategoriesCash"));
+        // if (!Utils.IsNullOrEmpty(categoriesCash)) {
 
-            // ѕолучение признака необходимости сохранить кеш
-            // ≈сли признак отсутствует или проставлен в false, происходит чистка
-            let saveCategoriesCache = categoriesCash["SaveCategoriesCache"];
-            if (Utils.IsNullOrEmpty(saveCategoriesCache) || !saveCategoriesCache) {
-                localStorage.removeItem("ProductCategoriesCash");
-            }
-            // »наче чистка не происходит и признак проставл€етс€ в false
-            else {
-                categoriesCash["SaveCategoriesCache"] = false;
-                localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
-            }
-        }
+        //     // ѕолучение признака необходимости сохранить кеш
+        //     // ≈сли признак отсутствует или проставлен в false, происходит чистка
+        //     let saveCategoriesCache = categoriesCash["SaveCategoriesCache"];
+        //     if (Utils.IsNullOrEmpty(saveCategoriesCache) || !saveCategoriesCache) {
+        //         localStorage.removeItem("ProductCategoriesCash");
+        //     }
+        //     // »наче чистка не происходит и признак проставл€етс€ в false
+        //     else {
+        //         categoriesCash["SaveCategoriesCache"] = false;
+        //         localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
+        //     }
+        // }
     }
     
     Navigate(event) {

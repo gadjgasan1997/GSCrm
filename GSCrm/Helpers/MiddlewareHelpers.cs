@@ -129,6 +129,32 @@ namespace GSCrm.Helpers
         }
 
         /// <summary>
+        /// Метод устанавливает организацию в кеше как текущую, на которой находится пользователь, в случае неудачи прерывает запрос с ошибкой
+        /// Организация уже должна быть в кеше на момент вызова метода
+        /// </summary>
+        /// <param name="accessibilityHandlerData"></param>
+        /// <param name="currentUser"></param>
+        /// <param name="cachService"></param>
+        /// <param name="organizationId">Id организации</param>
+        public static bool TryCacheCurrentOrganization(this AccessibilityHandlerData accessibilityHandlerData, User currentUser, ICachService cachService, Guid organizationId)
+        {
+            if (cachService.TryGetCachedEntity(currentUser, organizationId, out Organization organization) &&
+                cachService.TryGetCachedEntity(currentUser, organizationId, out OrganizationViewModel organizationViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, organization);
+                cachService.CacheCurrentEntity(currentUser, organizationViewModel);
+                return true;
+            }
+
+            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
+            accessibilityHandlerData.BreakRequest(404, new
+            {
+                RecordNotFound = resManager.GetString("OrganizationNotFound")
+            });
+            return false;
+        }
+
+        /// <summary>
         /// Метод устанавливает должность в кеше как текущую, на которой находится пользователь, в случае неудачи прерывает запрос с ошибкой
         /// Должность уже должна быть в кеше на момент вызова метода
         /// </summary>
@@ -224,23 +250,21 @@ namespace GSCrm.Helpers
         /// </summary>
         /// <param name="accessibilityHandlerData"></param>
         /// <param name="cachService"></param>
-        /// <param name="resManager"></param>
         /// <param name="currentUser"></param>
         /// <param name="acccountId"></param>
-        public static bool TryCacheCurrentAccount(this AccessibilityHandlerData accessibilityHandlerData, ICachService cachService, IResManager resManager, User currentUser, Guid acccountId)
+        public static bool TryCacheCurrentAccount(this AccessibilityHandlerData accessibilityHandlerData, User currentUser, ICachService cachService, Guid acccountId)
         {
             // Попытка получить клиента из кеша
             if (cachService.TryGetCachedEntity(currentUser, acccountId, out Account account) &&
                 cachService.TryGetCachedEntity(currentUser, acccountId, out AccountViewModel accountViewModel))
             {
                 // Кеширование клиента как текущего
-                cachService.CacheEntity(currentUser, account);
                 cachService.CacheCurrentEntity(currentUser, account);
-                cachService.CacheEntity(currentUser, accountViewModel);
                 cachService.CacheCurrentEntity(currentUser, accountViewModel);
                 return true;
             }
 
+            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
             accessibilityHandlerData.BreakRequest(404, new
             {
                 RecordNotFound = resManager.GetString("AccounNotFound")

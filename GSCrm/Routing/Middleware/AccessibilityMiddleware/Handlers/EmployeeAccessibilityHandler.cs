@@ -25,8 +25,8 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         if (!string.IsNullOrEmpty(employeeId))
                         {
                             // Попытка получить сотрудника и проверка у пользователя прав на его просмотр
-                            EmployeeRepository employeeRepository = new EmployeeRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
-                            OrganizationRepository organizationRepository = new OrganizationRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                            EmployeeRepository employeeRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                            OrganizationRepository organizationRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                             if (!employeeRepository.TryGetItemById(employeeId, out Employee employee))
                             {
                                 accessibilityHandlerData.Redirect($"/{EMPLOYEE}/HasNoPermissionsForSee");
@@ -34,14 +34,10 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             }
 
                             Organization organization = employee.GetOrganization(accessibilityHandlerData.Context);
-                            if (!organizationRepository.HasPermissionsForSeeItem(organization))
+                            if (!organizationRepository.HasPermissionsForSeeItem(organization) ||
+                                !employeeRepository.HasPermissionsForSeeItem(employee))
                             {
-                                accessibilityHandlerData.Redirect($"/{EMPLOYEE}/HasNoPermissionsForSee");
-                                return;
-                            }
-                            if (!employeeRepository.HasPermissionsForSeeItem(employee))
-                            {
-                                accessibilityHandlerData.Redirect($"/{EMPLOYEE}/HasNoPermissionsForSee");
+                                accessibilityHandlerData.Redirect($"/{ORGANIZATION}/HasNoPermissionsForSee");
                                 return;
                             }
 
@@ -92,11 +88,6 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 default:
                     break;
             }
-        }
-
-        private void CheckPermissionsAndCache(AccessibilityHandlerData accessibilityHandlerData, string employeeId)
-        {
-            
         }
     }
 }

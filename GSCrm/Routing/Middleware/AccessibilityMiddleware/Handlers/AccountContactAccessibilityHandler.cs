@@ -33,10 +33,10 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             // Попытка закешировать клиента как текущего
                             User currentUser = accessibilityHandlerData.HttpContext.GetCurrentUser(accessibilityHandlerData.Context);
                             ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
-                            if (accessibilityHandlerData.TryCacheCurrentAccount(cachService, resManager, currentUser, accountContact.AccountId))
+                            if (accessibilityHandlerData.TryCacheCurrentAccount(currentUser, cachService, accountContact.AccountId))
                             {
                                 // Маппинг в модель отображения и ее кеширование
-                                AccountContactMap accountContactMap = new AccountContactMap(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                                AccountContactMap accountContactMap = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                                 AccountContactViewModel contactViewModel = accountContactMap.DataToViewModel(accountContact);
                                 CacheAccountContact(cachService, currentUser, accountContact, contactViewModel);
                             }
@@ -70,7 +70,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         }
 
                         // Кеширование текущего клиента и контакта
-                        if (accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.Form, "accountId"))
+                        if (accessibilityHandlerData.TryCacheCurrentAccount(currentUser, cachService, accountContact.AccountId))
                             CacheAccountContact(cachService, currentUser, accountContact, contactViewModel);
                     }
                     break;

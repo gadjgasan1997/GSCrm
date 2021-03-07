@@ -21,7 +21,7 @@ class ProductCategoriesRender extends BaseProductCategoriesRender {
                 let categories = response["ProductCategoryViewModels"];
                 if (!Utils.IsNullOrEmpty(categories)) {
                     this.RenderCategories(categories);
-                }
+                }   
             })
     }
 
@@ -117,10 +117,17 @@ class ProductCategoriesRender extends BaseProductCategoriesRender {
      * @param {*} categoryId Id категории
      */
     IsCategoryExpand(categoryId) {
+        // Получение кеша категорий
         let categoriesCash = JSON.parse(localStorage.getItem("ProductCategoriesCash"));
         if (Utils.IsNullOrEmpty(categoriesCash))
             return false;
-        let expandedCategories = categoriesCash["ExpandedCategories"];
+        
+        // Получение кеша текущей организации
+        let organizationId = Utils.GetParamFromUrlByIndex(2);
+        if (Utils.IsNullOrEmpty(categoriesCash[organizationId]))
+            return false;
+
+        let expandedCategories = categoriesCash[organizationId]["ExpandedCategories"];
         return !Utils.IsNullOrEmpty(expandedCategories) && expandedCategories.includes(categoryId);
     }
 

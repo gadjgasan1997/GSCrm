@@ -1,13 +1,12 @@
 ﻿using System;
 using GSCrm.Data;
 using GSCrm.Models;
-using GSCrm.Mapping;
 using GSCrm.Models.ViewModels;
-using Microsoft.AspNetCore.Authorization;
+using GSCrm.Data.ApplicationInfo;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Authorization;
 using static GSCrm.CommonConsts;
-using GSCrm.Data.ApplicationInfo;
 
 namespace GSCrm.Controllers
 {
@@ -20,11 +19,7 @@ namespace GSCrm.Controllers
 
         [HttpGet("{id}/Initialize")]
         public IActionResult Initalize()
-        {
-            ProductCategory productCategory = cachService.GetCachedCurrentEntity<ProductCategory>(currentUser);
-            ProductCategoryViewModel prodCatViewModel = new ProductCategoryMap(serviceProvider, context).DataToViewModel(productCategory);
-            return Json(prodCatViewModel);
-        }
+            => Json(cachService.GetCachedCurrentEntity<ProductCategoryViewModel>(currentUser));
 
         protected override IActionResult CreateSuccessHandler()
         {
@@ -34,9 +29,18 @@ namespace GSCrm.Controllers
         }
 
         protected override IActionResult UpdateSuccessHandler()
-            => RedirectToAction(PROD_CATS, PROD_CAT);
+        {
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, currentOrganization.Id, PROD_CATS);
+            return Redirect($"/{ORGANIZATION}/{currentOrganization.Id}/GetProductCategoriesData/{viewInfo.CurrentPageNumber}/");
+        }
 
         protected override IActionResult DeleteSuccessHandler()
-            => Json(Url.Action(PROD_CATS, PROD_CAT));
+        {
+            Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
+            ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, currentOrganization.Id, PROD_CATS);
+            string returnUrl = Url.Content($"/{ORGANIZATION}/{currentOrganization.Id}/GetProductCategoriesData/{viewInfo.CurrentPageNumber}/");
+            return Json(returnUrl);
+        }
     }
 }

@@ -92,7 +92,6 @@ namespace GSCrm.Controllers
         /// <summary>
         /// Получить продуктовую модель организации
         /// </summary>
-        /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}/ProductCategories")]
         public ViewResult ProductCategories()
@@ -219,7 +218,7 @@ namespace GSCrm.Controllers
         public IActionResult GetProductCategoriesData(string id, int pageNumber)
         {
             ProductCategoriesViewModel prodCatsCached = cachService.GetCachedCurrentEntity<ProductCategoriesViewModel>(currentUser);
-            ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(serviceProvider, context);
+            ProductCategoryRepository productCategoryRepository = new(serviceProvider, context);
             productCategoryRepository.SetViewInfo(id, PROD_CATS, pageNumber);
             productCategoryRepository.AttachProductCategories(prodCatsCached);
             return Json(prodCatsCached, serializerSettings);

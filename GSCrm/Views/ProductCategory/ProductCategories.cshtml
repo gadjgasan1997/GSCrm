@@ -37,7 +37,7 @@
     </ol>
 </nav>
 
-<div id="productCategoriesForm" data-href="@Url.Content($"/{ORGANIZATION}/{Model.OrganizationId}/GetProductCategoriesData/{DEFAULT_MIN_PAGE_NUMBER}/")" class="mt-3">
+<div id="productCategoriesForm" data-href="@Url.Content($"/{ORGANIZATION}/{Model.OrganizationId}/GetProductCategoriesData/{prodCatsViewInfo.CurrentPageNumber}/")" class="mt-3">
     @* // Создание категории *@
     @{ await Html.RenderPartialAsync($"{PROD_CAT_VIEWS_REL_PATH}Partial/CreateCategory.cshtml"); }
     @* // Создание продукта *@

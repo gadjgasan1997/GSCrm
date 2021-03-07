@@ -68,9 +68,14 @@ namespace GSCrm.Repository
             return !errors.Any();
         }
 
-        protected override void UpdateCacheOnDelete(ProductCategory dataModel)
+        protected override void UpdateCacheOnDelete(ProductCategory productCategory)
         {
-            base.UpdateCacheOnDelete(dataModel);
+            if (cachService.TryGetCachedEntity(currentUser, productCategory.OrganizationId, out Organization organization) &&
+                cachService.TryGetCachedEntity(currentUser, productCategory.OrganizationId, out OrganizationViewModel orgViewModel))
+            {
+                cachService.CacheCurrentEntity(currentUser, organization);
+                cachService.CacheCurrentEntity(currentUser, orgViewModel);
+            }
         }
 
         protected override bool RespsIsCorrectOnDelete(ProductCategory entityToDelete)

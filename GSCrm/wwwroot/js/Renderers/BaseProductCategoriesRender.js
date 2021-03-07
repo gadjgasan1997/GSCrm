@@ -9,16 +9,23 @@ class BaseProductCategoriesRender {
         if (Utils.IsNullOrEmpty(categoriesCash)) {
             categoriesCash = {};
         }
+        
+        // Получение id Текущей организации
+        let organizationId = Utils.GetParamFromUrlByIndex(2);
+        if (Utils.IsNullOrEmpty(categoriesCash[organizationId])) {
+            categoriesCash[organizationId] = {};
+        }
 
-        if (Utils.IsNullOrEmpty(categoriesCash["ExpandedCategories"])) {
-            categoriesCash["ExpandedCategories"] = [ categoryId ];
+        // Получение списка развернутых категорий для выбранной организации
+        if (Utils.IsNullOrEmpty(categoriesCash[organizationId]["ExpandedCategories"])) {
+            categoriesCash[organizationId]["ExpandedCategories"] = [ categoryId ];
             localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
         }
 
-        else if (!categoriesCash["ExpandedCategories"].includes(categoryId)) {
-            let expandedCategories = categoriesCash["ExpandedCategories"];
+        else if (!categoriesCash[organizationId]["ExpandedCategories"].includes(categoryId)) {
+            let expandedCategories = categoriesCash[organizationId]["ExpandedCategories"];
             expandedCategories.push(categoryId);
-            categoriesCash["ExpandedCategories"] = expandedCategories;
+            categoriesCash[organizationId]["ExpandedCategories"] = expandedCategories;
             localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
         }
     }
@@ -28,14 +35,23 @@ class BaseProductCategoriesRender {
      * @param {*} categoryId Id свернутой категории
      */
     CollapseCategory(categoryId) {
-        // Удаление категории из списка развернутых
+        // Попытка получить кеш категорий
         let categoriesCash = JSON.parse(localStorage.getItem("ProductCategoriesCash"));
         if (!Utils.IsNullOrEmpty(categoriesCash)) {
-            let expandedCategories = categoriesCash["ExpandedCategories"];
-            if (!Utils.IsNullOrEmpty(expandedCategories) && expandedCategories.includes(categoryId)) {
-                expandedCategories.splice(expandedCategories.indexOf(categoryId), 1);
-                categoriesCash["ExpandedCategories"] = expandedCategories;
-                localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
+            
+            // Получение id Текущей организации
+            let organizationId = Utils.GetParamFromUrlByIndex(2);
+            if (!Utils.IsNullOrEmpty(categoriesCash[organizationId])) {
+
+                // Получение информации о развернутых категориях для выбранной организации
+                let expandedCategories = categoriesCash[organizationId]["ExpandedCategories"];
+                if (!Utils.IsNullOrEmpty(expandedCategories) && expandedCategories.includes(categoryId)) {
+    
+                    // Удаление категории из списка развернутых
+                    expandedCategories.splice(expandedCategories.indexOf(categoryId), 1);
+                    categoriesCash[organizationId]["ExpandedCategories"] = expandedCategories;
+                    localStorage.setItem("ProductCategoriesCash", JSON.stringify(categoriesCash));
+                }
             }
         }
     }

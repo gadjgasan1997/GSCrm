@@ -23,7 +23,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         if (!string.IsNullOrEmpty(accountInvoiceId))
                         {
                             // Поптыка получить реквизиты
-                            AccountInvoiceRepository invoiceRepository = new AccountInvoiceRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                            AccountInvoiceRepository invoiceRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                             if (!invoiceRepository.TryGetItemById(accountInvoiceId, out AccountInvoice accountInvoice))
                             {
                                 accessibilityHandlerData.BreakRequest(404, GetRecordNotFoundMessage("AccountInvoiceNotFound", resManager));
@@ -33,7 +33,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                             // Попытка закешировать клиента как текущего
                             User currentUser = accessibilityHandlerData.HttpContext.GetCurrentUser(accessibilityHandlerData.Context);
                             ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
-                            if (accessibilityHandlerData.TryCacheCurrentAccount(cachService, resManager, currentUser, accountInvoice.AccountId))
+                            if (accessibilityHandlerData.TryCacheCurrentAccount(currentUser, cachService, accountInvoice.AccountId))
                             {
                                 // Маппинг в модель отображения и ее кеширование
                                 AccountInvoiceMap accountInvoiceMap = new AccountInvoiceMap(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
@@ -70,7 +70,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                         }
 
                         // Кеширование текущего клиента и банковских реквизитов
-                        if (accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.Form, "accountId"))
+                        if (accessibilityHandlerData.TryCacheCurrentAccount(currentUser, cachService, accountInvoice.AccountId))
                             CacheAccountInvoice(cachService, currentUser, accountInvoice, invoiceViewModel);
                     }
                     break;

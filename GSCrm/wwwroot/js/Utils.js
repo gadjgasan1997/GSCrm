@@ -211,4 +211,15 @@ class Utils {
             console.log(info);
         })
     }
+
+    static GetParamsFromUrl() {
+        return location.pathname.split("/");
+    }
+
+    static GetParamFromUrlByIndex(paramIndex) {
+        let params = Utils.GetParamsFromUrl();
+        if (Utils.IsNullOrEmpty(params) || !Array.isArray(params))
+            return null;
+        return params[paramIndex];
+    }
 }
