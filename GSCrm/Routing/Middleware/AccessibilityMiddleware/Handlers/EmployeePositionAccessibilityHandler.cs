@@ -17,15 +17,15 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "ClearPositionManagementSearch":
                 case "ClearAllPositionSearch":
                 case "ClearSelectedPositionSearch":
-                    accessibilityHandlerData.CacheCurrentEmployee(RequestSourceType.RouteValues, "employeeId");
+                    accessibilityHandlerData.TryCacheCurrentEmployee(RequestSourceType.RouteValues, "employeeId");
                     break;
                 case "SearchAllPosition":
                 case "SearchSelectedPosition":
-                    accessibilityHandlerData.CacheCurrentEmployee();
+                    accessibilityHandlerData.TryCacheCurrentEmployee();
                     break;
                 case "Synchronize":
                     accessibilityHandlerData.CacheCurrentOrganization();
-                    accessibilityHandlerData.CacheCurrentEmployee();
+                    accessibilityHandlerData.TryCacheCurrentEmployee();
                     break;
                 default:
                     break;

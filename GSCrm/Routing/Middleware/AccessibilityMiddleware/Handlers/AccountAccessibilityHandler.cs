@@ -25,13 +25,9 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                     if (!string.IsNullOrEmpty(accountId))
                     {
                         // Проверки на наличие клиента и доступа к нему у пользователя
-                        AccountRepository accountRepository = new AccountRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
-                        if (!accountRepository.TryGetItemById(accountId, out Account account))
-                        {
-                            accessibilityHandlerData.Redirect($"/{ACCOUNT}/HasNoPermissionsForSee");
-                            return;
-                        }
-                        if (!accountRepository.HasPermissionsForSeeItem(account))
+                        AccountRepository accountRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                        if (!accountRepository.TryGetItemById(accountId, out Account account) ||
+                            !accountRepository.HasPermissionsForSeeItem(account))
                         {
                             accessibilityHandlerData.Redirect($"/{ACCOUNT}/HasNoPermissionsForSee");
                             return;
@@ -58,9 +54,6 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                     break;
 
                 case "Update":
-                case "SearchContact":
-                case "SearchAddress":
-                case "SearchInvoice":
                 case "UnlockAccount":
                 case "ChangePrimaryContact":
                     accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.Form);
@@ -71,11 +64,20 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                     break;
 
                 case "ChangeSite":
+                case "HasAccNotLegalAddress":
+                    accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.RouteValues);
+                    break;
+
+                case "SearchContact":
+                case "SearchAddress":
+                case "SearchInvoice":
+                    accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.Form, "id", RequestBreakType.Redirect);
+                    break;
+
                 case "ClearContactSearch":
                 case "ClearAddressSearch":
                 case "ClearInvoiceSearch":
-                case "HasAccNotLegalAddress":
-                    accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.RouteValues);
+                    accessibilityHandlerData.TryCacheCurrentAccount(RequestSourceType.RouteValues, "id", RequestBreakType.Redirect);
                     break;
 
                 default:

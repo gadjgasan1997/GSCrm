@@ -65,7 +65,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "Create":
                 case "Update":
                     accessibilityHandlerData.CacheCurrentOrganization();
-                    accessibilityHandlerData.CacheCurrentEmployee();
+                    accessibilityHandlerData.TryCacheCurrentEmployee();
                     break;
                 default:
                     break;

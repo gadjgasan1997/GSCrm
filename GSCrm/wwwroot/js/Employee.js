@@ -291,13 +291,34 @@ $("#employeeForm")
         let employee = new Employee();
         employee.Update();
     })
+    .off("click", "#cancelUpdateEmpBtn").on("click", "#cancelUpdateEmpBtn", event => {
+        event.preventDefault();
+        location.replace($("#cancelUpdateEmpBtn").attr("data-href"));
+    })
+    .off("click", "#actionsSelectorBtn").on("click", "#actionsSelectorBtn", event => {
+        event.preventDefault();
+        if ($("#employeeActions").hasClass("d-none")) {
+            $("#employeeActions").removeClass("d-none").addClass("d-flex");
+            $("#employeeAdditionActions").removeClass("d-none").addClass("d-flex");
+            $("#actionsSelectorBtn").text("Скрыть возможные действия");
+            $("#actionsSelectorBtn").closest("div").addClass("mb-3");
+        }
+        else {
+            $("#employeeActions").removeClass("d-flex").addClass("d-none");
+            $("#employeeAdditionActions").removeClass("d-flex").addClass("d-none");
+            $("#actionsSelectorBtn").text("Показать возможные действия");
+            $("#actionsSelectorBtn").closest("div").removeClass("mb-3");
+        }
+    })
     .off("click", "#initializeRespsBtn").on("click", "#initializeRespsBtn", event => {
         event.preventDefault();
+        $("html").css("overflow-y", "hidden");
         let employeeResponsibilityManagement = new EmployeeResponsibilityManagement();
         employeeResponsibilityManagement.InitializeResps();
     })
     .off("click", "#initializePositionsBtn").on("click", "#initializePositionsBtn", event => {
         event.preventDefault();
+        $("html").css("overflow-y", "hidden");
         let employeePositionsManagement = new EmployeePositionsManagement();
         employeePositionsManagement.InitializePositions();
     });

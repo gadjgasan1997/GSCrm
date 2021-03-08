@@ -78,7 +78,7 @@
 #positionForm .nav-tabs .nav-item,
 #notSettingsForm .nav-tabs .nav-item {
   text-align: center;
-  margin-top: 35px; }
+  margin-top: 20px; }
 
 #employeeForm .nav-link,
 #accountsForm .nav-link,
@@ -110,26 +110,69 @@
         width: 100%;
         opacity: 0;
         z-index: 100; }
-  #positionForm #positionsHierarchy .position-hierarchy-item:not(.position-current-item):hover, #positionForm #positionsHierarchy .position-current-item {
-    box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.2), 0px 0px 2px rgba(149, 155, 161, 0.6);
-    background: #FFFFFF;
-    border: 1px solid rgba(149, 155, 161, 0.6); }
-  #positionForm #positionsHierarchy .row {
+  #positionForm #positionsHierarchy .position-hierarchy-item-label {
     width: 100%;
     margin-top: 10px;
     margin-left: auto;
     margin-right: auto; }
-    #positionForm #positionsHierarchy .row .oval-mark {
-      position: relative;
-      z-index: 150; }
+    #positionForm #positionsHierarchy .position-hierarchy-item-label > div:first-child {
+      width: 40px;
+      height: 30px; }
+      #positionForm #positionsHierarchy .position-hierarchy-item-label > div:first-child .oval-mark {
+        position: relative;
+        z-index: 150;
+        margin-left: 8px;
+        margin-top: 3px; }
+    #positionForm #positionsHierarchy .position-hierarchy-item-label > div:last-child {
+      width: 80%;
+      height: 30px; }
+      #positionForm #positionsHierarchy .position-hierarchy-item-label > div:last-child > p {
+        text-overflow: ellipsis;
+        overflow-x: hidden; }
+  #positionForm #positionsHierarchy .position-hierarchy-item:not(.position-current-item):hover, #positionForm #positionsHierarchy .position-current-item {
+    box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.2), 0px 0px 2px rgba(149, 155, 161, 0.6);
+    background: #FFFFFF;
+    border: 1px solid rgba(149, 155, 161, 0.6); }
   #positionForm #positionsHierarchy .positions-connector {
     position: absolute;
     height: calc(100% - 130px);
     width: 2px;
     background: linear-gradient(0deg, #008C95, #008C95), #FFFFFF;
-    left: 27px;
+    left: 20px;
     z-index: 150;
     top: 20px; }
+
+#positionForm #positionUpdateForm #positionFields .col {
+  min-width: 100%; }
+
+#positionForm #positionActions > div {
+  height: 100%; }
+  #positionForm #positionActions > div > button, #positionForm #positionActions > div a {
+    height: 60px; }
+
+@media all and (max-width: 768px) {
+  #positionActions > div > button, #positionActions > div a {
+    height: 60px; } }
+
+@media all and (min-width: 768px) {
+  #positionForm #positionActions > div > button, #positionForm #positionActions > div a {
+    height: 50px; } }
+
+#employeeForm #employeeActions > div > button, #employeeForm #employeeActions > div a {
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden; }
+
+#employeeForm #employeeAdditionActions button {
+  height: 40px; }
+
+@media all and (max-width: 768px) {
+  #employeeForm #employeeActions > div > button {
+    height: 60px; } }
+
+@media all and (min-width: 768px) {
+  #employeeForm #employeeActions > div > button, #employeeForm #employeeActions > div a {
+    height: 100%; } }
 
 #accountForm input[type="number"]::-webkit-outer-spin-button,
 #accountForm input[type="number"]::-webkit-inner-spin-button {
@@ -155,6 +198,11 @@
       #accountForm #accountTeam #accountTeamList .list-group .account-manager > div > h5 {
         white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis; }
+      #accountForm #accountTeam #accountTeamList .list-group .account-manager small {
+        position: absolute;
+        max-width: 90%;
+        overflow-x: hidden;
         text-overflow: ellipsis; }
   #accountForm #accountTeam #showAllManagers {
     line-height: 40px;
@@ -269,6 +317,23 @@
         color: #28a745; }
   #productCategoriesForm #productCategoriesTree .category-row:last-child {
     margin-bottom: 10px; }
+  #productCategoriesForm #productCategoriesTree .categories-empty {
+    margin: auto; }
+    #productCategoriesForm #productCategoriesTree .categories-empty > div:last-child {
+      text-align: center; }
+
+@media all and (max-width: 768px) {
+  .categories-empty {
+    width: 100%; }
+    .categories-empty > div:first-child {
+      display: none; }
+    .categories-empty > div:last-child {
+      width: 100%;
+      text-align: center; } }
+
+@media all and (min-width: 768px) {
+  .categories-empty {
+    width: 80%; } }
 
 @media all and (min-width: 800px) {
   #productCategoriesFilter .row {

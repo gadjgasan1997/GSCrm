@@ -123,7 +123,7 @@
 #notSettingsForm {
     .nav-tabs .nav-item {
         text-align: center;
-        margin-top: 35px;
+        margin-top: 20px;
     }
 
     .nav-link {
@@ -164,22 +164,39 @@
             }
         }
 
-        .position-hierarchy-item:not(.position-current-item):hover, .position-current-item {
-            box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.2), 0px 0px 2px rgba(149, 155, 161, 0.6);
-            background: #FFFFFF;
-            border: 1px solid rgba(149, 155, 161, 0.6);
-        }
-
-        .row {
+        .position-hierarchy-item-label {
             width: 100%;
             margin-top: 10px;
             margin-left: auto;
             margin-right: auto;
 
-            .oval-mark {
-                position: relative;
-                z-index: 150
+            > div:first-child {
+                width: 40px;
+                height: 30px;
+
+                .oval-mark {
+                    position: relative;
+                    z-index: 150;
+                    margin-left: 8px;
+                    margin-top: 3px
+                }
             }
+
+            > div:last-child {
+                width: 80%;
+                height: 30px;
+
+                > p {
+                    text-overflow: ellipsis;
+                    overflow-x: hidden;
+                }
+            }
+        }
+
+        .position-hierarchy-item:not(.position-current-item):hover, .position-current-item {
+            box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.2), 0px 0px 2px rgba(149, 155, 161, 0.6);
+            background: #FFFFFF;
+            border: 1px solid rgba(149, 155, 161, 0.6);
         }
 
         .positions-connector {
@@ -187,9 +204,91 @@
             height: calc(100% - 130px);
             width: 2px;
             background: linear-gradient(0deg, #008C95, #008C95), #FFFFFF;
-            left: 27px;
+            left: 20px;
             z-index: 150;
             top: 20px;
+        }
+    }
+
+    #positionUpdateForm {
+        #positionFields {
+            .col {
+                min-width: 100%;
+            }
+        }
+    }
+
+    #positionActions {
+        > div {
+            height: 100%;
+
+            > button, a {
+                height: 60px
+            }
+        }
+    }
+}
+
+@media all and (max-width: 768px) {
+    #positionActions {
+        > div {
+            > button, a {
+                height: 60px
+            }
+        }
+    }
+}
+
+@media all and (min-width: 768px) {
+    #positionForm {
+        #positionActions {
+            > div {
+                > button, a {
+                    height: 50px
+                }
+            }
+        }
+    }
+}
+
+#employeeForm {
+    #employeeActions {
+        > div {
+            > button, a {
+                max-width: 100%;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+        }
+    }
+
+    #employeeAdditionActions {
+        button {
+            height: 40px
+        }
+    }
+}
+
+@media all and (max-width: 768px) {
+    #employeeForm {
+        #employeeActions {
+            > div {
+                > button {
+                    height: 60px;
+                }
+            }
+        }
+    }
+}
+
+@media all and (min-width: 768px) {
+    #employeeForm {
+        #employeeActions {
+            > div {
+                > button, a {
+                    height: 100%;
+                }
+            }
         }
     }
 }
@@ -229,6 +328,13 @@
                     > div > h5 {
                         white-space: nowrap;
                         overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    small {
+                        position: absolute;
+                        max-width: 90%;
+                        overflow-x: hidden;
                         text-overflow: ellipsis;
                     }
                 }
@@ -431,6 +537,35 @@
         .category-row:last-child {
             margin-bottom: 10px
         }
+
+        .categories-empty {
+            margin: auto;
+
+            > div:last-child {
+                text-align: center;
+            }
+        }
+    }
+}
+
+@media all and (max-width: 768px) {
+    .categories-empty {
+        width: 100%;
+
+        > div:first-child {
+            display: none
+        }
+
+        > div:last-child {
+            width: 100%;
+            text-align: center;
+        }
+    }
+}
+
+@media all and (min-width: 768px) {
+    .categories-empty {
+        width: 80%
     }
 }
 

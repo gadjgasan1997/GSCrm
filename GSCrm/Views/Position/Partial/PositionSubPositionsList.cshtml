@@ -9,6 +9,7 @@
 @{
     int subPositionsCount = Model.SubPositions.Count;
     bool showES = subPositionsCount == 0 && new[] { Model.SearchSubPositionName, Model.SearchSubPositionPrimaryEmployee }.AllIsNullOrEmpty();
+    bool showSearchES = subPositionsCount == 0 && new[] { Model.SearchSubPositionName, Model.SearchSubPositionPrimaryEmployee }.IsOneStringFill();
     string currentUserId = User.GetUserModel(context).Id;
 }
 
@@ -20,9 +21,9 @@
     }
     <div class="form-group">
         <form id="positionSubPosList" class="table-wrapper">
-            <table class="fl-table @(!showES ? "" : "empty-table")">
+            <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
                 <thead>
-                    @if (!showES)
+                    @if (!showES && !showSearchES)
                     {
                         <tr>
                             <th class="label-non-select">@resManager.GetString("NameLabel")</th>
@@ -38,6 +39,13 @@
                         <tr>
                             <td><img src="~/img/default-empty.svg" /></td>
                             <td>@resManager.GetString("ESPositionSubPositions")</td>
+                        </tr>
+                    }
+                    @if (showSearchES)
+                    {
+                        <tr>
+                            <td><img src="~/img/page-not-found.svg" /></td>
+                            <td>@resManager.GetString("ESSearchPositions")</td>
                         </tr>
                     }
                     @foreach (PositionViewModel subPosition in Model.SubPositions)

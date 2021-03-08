@@ -120,15 +120,13 @@ ul.nacc {
     list-style: none;
     margin: 0;
     padding: 0;
-    //transition: .5s all cubic-bezier(0.075, 0.82, 0.165, 1);
+
     li {
         display: none;
         width: 100%;
-        margin-left: -50px;
-        transform: translateX(50px);
+        margin-left: 0px;
         position: relative;
         list-style: none;
-        //transition: 1s all cubic-bezier(0.075, 0.82, 0.165, 1);
         > div {
             margin: 0;
         }

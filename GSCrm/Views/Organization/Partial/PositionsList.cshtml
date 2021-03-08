@@ -8,8 +8,8 @@
 @model OrganizationViewModel
 @{
     int positionsCount = Model.Positions.Count();
-    bool showES = positionsCount == 0 && new[]
-        { Model.SearchPosName, Model.SeacrhPositionDivName, Model.SearchParentPosName, Model.SearchPrimaryEmployeeName }.AllIsNullOrEmpty();
+    bool showES = positionsCount == 0 && new[] { Model.SearchPosName, Model.SeacrhPositionDivName, Model.SearchParentPosName, Model.SearchPrimaryEmployeeName }.AllIsNullOrEmpty();
+    bool showSearchES = positionsCount == 0 && new[] { Model.SearchPosName, Model.SeacrhPositionDivName, Model.SearchParentPosName, Model.SearchPrimaryEmployeeName }.IsOneStringFill();
     string currentUserId = User.GetUserModel(context).Id;
 }
 
@@ -24,9 +24,9 @@
     <div class="form-shadow d-none"></div>
     <div class="form-group">
         <form id="positionsList" class="table-wrapper">
-            <table class="fl-table @(!showES ? "" : "empty-table")">
+            <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
                 <thead>
-                    @if (!showES)
+                    @if (!showES && !showSearchES)
                     {
                         <tr>
                             <th class="label-non-select">@resManager.GetString("NameLabel")</th>
@@ -47,6 +47,13 @@
                         <tr>
                             <td><img src="~/img/default-empty.svg" /></td>
                             <td>@resManager.GetString("ESPositions")</td>
+                        </tr>
+                    }
+                    @if (showSearchES)
+                    {
+                        <tr>
+                            <td><img src="~/img/page-not-found.svg" /></td>
+                            <td>@resManager.GetString("ESSearchPositions")</td>
                         </tr>
                     }
                     @foreach (PositionViewModel position in Model.Positions)

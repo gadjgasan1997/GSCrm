@@ -1,15 +1,16 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using GSCrm.Models;
-using GSCrm.Routing.Middleware.AccessibilityMiddleware;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Primitives;
 using GSCrm.Data.Cash;
-using GSCrm.Localization;
-using Microsoft.Extensions.DependencyInjection;
-using GSCrm.Models.ViewModels;
 using GSCrm.Models.Enums;
-using System;
+using GSCrm.Localization;
+using GSCrm.Models.ViewModels;
+using Newtonsoft.Json;
+using GSCrm.Routing.Middleware.AccessibilityMiddleware;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Extensions.DependencyInjection;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Helpers
 {
@@ -105,9 +106,17 @@ namespace GSCrm.Helpers
         /// <param name="accessibilityHandlerData"></param>
         /// <param name="requestSourceType">Источник запроса, в котором будет находиться id организации</param>
         /// <param name="organizationIdKeyName">Название ключа, в котором хранится id организации</param>
-        public static void CacheCurrentOrganization(this AccessibilityHandlerData accessibilityHandlerData, RequestSourceType requestSourceType = RequestSourceType.Form, string organizationIdKeyName = ORGANIZATION_ID_KEY_NAME)
+        /// <param name="requestBreakType">Определяет, каким образом будет обработана ошибка/param>
+        /// <param name="redirectUrl">Ссылка, на которую произойдет перенаправление в случае, если <paramref name="requestBreakType"/> равен <see cref="RequestBreakType.Redirect"/></param>
+        public static void CacheCurrentOrganization(this AccessibilityHandlerData accessibilityHandlerData,
+            RequestSourceType requestSourceType = RequestSourceType.Form,
+            string organizationIdKeyName = ORGANIZATION_ID_KEY_NAME,
+            RequestBreakType requestBreakType = RequestBreakType.Error,
+            string redirectUrl = $"/{ORGANIZATION}/HasNoPermissionsForSee")
         {
+            // Попытка получить организацию из кеша
             string organizationId = GetIdFromRequest(accessibilityHandlerData, requestSourceType, organizationIdKeyName);
+
             if (!string.IsNullOrEmpty(organizationId))
             {
                 User currentUser = accessibilityHandlerData.GetCurrentUser();
@@ -121,11 +130,7 @@ namespace GSCrm.Helpers
                 }
             }
 
-            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
-            accessibilityHandlerData.BreakRequest(404, new
-            {
-                RecordNotFound = resManager.GetString("OrganizationNotFound")
-            });
+            accessibilityHandlerData.HandleError(requestBreakType, "OrganizationNotFound", redirectUrl);
         }
 
         /// <summary>
@@ -136,7 +141,14 @@ namespace GSCrm.Helpers
         /// <param name="currentUser"></param>
         /// <param name="cachService"></param>
         /// <param name="organizationId">Id организации</param>
-        public static bool TryCacheCurrentOrganization(this AccessibilityHandlerData accessibilityHandlerData, User currentUser, ICachService cachService, Guid organizationId)
+        /// <param name="requestBreakType">Определяет, каким образом будет обработана ошибка/param>
+        /// <param name="redirectUrl">Ссылка, на которую произойдет перенаправление в случае, если <paramref name="requestBreakType"/> равен <see cref="RequestBreakType.Redirect"/></param>
+        public static bool TryCacheCurrentOrganization(this AccessibilityHandlerData accessibilityHandlerData,
+            User currentUser,
+            ICachService cachService,
+            Guid organizationId,
+            RequestBreakType requestBreakType = RequestBreakType.Error,
+            string redirectUrl = $"/{ORGANIZATION}/HasNoPermissionsForSee")
         {
             if (cachService.TryGetCachedEntity(currentUser, organizationId, out Organization organization) &&
                 cachService.TryGetCachedEntity(currentUser, organizationId, out OrganizationViewModel organizationViewModel))
@@ -146,11 +158,7 @@ namespace GSCrm.Helpers
                 return true;
             }
 
-            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
-            accessibilityHandlerData.BreakRequest(404, new
-            {
-                RecordNotFound = resManager.GetString("OrganizationNotFound")
-            });
+            accessibilityHandlerData.HandleError(requestBreakType, "OrganizationNotFound", redirectUrl);
             return false;
         }
 
@@ -161,7 +169,13 @@ namespace GSCrm.Helpers
         /// <param name="accessibilityHandlerData"></param>
         /// <param name="requestSourceType">Источник запроса, в котором будет находиться id должности</param>
         /// <param name="positionIdKeyName">Название ключа, в котором хранится id должности</param>
-        public static void CacheCurrentPosition(this AccessibilityHandlerData accessibilityHandlerData, RequestSourceType requestSourceType = RequestSourceType.Form, string positionIdKeyName = POSITION_ID_KEY_NAME)
+        /// <param name="requestBreakType">Определяет, каким образом будет обработана ошибка/param>
+        /// <param name="redirectUrl">Ссылка, на которую произойдет перенаправление в случае, если <paramref name="requestBreakType"/> равен <see cref="RequestBreakType.Redirect"/></param>
+        public static bool TryCacheCurrentPosition(this AccessibilityHandlerData accessibilityHandlerData,
+            RequestSourceType requestSourceType = RequestSourceType.Form,
+            string positionIdKeyName = POSITION_ID_KEY_NAME,
+            RequestBreakType requestBreakType = RequestBreakType.Error,
+            string redirectUrl = $"/{POSITION}/HasNoPermissionsForSee")
         {
             string positionId = GetIdFromRequest(accessibilityHandlerData, requestSourceType, positionIdKeyName);
             if (!string.IsNullOrEmpty(positionId))
@@ -173,15 +187,12 @@ namespace GSCrm.Helpers
                 {
                     cachService.CacheCurrentEntity(currentUser, position);
                     cachService.CacheCurrentEntity(currentUser, positionViewModel);
-                    return;
+                    return true;
                 }
             }
 
-            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
-            accessibilityHandlerData.BreakRequest(404, new
-            {
-                RecordNotFound = resManager.GetString("PositionNotFound")
-            });
+            accessibilityHandlerData.HandleError(requestBreakType, "PositionNotFound", redirectUrl);
+            return false;
         }
 
         /// <summary>
@@ -191,7 +202,13 @@ namespace GSCrm.Helpers
         /// <param name="accessibilityHandlerData"></param>
         /// <param name="requestSourceType">Источник запроса, в котором будет находиться id сотрудника</param>
         /// <param name="employeeIdKeyName">Название ключа, в котором хранится id сотрудника</param>
-        public static void CacheCurrentEmployee(this AccessibilityHandlerData accessibilityHandlerData, RequestSourceType requestSourceType = RequestSourceType.Form, string employeeIdKeyName = EMPLOYEE_ID_KEY_NAME)
+        /// <param name="requestBreakType">Определяет, каким образом будет обработана ошибка/param>
+        /// <param name="redirectUrl">Ссылка, на которую произойдет перенаправление в случае, если <paramref name="requestBreakType"/> равен <see cref="RequestBreakType.Redirect"/></param>
+        public static bool TryCacheCurrentEmployee(this AccessibilityHandlerData accessibilityHandlerData,
+            RequestSourceType requestSourceType = RequestSourceType.Form,
+            string employeeIdKeyName = EMPLOYEE_ID_KEY_NAME,
+            RequestBreakType requestBreakType = RequestBreakType.Error,
+            string redirectUrl = $"/{EMPLOYEE}/HasNoPermissionsForSee")
         {
             string employeeId = GetIdFromRequest(accessibilityHandlerData, requestSourceType, employeeIdKeyName);
             if (!string.IsNullOrEmpty(employeeId))
@@ -203,15 +220,12 @@ namespace GSCrm.Helpers
                 {
                     cachService.CacheCurrentEntity(currentUser, employee);
                     cachService.CacheCurrentEntity(currentUser, employeeViewModel);
-                    return;
+                    return true;
                 }
             }
 
-            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
-            accessibilityHandlerData.BreakRequest(404, new
-            {
-                RecordNotFound = resManager.GetString("EmployeeNotFound")
-            });
+            accessibilityHandlerData.HandleError(requestBreakType, "EmployeeNotFound", redirectUrl);
+            return false;
         }
 
         /// <summary>
@@ -279,8 +293,15 @@ namespace GSCrm.Helpers
         /// <param name="accessibilityHandlerData"></param>
         /// <param name="requestSourceType">Источник запроса, в котором будет находиться id клиента</param>
         /// <param name="accountIdKeyName">Название ключа, в котором хранится id клиента</param>
-        public static bool TryCacheCurrentAccount(this AccessibilityHandlerData accessibilityHandlerData, RequestSourceType requestSourceType = RequestSourceType.Form, string accountIdKeyName = ACCOUNT_ID_KEY_NAME)
+        /// <param name="requestBreakType">Определяет, каким образом будет обработана ошибка/param>
+        /// <param name="redirectUrl">Ссылка, на которую произойдет перенаправление в случае, если <paramref name="requestBreakType"/> равен <see cref="RequestBreakType.Redirect"/></param>
+        public static bool TryCacheCurrentAccount(this AccessibilityHandlerData accessibilityHandlerData,
+            RequestSourceType requestSourceType = RequestSourceType.Form,
+            string accountIdKeyName = ACCOUNT_ID_KEY_NAME,
+            RequestBreakType requestBreakType = RequestBreakType.Error,
+            string redirectUrl = $"/{ACCOUNT}/HasNoPermissionsForSee")
         {
+            // Попытка получить клиента
             string accountId = GetIdFromRequest(accessibilityHandlerData, requestSourceType, accountIdKeyName);
             if (!string.IsNullOrEmpty(accountId))
             {
@@ -295,11 +316,7 @@ namespace GSCrm.Helpers
                 }
             }
 
-            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
-            accessibilityHandlerData.BreakRequest(404, new
-            {
-                RecordNotFound = resManager.GetString("AccounNotFound")
-            });
+            accessibilityHandlerData.HandleError(requestBreakType, "AccounNotFound", redirectUrl);
             return false;
         }
 
@@ -325,5 +342,32 @@ namespace GSCrm.Helpers
                 },
                 _ => string.Empty
             };
+
+        /// <summary>
+        /// Метод обрабатывает ошибку
+        /// </summary>
+        /// <param name="accessibilityHandlerData"></param>
+        /// <param name="requestBreakType">Способ обработки ошибки</param>
+        /// <param name="errorCode">Код ошибки</param>
+        /// <param name="redirectUrl">Ссылка для перенаправления</param>
+        private static void HandleError(this AccessibilityHandlerData accessibilityHandlerData, RequestBreakType requestBreakType, string errorCode, string redirectUrl)
+        {
+            // В зависимости от того, как необходимо обработать ошибку запроса
+            switch (requestBreakType)
+            {
+                case RequestBreakType.Error:
+                    {
+                        IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
+                        accessibilityHandlerData.BreakRequest(404, new
+                        {
+                            RecordNotFound = resManager.GetString(errorCode)
+                        });
+                    }
+                    break;
+                case RequestBreakType.Redirect:
+                    accessibilityHandlerData.Redirect(redirectUrl);
+                    break;
+            }
+        }
     }
 }

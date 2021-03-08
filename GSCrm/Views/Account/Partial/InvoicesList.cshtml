@@ -9,8 +9,10 @@
 @model AccountViewModel
 @{
     int invoicesCount = Model.AccountInvoices.Count;
-    bool showES = invoicesCount == 0 && new[]
-        { Model.SearchInvoiceBankName, Model.SearchInvoiceCity, Model.SearchInvoiceCheckingAccount, Model.SearchInvoiceCorrespondentAccount, Model.SearchInvoiceBIC, Model.SearchInvoiceSWIFT }.AllIsNullOrEmpty();
+    bool showES = invoicesCount == 0 && new[] { Model.SearchInvoiceBankName, Model.SearchInvoiceCity, Model.SearchInvoiceCheckingAccount,
+        Model.SearchInvoiceCorrespondentAccount, Model.SearchInvoiceBIC, Model.SearchInvoiceSWIFT }.AllIsNullOrEmpty();
+    bool showSearchES = invoicesCount == 0 && new[] { Model.SearchInvoiceBankName, Model.SearchInvoiceCity, Model.SearchInvoiceCheckingAccount,
+        Model.SearchInvoiceCorrespondentAccount, Model.SearchInvoiceBIC, Model.SearchInvoiceSWIFT }.IsOneStringFill();
     string currentUserId = User.GetUserModel(context).Id;
 }
 
@@ -22,9 +24,9 @@
 
 <div id="accInvoicesList">
     <form class="table-wrapper mt-3">
-        <table class="fl-table @(!showES ? "" : "empty-table")">
+        <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
             <thead>
-                @if (!showES)
+                @if (!showES && !showSearchES)
                 {
                     <tr>
                         <th class="d-none"></th>
@@ -51,6 +53,13 @@
                         <td>
                             <input type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#accInvoiceCreateModal" value="@resManager.GetString("ESInvoices")">
                         </td>
+                    </tr>
+                }
+                else if (showSearchES)
+                {
+                    <tr>
+                        <td><img src="~/img/page-not-found.svg" /></td>
+                        <td>@resManager.GetString("ESSearchAccountInvoices")</td>
                     </tr>
                 }
                 @foreach (AccountInvoiceViewModel accountInvoice in Model.AccountInvoices)

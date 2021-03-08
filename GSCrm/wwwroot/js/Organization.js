@@ -122,9 +122,17 @@
             let searchResponsibilityUrl = $(modal).find("#searchRespBlock").attr("action");
             let searchResponsibilityData = this.SearchResponsibilityGetData();
             let request = new AjaxRequests();
-            request.CommonPostRequest(searchResponsibilityUrl, searchResponsibilityData).done(responsibilities => {
-                this.RednerResponsibilities(responsibilities);
-            });
+            let hasErrors = false;
+            request.JsonPostRequest(searchResponsibilityUrl, searchResponsibilityData)
+                .catch(response => {
+                    hasErrors = true;
+                    Utils.DefaultErrorHandling(response["responseJSON"]);
+                })
+                .done(responsibilities => {
+                    if (!hasErrors) {
+                        this.RednerResponsibilities(responsibilities);
+                    }
+                });
         });
     }
 
@@ -144,10 +152,18 @@
         return new Promise((resolve, reject) => {
             let clearSearchResponsibilityUrl = $(event.currentTarget).attr("href");
             let request = new AjaxRequests();
-            request.CommonGetRequest(clearSearchResponsibilityUrl).done(responsibilities => {
-                this.RednerResponsibilities(responsibilities);
-                $("#SeacrhResponsibilityName").val("");
-            });
+            let hasErrors = false;
+            request.JsonGetRequest(clearSearchResponsibilityUrl)
+                .catch(response => {
+                    hasErrors = true;
+                    Utils.DefaultErrorHandling(response["responseJSON"]);
+                })
+                .done(responsibilities => {
+                    if (!hasErrors) {
+                        this.RednerResponsibilities(responsibilities);
+                        $("#SeacrhResponsibilityName").val("");
+                    }
+                });
         });
     }
 

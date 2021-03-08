@@ -10,6 +10,7 @@
 @{
     int contactsCount = Model.EmployeeContactViewModels.Count;
     bool showES = contactsCount == 0 && new[] { Model.SearchContactType, Model.SearchContactPhone, Model.SearchContactEmail }.AllIsNullOrEmpty();
+    bool showSearchES = contactsCount == 0 && new[] { Model.SearchContactType, Model.SearchContactPhone, Model.SearchContactEmail }.IsOneStringFill();
     string currentUserId = User.GetUserModel(context).Id;
 }
 <div class="tab-pane fade" id="contacts" role="tabpanel" aria-labelledby="contact-tab">
@@ -22,9 +23,9 @@
     <div class="form-group">
         <form id="employeeContactsList">
             <div class="table-wrapper">
-                <table class="fl-table @(!showES ? "" : "empty-table")">
+                <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
                     <thead>
-                        @if (!showES)
+                        @if (!showES && !showSearchES)
                         {
                             <tr>
                                 <th>@resManager.GetString("Type")</th>
@@ -45,6 +46,13 @@
                             <tr>
                                 <td><img src="~/img/default-empty.svg" /></td>
                                 <td>@resManager.GetString("ESEmployeeContacts")</td>
+                            </tr>
+                        }
+                        @if (showSearchES)
+                        {
+                            <tr>
+                                <td><img src="~/img/page-not-found.svg" /></td>
+                                <td>@resManager.GetString("ESSearchContacts")</td>
                             </tr>
                         }
                         @foreach (EmployeeContactViewModel contactViewModel in Model.EmployeeContactViewModels)

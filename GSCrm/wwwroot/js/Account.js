@@ -449,6 +449,7 @@ $("#accountForm")
     .off("click", "#accTeamManagementBtn").on("click", "#accTeamManagementBtn", event => {
         let accountManagement = new AccountManagement();
         accountManagement.InitializeAccTeam();
+        $("html").css("overflow-y", "hidden");
     })
     .off("click", "#updateAccBtn").on("click", "#updateAccBtn", event => {
         event.preventDefault();

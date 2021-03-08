@@ -27,7 +27,7 @@
                     <div class="row">
                         <div class="col-xl">
                             <div class="row justify-content-center">
-                                <p class="label-md m-0">@resManager.GetString("AllPositionsExceptSelected")</p>
+                                <p class="label-md m-0 text-center">@resManager.GetString("AllPositionsExceptSelected")</p>
                             </div>
                             <div class="card-body">
                                 <input asp-for="Id" hidden="hidden" />
@@ -84,7 +84,7 @@
                         <div class="w-100"></div>
                         <div class="col-xl mt-5">
                             <div class="row justify-content-center">
-                                <p class="label-md m-0">@resManager.GetString("SelectedPositions")</p>
+                                <p class="label-md m-0 text-center">@resManager.GetString("SelectedPositions")</p>
                             </div>
                             <div class="card-body">
                                 <input asp-for="Id" hidden="hidden" />
@@ -144,10 +144,10 @@
             </div>
             <div class="modal-footer">
                 <div class="row justify-content-between m-0">
-                    <div class="col">
+                    <div class="col text-center mb-3">
                         <input id="syncEmpPositionsBtn" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Synchronize")" />
                     </div>
-                    <div class="col">
+                    <div class="col text-center">
                         <input id="cancelSyncEmpPositionsBtn" type="button" class="btn btn-secondary" data-dismiss="modal" value="@resManager.GetString("CancelLabel")" />
                     </div>
                 </div>

@@ -36,9 +36,8 @@ class Tooltip {
      * @param {*} tooltip 
      */
     SetLocation(tooltip) {
-        let table = $(tooltip).closest(".fl-table");
         let tooltipHeight = $(tooltip).find(".sys-tooltip-cell").height();
-        let tooltipTop = $(tooltip)[0].offsetTop + $(table)[0].offsetTop - tooltipHeight - 15;
+        let tooltipTop = $(tooltip)[0].getBoundingClientRect().top - tooltipHeight - 15;
         let tooltipLeft = $(tooltip).offset().left + $(tooltip)[0].offsetWidth / 2;
         $(tooltip).find(".sys-tooltip-cell").css("top", tooltipTop);
         $(tooltip).find(".sys-tooltip-cell").css("left", tooltipLeft);

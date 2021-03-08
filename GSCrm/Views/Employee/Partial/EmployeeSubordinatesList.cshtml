@@ -10,6 +10,7 @@
 @{
     int subordinatesCount = Model.SubordinatesViewModels.Count;
     bool showES = subordinatesCount == 0 && new[] { Model.SearchSubordinateFullName }.AllIsNullOrEmpty();
+    bool showSearchES = subordinatesCount == 0 && new[] { Model.SearchSubordinateFullName }.IsOneStringFill();
     string currentUserId = User.GetUserModel(context).Id;
 }
 <div class="tab-pane fade" id="subordinates" role="tabpanel" aria-labelledby="subordinates-tab">
@@ -22,9 +23,9 @@
     <div class="form-group">
         <form id="employeeSubordinatesList">
             <div class="table-wrapper">
-                <table class="fl-table @(!showES ? "" : "empty-table")">
+                <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
                     <thead>
-                        @if (!showES)
+                        @if (!showES && !showSearchES)
                         {
                             <tr>
                                 <th>@resManager.GetString("FullName")</th>
@@ -41,6 +42,13 @@
                             <tr>
                                 <td><img src="~/img/default-empty.svg" /></td>
                                 <td>@resManager.GetString("ESSubordinates")</td>
+                            </tr>
+                        }
+                        @if (showSearchES)
+                        {
+                            <tr>
+                                <td><img src="~/img/page-not-found.svg" /></td>
+                                <td>@resManager.GetString("ESSearchEmployees")</td>
                             </tr>
                         }
                         @foreach (EmployeeViewModel employeeViewModel in Model.SubordinatesViewModels)

@@ -9,6 +9,7 @@
 @{
     int positionEmployeesCount = Model.PositionEmployees.Count;
     bool showES = positionEmployeesCount == 0 && new[] { Model.SearchEmployeeInitialName }.AllIsNullOrEmpty();
+    bool showSearchES = positionEmployeesCount == 0 && new[] { Model.SearchEmployeeInitialName }.IsOneStringFill();
     string currentUserId = User.GetUserModel(context).Id;
 }
 
@@ -20,9 +21,9 @@
     }
     <div class="form-group">
         <form id="positionEmpList" class="table-wrapper">
-            <table class="fl-table @(!showES ? "" : "empty-table")">
+            <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
                 <thead>
-                    @if (!showES)
+                    @if (!showES && !showSearchES)
                     {
                         <tr>
                             <th class="label-non-select">@resManager.GetString("FullName")</th>
@@ -36,6 +37,13 @@
                         <tr>
                             <td><img src="~/img/default-empty.svg" /></td>
                             <td>@resManager.GetString("ESPositionEmployees")</td>
+                        </tr>
+                    }
+                    @if (showSearchES)
+                    {
+                        <tr>
+                            <td><img src="~/img/page-not-found.svg" /></td>
+                            <td>@resManager.GetString("ESSearchEmployees")</td>
                         </tr>
                     }
                     @foreach (EmployeeViewModel employee in Model.PositionEmployees)

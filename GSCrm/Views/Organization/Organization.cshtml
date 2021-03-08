@@ -17,14 +17,14 @@
 
 @* // Хлебные крошки *@
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
-        <li class="breadcrumb-item">
+    <ol class="breadcrumb wide-crumbs">
+        <li class="breadcrumb-item wide-crumb"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+        <li class="breadcrumb-item wide-crumb">
             <a asp-controller="Root" asp-action="@ORGANIZATIONS" asp-route-pageNumber="@orgView.CurrentPageNumber">
                 @resManager.GetString(ORGANIZATIONS)
             </a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(ORGANIZATION): @Model.Name</li>
+        <li class="breadcrumb-item wide-crumb active" aria-current="page">@resManager.GetString(ORGANIZATION): @Model.Name</li>
     </ol>
 </nav>
 

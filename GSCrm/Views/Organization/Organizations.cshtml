@@ -15,6 +15,8 @@
     IEnumerable<OrganizationViewModel> organizations = Model.OrganizationViewModels;
     User currentUser = User.GetUserModel(context);
     string currentUserId = currentUser.Id;
+    bool showES = Model.OrganizationViewModels.Count() == 0 && string.IsNullOrEmpty(Model.SearchName);
+    bool showSearchES = Model.OrganizationViewModels.Count() == 0 && !string.IsNullOrEmpty(Model.SearchName);
 }
 @* // Хлебные крошки *@
 <nav aria-label="breadcrumb">
@@ -63,7 +65,7 @@
     </form>
 
     <form id="organizationsList" class="table-wrapper mt-3">
-        <table class="fl-table @(Model.OrganizationViewModels.Count() > 0 ? "" : "empty-table")">
+        <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
             <thead>
                 @if (Model.OrganizationViewModels.Count() > 0)
                 {
@@ -79,13 +81,20 @@
                 }
             </thead>
             <tbody>
-                @if (Model.OrganizationViewModels.Count() == 0)
+                @if (showES)
                 {
                     <tr>
                         <td><img src="~/img/default-empty.svg" /></td>
                         <td>
                             <input type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#organizationModal" value="@resManager.GetString("ESOrganization")">
                         </td>
+                    </tr>
+                }
+                @if (showSearchES)
+                {
+                    <tr>
+                        <td><img src="~/img/page-not-found.svg" /></td>
+                        <td>@resManager.GetString("ESSearchOrganization")</td>
                     </tr>
                 }
                 @foreach (OrganizationViewModel orgViewModel in organizations)

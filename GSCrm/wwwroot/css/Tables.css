@@ -29,8 +29,9 @@
   .empty-table thead tr td:last-child,
   .empty-table tbody tr td:last-child {
     width: 67%;
-    text-align: left;
-    font-size: 26px; }
+    text-align: center;
+    font-size: 26px;
+    white-space: break-spaces; }
   .empty-table .empty-title {
     margin: 0;
     white-space: break-spaces;

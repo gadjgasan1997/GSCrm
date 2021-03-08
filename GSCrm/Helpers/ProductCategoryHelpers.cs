@@ -15,6 +15,15 @@ namespace GSCrm.Helpers
         public static Organization GetOrganization(this ProductCategory productCategory, ApplicationDbContext context)
             => context.Organizations.AsNoTracking().FirstOrDefault(i => i.Id == productCategory.OrganizationId);
 
+        public static ProductCategoriesViewModel Refresh(this ProductCategoriesViewModel prodCatsViewModel, ProductCategoriesViewModel cachedViewModel)
+        {
+            prodCatsViewModel.SearchProductCategoryName = cachedViewModel.SearchProductCategoryName;
+            prodCatsViewModel.SearchProductName = cachedViewModel.SearchProductName;
+            prodCatsViewModel.SearchMinConst = cachedViewModel.SearchMinConst;
+            prodCatsViewModel.SearchMaxConst = cachedViewModel.SearchMaxConst;
+            return prodCatsViewModel;
+        }
+
         public static void Normalize(this ProductCategoryViewModel prodCatViewModel)
         {
             prodCatViewModel.Name = prodCatViewModel.Name?.TrimStartAndEnd();

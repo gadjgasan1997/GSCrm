@@ -1635,4 +1635,28 @@
   <data name="AccounNotFound" xml:space="preserve">
     <value>Клиент не найден</value>
   </data>
+  <data name="ESSearchAccountAddresses" xml:space="preserve">
+    <value>Адреса по вашему запросу не найдены</value>
+  </data>
+  <data name="ESSearchContacts" xml:space="preserve">
+    <value>Контакты по вашему запросу не найдены</value>
+  </data>
+  <data name="ESSearchAccountInvoices" xml:space="preserve">
+    <value>Реквизиты по вашему запросу не найдены</value>
+  </data>
+  <data name="ESSearchDivisions" xml:space="preserve">
+    <value>Подразделения по вашему запросу не найдены</value>
+  </data>
+  <data name="ESSearchEmployees" xml:space="preserve">
+    <value>Сотрудники по вашему запросу не найдены</value>
+  </data>
+  <data name="ESSearchOrganization" xml:space="preserve">
+    <value>Организации по вашему запросу не найдены</value>
+  </data>
+  <data name="ESSearchPositions" xml:space="preserve">
+    <value>Должности по вашему запросу не найдены</value>
+  </data>
+  <data name="ProductCategoriesNotFound" xml:space="preserve">
+    <value>Продуктовая модель организации не найдена</value>
+  </data>
 </root>

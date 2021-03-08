@@ -30,8 +30,8 @@ namespace GSCrm.Repository
 
         private void LimitByCost(ref List<Product> products, ProductCategoriesViewModel productCategoriesViewModel)
         {
-            decimal.TryParse(productCategoriesViewModel.MinConst, out decimal minCost);
-            decimal.TryParse(productCategoriesViewModel.MaxConst, out decimal maxCost);
+            decimal.TryParse(productCategoriesViewModel.SearchMinConst, out decimal minCost);
+            decimal.TryParse(productCategoriesViewModel.SearchMaxConst, out decimal maxCost);
             if (minCost < maxCost)
                 products = products.Where(prod => prod.Cost >= minCost && prod.Cost <= maxCost).ToList();
         }

@@ -13,6 +13,8 @@
     int contactsCount = Model.AccountContacts.Count;
     bool showES = contactsCount == 0 && !Model.SearchContactPrimary && new[]
         { Model.SearchContactFullName, Model.SearchContactType, Model.SearchContactEmail, Model.SearchContactPhoneNumber }.AllIsNullOrEmpty();
+    bool showSearchES = contactsCount == 0 && (Model.SearchContactPrimary || new[]
+        { Model.SearchContactFullName, Model.SearchContactType, Model.SearchContactEmail, Model.SearchContactPhoneNumber }.IsOneStringFill());
 }
 
 <div id="changePrimaryContact" class="mb-3">
@@ -30,9 +32,9 @@
 
 <div id="accContactsList">
     <form class="table-wrapper">
-        <table class="fl-table @(!showES ? "" : "empty-table")">
+        <table class="fl-table @(!showES && !showSearchES ? "" : "empty-table")">
             <thead>
-                @if (!showES)
+                @if (!showES && !showSearchES)
                 {
                     <tr>
                         <th class="d-none"></th>
@@ -58,6 +60,13 @@
                         <td>
                             <input type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#accContactCreateModal" value="@resManager.GetString("ESAccountContacts")">
                         </td>
+                    </tr>
+                }
+                else if (showSearchES)
+                {
+                    <tr>
+                        <td><img src="~/img/page-not-found.svg" /></td>
+                        <td>@resManager.GetString("ESSearchContacts")</td>
                     </tr>
                 }
                 @foreach (AccountContactViewModel accountContact in Model.AccountContacts)

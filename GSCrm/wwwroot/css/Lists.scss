@@ -200,3 +200,15 @@
         margin: auto
     }
 }
+
+#accContactsList,
+#accAddressesList,
+#accInvoicesList {
+    .empty-table {
+        tr {
+            td:last-child {
+                white-space: nowrap
+            }
+        }
+    }
+}

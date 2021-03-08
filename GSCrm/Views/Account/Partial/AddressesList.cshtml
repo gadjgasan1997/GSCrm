@@ -9,24 +9,41 @@
 @model AccountViewModel
 @{
     string currentUserId = User.GetUserModel(context).Id;
+    int addressesCount = Model.AccountAddresses.Count;
+    bool showSearchES = addressesCount == 0 && new[] { Model.SearchAddressCity, Model.SearchAddressCountry, Model.SearchAddressHouse,
+        Model.SearchAddressRegion, Model.SearchAddressStreet, Model.SearchAddressType }.IsOneStringFill();
 }
 
 @* // Фильтр по адресам *@
 @{ await Html.RenderPartialAsync($"{ACC_VIEWS_REL_PATH}Partial/AccountAddressesManagement.cshtml"); }
 
 <div id="accAddressesList">
-    <form class="table-wrapper mt-3">
-        <table class="fl-table">
+    <form class="table-wrapper">
+        <table class="fl-table @(!showSearchES ? "" : "empty-table")">
             <thead>
-                <tr>
-                    <th class="d-none"></th>
-                    <th>@resManager.GetString("FullAddress")</th>
-                    <th>@resManager.GetString("AddressType")</th>
-                    <th class="action-column"></th>
-                    <th class="action-column"></th>
-                </tr>
+                @if (!showSearchES)
+                {
+                    <tr>
+                        <th class="d-none"></th>
+                        <th>@resManager.GetString("FullAddress")</th>
+                        <th>@resManager.GetString("AddressType")</th>
+                        <th class="action-column"></th>
+                        <th class="action-column"></th>
+                    </tr>
+                }
+                else
+                {
+                    <tr><th></th><th></th></tr>
+                }
             </thead>
             <tbody>
+                @if (showSearchES)
+                {
+                <tr>
+                    <td><img src="~/img/page-not-found.svg" /></td>
+                    <td>@resManager.GetString("ESSearchAccountAddresses")</td>
+                </tr>
+                }
                 @foreach (AccountAddressViewModel accountAddress in Model.AccountAddresses)
                 {
                     <tr>

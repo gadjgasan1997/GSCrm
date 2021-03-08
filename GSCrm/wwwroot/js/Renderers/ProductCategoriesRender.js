@@ -34,21 +34,33 @@ class ProductCategoriesRender extends BaseProductCategoriesRender {
             // Очистка дерева
             $("#productCategoriesTree").empty();
 
-            // Рендер корневых директорий 
-            categories.filter(category => {
-                return Utils.IsNullOrEmpty(category["ParentProductCategoryId"]);
-            }).map(category => {
-                // Есть ли у текущей категории дочерние
-                let hasChildrens = categories.filter(item => item["ParentProductCategoryId"] == category["Id"]).length > 0;
-                if (hasChildrens) {
-                    $("#productCategoriesTree").append(this.GetRootCategoryHTML(category));
-                }
-                else $("#productCategoriesTree").append(this.GetEmptyRootCategoryHTML(category));
-                categories = categories.filter(item => item["Id"] != category["Id"]);
+            // Empty State
+            if (categories.length == 0) {
+                $("#productCategoriesNav").addClass("d-none");
+                $("#productCategoriesTree").append('<div class="categories-empty row mt-3"><div class="col-auto"><img src="/img/page-not-found.svg" /></div>' +
+                    '<div classs="col"><div class="block-center"><p class="label-lg">Категории не найдены</p></div></div></div>');
+            }
 
-                // Рендер дочерних категорий
-                this.RenderChildCategories(categories, category["Id"]);
-            });
+            // Категории
+            else {
+                $("#productCategoriesNav").removeClass("d-none");
+
+                // Рендер корневых директорий 
+                categories.filter(category => {
+                    return Utils.IsNullOrEmpty(category["ParentProductCategoryId"]);
+                }).map(category => {
+                    // Есть ли у текущей категории дочерние
+                    let hasChildrens = categories.filter(item => item["ParentProductCategoryId"] == category["Id"]).length > 0;
+                    if (hasChildrens) {
+                        $("#productCategoriesTree").append(this.GetRootCategoryHTML(category));
+                    }
+                    else $("#productCategoriesTree").append(this.GetEmptyRootCategoryHTML(category));
+                    categories = categories.filter(item => item["Id"] != category["Id"]);
+    
+                    // Рендер дочерних категорий
+                    this.RenderChildCategories(categories, category["Id"]);
+                });
+            }
 
             resolve();
         })

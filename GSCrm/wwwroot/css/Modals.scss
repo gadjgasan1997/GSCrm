@@ -20,9 +20,11 @@
     margin-bottom: 20px
 }
 
-#employeePosisionModal {
+#employeePosisionModal,
+#empRespManagement {
     .modal-footer .row {
         width: 100%;
+
         .col:last-child {
             text-align: end
         }
@@ -141,6 +143,13 @@
 
                         .oval-mark {
                             z-index: 1000
+                        }
+
+                        small {
+                            position: absolute;
+                            max-width: 90%;
+                            overflow-x: hidden;
+                            text-overflow: ellipsis;
                         }
                     }
 

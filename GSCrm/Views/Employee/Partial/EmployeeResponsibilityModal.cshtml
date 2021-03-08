@@ -14,7 +14,7 @@
     <div class="modal-dialog modal-xxl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">@resManager.GetString("EmployeeRespManagement")</h5>
+                <h5 class="modal-title">@resManager.GetString("EmpRespsManagement")</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -25,7 +25,7 @@
                     <div class="row">
                         <div class="col-xl">
                             <div class="row justify-content-center">
-                                <p class="label-md m-0">@resManager.GetString("AllRespsExceptSelected")</p>
+                                <p class="label-md m-0 text-center">@resManager.GetString("AllRespsExceptSelected")</p>
                             </div>
                             <div class="card-body">
                                 <input asp-for="Id" hidden="hidden" />
@@ -78,7 +78,7 @@
                         <div class="w-100"></div>
                         <div class="col-xl mt-5">
                             <div class="row justify-content-center">
-                                <p class="label-md m-0">@resManager.GetString("SelectedResps")</p>
+                                <p class="label-md m-0 text-center">@resManager.GetString("SelectedResps")</p>
                             </div>
                             <div class="card-body">
                                 <input asp-for="Id" hidden="hidden" />
@@ -132,8 +132,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <div class="row justify-content-between m-0 w-100">
-                    <div class="col text-center">
+                <div class="row justify-content-between m-0">
+                    <div class="col text-center mb-3">
                         <input id="syncEmpRespsBtn" type="button" class="btn btn-outline-primary" value="@resManager.GetString("Synchronize")" />
                     </div>
                     <div class="col text-center">

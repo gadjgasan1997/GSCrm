@@ -205,6 +205,10 @@ $("#positionForm")
         let position = new Position();
         position.Update();
     })
+    .off("click", "#cancelUpdatePosBtn").on("click", "#cancelUpdatePosBtn", event => {
+        event.preventDefault();
+        location.replace($("#cancelUpdatePosBtn").attr("data-href"));
+    })
     .off("click", "#posTabs .nav-item").on("click", "#posTabs .nav-item", event => {
         let navTab = new NavTab();
         navTab.Remember(event, "currentPosTab");

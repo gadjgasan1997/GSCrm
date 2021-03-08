@@ -13,7 +13,7 @@ namespace GSCrm.Models.ViewModels
         public Guid OrganizationId { get; set; }
         public string SearchProductCategoryName { get; set; }
         public string SearchProductName { get; set; }
-        public string MinConst { get; set; }
-        public string MaxConst { get; set; }
+        public string SearchMinConst { get; set; }
+        public string SearchMaxConst { get; set; }
     }
 }

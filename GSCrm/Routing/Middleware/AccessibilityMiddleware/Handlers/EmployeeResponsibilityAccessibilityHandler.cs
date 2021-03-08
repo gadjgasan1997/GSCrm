@@ -17,15 +17,15 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "ClearResponsibilityManagementSearch":
                 case "ClearAllResponsibilitiesSearch":
                 case "ClearSelectedResponsibilitiesSearch":
-                    accessibilityHandlerData.CacheCurrentEmployee(RequestSourceType.RouteValues, "employeeId");
+                    accessibilityHandlerData.TryCacheCurrentEmployee(RequestSourceType.RouteValues, "employeeId");
                     break;
                 case "SearchAllResponsibilities":
                 case "SearchSelectedResponsibilities":
-                    accessibilityHandlerData.CacheCurrentEmployee();
+                    accessibilityHandlerData.TryCacheCurrentEmployee();
                     break;
                 case "Synchronize":
                     accessibilityHandlerData.CacheCurrentOrganization();
-                    accessibilityHandlerData.CacheCurrentEmployee();
+                    accessibilityHandlerData.TryCacheCurrentEmployee();
                     break;
                 default:
                     break;

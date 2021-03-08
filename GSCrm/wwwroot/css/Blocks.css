@@ -278,6 +278,14 @@
   overflow: hidden;
   text-overflow: ellipsis; }
 
+.wide-crumbs .wide-crumb {
+  overflow-x: hidden;
+  text-overflow: ellipsis; }
+
+@media all and (max-width: 768px) {
+  .wide-crumbs .wide-crumb {
+    min-width: 100%; } }
+
 /* Avatar */
 .navbar-avatar {
   position: relative;

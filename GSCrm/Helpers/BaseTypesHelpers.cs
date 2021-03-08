@@ -59,6 +59,23 @@ namespace GSCrm.Helpers
         }
 
         /// <summary>
+        /// Метод проверяет, заполнена ли хотя бы одна из поданных строк
+        /// </summary>
+        /// <param name="strings"></param>
+        /// <returns></returns>
+        public static bool IsOneStringFill(this string[] @strings)
+        {
+            if (strings == null)
+                return false;
+            foreach (string @string in @strings)
+            {
+                if (!string.IsNullOrEmpty(@string))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Метод преобразует список моделей уровня данных в список моделей отображения, предварительно ограничивая их делегатом <paramref name="limitingFunc"/>
         /// </summary>
         /// <typeparam name="TViewModel">Тип списка моделей уровня представления</typeparam>

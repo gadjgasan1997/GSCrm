@@ -337,3 +337,8 @@
   #notificationsList {
     width: 70%;
     margin: auto; } }
+
+#accContactsList .empty-table tr td:last-child,
+#accAddressesList .empty-table tr td:last-child,
+#accInvoicesList .empty-table tr td:last-child {
+  white-space: nowrap; }

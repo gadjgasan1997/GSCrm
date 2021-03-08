@@ -66,12 +66,12 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
 
                 case "SearchEmployee":
                 case "SearchSubPosition":
-                    accessibilityHandlerData.CacheCurrentPosition(RequestSourceType.Form);
+                    accessibilityHandlerData.TryCacheCurrentPosition(RequestSourceType.Form, "id", RequestBreakType.Redirect);
                     break;
 
                 case "ClearSearchEmployee":
                 case "ClearSearchSubPosition":
-                    accessibilityHandlerData.CacheCurrentPosition(RequestSourceType.RouteValues);
+                    accessibilityHandlerData.TryCacheCurrentPosition(RequestSourceType.RouteValues, "id", RequestBreakType.Redirect);
                     break;
 
                 case "Create":
@@ -82,7 +82,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "Unlock":
                 case "ChangeDivision":
                     accessibilityHandlerData.CacheCurrentOrganization();
-                    accessibilityHandlerData.CacheCurrentPosition();
+                    accessibilityHandlerData.TryCacheCurrentPosition();
                     break;
 
                 default:

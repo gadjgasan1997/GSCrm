@@ -235,8 +235,8 @@ namespace GSCrm.Repository
             ProductCategoriesViewModel cachedViewModel = cachService.GetCachedCurrentEntity<ProductCategoriesViewModel>(currentUser);
             cachedViewModel.SearchProductCategoryName = prodCatsViewModel.SearchProductCategoryName;
             cachedViewModel.SearchProductName = prodCatsViewModel.SearchProductName;
-            cachedViewModel.MinConst = prodCatsViewModel.MinConst;
-            cachedViewModel.MaxConst = prodCatsViewModel.MaxConst;
+            cachedViewModel.SearchMinConst = prodCatsViewModel.SearchMinConst;
+            cachedViewModel.SearchMaxConst = prodCatsViewModel.SearchMaxConst;
         }
 
         public void ClearSearch()
@@ -244,8 +244,8 @@ namespace GSCrm.Repository
             ProductCategoriesViewModel cachedViewModel = cachService.GetCachedCurrentEntity<ProductCategoriesViewModel>(currentUser);
             cachedViewModel.SearchProductCategoryName = default;
             cachedViewModel.SearchProductName = default;
-            cachedViewModel.MinConst = default;
-            cachedViewModel.MaxConst = default;
+            cachedViewModel.SearchMinConst = default;
+            cachedViewModel.SearchMaxConst = default;
         }
         #endregion
 

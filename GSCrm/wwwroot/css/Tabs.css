@@ -80,8 +80,7 @@ ul.nacc {
   ul.nacc li {
     display: none;
     width: 100%;
-    margin-left: -50px;
-    transform: translateX(50px);
+    margin-left: 0px;
     position: relative;
     list-style: none; }
     ul.nacc li > div {

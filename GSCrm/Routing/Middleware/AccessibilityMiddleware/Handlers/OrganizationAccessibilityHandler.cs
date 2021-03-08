@@ -1,4 +1,5 @@
-﻿using GSCrm.Models;
+﻿using System;
+using GSCrm.Models;
 using GSCrm.Helpers;
 using GSCrm.Data.Cash;
 using GSCrm.Repository;
@@ -26,7 +27,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                     {
                         User currentUser = accessibilityHandlerData.GetCurrentUser();
                         ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
-                        TryCheckPermissions(cachService, currentUser, accessibilityHandlerData, out OrganizationViewModel _);
+                        TryCacheOrganization(cachService, currentUser, accessibilityHandlerData, out OrganizationViewModel _);
                     }
                     break;
 
@@ -34,20 +35,26 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                     {
                         User currentUser = accessibilityHandlerData.GetCurrentUser();
                         ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
-                        if (TryCheckPermissions(cachService, currentUser, accessibilityHandlerData, out OrganizationViewModel orgViewModel))
+                        if (TryCacheOrganization(cachService, currentUser, accessibilityHandlerData, out OrganizationViewModel orgViewModel))
                         {
                             // Простановка текущего представления
-                            ProductCategoryRepository productCategoryRepository = new ProductCategoryRepository(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
+                            ProductCategoryRepository productCategoryRepository = new(accessibilityHandlerData.ServiceProvider, accessibilityHandlerData.Context);
                             ViewInfo viewInfo = cachService.GetViewInfo(currentUser.Id, orgViewModel.Id, PROD_CATS);
                             productCategoryRepository.SetViewInfo(orgViewModel.Id, PROD_CATS, viewInfo.CurrentPageNumber);
-                            ProductCategoriesViewModel productCategoriesViewModel = new ProductCategoriesViewModel()
+                            ProductCategoriesViewModel prodCatsViewModel = new()
                             {
                                 Id = orgViewModel.Id,
                                 OrganizationViewModel = orgViewModel,
                                 OrganizationId = orgViewModel.Id
                             };
-                            cachService.CacheEntity(currentUser, productCategoriesViewModel);
-                            cachService.CacheCurrentEntity(currentUser, productCategoriesViewModel);
+
+                            // Попытка обновить модель из кеша
+                            if (cachService.TryGetCachedEntity(currentUser, orgViewModel.Id, out ProductCategoriesViewModel cachedViewModel))
+                                prodCatsViewModel.Refresh(cachedViewModel);
+
+                            // Кеширование модели
+                            cachService.CacheEntity(currentUser, prodCatsViewModel);
+                            cachService.CacheCurrentEntity(currentUser, prodCatsViewModel);
                         }
                     }
                     break;
@@ -70,17 +77,35 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "SearchDivision":
                 case "SearchPosition":
                 case "SearchEmployee":
+                    accessibilityHandlerData.CacheCurrentOrganization(RequestSourceType.Form, "id", RequestBreakType.Redirect);
+                    break;
+
                 case "SearchResponsibility":
-                case "SearchProductCategories":
                     accessibilityHandlerData.CacheCurrentOrganization(RequestSourceType.Form, "id");
+                    break;
+
+                case "SearchProductCategories":
+                    {
+                        string organizationId = accessibilityHandlerData.GetIdFromRequest(RequestSourceType.Form, "organizationId");
+                        CacheProductCategoriesModel(accessibilityHandlerData, organizationId);
+                    }
                     break;
 
                 case "ClearDivisionSearch":
                 case "ClearPositionSearch":
                 case "ClearEmployeeSearch":
+                    accessibilityHandlerData.CacheCurrentOrganization(RequestSourceType.RouteValues, "id", RequestBreakType.Redirect);
+                    break;
+
                 case "ClearResponsibilitySearch":
-                case "ProductCategoriesClearSearch":
                     accessibilityHandlerData.CacheCurrentOrganization(RequestSourceType.RouteValues, "id");
+                    break;
+
+                case "ProductCategoriesClearSearch":
+                    {
+                        string organizationId = accessibilityHandlerData.GetIdFromRequest(RequestSourceType.RouteValues, "id");
+                        CacheProductCategoriesModel(accessibilityHandlerData, organizationId);
+                    }
                     break;
 
                 default:
@@ -88,7 +113,15 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
             }
         }
 
-        private bool TryCheckPermissions(ICachService cachService, User currentUser, AccessibilityHandlerData accessibilityHandlerData, out OrganizationViewModel orgViewModel)
+        /// <summary>
+        /// Метод пытается закешировать организацию как текущую
+        /// </summary>
+        /// <param name="cachService"></param>
+        /// <param name="currentUser"></param>
+        /// <param name="accessibilityHandlerData"></param>
+        /// <param name="orgViewModel"></param>
+        /// <returns></returns>
+        private bool TryCacheOrganization(ICachService cachService, User currentUser, AccessibilityHandlerData accessibilityHandlerData, out OrganizationViewModel orgViewModel)
         {
             // Получение id организации из ссылки запроса
             orgViewModel = default;
@@ -131,6 +164,38 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
             cachService.CacheEntity(currentUser, orgViewModel);
             cachService.CacheCurrentEntity(currentUser, orgViewModel);
             return true;
+        }
+
+        /// <summary>
+        /// Метод пытается закешировать продуктовую модель организации и саму организацию как текущую
+        /// </summary>
+        /// <param name="accessibilityHandlerData"></param>
+        /// <param name="organizationId">Id организации</param>
+        private void CacheProductCategoriesModel(AccessibilityHandlerData accessibilityHandlerData, string organizationId)
+        {
+            // Попытка получить id организации
+            IResManager resManager = accessibilityHandlerData.ServiceProvider.GetService<IResManager>();
+            if (string.IsNullOrEmpty(organizationId) || !Guid.TryParse(organizationId, out Guid guid))
+            {
+                accessibilityHandlerData.BreakRequest(404, GetRecordNotFoundMessage("OrganizationNotFound", resManager));
+                return;
+            }
+
+            // Попытка установить организацию как текущую в кеше
+            User currentUser = accessibilityHandlerData.GetCurrentUser();
+            ICachService cachService = accessibilityHandlerData.ServiceProvider.GetService<ICachService>();
+            if (accessibilityHandlerData.TryCacheCurrentOrganization(currentUser, cachService, guid))
+            {
+                // Попытка получить кеш продуктовой модели, RequestBreakType.Error, $"/{ORGANIZATION}/HasNoPermissionsForSee", 22
+                if (!cachService.TryGetCachedEntity(currentUser, guid, out ProductCategoriesViewModel prodCatsViewModel))
+                {
+                    accessibilityHandlerData.BreakRequest(404, GetRecordNotFoundMessage("ProductCategoriesNotFound", resManager));
+                    return;
+                }
+
+                // Иначе кеширование продуктовой модели как текушей
+                cachService.CacheCurrentEntity(currentUser, prodCatsViewModel);
+            }
         }
     }
 }

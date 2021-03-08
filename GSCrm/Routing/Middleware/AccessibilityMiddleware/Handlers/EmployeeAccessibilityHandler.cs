@@ -1,10 +1,10 @@
 ﻿using GSCrm.Models;
 using GSCrm.Helpers;
+using GSCrm.Mapping;
 using GSCrm.Data.Cash;
 using GSCrm.Repository;
 using GSCrm.Models.Enums;
 using GSCrm.Models.ViewModels;
-using GSCrm.Mapping;
 using Microsoft.Extensions.DependencyInjection;
 using static GSCrm.CommonConsts;
 
@@ -66,12 +66,12 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
 
                 case "SearchContact":
                 case "SearchSubordinate":
-                    accessibilityHandlerData.CacheCurrentEmployee(RequestSourceType.Form);
+                    accessibilityHandlerData.TryCacheCurrentEmployee(RequestSourceType.Form, "id", RequestBreakType.Redirect);
                     break;
 
                 case "ClearContactSearch":
                 case "ClearSubordinateSearch":
-                    accessibilityHandlerData.CacheCurrentEmployee(RequestSourceType.RouteValues);
+                    accessibilityHandlerData.TryCacheCurrentEmployee(RequestSourceType.RouteValues, "id", RequestBreakType.Redirect);
                     break;
 
                 case "Create":
@@ -82,7 +82,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "Unlock":
                 case "ChangeDivision":
                     accessibilityHandlerData.CacheCurrentOrganization();
-                    accessibilityHandlerData.CacheCurrentEmployee();
+                    accessibilityHandlerData.TryCacheCurrentEmployee();
                     break;
 
                 default:

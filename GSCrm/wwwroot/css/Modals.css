@@ -13,9 +13,11 @@
 #divisionModal .modal-body .form-group div {
   margin-bottom: 20px; }
 
-#employeePosisionModal .modal-footer .row {
+#employeePosisionModal .modal-footer .row,
+#empRespManagement .modal-footer .row {
   width: 100%; }
-  #employeePosisionModal .modal-footer .row .col:last-child {
+  #employeePosisionModal .modal-footer .row .col:last-child,
+  #empRespManagement .modal-footer .row .col:last-child {
     text-align: end; }
 
 #accountModal #accountModalMainHeader {
@@ -88,6 +90,11 @@
           text-overflow: ellipsis; }
         #accTeamManagementModal #teamSelectedEmployees #selectedEmployeesList .list-card .list-card-content .account-manager .oval-mark {
           z-index: 1000; }
+        #accTeamManagementModal #teamSelectedEmployees #selectedEmployeesList .list-card .list-card-content .account-manager small {
+          position: absolute;
+          max-width: 90%;
+          overflow-x: hidden;
+          text-overflow: ellipsis; }
       #accTeamManagementModal #teamSelectedEmployees #selectedEmployeesList .list-card .list-card-content .account-manager:not([class="list-group-item account-manager primary-manager"]) {
         cursor: pointer; }
       #accTeamManagementModal #teamSelectedEmployees #selectedEmployeesList .list-card .list-card-content .account-manager-selected {

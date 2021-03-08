@@ -38,6 +38,10 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware
                 {
                     RecordNotFound = resManager.GetString("ProductCategoryNotFound")
                 },
+                "ProductCategoriesNotFound" => new
+                {
+                    RecordNotFound = resManager.GetString("ProductCategoriesNotFound")
+                },
                 "AccountNotFound" => new
                 {
                     RecordNotFound = resManager.GetString("AccountContactNotFound")

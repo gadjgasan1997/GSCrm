@@ -204,17 +204,19 @@ class ProductCategory {
         let searchUrl = $("#productCategoriesFilter").attr("action");
         let searchData = this.SearchGetData();
         let request = new AjaxRequests();
-        
+        let hasErrors = false;
+
         // Запрос на применение поиска
-        request.CommonPostRequest(searchUrl, searchData)
+        request.JsonPostRequest(searchUrl, searchData)
             .catch(response => {
+                hasErrors = true;
                 Utils.DefaultErrorHandling(response["responseJSON"]);  
             })
             .then(response => {
-
-                // Перерендеринг представления
-                let renderer = new ProductCategoriesRender();
-                renderer.RenderCategories(response["ProductCategoryViewModels"]);
+                if (!hasErrors) {
+                    let renderer = new ProductCategoriesRender();
+                    renderer.RenderCategories(response["ProductCategoryViewModels"]);
+                }
             })
     }
 
@@ -237,14 +239,23 @@ class ProductCategory {
         event.preventDefault();
         let clearSearchUrl = $("#clearProdsSearch").attr("href");
         let request = new AjaxRequests();
-        request.CommonGetRequest(clearSearchUrl).then(response => {
-            $("#SearchProductCategoryName").val("");
-            $("#SearchProductName").val("");
-            $("#prodMinCost").val("");
-            $("#prodMaxCost").val("");
-            let renderer = new ProductCategoriesRender();
-            renderer.RenderCategories(response["ProductCategoryViewModels"]);
-        })
+        let hasErrors = false;
+
+        request.JsonGetRequest(clearSearchUrl)
+            .catch(response => {
+                hasErrors = true;
+                Utils.DefaultErrorHandling(response["responseJSON"]);  
+            })
+            .then(response => {
+                if (!hasErrors) {
+                    $("#SearchProductCategoryName").val("");
+                    $("#SearchProductName").val("");
+                    $("#prodMinCost").val("");
+                    $("#prodMaxCost").val("");
+                    let renderer = new ProductCategoriesRender();
+                    renderer.RenderCategories(response["ProductCategoryViewModels"]);
+                }
+            })
     }
     //#endregion
 
