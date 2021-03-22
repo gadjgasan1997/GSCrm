@@ -115,5 +115,10 @@
         public const int DEFAULT_ITEMS_COUNT = 10;
         public const int DEFAULT_MIN_PAGE_NUMBER = 1;
         public const int DEFAULT_PAGE_STEP = 1;
+
+        /// <summary>
+        /// Количество элементов, возвращаемое в автокомплитах по умолчанию
+        /// </summary>
+        public const int AUTOCOMPLITE_ITEMS_DEF_COUNT = 100;
     }
 }

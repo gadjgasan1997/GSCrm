@@ -134,6 +134,36 @@ class Responsibility {
             AccUpdate: $("#AccUpdateRespBlock").find(".switch").hasClass("switch-active"),
         }
     }
+
+    /**
+     * Метод разворачивает катгорию с настройками полномочий
+     * @param {*} event 
+     */
+    ExpandCategory(event) {
+        // Смена галочки
+        $(event.currentTarget).find(".icon-chevron-thin-right").addClass("d-none");
+        $(event.currentTarget).find(".icon-chevron-thin-left").removeClass("d-none");
+
+        // Отображение блока с настрйоками
+        let respSettingGroup = $(event.currentTarget).closest(".resp-setting-group").parent();
+        let respSetting = $(respSettingGroup).find(".resp-setting");
+        $(respSetting).removeClass("d-none");
+    }
+
+    /**
+     * Метод сворачиваеет катгорию с настройками полномочий
+     * @param {*} event 
+     */
+    CollapseCategory(event) {
+        // Смена галочки
+        $(event.currentTarget).find(".icon-chevron-thin-right").removeClass("d-none");
+        $(event.currentTarget).find(".icon-chevron-thin-left").addClass("d-none");
+
+        // Скрытие блока с настрйоками
+        let respSettingGroup = $(event.currentTarget).closest(".resp-setting-group").parent();
+        let respSetting = $(respSettingGroup).find(".resp-setting");
+        $(respSetting).addClass("d-none");
+    }
 }
 
 $("#responsibilityHeader")
@@ -182,6 +212,13 @@ $("#responsibilityForm")
         // Проверка на необходимость фиксации изменений
         let responsibility = new Responsibility();
         responsibility.CheckForChanges();
+    })
+    .off("click", ".group-expand-icon").on("click", ".group-expand-icon", event => {
+        let responsibility = new Responsibility();
+        if ($(event.currentTarget).find(".icon-chevron-thin-left").hasClass("d-none")) {
+            responsibility.ExpandCategory(event);
+        }
+        else responsibility.CollapseCategory(event);
     })
     .off("click", "#updateResp").on("click", "#updateResp", event => {
         event.preventDefault();

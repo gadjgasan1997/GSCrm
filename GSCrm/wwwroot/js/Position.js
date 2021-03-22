@@ -21,8 +21,8 @@
         return {
             Name: $("#positionName").val(),
             OrganizationId: $("#orgId").val(),
-            DivisionName: AutocompleteManager.GetValue($("#positionDivModal")),
-            ParentPositionName: AutocompleteManager.GetValue($("#parentPositionModal")),
+            DivisionName: $("#positionDivModalVal").val(),
+            ParentPositionName: $("#parentPositionModalVal").val(),
             PrimaryEmployeeId: $("#positionModal #primaryEmployeeId").val(),
             PrimaryEmployeeInitialName: $("#positionModal #primaryEmployeeModalVal").val()
         }
@@ -87,14 +87,14 @@
         return {
             Id: $("#positionId").val(),
             OrganizationId: $("#OrganizationId").val(),
-            DivisionName: AutocompleteManager.GetValue($("#positionNewDiv"))
+            DivisionName: $("#positionNewDivVal").val()
         }
     }
 
     ClearFields() {
         $("#positionName").val("");
-        $("#positionDivModal .autocomplete-input").val("");
-        $("#parentPositionModal .autocomplete-input").val("");
+        $("#positionDivModalVal").val("");
+        $("#parentPositionModalVal").val("");
     }
 
     /**

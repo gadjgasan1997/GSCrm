@@ -3,15 +3,15 @@
         "Positions": [
             {
                 "AutocompliteNames": ["EmployeePosition"],
-                "UrlAppendPardEl": "#employeeDiv .autocomplete-input"
+                "UrlAppendPardEl": "#employeeDiv input"
             },
             {
                 "AutocompliteNames": ["ParentPositionModal"],
-                "UrlAppendPardEl": "#positionDivModal .autocomplete-input"
+                "UrlAppendPardEl": "#positionDivModalVal"
             },
             {
                 "AutocompliteNames": ["EmpNewPrimaryPos"],
-                "UrlAppendPardEl": "#empNewDiv .autocomplete-input"
+                "UrlAppendPardEl": "#empNewDivInput"
             },
             {
                 "AutocompliteNames": ["ParentPosition"],
@@ -21,7 +21,7 @@
         "Employees": [
             {
                 "AutocompliteNames": ["PrimaryEmployeeModal"],
-                "UrlAppendPardEl": "#positionDivModal .autocomplete-input",
+                "UrlAppendPardEl": "#positionDivModalVal",
                 "SelectPropertyName": "fullInitialName",
                 "OnSubmit": "PrimaryEmployeeModalSubmit"
             },

@@ -14,10 +14,8 @@
             <div class="modal-body">
                 <form method="post" asp-controller="@ACC_ADDRESS" asp-action="Create">
                     <div class="form-group mt-3">
-                        <div id="createAccAddressCountry" class="autocomplete default-autocomplete" data-autocomplite-type="countries">
-                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetCountries/")"></a>
-                            <input id="createAccAddressCountryVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("Country")" />
-                            <ul class="autocomplete-result-list"></ul>
+                        <div id="createAccAddressCountry" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetCountries/")">
+                            <input id="createAccAddressCountryVal" class="form-control" placeholder="@resManager.GetString("Country")" />
                         </div>
                         <ul id="createAccAddressCountryError" data-connect-el="createAccAddressCountryVal" class="d-none under-field-error label-sm mt-2"></ul>
                     </div>

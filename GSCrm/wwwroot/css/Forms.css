@@ -226,6 +226,13 @@
     margin: 0; }
   #responsibilityForm > div .resp-setting-group .switch {
     margin-top: 6px; }
+  #responsibilityForm > div .resp-setting-group .resp-setting-group-expand {
+    position: relative;
+    padding-right: 0; }
+    #responsibilityForm > div .resp-setting-group .resp-setting-group-expand > .group-expand-icon {
+      transform: rotate(90deg);
+      margin-top: 4px;
+      cursor: pointer; }
 
 #responsibilityForm > div .resp-setting {
   background: #FFFFFF;

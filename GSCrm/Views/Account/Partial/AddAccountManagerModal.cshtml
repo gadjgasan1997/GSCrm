@@ -16,10 +16,9 @@
                     <input asp-for="Id" hidden="hidden" />
                     <div class="mt-3">
                         <input id="accManagerId" hidden="hidden" />
-                        <div id="accManager" class="autocomplete default-autocomplete" data-autocomplite-type="Accounts" data-autocomplite-name="AccountManager">
-                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetOrgEmployeesByInitials/{Model.OrganizationId}/")"></a>
-                            <input id="accManagerVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("AccountManager")" />
-                            <ul class="autocomplete-result-list"></ul>
+                        <div id="accManager" class="select-autocomplete" data-link="@Url.Content($"~/Autocomplite/GetOrgEmployeesByInitials/{Model.OrganizationId}/")"
+                             data-autocomplite-type="Accounts" data-autocomplite-name="AccountManager">
+                            <input id="accManagerVal" class="form-control" placeholder="@resManager.GetString("AccountManager")" />
                         </div>
                     </div>
                     <ul id="accManagerError" data-connect-el="accManagerVal" class="d-none under-field-error label-sm mt-2"></ul>

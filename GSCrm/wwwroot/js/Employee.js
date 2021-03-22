@@ -45,8 +45,8 @@
             FirstName: $("#empFirstName").val(),
             LastName: $("#empLastName").val(),
             MiddleName: $("#empMidName").val(),
-            DivisionName: AutocompleteManager.GetValue($("#employeeDiv")),
-            PrimaryPositionName: AutocompleteManager.GetValue($("#employeePosition")),
+            DivisionName: $("#employeeDivVal").val(),
+            PrimaryPositionName: $("#employeePositionVal").val(),
         }
     }
 
@@ -61,8 +61,8 @@
      * Очищает поля в модальном окне создания сотрудника
      */
     CreateClearFields() {
-        $("#employeeDiv .autocomplete-input").val("");
-        $("#employeePosition .autocomplete-input").val("");
+        $("#employeeDivVal").val("");
+        $("#employeePosition").val("");
         ["newEmpUserName", "newEmpEmail", "newEmpPassword", "newEmpConfirmPassword", "existsUserName", "empFirstName", "empLastName", "empMidName"].map(item => $(item).val(""));
     }
 
@@ -129,8 +129,8 @@
         return {
             Id: $("#employeeId").val(),
             OrganizationId: $("#OrganizationId").val(),
-            DivisionName: AutocompleteManager.GetValue($("#empNewDiv")),
-            PrimaryPositionName: AutocompleteManager.GetValue($("#empNewPrimaryPos"))
+            DivisionName: $("#empNewDivInput").val(),
+            PrimaryPositionName: $("#empNewPrimaryPosInput").val()
         }
     }
 

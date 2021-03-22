@@ -24,10 +24,8 @@
                                     <p class="form-control-plaintext text-center label-sm">@resManager.GetString("ParentDivNameLabel")</p>
                                 </div>
                                 <div class="col text-center mb-0">
-                                    <div id="parentDiv" class="autocomplete default-autocomplete" data-autocomplite-type="divisions">
-                                        <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetDivisions/{Model.Id}/")"></a>
-                                        <input id="parentDivVal" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
-                                        <ul class="autocomplete-result-list"></ul>
+                                    <div id="parentDiv" class="select-autocomplete" data-link="@Url.Content($"~/Autocomplite/GetDivisions/{Model.Id}/")" data-autocomplite-type="divisions">
+                                        <input id="parentDivVal" class="form-control" placeholder="@resManager.GetString(DIVISION)" />
                                     </div>
                                 </div>
                             </div>

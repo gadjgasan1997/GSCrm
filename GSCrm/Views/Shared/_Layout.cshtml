@@ -7,8 +7,6 @@
 @using static GSCrm.CommonConsts
 @{
     User currentUser = User.GetUserModel(context);
-    ICachService cachService = serviceProvider.GetService(typeof(ICachService)) as ICachService;
-
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -74,6 +72,7 @@
             </div>
         </nav>
     </header>
+
     <div class="vertical-nav bg-dark d-none d-xl-block">
         <ul class="nav flex-column bg-dark mb-0" role="tablist" aria-orientation="vertical">
             <li class="nav-item text-center">
@@ -92,17 +91,21 @@
             </li>
         </ul>
     </div>
+
     <div class="container-fluid container-layout">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
+    <div class="avtocomplite-result d-none"></div>
+
     <!-- Библиотеки -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery-ui.js"></script>
+    <script src="~/lib/jquery.maskedinput-master/src/jquery.maskedinput.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/lib/jquery.maskedinput-master/src/jquery.maskedinput.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script src="~/lib/autocomplete-master/min/Autocomplite.min.js"></script>
     <script src="~/lib/malihu-custom-scrollbar-plugin-master/js/uncompressed/jquery.mCustomScrollbar.js"></script>

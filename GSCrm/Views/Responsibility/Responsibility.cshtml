@@ -50,6 +50,12 @@
     <input id="orgId" asp-for="OrganizationId" hidden="hidden" />
     <div class="mt-2">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("Organization")</h3>
             </div>
@@ -59,7 +65,7 @@
                 </div>
             </div>
         </div>
-        <div id="OrgDeleteRespBlock" class="row resp-setting">
+        <div id="OrgDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("OrgDelete")</p>
             </div>
@@ -72,6 +78,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("Division")</h3>
             </div>
@@ -81,7 +93,7 @@
                 </div>
             </div>
         </div>
-        <div id="DivCreateRespBlock" class="row resp-setting">
+        <div id="DivCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("DivCreate")</p>
             </div>
@@ -91,7 +103,7 @@
                 </div>
             </div>
         </div>
-        <div id="DivDeleteRespBlock" class="row resp-setting">
+        <div id="DivDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("DivDelete")</p>
             </div>
@@ -104,6 +116,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("Position")</h3>
             </div>
@@ -113,7 +131,7 @@
                 </div>
             </div>
         </div>
-        <div id="PosCreateRespBlock" class="row resp-setting">
+        <div id="PosCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("PosCreate")</p>
             </div>
@@ -123,7 +141,7 @@
                 </div>
             </div>
         </div>
-        <div id="PosDeleteRespBlock" class="row resp-setting">
+        <div id="PosDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("PosDelete")</p>
             </div>
@@ -133,7 +151,7 @@
                 </div>
             </div>
         </div>
-        <div id="PosUpdateRespBlock" class="row resp-setting">
+        <div id="PosUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("PosUpdate")</p>
             </div>
@@ -143,7 +161,7 @@
                 </div>
             </div>
         </div>
-        <div id="PosChangeDivRespBlock" class="row resp-setting">
+        <div id="PosChangeDivRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("PosChangeDiv")</p>
             </div>
@@ -153,7 +171,7 @@
                 </div>
             </div>
         </div>
-        <div id="PosUnlockRespBlock" class="row resp-setting">
+        <div id="PosUnlockRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("PosUnlock")</p>
             </div>
@@ -166,6 +184,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("Employee")</h3>
             </div>
@@ -175,7 +199,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpCreateRespBlock" class="row resp-setting">
+        <div id="EmpCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpCreate")</p>
             </div>
@@ -185,7 +209,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpDeleteRespBlock" class="row resp-setting">
+        <div id="EmpDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpDelete")</p>
             </div>
@@ -195,7 +219,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpUpdateRespBlock" class="row resp-setting">
+        <div id="EmpUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpUpdate")</p>
             </div>
@@ -205,7 +229,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpChangeDivRespBlock" class="row resp-setting">
+        <div id="EmpChangeDivRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpChangeDiv")</p>
             </div>
@@ -215,7 +239,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpUnlockRespBlock" class="row resp-setting">
+        <div id="EmpUnlockRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpUnlock")</p>
             </div>
@@ -225,7 +249,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpPossManagementRespBlock" class="row resp-setting">
+        <div id="EmpPossManagementRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpPossManagement")</p>
             </div>
@@ -235,7 +259,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpRespsManagementRespBlock" class="row resp-setting">
+        <div id="EmpRespsManagementRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpRespsManagement")</p>
             </div>
@@ -245,7 +269,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpContactCreateRespBlock" class="row resp-setting">
+        <div id="EmpContactCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpContactCreate")</p>
             </div>
@@ -255,7 +279,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpContactUpdateRespBlock" class="row resp-setting">
+        <div id="EmpContactUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpContactUpdate")</p>
             </div>
@@ -265,7 +289,7 @@
                 </div>
             </div>
         </div>
-        <div id="EmpContactDeleteRespBlock" class="row resp-setting">
+        <div id="EmpContactDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("EmpContactDelete")</p>
             </div>
@@ -278,6 +302,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("Responsibility")</h3>
             </div>
@@ -287,7 +317,7 @@
                 </div>
             </div>
         </div>
-        <div id="RespCreateRespBlock" class="row resp-setting">
+        <div id="RespCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("RespCreate")</p>
             </div>
@@ -297,7 +327,7 @@
                 </div>
             </div>
         </div>
-        <div id="RespUpdateRespBlock" class="row resp-setting">
+        <div id="RespUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("RespUpdate")</p>
             </div>
@@ -307,7 +337,7 @@
                 </div>
             </div>
         </div>
-        <div id="RespDeleteRespBlock" class="row resp-setting">
+        <div id="RespDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("RespDelete")</p>
             </div>
@@ -320,6 +350,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("Account")</h3>
             </div>
@@ -329,7 +365,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccCreateRespBlock" class="row resp-setting">
+        <div id="AccCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccCreate")</p>
             </div>
@@ -339,7 +375,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccUpdateRespBlock" class="row resp-setting">
+        <div id="AccUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccUpdate")</p>
             </div>
@@ -349,7 +385,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccDeleteRespBlock" class="row resp-setting">
+        <div id="AccDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccDelete")</p>
             </div>
@@ -359,7 +395,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccChangeTypeRespBlock" class="row resp-setting">
+        <div id="AccChangeTypeRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccChangeType")</p>
             </div>
@@ -369,7 +405,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccUnlockRespBlock" class="row resp-setting">
+        <div id="AccUnlockRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccUnlock")</p>
             </div>
@@ -379,7 +415,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccTeamManagementRespBlock" class="row resp-setting">
+        <div id="AccTeamManagementRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccTeamManagement")</p>
             </div>
@@ -392,6 +428,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("AccountContatcs")</h3>
             </div>
@@ -401,7 +443,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccContactCreateRespBlock" class="row resp-setting">
+        <div id="AccContactCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccContactCreate")</p>
             </div>
@@ -411,7 +453,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccContactUpdateRespBlock" class="row resp-setting">
+        <div id="AccContactUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccContactUpdate")</p>
             </div>
@@ -421,7 +463,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccContactDeleteRespBlock" class="row resp-setting">
+        <div id="AccContactDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccContactDelete")</p>
             </div>
@@ -434,6 +476,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("AccountAddresses")</h3>
             </div>
@@ -443,7 +491,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccAddressCreateRespBlock" class="row resp-setting">
+        <div id="AccAddressCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccAddressCreate")</p>
             </div>
@@ -453,7 +501,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccAddressUpdateRespBlock" class="row resp-setting">
+        <div id="AccAddressUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccAddressUpdate")</p>
             </div>
@@ -463,7 +511,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccAddressDeleteRespBlock" class="row resp-setting">
+        <div id="AccAddressDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccAddressDelete")</p>
             </div>
@@ -476,6 +524,12 @@
     </div>
     <div class="mt-3">
         <div class="row resp-setting-group">
+            <div class="col-auto resp-setting-group-expand">
+                <div class="group-expand-icon">
+                    <span class="icon-chevron-thin-right"></span>
+                    <span class="icon-chevron-thin-left d-none"></span>
+                </div>
+            </div>
             <div class="col-md">
                 <h3 class="label-bold-lg">@resManager.GetString("AccountInvoices")</h3>
             </div>
@@ -485,7 +539,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccInvoiceCreateRespBlock" class="row resp-setting">
+        <div id="AccInvoiceCreateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccInvoiceCreate")</p>
             </div>
@@ -495,7 +549,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccInvoiceUpdateRespBlock" class="row resp-setting">
+        <div id="AccInvoiceUpdateRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccInvoiceUpdate")</p>
             </div>
@@ -505,7 +559,7 @@
                 </div>
             </div>
         </div>
-        <div id="AccInvoiceDeleteRespBlock" class="row resp-setting">
+        <div id="AccInvoiceDeleteRespBlock" class="row resp-setting d-none">
             <div class="col-md">
                 <p>@resManager.GetString("AccInvoiceDelete")</p>
             </div>

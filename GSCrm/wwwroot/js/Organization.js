@@ -413,6 +413,7 @@ $("#leaveOrgForm").off("click", "#leaveOrgBtn").on("click", "#leaveOrgBtn", even
 $("#organizationForm")
     .off("click", "#openEmployeeModalBtn").on("click", "#openEmployeeModalBtn", event => {
         Organization.SetDefaultTab();
+        $("html").css("overflow-y", "hidden");
         $("#selectUserOption").css("display", "block");
         $("#createUserOption").css("display", "none");
     })

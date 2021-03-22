@@ -16,19 +16,16 @@
                 <form method="post" asp-controller="Employee" asp-action="ChangeDivision">
                     <div class="form-group">
                         <div class="mt-3">
-                            <div id="empNewDiv" class="autocomplete default-autocomplete">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetDivisionsExceptCurrent/{Model.OrganizationId}/{Model.DivisionId}/")"></a>
-                                <input id="empNewDivInput" class="autocomplete-input form-control" placeholder="@resManager.GetString("NewDivision")" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="empNewDiv" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetDivisionsExceptCurrent/{Model.OrganizationId}/{Model.DivisionId}/")">
+                                <input id="empNewDivInput" class="form-control" placeholder="@resManager.GetString("NewDivision")" />
                             </div>
                         </div>
                         <ul id="empNewDivError" data-connect-el="empNewDivInput" class="d-none under-field-error label-sm mt-2"></ul>
 
                         <div class="mt-4">
-                            <div id="empNewPrimaryPos" class="autocomplete default-autocomplete" data-autocomplite-type="Positions" data-autocomplite-name="EmpNewPrimaryPos">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetPositions/{Model.OrganizationId}/")"></a>
-                                <input id="empNewPrimaryPosInput" class="autocomplete-input form-control" placeholder="@resManager.GetString("NewPosition")" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="empNewPrimaryPos" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetPositions/{Model.OrganizationId}/")"
+                                 data-autocomplite-type="Positions" data-autocomplite-name="EmpNewPrimaryPos">
+                                <input id="empNewPrimaryPosInput" class="form-control" placeholder="@resManager.GetString("NewPosition")" />
                             </div>
                         </div>
                         <ul id="empNewPrimaryPosError" data-connect-el="empNewPrimaryPosInput" class="d-none under-field-error label-sm mt-2"></ul>

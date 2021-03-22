@@ -13,12 +13,12 @@
     AccountManagerViewModel accountManager = Model.AccountManagers.FirstOrDefault(man => man.IsPrimary);
 }
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
+    <ol class="breadcrumb wide-crumbs">
+        <li class="breadcrumb-item wide-crumb"><a asp-controller="Home" asp-action="Index">@resManager.GetString("Home")</a></li>
         <li id="accountsBackUrl" class="breadcrumb-item">
             <a asp-controller="@ACCOUNT" asp-action="BackToAccounts">@resManager.GetString(ACCOUNTS)</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">@resManager.GetString(ACCOUNT) : @Model.Name</li>
+        <li class="breadcrumb-item wide-crumb active" aria-current="page">@resManager.GetString(ACCOUNT) : @Model.Name</li>
     </ol>
 </nav>
 

@@ -8,6 +8,7 @@ class Initializer {
                     Initializer.RestoreDropdowns();
                     Initializer.RestoreCheckMarks();
                     Initializer.AttachAutocomplite();
+                    Initializer.AttachSelectAutocomplite();
                     Initializer.AttachMasks();
                     Initializer.InitializeScrools();
                     Initializer.InitializeToolTips();
@@ -80,7 +81,14 @@ class Initializer {
     // Инициализация автокомплитов
     static AttachAutocomplite() {
         document.querySelectorAll(".autocomplete").forEach(control => {
-            AutocompleteManager.Initialize(control);
+            BaseAutocompleteManager.Initialize(control);
+        });
+    }
+
+    // Инициализация автокомплитов с выбором
+    static AttachSelectAutocomplite() {
+        document.querySelectorAll(".select-autocomplete").forEach(control => {
+            SelectAutocompleteManager.Initialize(control);
         });
     }
 

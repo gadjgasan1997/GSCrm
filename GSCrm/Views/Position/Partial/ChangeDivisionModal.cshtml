@@ -14,10 +14,8 @@
                 <form method="post" asp-controller="Position" asp-action="ChangeDivision">
                     <div class="form-group">
                         <div class="mt-3">
-                            <div id="positionNewDiv" class="autocomplete default-autocomplete" data-autocomplite-type="divisions">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetDivisionsExceptCurrent/{Model.OrganizationId}/{Model.DivisionId}/")"></a>
-                                <input id="positionNewDivVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("NewDivision")" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="positionNewDiv" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetDivisionsExceptCurrent/{Model.OrganizationId}/{Model.DivisionId}/")">
+                                <input id="positionNewDivVal" class="form-control" placeholder="@resManager.GetString("NewDivision")" />
                             </div>
                         </div>
                         <ul id="positionNewDivError" data-connect-el="positionNewDivVal" class="d-none under-field-error label-sm mt-2"></ul>

@@ -6,7 +6,7 @@
 .remove-item-btn:hover {
   color: red; }
 
-.hide-remove-item-btn {
+.hide-remove-item-btn .icon-bin {
   opacity: 0; }
 
 .edit-item-btn {
@@ -356,6 +356,76 @@
   .default-autocomplete > .autocomplete-result-list > li:hover {
     cursor: pointer;
     background: rgba(0, 0, 0, 0.08); }
+
+.select-autocomplete {
+  position: relative;
+  height: 38px;
+  min-width: 250px; }
+  .select-autocomplete > .select-divider {
+    height: 100%;
+    width: 1px;
+    position: absolute;
+    top: 0;
+    background-color: #ced4da;
+    left: calc(100% - 38px); }
+  .select-autocomplete > .select-icon {
+    position: absolute;
+    top: 4%;
+    left: calc(100% - 36px);
+    height: 92%;
+    width: 35px;
+    cursor: pointer;
+    background-color: white; }
+    .select-autocomplete > .select-icon > span {
+      position: absolute;
+      transform: rotate(90deg);
+      top: 10.5px;
+      left: 9.5px; }
+  .select-autocomplete > input {
+    height: 100%; }
+
+.readonly-autocomplete {
+  background-color: #e9ecef; }
+  .readonly-autocomplete .select-icon {
+    background-color: #e9ecef; }
+  .readonly-autocomplete input.form-control:focus {
+    box-shadow: none !important;
+    outline: 0px !important; }
+
+.select-autocomplete-result {
+  z-index: 10000;
+  list-style: none;
+  background-color: white;
+  width: 250px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0px;
+  box-shadow: 0px 8px 14px rgba(149, 155, 161, 0.3), 0px 0px 2px rgba(149, 155, 161, 0.6);
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px; }
+  .select-autocomplete-result > li {
+    list-style: none;
+    height: 35px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    text-overflow: ellipsis; }
+    .select-autocomplete-result > li > p {
+      margin-left: 10px;
+      line-height: 35px;
+      overflow-x: hidden;
+      text-overflow: ellipsis; }
+  .select-autocomplete-result > li:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.08); }
+  .select-autocomplete-result .focused-item {
+    background-color: rgba(0, 0, 0, 0.08); }
+  .select-autocomplete-result .selected-item {
+    background-color: rgba(0, 0, 0, 0.08);
+    font-weight: bold; }
+
+.ui-helper-hidden-accessible {
+  display: none; }
 
 /* checkbox-not */
 .cbx-not,

@@ -21,29 +21,25 @@
                         </div>
 
                         <div class="mt-4">
-                            <div id="positionDivModal" class="autocomplete default-autocomplete">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetDivisions/{Model.Id}/")"></a>
-                                <input id="positionDivModalVal" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="positionDivModal" class="select-autocomplete" data-link="@Url.Content($"~/Autocomplite/GetDivisions/{Model.Id}/")">
+                                <input id="positionDivModalVal" class="form-control" placeholder="@resManager.GetString(DIVISION)" />
                             </div>
                         </div>
                         <ul id="positionDivModalError" data-connect-el="positionDivModalVal" class="d-none under-field-error label-sm mt-2"></ul>
 
                         <div class="mt-4">
-                            <div id="parentPositionModal" class="autocomplete default-autocomplete" data-autocomplite-type="Positions" data-autocomplite-name="ParentPositionModal">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetPositions/{Model.Id}/")"></a>
-                                <input id="parentPositionModalVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="parentPositionModal" class="select-autocomplete" data-link="@Url.Content($"~/Autocomplite/GetPositions/{Model.Id}/")"
+                                 data-autocomplite-type="Positions" data-autocomplite-name="ParentPositionModal">
+                                <input id="parentPositionModalVal" class="form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
                             </div>
                         </div>
                         <ul id="parentPositionModalError" data-connect-el="parentPositionModalVal" class="d-none under-field-error label-sm mt-2"></ul>
 
                         <input id="primaryEmployeeId" hidden="hidden" />
                         <div class="mt-4">
-                            <div id="primaryEmployeeModal" class="autocomplete default-autocomplete" data-autocomplite-type="Employees" data-autocomplite-name="PrimaryEmployeeModal">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetEmployeesByInitials/{Model.Id}/")"></a>
-                                <input id="primaryEmployeeModalVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="primaryEmployeeModal" class="select-autocomplete" data-link="@Url.Content($"~/Autocomplite/GetEmployeesByInitials/{Model.Id}/")"
+                                 data-autocomplite-type="Employees" data-autocomplite-name="PrimaryEmployeeModal">
+                                <input id="primaryEmployeeModalVal" class="form-control" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
                             </div>
                         </div>
                         <ul id="primaryEmployeeModalError" data-connect-el="primaryEmployeeModalVal" class="d-none under-field-error label-sm mt-2"></ul>

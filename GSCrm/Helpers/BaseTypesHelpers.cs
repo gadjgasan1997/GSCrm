@@ -84,16 +84,17 @@ namespace GSCrm.Helpers
         /// <param name="limitingFunc">Действие, ограничивающее коллекцию уровня данных перед ее преобразованием в коллекцию уровня отображения</param>
         /// <returns name="viewModels">Список моделей уровня отображения</returns>
         public static List<TViewModel> MapToViewModels<TDataModel, TViewModel>(
-            this List<TDataModel> dataModels,
+            this IEnumerable<TDataModel> dataModels,
             IMap<TDataModel, TViewModel> map,
             Func<List<TDataModel>, List<TDataModel>> limitingFunc)
                 where TViewModel : BaseViewModel, new()
                 where TDataModel : BaseDataModel, new()
         {
-            List<TViewModel> viewModels = new List<TViewModel>();
-            if (dataModels?.Count > 0)
+            List<TViewModel> viewModels = new();
+            List<TDataModel> dataModelsList = dataModels.ToList();
+            if (dataModelsList?.Count > 0)
             {
-                limitingFunc(dataModels).ForEach(dataModel =>
+                limitingFunc(dataModelsList).ForEach(dataModel =>
                     viewModels.Add(map.DataToViewModel(dataModel)));
             }
             return viewModels;
@@ -111,7 +112,7 @@ namespace GSCrm.Helpers
         /// <returns name="viewModels">Список моделей уровня отображения</returns>
         /// <returns></returns>
         public static List<TViewModel> MapToViewModels<TDataModel, TViewModel, TParentViewModel>(
-            this List<TDataModel> dataModels,
+            this IEnumerable<TDataModel> dataModels,
             TParentViewModel parentEntity,
             IMap<TDataModel, TViewModel> map,
             Func<TParentViewModel, List<TDataModel>, List<TDataModel>> limitingFunc)
@@ -119,26 +120,28 @@ namespace GSCrm.Helpers
                 where TViewModel : BaseViewModel, new()
                 where TParentViewModel : BaseViewModel, new()
         {
-            List<TViewModel> viewModels = new List<TViewModel>();
-            if (dataModels?.Count > 0)
+            List<TViewModel> viewModels = new();
+            List<TDataModel> dataModelsList = dataModels.ToList();
+            if (dataModelsList?.Count > 0)
             {
-                limitingFunc(parentEntity, dataModels).ForEach(dataModel =>
+                limitingFunc(parentEntity, dataModelsList).ForEach(dataModel =>
                     viewModels.Add(map.DataToViewModel(dataModel)));
             }
             return viewModels;
         }
 
         public static List<TViewModel> MapToViewModels<TDataModel, TViewModel>(
-            this List<TDataModel> dataModels,
+            this IEnumerable<TDataModel> dataModels,
             IMap<TDataModel, TViewModel> map,
             Func<TDataModel, bool> limitingFunc)
                 where TViewModel : BaseViewModel, new()
                 where TDataModel : BaseDataModel, new()
         {
-            List<TViewModel> viewModels = new List<TViewModel>();
-            if (dataModels?.Count > 0)
+            List<TViewModel> viewModels = new();
+            List<TDataModel> dataModelsList = dataModels.ToList();
+            if (dataModelsList?.Count > 0)
             {
-                dataModels.Where(limitingFunc).ToList().ForEach(dataModel =>
+                dataModelsList.Where(limitingFunc).ToList().ForEach(dataModel =>
                     viewModels.Add(map.DataToViewModel(dataModel)));
             }
             return viewModels;
@@ -153,14 +156,15 @@ namespace GSCrm.Helpers
         /// <param name="dataModels"></param>
         /// <param name="map"></param>
         /// <returns></returns>
-        public static List<TViewModel> GetViewModelsFromData<TDataModel, TViewModel>(this List<TDataModel> dataModels, IMap<TDataModel, TViewModel> map)
+        public static List<TViewModel> GetViewModelsFromData<TDataModel, TViewModel>(this IEnumerable<TDataModel> dataModels, IMap<TDataModel, TViewModel> map)
                 where TViewModel : BaseViewModel, new()
                 where TDataModel : BaseDataModel, new()
         {
-            List<TViewModel> viewModels = new List<TViewModel>();
-            if (dataModels?.Count > 0)
+            List<TViewModel> viewModels = new();
+            List<TDataModel> dataModelsList = dataModels.ToList();
+            if (dataModelsList.ToList()?.Count > 0)
             {
-                dataModels.ForEach(dataModel =>
+                dataModelsList.ForEach(dataModel =>
                     viewModels.Add(map.DataToViewModel(dataModel)));
             }
             return viewModels;

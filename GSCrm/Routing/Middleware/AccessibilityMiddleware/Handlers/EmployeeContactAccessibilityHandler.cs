@@ -6,6 +6,7 @@ using GSCrm.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using GSCrm.Models.ViewModels;
 using GSCrm.Mapping;
+using GSCrm.Models.Enums;
 
 namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
 {
@@ -65,7 +66,7 @@ namespace GSCrm.Routing.Middleware.AccessibilityMiddleware.Handlers
                 case "Create":
                 case "Update":
                     accessibilityHandlerData.CacheCurrentOrganization();
-                    accessibilityHandlerData.TryCacheCurrentEmployee();
+                    accessibilityHandlerData.TryCacheCurrentEmployee(RequestSourceType.Form, "employeeId");
                     break;
                 default:
                     break;

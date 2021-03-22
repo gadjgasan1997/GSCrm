@@ -108,15 +108,13 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <div id="accCountry" class="autocomplete default-autocomplete">
-                                            <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetCountries/")"></a>
-                                            <input id="accCountryVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("Country")" />
-                                            <ul class="autocomplete-result-list"></ul>
+                                        <div id="accCountry" class="select-autocomplete" data-link="@Url.Content($"~/Autocomplite/GetCountries/")">
+                                            <input id="accCountryVal" class="form-control" placeholder="@resManager.GetString("Country")" />
                                         </div>
                                         <ul id="accCountryError" data-connect-el="accCountryVal" class="d-none under-field-error label-sm mt-2"></ul>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <div class="row mb-2">
                                     <div id="appointMeHeader" class="col-auto">
                                         <div class="block-center">
                                             <p class="label-md text-center">@resManager.GetString("AppointMe")</p>
@@ -128,10 +126,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div id="accManager" class="autocomplete default-autocomplete mt-3" data-autocomplite-type="Employees" data-autocomplite-name="AccountManager">
-                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"~/Autocomplite/GetOrgEmployeesByInitials/")"></a>
-                                    <input readonly id="accManagerVal" class="autocomplete-input form-control" placeholder="@resManager.GetString("PrimaryManager")" />
-                                    <ul class="autocomplete-result-list"></ul>
+                                <div id="accManager" class="readonly-autocomplete select-autocomplete" data-link="@Url.Content($"~/Autocomplite/GetOrgEmployeesByInitials/")"
+                                      data-autocomplite-type="Employees" data-autocomplite-name="AccountManager">
+                                    <input id="accManagerVal" readonly class="form-control" placeholder="@resManager.GetString("PrimaryManager")" />
                                 </div>
                                 <ul id="accManagerError" data-connect-el="accManagerVal" class="d-none under-field-error label-sm mt-2"></ul>
                             </div>

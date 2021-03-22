@@ -11,10 +11,8 @@
                 <div class="input-group-prepend m-auto">
                     <span class="input-group-text" id="basic-addon1">@resManager.GetString(DIVISION)</span>
                 </div>
-                <div id="employeeDiv" class="autocomplete default-autocomplete flex-grow-1">
-                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetDivisions/{Model.OrganizationId}/")"></a>
-                    <input asp-for="DivisionName" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
-                    <ul class="autocomplete-result-list"></ul>
+                <div id="employeeDiv" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetDivisions/{Model.OrganizationId}/")">
+                    <input asp-for="DivisionName" class="form-control" placeholder="@resManager.GetString(DIVISION)" />
                 </div>
             </div>
         </div>
@@ -27,10 +25,9 @@
                 <div class="input-group-prepend m-auto">
                     <span class="input-group-text" id="basic-addon1">@resManager.GetString(POSITION)</span>
                 </div>
-                <div id="employeePosition" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Positions" data-autocomplite-name="EmployeePosition">
-                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetPositions/{Model.OrganizationId}/")"></a>
-                    <input asp-for="PrimaryPositionName" class="autocomplete-input form-control" placeholder="@resManager.GetString(POSITION)" />
-                    <ul class="autocomplete-result-list"></ul>
+                <div id="employeePosition" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetPositions/{Model.OrganizationId}/")"
+                     data-autocomplite-type="Positions" data-autocomplite-name="EmployeePosition">
+                    <input asp-for="PrimaryPositionName" class="form-control" placeholder="@resManager.GetString(POSITION)" />
                 </div>
             </div>
         </div>

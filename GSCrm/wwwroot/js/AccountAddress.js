@@ -34,7 +34,7 @@ class AccountAddress {
         }
         return {
             AccountId: $("#accountId").val(),
-            Country: $("#createAccAddressCountry").find(".autocomplete-input").val(),
+            Country: $("#createAccAddressCountryVal").val(),
             Region: $("#createAccAddressRegion").val(),
             City: $("#createAccAddressCity").val(),
             Street: $("#createAccAddressStreet").val(),
@@ -95,7 +95,7 @@ class AccountAddress {
         let dropdown = new Dropdowns();
         dropdown.SetDropdownValue("updateAccAddressType", addressData["addressType"]);
         $("#accAddressId").val(addressData["id"]);
-        $("#updateAccAddressCountry").find(".autocomplete-input").val(addressData["country"]);
+        $("#updateAccAddressCountryVal").val(addressData["country"]);
         $("#updateAccAddressRegion").val(addressData["region"]);
         $("#updateAccAddressCity").val(addressData["city"]);
         $("#updateAccAddressStreet").val(addressData["street"]);
@@ -151,7 +151,7 @@ class AccountAddress {
         return {
             Id: $("#accAddressId").val(),
             AccountId: $("#accountId").val(),
-            Country: $("#updateAccAddressCountry").find(".autocomplete-input").val(),
+            Country: $("#updateAccAddressCountryVal").val(),
             Region: $("#updateAccAddressRegion").val(),
             City: $("#updateAccAddressCity").val(),
             Street: $("#updateAccAddressStreet").val(),

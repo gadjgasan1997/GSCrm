@@ -43,10 +43,10 @@ class Account {
             KPP: $("#accKPP").val(),
             OKPO: $("#accOKPO").val(),
             OGRN: $("#accOGRN").val(),
-            Country: $("#accCountry .autocomplete-input").val(),
+            Country: $("#accCountryVal").val(),
             AppointMe: $("#appointMeBody").find(".oval-mark-check").length > 0,
             OrganizationId: $(selectedOrg).find(".choise-userorg-id").text(),
-            PrimaryManagerInitialName: $("#accManager .autocomplete-input").val(),
+            PrimaryManagerInitialName: $("#accManagerVal").val(),
             AccountType: accountType
         }
     }
@@ -81,7 +81,7 @@ class Account {
 
     /** Очищает поля в модальном окне создания клиента */
     CreateClearFields() {
-        ["#accCountry .autocomplete-input", "#accManager .autocomplete-input"]
+        ["#accCountryVal", "#accManagerVal"]
             .map(item => $(item).val(""));
         ["#accFirstName", "#accLastName", "#accMiddleName", "#accINNIndividual", "#accNameIE", "#accINNIE", "#accNameLE", "#accINNLE", "#accKPP", "#accOKPO", "#accOGRN"]
             .map(item => $(item).val(""));  
@@ -106,6 +106,7 @@ class Account {
 
             // Проставление поля с выбором менеджера в "ридонли"
             $("#accManagerVal").attr("readonly", true);
+            $("#accManager").addClass("readonly-autocomplete");
 
             // Очистка полей, ошибок и проставление вкладки по умолчанию
             this.CreateClearFields();
@@ -399,13 +400,15 @@ $("#accountModal")
         event.preventDefault();
         let block= new Block();
         block.OvalCheckmarkCheck($(event.currentTarget));
-        $("#accManagerVal").attr("readonly", true); 
+        $("#accManager").addClass("readonly-autocomplete");
+        $("#accManagerVal").attr("readonly", true);
     })
     .off("click", ".oval-mark-check").on("click", ".oval-mark-check", event => {
         event.preventDefault();
         let block= new Block();
         block.OvalCheckmarkCheck($(event.currentTarget));
-        $("#accManagerVal").attr("readonly", false); 
+        $("#accManager").removeClass("readonly-autocomplete");
+        $("#accManagerVal").attr("readonly", false);
     })
     .off("click", "#userOrgsChoiseList .list-group-item").on("click", "#userOrgsChoiseList .list-group-item", event => {
         event.preventDefault();
@@ -415,6 +418,9 @@ $("#accountModal")
             })
             $(event.currentTarget).addClass("active");
         }
+    })
+    .off("click", "#accManagerVal").on("click", "#accManagerVal", event => {
+        
     });
 
 // Список клиентов

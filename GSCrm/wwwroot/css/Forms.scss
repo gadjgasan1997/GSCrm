@@ -380,6 +380,17 @@
             .switch {
                 margin-top: 6px
             }
+
+            .resp-setting-group-expand {
+                position: relative;
+                padding-right: 0;
+
+                > .group-expand-icon {
+                    transform: rotate(90deg);
+                    margin-top: 4px;
+                    cursor: pointer;
+                }
+            }
         }
 
         .resp-setting {

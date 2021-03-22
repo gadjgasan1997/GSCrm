@@ -61,13 +61,12 @@
 
                     <div class="col mt-3">
                         <div class="input-group">
-                            <div class="input-group-prepend m-auto">
+                            <div class="input-group-prepend m-auto m-md-0">
                                 <span class="input-group-text" id="basic-addon1">@resManager.GetString("ParentPositionLabel")</span>
                             </div>
-                            <div id="parentPosition" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Positions" data-autocomplite-name="ParentPosition">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetPositions/{Model.OrganizationId}/")"></a>
-                                <input asp-for="ParentPositionName" class="autocomplete-input form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="parentPosition" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetPositions/{Model.OrganizationId}/")"
+                                  data-autocomplite-type="Positions" data-autocomplite-name="ParentPosition">
+                                <input asp-for="ParentPositionName" class="form-control" placeholder="@resManager.GetString("ParentPositionLabel")" />
                             </div>
                         </div>
                     </div>
@@ -78,10 +77,9 @@
                             <div class="input-group-prepend m-auto">
                                 <span class="input-group-text" id="basic-addon1">@resManager.GetString("PrimaryEmployeeLabel")</span>
                             </div>
-                            <div id="primaryEmployee" class="autocomplete default-autocomplete flex-grow-1" data-autocomplite-type="Employees" data-autocomplite-name="PrimaryEmployee">
-                                <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetEmployeesByInitials/{Model.OrganizationId}/")"></a>
-                                <input asp-for="PrimaryEmployeeInitialName" class="autocomplete-input form-control" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
-                                <ul class="autocomplete-result-list"></ul>
+                            <div id="primaryEmployee" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetEmployeesByInitials/{Model.OrganizationId}/")"
+                                 data-autocomplite-type="Employees" data-autocomplite-name="PrimaryEmployee">
+                                <input asp-for="PrimaryEmployeeInitialName" class="form-control" placeholder="@resManager.GetString("PrimaryEmployeeLabel")" />
                             </div>
                         </div>
                     </div>
@@ -192,10 +190,8 @@ else
                                 <div class="input-group-prepend m-auto">
                                     <span class="input-group-text" id="basic-addon1">@resManager.GetString(DIVISION)</span>
                                 </div>
-                                <div id="positionDiv" class="autocomplete default-autocomplete flex-grow-1">
-                                    <a class="autocomplete-link" hidden="hidden" href="@Url.Content($"/Autocomplite/GetDivisions/{Model.OrganizationId}/")"></a>
-                                    <input asp-for="DivisionName" class="autocomplete-input form-control" placeholder="@resManager.GetString(DIVISION)" />
-                                    <ul class="autocomplete-result-list"></ul>
+                                <div id="positionDiv" class="select-autocomplete flex-grow-1" data-link="@Url.Content($"~/Autocomplite/GetDivisions/{Model.OrganizationId}/")">
+                                    <input asp-for="DivisionName" class="form-control" placeholder="@resManager.GetString(DIVISION)" />
                                 </div>
                             </div>
                         </div>

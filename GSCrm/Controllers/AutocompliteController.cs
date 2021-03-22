@@ -1,17 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using GSCrm.Data;
 using GSCrm.Utils;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using GSCrm.Helpers;
-using System.Linq;
-using GSCrm.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using GSCrm.Mapping;
 using GSCrm.Models;
+using GSCrm.Helpers;
+using GSCrm.Mapping;
 using GSCrm.Factories;
+using GSCrm.Models.ViewModels;
+using static GSCrm.CommonConsts;
 
 namespace GSCrm.Controllers
 {
@@ -19,17 +21,18 @@ namespace GSCrm.Controllers
     [Route("Autocomplite")]
     public class AutocompliteController : Controller
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly ApplicationDbContext context;
+        #region Declarations
         private readonly User currentUser;
+        private readonly ApplicationDbContext context;
         private readonly AutocompliteUtils autocompliteUtils;
         private readonly DivisionMap divisionMap;
         private readonly PositionMap positionMap;
+        #endregion
+
         public AutocompliteController(IServiceProvider serviceProvider, ApplicationDbContext context)
         {
-            this.serviceProvider = serviceProvider;
             this.context = context;
-            IUserContextFactory userContextServices = serviceProvider.GetService(typeof(IUserContextFactory)) as IUserContextFactory;
+            IUserContextFactory userContextServices = serviceProvider.GetService<IUserContextFactory>();
             currentUser = userContextServices.HttpContext.GetCurrentUser(context);
             autocompliteUtils = new AutocompliteUtils(serviceProvider, context);
             divisionMap = new DivisionMap(serviceProvider, context);
@@ -37,79 +40,102 @@ namespace GSCrm.Controllers
 
         }
 
-        [HttpGet("GetCountries/{countryPart}")]
-        public IActionResult GetCountries(string countryPart)
+        [HttpGet("GetCountries/{countryPart?}")]
+        public IActionResult GetCountries(string countryPart = "")
         {
-            Func<JToken, bool> predicate = n => n.ToString().ToLower().Contains(countryPart.ToLower().TrimStartAndEnd());
-            IEnumerable<JToken> result = AppUtils.GetCountries(HttpContext.GetCurrentUser(context)?.DefaultLanguage).Where(predicate).ToList();
+            LangType? langType = HttpContext.GetCurrentUser(context)?.DefaultLanguage;
+            IEnumerable<JToken> result = string.IsNullOrEmpty(countryPart) switch
+            {
+                true => AppUtils.GetCountries(langType).ToList(),
+                _ => AppUtils.GetCountries(langType).Where(n => n.ToString().ToLower().Contains(countryPart.ToLower().TrimStartAndEnd())).ToList()
+            };
             return Ok(result);
         }
 
-        [HttpGet("GetEmployeesByFullName/{orgId}/{divNamePart}/{employeePart}")]
-        public IActionResult GetEmployeesByFullName(string orgId, string divNamePart, string employeePart)
+        [HttpGet("GetEmployeesByFullName/{orgId}/{divNamePart}/{employeePart?}")]
+        public IActionResult GetEmployeesByFullName(string orgId, string divNamePart, string employeePart = "")
             => Json(autocompliteUtils.GetEmployeesByFullName(orgId, divNamePart, employeePart));
 
-        [HttpGet("GetEmployeesByInitials/{orgId}/{divNamePart}/{employeePart}")]
-        public IActionResult GetEmployees(string orgId, string divNamePart, string employeePart)
+        [HttpGet("GetEmployeesByInitials/{orgId}/{divNamePart}/{employeePart?}")]
+        public IActionResult GetEmployees(string orgId, string divNamePart, string employeePart = "")
             => Json(autocompliteUtils.GetEmployeesByInitials(orgId, divNamePart, employeePart));
 
-        [HttpGet("GetDivisions/{orgId}/{namePath}")]
-        public IActionResult GetDivisions(string orgId, string namePath)
+        [HttpGet("GetDivisions/{orgId}/{namePath?}")]
+        public IActionResult GetDivisions(string orgId, string namePath = "")
         {
-            List<DivisionViewModel> divViewModels = context.Divisions.AsNoTracking().ToList()
-                .MapToViewModels(divisionMap, div => div.OrganizationId == Guid.Parse(orgId) && div.Name.ToLower().Contains(namePath.TrimStartAndEnd().ToLower()));
-            return Json(divViewModels);
-        }
+            if (string.IsNullOrEmpty(orgId) || !Guid.TryParse(orgId, out Guid organizationId))
+                return Json("");
 
-        [HttpGet("GetDivisionsExceptCurrent/{orgId}/{divisionId}/{namePath}")]
-        public IActionResult GetDivisionsExceptCurrent(string orgId, string divisionId, string namePath)
-        {
-            List<DivisionViewModel> divViewModels = context.Divisions.AsNoTracking().ToList()
-                .MapToViewModels(divisionMap, div => div.OrganizationId == Guid.Parse(orgId) &&
-                    div.Name.ToLower().Contains(namePath.TrimStartAndEnd().ToLower()) && div.Id != Guid.Parse(divisionId));
-            return Json(divViewModels);
-        }
-
-        [HttpGet("GetPositions/{orgId}/{divNamePart}/{posNamePart}")]
-        public IActionResult GetPositions(string orgId, string divNamePart, string posNamePart)
-        {
-            if (!string.IsNullOrEmpty(divNamePart) && !string.IsNullOrEmpty(posNamePart) && Guid.TryParse(orgId, out Guid guid))
+            IEnumerable<Division> divisions = context.Divisions.AsNoTracking().Take(AUTOCOMPLITE_ITEMS_DEF_COUNT);
+            List<DivisionViewModel> divViewModels = namePath switch
             {
-                List<Division> divisions = context.GetOrgDivisions(guid);
-                if (divisions?.Count > 0)
-                {
-                    Division selectedDivision = divisions.FirstOrDefault(n => n.Name == divNamePart);
-                    if (selectedDivision == null) return Json("");
+                "" => divisions.MapToViewModels(divisionMap, div => div.OrganizationId == organizationId),
+                _ => divisions.MapToViewModels(divisionMap, div => div.OrganizationId == organizationId && div.Name.ToLower().Contains(namePath.TrimStartAndEnd().ToLower()))
+            };
+            return Json(divViewModels);
 
-                    List<PositionViewModel> positionViewModels = selectedDivision.GetPositions(context)
-                        .MapToViewModels(positionMap, pos => pos.Name.ToLower().Contains(posNamePart.TrimStartAndEnd().ToLower()));
-                    return Json(positionViewModels);
-                }
-            }
-            return Json("");
         }
 
-        [HttpGet("GetOrgEmployeesByInitials/{orgId}/{employeePart}")]
-        public IActionResult GetOrgEmployeesByInitials(string orgId, string employeePart)
+        [HttpGet("GetDivisionsExceptCurrent/{orgId}/{divId}/{divNamePath?}")]
+        public IActionResult GetDivisionsExceptCurrent(string orgId, string divId, string divNamePath = "")
+        {
+            if (string.IsNullOrEmpty(orgId) || !Guid.TryParse(orgId, out Guid organizationId) ||
+                string.IsNullOrEmpty(divId) || !Guid.TryParse(divId, out Guid divisionId))
+            {
+                return Json("");
+            }
+
+            Func<Division, bool> predicate = string.IsNullOrEmpty(divNamePath) switch
+            {
+                true => div => div.OrganizationId == organizationId && div.Id != divisionId,
+                _ => div => div.OrganizationId == organizationId && div.Name.ToLower().Contains(divNamePath.TrimStartAndEnd().ToLower()) && div.Id != divisionId
+            };
+            List<DivisionViewModel> divViewModels = context.Divisions.AsNoTracking().MapToViewModels(divisionMap, predicate);
+            return Json(divViewModels);
+        }
+
+        [HttpGet("GetPositions/{orgId}/{divNamePart}/{posNamePart?}")]
+        public IActionResult GetPositions(string orgId, string divNamePart, string posNamePart = "")
+        {
+            if (string.IsNullOrEmpty(orgId) ||
+                string.IsNullOrEmpty(divNamePart) ||
+                !Guid.TryParse(orgId, out Guid organizationId))
+            {
+                return Json("");
+            }
+
+            // Получение подразделения
+            if (context.GetOrgDivisions(organizationId).FirstOrDefault(n => n.Name.ToLower() == divNamePart) is not Division selectedDivision)
+                return Json("");
+
+            // Получение списка должностей подразделения
+            IEnumerable<Position> positions = selectedDivision.GetPositions(context).Take(AUTOCOMPLITE_ITEMS_DEF_COUNT);
+            string searchPositionName = posNamePart.TrimStartAndEnd().ToLower();
+            List<PositionViewModel> positionViewModels = searchPositionName switch
+            {
+                "" => positions.GetViewModelsFromData(positionMap),
+                _ => positions.MapToViewModels(positionMap, pos => pos.Name.ToLower().Contains(searchPositionName))
+            };
+            return Json(positionViewModels);
+        }
+
+        [HttpGet("GetOrgEmployeesByInitials/{orgId}/{employeePart?}")]
+        public IActionResult GetOrgEmployeesByInitials(string orgId, string employeePart = "")
             => Json(autocompliteUtils.GetOrgEmployeesByInitials(orgId, employeePart));
 
-        [HttpGet("GetOrgEmployeesByInitials/{employeePart}")]
-        public IActionResult GetOrgEmployeesByInitials(string employeePart)
-            => Json(autocompliteUtils.GetOrgEmployeesByInitials(currentUser, employeePart));
-
-        [HttpGet("GetManagers/{accId}/{managerPart}")]
-        public IActionResult GetManagers(string accId, string managerPart)
+        [HttpGet("GetManagers/{accId}/{managerPart?}")]
+        public IActionResult GetManagers(string accId, string managerPart = "")
         {
-            if (!string.IsNullOrEmpty(accId) && !string.IsNullOrEmpty(managerPart) && Guid.TryParse(accId, out Guid accountId))
-            {
-                Account account = context.Accounts
-                    .AsNoTracking()
-                    .Include(acc => acc.AccountManagers)
-                        .ThenInclude(man => man.Manager)
-                    .FirstOrDefault(i => i.Id == accountId);
-                if (account?.AccountManagers.Count > 0)
-                    return Json(autocompliteUtils.GetAccountManagersByFullName(account, managerPart));
-            }
+            if (string.IsNullOrEmpty(accId) || !Guid.TryParse(accId, out Guid accountId))
+                return Json("");
+
+            Account account = context.Accounts
+                .AsNoTracking()
+                .Include(acc => acc.AccountManagers)
+                    .ThenInclude(man => man.Manager)
+                .FirstOrDefault(i => i.Id == accountId);
+            if (account?.AccountManagers.Count > 0)
+                return Json(autocompliteUtils.GetAccountManagersByFullName(account, managerPart));
             return Json("");
         }
     }

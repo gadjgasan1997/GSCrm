@@ -58,10 +58,10 @@ namespace GSCrm.Transactions.Factories
                         switch (operationType)
                         {
                             case OperationType.Update:
-                                SendEmpUpdateNotifications((Employee)transaction.GetParameterValue("ChangedRecord"));
+                                SendEmpUpdateNotifications();
                                 break;
                             case OperationType.ChangeEmployeeDivision:
-                                SendEmpChangeDivisionNotifications((Employee)transaction.GetParameterValue("Employee"));
+                                SendEmpChangeDivisionNotifications();
                                 break;
                             case OperationType.Delete:
                                 SendEmpDeleteNotifications();
@@ -76,8 +76,9 @@ namespace GSCrm.Transactions.Factories
         /// Метод рассылает уведомления при изменении данных сотрудника
         /// </summary>
         /// <param name="employee"></param>
-        private void SendEmpUpdateNotifications(Employee employee)
+        private void SendEmpUpdateNotifications()
         {
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             BaseUpdateParams baseUpdateParams = new BaseUpdateParams()
             {
@@ -92,9 +93,9 @@ namespace GSCrm.Transactions.Factories
         /// <summary>
         /// Метод рассылает уведомления при переводе сотрудника в другое подразделение
         /// </summary>
-        /// <param name="employee"></param>
-        private void SendEmpChangeDivisionNotifications(Employee employee)
+        private void SendEmpChangeDivisionNotifications()
         {
+            Employee employee = cachService.GetCachedCurrentEntity<Employee>(currentUser);
             Organization currentOrganization = cachService.GetCachedCurrentEntity<Organization>(currentUser);
             ChangeDivisionParams changeDivisionParams = new ChangeDivisionParams()
             {

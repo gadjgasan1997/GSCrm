@@ -44,7 +44,7 @@
         return {
             Name: $("#divName").val(),
             OrganizationId: $("#orgId").val(),
-            ParentDivisionName: AutocompleteManager.GetValue($("#parentDiv"))
+            ParentDivisionName: $("#parentDivVal").val()
         }
     }
 
